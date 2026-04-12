@@ -58,6 +58,18 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ---
 
+## Déploiement
+
+| Élément                    | État       | Notes |
+|----------------------------|------------|-------|
+| GitHub                     | ✅ Terminé | Repo `mohamedmajor999-cpu/TaxiLink` |
+| Vercel                     | ✅ Terminé | Live sur `taxi-link-web.vercel.app` |
+| `offline/page.tsx`         | ✅ Terminé | Extrait `RefreshButton` en Client Component (fix build) |
+| Icônes Material Symbols    | ✅ Terminé | Police auto-hébergée dans `/public/fonts/` via `@font-face` |
+| `missionMapper.test.ts`    | ✅ Terminé | Ajout des champs requis manquants (`departure_lat`, `destination_lat`, etc.) |
+
+---
+
 ## Infrastructure / Config
 
 | Élément              | État       | Notes |
