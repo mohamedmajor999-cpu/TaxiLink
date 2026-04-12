@@ -64,10 +64,6 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`scroll-smooth ${inter.variable}`}>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
       <body className="font-sans antialiased bg-white text-secondary">
         {children}
         <Script id="sw-register" strategy="afterInteractive">{`
