@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Material Symbols */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal; font-style: normal;
+  line-height: 1; letter-spacing: normal; text-transform: none;
+  display: inline-block; white-space: nowrap;
+  -webkit-font-smoothing: antialiased; user-select: none;
+}
+
+/* Scrollbar */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Animations */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.4; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-float-up  { animation: floatUp 0.5s ease forwards; }
+.animate-ticker    { animation: ticker 30s linear infinite; }
+.animate-gradient  { background-size: 200% 200%; animation: gradientShift 4s ease infinite; }
+
+/* Button ripple */
+.btn-ripple {
+  position: relative; overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.btn-ripple:active { transform: scale(0.97); }
+
+/* Status pulse dot */
+.status-pulse { position: relative; }
+.status-pulse::before {
+  content: ''; position: absolute; inset: -4px;
+  border-radius: 50%; background: inherit; opacity: 0.3;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* Glass card */
+.glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* Mission card hover */
+.mission-card { transition: all 0.2s ease; }
+.mission-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.08); }
+
+/* Nav link active indicator */
+.nav-active { color: #FFD23F !important; }

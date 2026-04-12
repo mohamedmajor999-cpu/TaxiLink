@@ -1,0 +1,88 @@
+import type { Mission } from '../types/mission'
+
+const now = new Date()
+const addMinutes = (date: Date, minutes: number) =>
+  new Date(date.getTime() + minutes * 60000).toISOString()
+
+export const mockMissions: Mission[] = [
+  {
+    id: 'mission-1',
+    type: 'CPAM',
+    status: 'AVAILABLE',
+    departure: '15 rue de la Paix, Paris 8e',
+    destination: 'Hôpital Lariboisière, Paris 10e',
+    distanceKm: 4.2,
+    priceEur: 32.5,
+    scheduledAt: addMinutes(now, 12),
+    patientName: 'M. Bernard Durand',
+    phone: '+33 6 12 34 56 78',
+    createdAt: now.toISOString(),
+  },
+  {
+    id: 'mission-2',
+    type: 'PRIVE',
+    status: 'AVAILABLE',
+    departure: 'Gare de Lyon, Paris 12e',
+    destination: 'Aéroport CDG, Terminal 2E',
+    distanceKm: 28.6,
+    priceEur: 65.0,
+    scheduledAt: addMinutes(now, 25),
+    patientName: 'Mme Sophie Martin',
+    phone: '+33 6 98 76 54 32',
+    createdAt: now.toISOString(),
+  },
+  {
+    id: 'mission-3',
+    type: 'TAXILINK',
+    status: 'AVAILABLE',
+    departure: 'Place de la République, Paris 11e',
+    destination: 'Clinique Saint-Joseph, Paris 14e',
+    distanceKm: 6.8,
+    priceEur: 44.0,
+    scheduledAt: addMinutes(now, 8),
+    patientName: 'M. Pierre Lefebvre',
+    phone: '+33 6 55 44 33 22',
+    createdAt: now.toISOString(),
+  },
+  {
+    id: 'mission-4',
+    type: 'CPAM',
+    status: 'AVAILABLE',
+    departure: '42 avenue Montaigne, Paris 8e',
+    destination: 'Hôpital Bichat, Paris 18e',
+    distanceKm: 9.3,
+    priceEur: 28.8,
+    scheduledAt: addMinutes(now, 35),
+    patientName: 'Mme Hélène Blanc',
+    phone: '+33 6 77 88 99 00',
+    createdAt: now.toISOString(),
+  },
+  {
+    id: 'mission-5',
+    type: 'PRIVE',
+    status: 'AVAILABLE',
+    departure: 'Tour Eiffel, Paris 7e',
+    destination: 'Versailles, Place d\'Armes',
+    distanceKm: 22.4,
+    priceEur: 58.5,
+    scheduledAt: addMinutes(now, 50),
+    patientName: 'M. Lucas Petit',
+    phone: '+33 6 11 22 33 44',
+    createdAt: now.toISOString(),
+  },
+]
+
+export const mockCurrentMission: Mission = {
+  id: 'current-1',
+  type: 'CPAM',
+  status: 'IN_PROGRESS',
+  departure: '18 rue du Faubourg Saint-Antoine, Paris 11e',
+  destination: 'Hôpital Tenon, Paris 20e',
+  distanceKm: 3.7,
+  priceEur: 24.5,
+  scheduledAt: addMinutes(now, -5),
+  patientName: 'M. Jean Moreau',
+  phone: '+33 6 44 55 66 77',
+  driverId: 'driver-marc',
+  createdAt: addMinutes(now, -10),
+}

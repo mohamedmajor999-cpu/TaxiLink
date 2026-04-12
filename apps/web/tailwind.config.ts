@@ -1,0 +1,63 @@
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#FFD23F',
+        secondary: '#1A1A1A',
+        accent: '#3B82F6',
+        bgsoft: '#F8F9FA',
+        line: '#E5E7EB',
+        muted: '#9CA3AF',
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+      },
+      boxShadow: {
+        soft: '0 2px 16px rgba(0,0,0,.04)',
+        card: '0 4px 24px rgba(0,0,0,.06)',
+        button: '0 2px 8px rgba(0,0,0,.08)',
+        fab: '0 8px 24px rgba(255, 210, 63, 0.4)',
+        'fab-hover': '0 12px 32px rgba(255, 210, 63, 0.5)',
+      },
+      borderRadius: {
+        '2xl': '16px',
+        '3xl': '20px',
+        '4xl': '32px',
+      },
+      animation: {
+        'gradient-shift': 'gradientShift 3s ease infinite',
+        'status-pulse': 'statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'slide-up': 'slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+        'fade-in': 'fadeIn 0.2s ease',
+      },
+      keyframes: {
+        gradientShift: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        statusPulse: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.3' },
+          '50%': { transform: 'scale(1.1)', opacity: '0' },
+        },
+        slideUp: {
+          from: { transform: 'translateY(100%)', opacity: '0' },
+          to: { transform: 'translateY(0)', opacity: '1' },
+        },
+        fadeIn: {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+      },
+    },
+  },
+  plugins: [],
+}
+
+export default config
