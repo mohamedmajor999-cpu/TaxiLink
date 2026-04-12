@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { RefreshButton } from './RefreshButton'
 
 export const metadata: Metadata = {
   title: 'Hors ligne',
@@ -30,13 +31,7 @@ export default function OfflinePage() {
         </p>
 
         <div className="flex flex-col gap-3">
-          <button
-            onClick={() => window.location.reload()}
-            className="h-12 px-6 rounded-2xl bg-primary font-bold text-secondary text-sm flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>refresh</span>
-            Réessayer
-          </button>
+          <RefreshButton />
           <Link
             href="/"
             className="h-12 px-6 rounded-2xl bg-white/10 border border-white/20 font-semibold text-white text-sm flex items-center justify-center gap-2 hover:bg-white/20 transition-colors"
