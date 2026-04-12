@@ -19,6 +19,13 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     created_at: '2026-04-10T10:00:00Z',
     accepted_at: null,
     completed_at: null,
+    departure_lat: null,
+    departure_lng: null,
+    destination_lat: null,
+    destination_lng: null,
+    duration_min: null,
+    notes: null,
+    updated_at: '2026-04-10T10:00:00Z',
     ...overrides,
   }
 }
