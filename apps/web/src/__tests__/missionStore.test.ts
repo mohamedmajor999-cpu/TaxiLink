@@ -1,8 +1,31 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useMissionStore } from '@/store/missionStore'
+import { useDriverStore } from '@/store/driverStore'
 
-// Reset le store avant chaque test
+vi.mock('@/services/missionService', () => ({
+  missionService: {
+    accept:   vi.fn().mockResolvedValue(undefined),
+    complete: vi.fn().mockResolvedValue(undefined),
+    getAvailable: vi.fn().mockResolvedValue([]),
+    getCurrentForDriver: vi.fn().mockResolvedValue(null),
+  },
+}))
+
+// Reset les stores avant chaque test
 beforeEach(() => {
+  useDriverStore.setState({
+    driver: {
+      id: 'drv-test',
+      name: 'Chauffeur Test',
+      email: 'test@test.fr',
+      cpamEnabled: false,
+      rating: 0,
+      totalRides: 0,
+      isOnline: false,
+      createdAt: new Date().toISOString(),
+    },
+  })
+
   useMissionStore.setState({
     missions: [
       {
@@ -55,27 +78,27 @@ describe('useMissionStore — état initial', () => {
 
 // ─── acceptMission ────────────────────────────────────────────────────────────
 describe('acceptMission', () => {
-  it('déplace la mission dans currentMission', () => {
-    useMissionStore.getState().acceptMission('m1')
+  it('déplace la mission dans currentMission', async () => {
+    await useMissionStore.getState().acceptMission('m1')
     const { currentMission } = useMissionStore.getState()
     expect(currentMission).not.toBeNull()
     expect(currentMission?.id).toBe('m1')
   })
 
-  it('passe le statut à IN_PROGRESS', () => {
-    useMissionStore.getState().acceptMission('m1')
+  it('passe le statut à IN_PROGRESS', async () => {
+    await useMissionStore.getState().acceptMission('m1')
     const { currentMission } = useMissionStore.getState()
     expect(currentMission?.status).toBe('IN_PROGRESS')
   })
 
-  it('retire la mission de la liste disponible', () => {
-    useMissionStore.getState().acceptMission('m1')
+  it('retire la mission de la liste disponible', async () => {
+    await useMissionStore.getState().acceptMission('m1')
     const { missions } = useMissionStore.getState()
     expect(missions.find(m => m.id === 'm1')).toBeUndefined()
   })
 
-  it('ne fait rien pour un id inexistant', () => {
-    useMissionStore.getState().acceptMission('inexistant')
+  it('ne fait rien pour un id inexistant', async () => {
+    await useMissionStore.getState().acceptMission('inexistant')
     const { currentMission, missions } = useMissionStore.getState()
     expect(currentMission).toBeNull()
     expect(missions).toHaveLength(2)

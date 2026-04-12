@@ -26,7 +26,6 @@ export function Navbar() {
             <Link href="#fonctionnalites" className="text-sm font-semibold text-muted hover:text-secondary transition-colors">Fonctionnalités</Link>
             <Link href="#comment-ca-marche" className="text-sm font-semibold text-muted hover:text-secondary transition-colors">Comment ça marche</Link>
             <Link href="#temoignages" className="text-sm font-semibold text-muted hover:text-secondary transition-colors">Avis</Link>
-            <Link href="/telecharger" className="text-sm font-semibold text-muted hover:text-secondary transition-colors">Télécharger l'app</Link>
           </nav>
 
           {/* CTA */}
@@ -60,10 +59,9 @@ export function Navbar() {
       {open && (
         <div className="md:hidden border-t border-line bg-white px-4 py-4 space-y-2">
           {[
-            { href: '#fonctionnalites', label: 'Fonctionnalités' },
-            { href: '#comment-ca-marche', label: 'Comment ça marche' },
-            { href: '#temoignages', label: 'Avis' },
-            { href: '/telecharger', label: 'Télécharger l\'app' },
+            { href: '#fonctionnalites',   label: 'Fonctionnalités'    },
+            { href: '#comment-ca-marche', label: 'Comment ça marche'  },
+            { href: '#temoignages',       label: 'Avis'               },
           ].map(l => (
             <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
               className="block py-2.5 text-sm font-semibold text-secondary">{l.label}</Link>

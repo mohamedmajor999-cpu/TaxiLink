@@ -7,10 +7,22 @@ interface ToggleRowProps {
   label: string
   desc?: string
   defaultOn?: boolean
+  value?: boolean
+  onChange?: (value: boolean) => void
 }
 
-export function ToggleRow({ label, desc, defaultOn = true }: ToggleRowProps) {
-  const [on, setOn] = useState(defaultOn)
+export function ToggleRow({ label, desc, defaultOn = true, value, onChange }: ToggleRowProps) {
+  const [internal, setInternal] = useState(defaultOn)
+  const on = value !== undefined ? value : internal
+
+  function handleToggle() {
+    if (onChange) {
+      onChange(!on)
+    } else {
+      setInternal(!on)
+    }
+  }
+
   return (
     <div className="flex items-center justify-between py-3 border-b border-line last:border-0">
       <div>
@@ -18,7 +30,7 @@ export function ToggleRow({ label, desc, defaultOn = true }: ToggleRowProps) {
         {desc && <div className="text-xs text-muted">{desc}</div>}
       </div>
       <button
-        onClick={() => setOn(!on)}
+        onClick={handleToggle}
         aria-label={`${on ? 'Désactiver' : 'Activer'} ${label}`}
         className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${on ? 'bg-primary' : 'bg-line'}`}
       >

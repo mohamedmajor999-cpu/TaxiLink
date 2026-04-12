@@ -12,10 +12,10 @@ export function Footer() {
               <span className="text-lg font-black text-secondary">TaxiLink <span className="text-primary">Pro</span></span>
             </Link>
             <p className="text-muted text-sm leading-relaxed max-w-xs mb-4">
-              La plateforme N°1 des chauffeurs professionnels en France. Missions CPAM, privées et VTC.
+              La plateforme d'échange de courses entre chauffeurs professionnels. Hôpital, privé — sans WhatsApp.
             </p>
             <div className="flex gap-3">
-              {['facebook','twitter','linkedin'].map(s => (
+              {['facebook', 'twitter', 'linkedin'].map(s => (
                 <div key={s} className="w-8 h-8 rounded-lg bg-bgsoft flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors">
                   <Icon name="link" size={14} className="text-muted" />
                 </div>
@@ -26,11 +26,11 @@ export function Footer() {
             <div className="text-xs font-bold text-secondary uppercase tracking-wider mb-4">Plateforme</div>
             <div className="space-y-2.5">
               {[
-                { href: '#fonctionnalites', label: 'Fonctionnalités' },
-                { href: '#comment-ca-marche', label: 'Comment ça marche' },
-                { href: '/auth/register?role=driver', label: 'Devenir chauffeur' },
-                { href: '/auth/register?role=client', label: 'Réserver un taxi' },
-                { href: '/telecharger', label: 'Télécharger l\'app' },
+                { href: '#fonctionnalites',          label: 'Fonctionnalités'              },
+                { href: '#comment-ca-marche',        label: 'Comment ça marche'            },
+                { href: '/auth/register?role=driver', label: 'Rejoindre en tant que chauffeur' },
+                { href: '/auth/register?role=patron', label: 'Gérer ma flotte'             },
+                { href: '/telecharger',               label: 'Télécharger l\'app'          },
               ].map(l => (
                 <Link key={l.href} href={l.href} className="block text-sm text-muted hover:text-secondary transition-colors">{l.label}</Link>
               ))}
@@ -48,11 +48,8 @@ export function Footer() {
         <div className="border-t border-line pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted">© 2026 TaxiLink Pro. Tous droits réservés.</p>
           <div className="flex items-center gap-2 text-xs text-muted">
-            <Icon name="location_on" size={14} />
-            <span>France</span>
-            <span className="mx-2">·</span>
             <Icon name="lock" size={14} />
-            <span>Données sécurisées</span>
+            <span>100% gratuit · Données sécurisées · France</span>
           </div>
         </div>
       </div>

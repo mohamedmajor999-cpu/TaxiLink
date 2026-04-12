@@ -14,12 +14,12 @@ export function DownloadSection() {
                 <span className="text-xs font-bold text-primary uppercase tracking-wider">Application mobile</span>
               </div>
               <h2 className="text-4xl font-black text-white mb-4 leading-tight">
-                Emportez TaxiLink<br />
-                <span className="text-primary">partout avec vous</span>
+                Toujours avec vous,<br />
+                <span className="text-primary">même hors ligne</span>
               </h2>
               <p className="text-white/60 text-base leading-relaxed mb-8">
-                Installez l'application PWA directement depuis votre navigateur.
-                Pas besoin de l'App Store ni du Play Store. Fonctionne sur iPhone et Android.
+                Installez l'application depuis votre navigateur en 30 secondes.
+                Pas besoin de l'App Store. Fonctionne sur iPhone et Android. Notifications push incluses.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
                 <Link href="/telecharger"

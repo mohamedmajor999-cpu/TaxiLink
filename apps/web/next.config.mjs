@@ -1,6 +1,12 @@
+import { withSentryConfig } from '@sentry/nextjs'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@taxilink/core', '@taxilink/ui'],
+
+  experimental: {
+    instrumentationHook: true,
+  },
 
   compress: true,
 
@@ -50,11 +56,14 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              // 'unsafe-eval' requis par webpack en développement (hot-reload)
+              process.env.NODE_ENV === 'development'
+                ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com"
+                : "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://*.supabase.co",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o*.ingest.sentry.io https://o*.ingest.de.sentry.io",
               "frame-ancestors 'none'",
             ].join('; '),
           },
@@ -64,4 +73,19 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default withSentryConfig(nextConfig, {
+  // Organisation / projet Sentry (optionnel — nécessaire pour le source map upload)
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // Upload des source maps uniquement en CI (évite de les exposer en local)
+  silent: true,
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+
+  // Désactive l'upload des source maps si la variable n'est pas définie
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+})

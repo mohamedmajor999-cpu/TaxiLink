@@ -1,8 +1,8 @@
 const stats = [
-  { value: '2 400+', label: 'Chauffeurs actifs', icon: '🚖' },
-  { value: '184 000+', label: 'Courses réalisées', icon: '✅' },
-  { value: '47 villes', label: 'Couverture France', icon: '📍' },
-  { value: '4.9/5', label: 'Note moyenne', icon: '⭐' },
+  { value: '10 sec',      label: 'Pour poster une course',          icon: '⚡' },
+  { value: '0€',          label: 'Pour toujours, sans engagement',  icon: '🎁' },
+  { value: 'Instantané',  label: 'Notification dès qu\'elle est prise', icon: '🔔' },
+  { value: 'Auto',        label: 'La course s\'ajoute à l\'agenda',  icon: '📅' },
 ]
 
 export function Stats() {

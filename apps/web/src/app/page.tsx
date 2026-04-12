@@ -1,10 +1,9 @@
 import { Navbar } from '@/components/site/Navbar'
 import { Hero } from '@/components/site/Hero'
-import { Stats } from '@/components/site/Stats'
-import { HowItWorks } from '@/components/site/HowItWorks'
+import { ProblemeSection } from '@/components/site/ProblemeSection'
 import { Features } from '@/components/site/Features'
-import { Testimonials } from '@/components/site/Testimonials'
-import { DownloadSection } from '@/components/site/DownloadSection'
+import { PatronSection } from '@/components/site/PatronSection'
+import { GratuitSection } from '@/components/site/GratuitSection'
 import { Footer } from '@/components/site/Footer'
 import { JsonLd } from '@/components/JsonLd'
 
@@ -14,11 +13,10 @@ export default function Home() {
       <JsonLd />
       <Navbar />
       <Hero />
-      <Stats />
-      <HowItWorks />
+      <ProblemeSection />
       <Features />
-      <Testimonials />
-      <DownloadSection />
+      <PatronSection />
+      <GratuitSection />
       <Footer />
     </main>
   )

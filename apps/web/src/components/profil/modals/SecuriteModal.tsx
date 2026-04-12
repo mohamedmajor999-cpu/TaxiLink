@@ -1,11 +1,19 @@
 'use client'
 
-import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ModalHeader } from './ModalHeader'
+import { useSecuriteModal } from './useSecuriteModal'
 
 export function SecuriteModal() {
-  const [twoFa, setTwoFa] = useState(false)
+  const {
+    currentPassword, setCurrentPassword,
+    newPassword, setNewPassword,
+    loading, error, success,
+    changePassword,
+  } = useSecuriteModal()
+
+  const [twoFa, setTwoFa] = [false, (_: boolean) => {}] // TODO: connecter au backend
+
   return (
     <div className="pb-8">
       <ModalHeader title="Sécurité" />
@@ -17,6 +25,8 @@ export function SecuriteModal() {
           <input
             type="password"
             placeholder="••••••••"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
             className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold"
           />
         </div>
@@ -27,12 +37,23 @@ export function SecuriteModal() {
           <input
             type="password"
             placeholder="••••••••"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
             className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold"
           />
         </div>
-        <button className="w-full h-12 rounded-2xl bg-primary font-bold text-secondary btn-ripple">
-          Changer le mot de passe
+
+        {error && <p className="text-xs text-red-500 font-semibold">{error}</p>}
+        {success && <p className="text-xs text-green-600 font-semibold">Mot de passe modifié avec succès.</p>}
+
+        <button
+          onClick={changePassword}
+          disabled={loading}
+          className="w-full h-12 rounded-2xl bg-primary font-bold text-secondary btn-ripple disabled:opacity-50"
+        >
+          {loading ? 'Modification...' : 'Changer le mot de passe'}
         </button>
+
         <div className="flex items-center justify-between pt-2 border-t border-line">
           <div>
             <div className="text-sm font-semibold text-secondary">Double authentification</div>

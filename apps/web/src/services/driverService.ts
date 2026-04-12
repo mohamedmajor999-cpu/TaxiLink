@@ -8,7 +8,7 @@ export const driverService = {
       .from('drivers')
       .select('*')
       .eq('id', driverId)
-      .single()
+      .maybeSingle()
     if (error) throw new Error(error.message)
     return data
   },

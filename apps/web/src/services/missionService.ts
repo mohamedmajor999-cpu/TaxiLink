@@ -91,13 +91,14 @@ export const missionService = {
     return mission
   },
 
-  /** Agenda d'un chauffeur : ses missions assignées, triées par date croissante */
+  /** Agenda d'un chauffeur : ses missions assignées non terminées, triées par date croissante */
   async getAgenda(driverId: string): Promise<Mission[]> {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
       .select('*')
-      .or(`driver_id.eq.${driverId},status.eq.DONE`)
+      .eq('driver_id', driverId)
+      .neq('status', 'DONE')
       .order('scheduled_at', { ascending: true })
     if (error) throw new Error(error.message)
     return data ?? []

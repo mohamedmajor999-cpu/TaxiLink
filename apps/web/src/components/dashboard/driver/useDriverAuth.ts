@@ -21,7 +21,10 @@ export function useDriverAuth() {
         setDriverName(profile.full_name ?? 'Chauffeur')
         setLoading(false)
       })
-      .catch(() => router.push('/auth/login'))
+      .catch((err) => {
+        console.error('[useDriverAuth] getProfile failed:', err)
+        router.push('/auth/login')
+      })
   }, [user, authLoading, router])
 
   const handleLogout = async () => {
