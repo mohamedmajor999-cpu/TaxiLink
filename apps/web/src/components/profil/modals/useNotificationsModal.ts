@@ -23,7 +23,7 @@ export function useNotificationsModal() {
 
   useEffect(() => {
     authService.getNotificationPrefs().then((saved) => {
-      if (saved) setPrefs(saved as NotifPrefs)
+      if (saved) setPrefs(saved as unknown as NotifPrefs)
     })
   }, [])
 
