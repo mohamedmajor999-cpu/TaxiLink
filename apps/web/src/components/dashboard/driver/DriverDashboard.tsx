@@ -7,20 +7,14 @@ import { useDriverStore } from '@/store/driverStore'
 import { useDriverAuth } from './useDriverAuth'
 import { DriverMissions } from './DriverMissions'
 import { DriverAgenda } from './DriverAgenda'
-import { DriverStats } from './DriverStats'
-import { DriverProfile } from './DriverProfile'
-import { DriverPayments } from './DriverPayments'
-import { DriverDocuments } from './DriverDocuments'
+import { DriverProfilTab } from './DriverProfilTab'
 
-type Tab = 'missions' | 'agenda' | 'stats' | 'paiements' | 'documents' | 'profil'
+type Tab = 'missions' | 'agenda' | 'profil'
 
 const navItems: { tab: Tab; icon: string; label: string }[] = [
-  { tab: 'missions',  icon: 'explore',        label: 'Missions'  },
-  { tab: 'agenda',    icon: 'calendar_month',  label: 'Agenda'    },
-  { tab: 'stats',     icon: 'bar_chart',       label: 'Stats'     },
-  { tab: 'paiements', icon: 'payments',        label: 'Paiements' },
-  { tab: 'documents', icon: 'folder',          label: 'Documents' },
-  { tab: 'profil',    icon: 'person',          label: 'Profil'    },
+  { tab: 'missions', icon: 'explore',       label: 'Missions' },
+  { tab: 'agenda',   icon: 'calendar_month', label: 'Agenda'   },
+  { tab: 'profil',   icon: 'person',         label: 'Profil'   },
 ]
 
 export function DriverDashboard() {
@@ -63,15 +57,20 @@ export function DriverDashboard() {
                 onClick={() => setOnline(!driver.isOnline)}
                 aria-label={driver.isOnline ? 'Passer hors ligne' : 'Passer en ligne'}
                 className={`flex items-center gap-2 h-9 px-4 rounded-xl font-semibold text-sm transition-all ${
-                  driver.isOnline ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-bgsoft text-muted border border-line'
+                  driver.isOnline
+                    ? 'bg-green-100 text-green-700 border border-green-200'
+                    : 'bg-bgsoft text-muted border border-line'
                 }`}
               >
                 <div className={`w-2 h-2 rounded-full ${driver.isOnline ? 'bg-green-500 status-pulse' : 'bg-muted'}`} />
                 {driver.isOnline ? 'En ligne' : 'Hors ligne'}
               </button>
 
-              <button onClick={handleLogout} aria-label="Déconnexion"
-                className="w-9 h-9 rounded-xl bg-bgsoft border border-line flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-colors">
+              <button
+                onClick={handleLogout}
+                aria-label="Déconnexion"
+                className="w-9 h-9 rounded-xl bg-bgsoft border border-line flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-colors"
+              >
                 <Icon name="logout" size={16} />
               </button>
             </div>
@@ -79,10 +78,15 @@ export function DriverDashboard() {
 
           <nav className="hidden md:flex gap-1 -mb-px">
             {navItems.map(({ tab, icon, label }) => (
-              <button key={tab} onClick={() => setActiveTab(tab)}
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
-                  activeTab === tab ? 'border-primary text-secondary' : 'border-transparent text-muted hover:text-secondary'
-                }`}>
+                  activeTab === tab
+                    ? 'border-primary text-secondary'
+                    : 'border-transparent text-muted hover:text-secondary'
+                }`}
+              >
                 <Icon name={icon} size={16} />
                 {label}
               </button>
@@ -92,20 +96,21 @@ export function DriverDashboard() {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
-        {activeTab === 'missions'  && <DriverMissions isOnline={driver.isOnline} />}
-        {activeTab === 'agenda'    && <DriverAgenda />}
-        {activeTab === 'stats'     && <DriverStats />}
-        {activeTab === 'paiements' && <DriverPayments />}
-        {activeTab === 'documents' && <DriverDocuments />}
-        {activeTab === 'profil'    && <DriverProfile driverName={driverName} />}
+        {activeTab === 'missions' && <DriverMissions isOnline={driver.isOnline} />}
+        {activeTab === 'agenda'   && <DriverAgenda />}
+        {activeTab === 'profil'   && <DriverProfilTab driverName={driverName} />}
       </main>
 
-      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-line px-1 py-2 grid grid-cols-6 gap-0.5 z-40">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-line px-1 py-2 grid grid-cols-3 gap-0.5 z-40">
         {navItems.map(({ tab, icon, label }) => (
-          <button key={tab} onClick={() => setActiveTab(tab)} aria-label={label}
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            aria-label={label}
             className={`flex flex-col items-center py-2 rounded-xl transition-all ${
               activeTab === tab ? 'bg-primary text-secondary' : 'text-muted'
-            }`}>
+            }`}
+          >
             <Icon name={icon} size={20} />
             <span className="text-[10px] font-semibold mt-1">{label}</span>
           </button>
