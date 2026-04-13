@@ -55,8 +55,10 @@ export function useDriverGroupes() {
       setShowCreate(false)
       setNewName('')
       setNewDesc('')
-    } catch {
-      setError('Erreur lors de la création du groupe')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[handleCreate]', msg)
+      setError(`Erreur: ${msg}`)
     } finally {
       setSaving(false)
     }
@@ -87,6 +89,15 @@ export function useDriverGroupes() {
     }
   }
 
+  const handleDelete = async (groupId: string) => {
+    try {
+      await groupService.deleteGroup(groupId)
+      setGroups((prev) => prev.filter((g) => g.id !== groupId))
+    } catch {
+      setError('Erreur lors de la suppression du groupe')
+    }
+  }
+
   const isAdmin = (group: Group) => group.createdBy === driverId
 
   return {
@@ -95,6 +106,6 @@ export function useDriverGroupes() {
     newName, setNewName, newDesc, setNewDesc,
     joinId, setJoinId, saving,
     openMembers, closeMembers: () => setSelectedGroup(null),
-    handleCreate, handleJoin, handleLeave, isAdmin,
+    handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
   }
 }

@@ -12,7 +12,7 @@ export function DriverGroupesScreen() {
     showCreate, setShowCreate, showJoin, setShowJoin,
     newName, setNewName, newDesc, setNewDesc,
     joinId, setJoinId, saving,
-    openMembers, closeMembers, handleCreate, handleJoin, handleLeave, isAdmin,
+    openMembers, closeMembers, handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
   } = useDriverGroupes()
 
   return (
@@ -59,6 +59,7 @@ export function DriverGroupesScreen() {
               isAdmin={isAdmin(group)}
               onViewMembers={openMembers}
               onLeave={handleLeave}
+              onDelete={handleDelete}
             />
           ))}
         </div>

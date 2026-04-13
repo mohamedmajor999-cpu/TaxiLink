@@ -88,4 +88,21 @@ export const groupService = {
 
     if (error) throw error
   },
+
+  /** Supprimer un groupe (admin uniquement) */
+  async deleteGroup(groupId: string): Promise<void> {
+    const { error: mErr } = await supabase
+      .from('group_members')
+      .delete()
+      .eq('group_id', groupId)
+
+    if (mErr) throw mErr
+
+    const { error } = await supabase
+      .from('groups')
+      .delete()
+      .eq('id', groupId)
+
+    if (error) throw error
+  },
 }

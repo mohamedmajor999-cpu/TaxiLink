@@ -2,15 +2,19 @@
 
 import { Icon } from '@/components/ui/Icon'
 import type { Group } from '@taxilink/core'
+import { useGroupCard } from './useGroupCard'
 
 interface Props {
-  group:       Group
-  isAdmin:     boolean
+  group:         Group
+  isAdmin:       boolean
   onViewMembers: (group: Group) => void
-  onLeave:     (groupId: string) => void
+  onLeave:       (groupId: string) => void
+  onDelete:      (groupId: string) => void
 }
 
-export function GroupCard({ group, isAdmin, onViewMembers, onLeave }: Props) {
+export function GroupCard({ group, isAdmin, onViewMembers, onLeave, onDelete }: Props) {
+  const { menuOpen, setMenuOpen, menuRef, copied, copyId } = useGroupCard(group)
+
   return (
     <div className="bg-white rounded-2xl shadow-soft p-4 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
@@ -34,23 +38,59 @@ export function GroupCard({ group, isAdmin, onViewMembers, onLeave }: Props) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="relative flex-shrink-0" ref={menuRef}>
+        {copied && (
+          <span className="absolute -top-8 right-0 bg-secondary text-primary text-[10px] font-bold px-2 py-1 rounded-lg whitespace-nowrap">
+            ID copié !
+          </span>
+        )}
+
         <button
-          onClick={() => onViewMembers(group)}
-          aria-label="Voir les membres"
-          className="flex items-center gap-1.5 h-8 px-3 rounded-xl bg-bgsoft text-secondary text-xs font-semibold hover:bg-line transition-colors"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Options du groupe"
+          className="w-9 h-9 rounded-xl bg-bgsoft flex items-center justify-center hover:bg-line transition-colors"
         >
-          <Icon name="group" size={14} />
-          Membres
+          <Icon name="more_vert" size={18} />
         </button>
-        {!isAdmin && (
-          <button
-            onClick={() => onLeave(group.id)}
-            aria-label="Quitter le groupe"
-            className="w-8 h-8 rounded-xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors"
-          >
-            <Icon name="exit_to_app" size={14} />
-          </button>
+
+        {menuOpen && (
+          <div className="absolute right-0 top-11 z-50 w-52 bg-white rounded-2xl shadow-lg border border-line overflow-hidden">
+            <button
+              onClick={() => { onViewMembers(group); setMenuOpen(false) }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-secondary hover:bg-bgsoft transition-colors"
+            >
+              <Icon name="group" size={16} className="text-muted" />
+              Voir les membres
+            </button>
+
+            <button
+              onClick={copyId}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-secondary hover:bg-bgsoft transition-colors"
+            >
+              <Icon name="content_copy" size={16} className="text-muted" />
+              Copier l'ID du groupe
+            </button>
+
+            <div className="border-t border-line" />
+
+            {isAdmin ? (
+              <button
+                onClick={() => { onDelete(group.id); setMenuOpen(false) }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors"
+              >
+                <Icon name="delete" size={16} />
+                Supprimer le groupe
+              </button>
+            ) : (
+              <button
+                onClick={() => { onLeave(group.id); setMenuOpen(false) }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors"
+              >
+                <Icon name="exit_to_app" size={16} />
+                Quitter le groupe
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>
