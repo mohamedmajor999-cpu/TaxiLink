@@ -99,7 +99,7 @@ export function DriverProfile({ driverName }: { driverName: string }) {
         <p className="text-sm text-muted mb-4">Accédez à TaxiLink Pro directement depuis votre téléphone.</p>
         <Link href="/telecharger" target="_blank"
           className="h-10 px-5 rounded-xl bg-secondary text-white text-sm font-semibold flex items-center gap-2 w-fit hover:bg-secondary/80 transition-colors">
-          <Icon name="qr_code" size={16} />Installer l'application
+          <Icon name="qr_code" size={16} />Installer l&apos;application
         </Link>
       </div>
     </div>

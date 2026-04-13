@@ -29,7 +29,7 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | Section 3 — Pour les patrons  | ✅ Terminé | 4 étapes (géoloc, agenda, assigner, stats) |
 | Section 4 — CTA / Gratuit     | ✅ Terminé | Boutons inscription chauffeur / patron |
 | Bouton fixe bas (scroll CTA)  | ✅ Terminé | Apparaît après scroll jusqu'à la fin |
-| Intégration dans le flow app  | ⏳ À faire | Où déclencher l'onboarding ? (après inscription ?) |
+| Intégration dans le flow app  | ⏳ À faire | Où déclencher l&apos;onboarding ? (après inscription ?) |
 
 ---
 
@@ -78,9 +78,27 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | JsonLd SEO           | ✅ Terminé | Données structurées sur la landing |
 | Auth middleware      | ✅ Terminé | Protège `/dashboard/*`, redirige par rôle |
 | `missionMapper.ts`   | ✅ Terminé | Mapper `Mission` (Supabase) → `AgendaRide` (@taxilink/core) |
-| ESLint config        | ⏳ À faire | Créer `apps/web/.eslintrc.json` avec `next/core-web-vitals` |
-| Métadonnées SEO auth | ⏳ À faire | Ajouter `metadata` sur `auth/register/page.tsx` et `auth/forgot-password/page.tsx` |
-| Tests services       | ⏳ À faire | Créer `missionService.test.ts` + `authService.test.ts` |
+| ESLint config        | ✅ Terminé | `.eslintrc.json` créé avec `next/core-web-vitals` — 0 erreur |
+| Métadonnées SEO auth | ✅ Terminé | `metadata` sur toutes les pages auth + `app/page.tsx` |
+| Tests services       | ✅ Terminé | `missionService.test.ts` (21 tests) + `authService.test.ts` (16 tests) |
+
+---
+
+## Page Groupes — Améliorations UX (session 2026-04-13)
+
+| Fonctionnalité                  | État       | Notes |
+|---------------------------------|------------|-------|
+| `GroupMemberStats` type         | ✅ Terminé | Nouveau type dans `@taxilink/core` : driverId, fullName, isOnline, role, sharedCount, acceptedCount |
+| `groupService.getMemberStats()` | ✅ Terminé | Stats partagées/acceptées par membre, filtrées par période (semaine/mois) |
+| `groupService.getMyGroups()`    | ✅ Terminé | Inclut désormais `memberCount` via une 2e requête groupée |
+| Compteur membres sur GroupCard  | ✅ Terminé | Affiché sous le nom du groupe avec icône `group` |
+| Partage SMS depuis GroupCard    | ✅ Terminé | `sms:?body=...` avec message d'invitation pré-rempli |
+| Partage WhatsApp depuis GroupCard | ✅ Terminé | `https://wa.me/?text=...` en nouvel onglet |
+| `GroupMembersModal.tsx`         | ✅ Terminé | Nouveau composant extrait : tableau de stats, toggle semaine/mois, indicateur en ligne |
+| `useDriverGroupes.ts`           | ✅ Terminé | Refactorisé : suppression `members`, ajout `memberStats`, `statsLoading`, `statsPeriod` |
+| `DriverGroupesScreen.tsx`       | ✅ Terminé | Utilise `GroupMembersModal` à la place de l'ancien modal inline |
+| Test `groupService.test.ts`     | ✅ Terminé | Mis à jour : mock `in()` ajouté, test `memberCount` ajouté |
+| Tests totaux                    | ✅ 152 passing | 0 erreur TypeScript, 0 erreur ESLint |
 
 ---
 

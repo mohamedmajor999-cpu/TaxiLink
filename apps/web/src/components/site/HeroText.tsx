@@ -23,7 +23,7 @@ export function HeroText() {
 
       <p className="text-white/60 text-lg leading-relaxed mb-10 max-w-md">
         Postez une course hôpital ou privée en 10 secondes. Un collègue la récupère,
-        vous êtes notifié, elle s'ajoute à son agenda. Sans appel. Sans groupe WhatsApp.
+        vous êtes notifié, elle s&apos;ajoute à son agenda. Sans appel. Sans groupe WhatsApp.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-3">

@@ -1,15 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { groupService } from '@/services/groupService'
-import type { Group, GroupMember } from '@taxilink/core'
+import type { Group, GroupMemberStats } from '@taxilink/core'
 
 export function useDriverGroupes() {
   const { user } = useAuth()
   const [groups, setGroups]           = useState<Group[]>([])
-  const [members, setMembers]         = useState<GroupMember[]>([])
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
   const [loading, setLoading]         = useState(true)
-  const [membersLoading, setMembersLoading] = useState(false)
   const [error, setError]             = useState<string | null>(null)
   const [showCreate, setShowCreate]   = useState(false)
   const [showJoin, setShowJoin]       = useState(false)
@@ -17,6 +14,12 @@ export function useDriverGroupes() {
   const [newDesc, setNewDesc]         = useState('')
   const [joinId, setJoinId]           = useState('')
   const [saving, setSaving]           = useState(false)
+
+  // Modal membres
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
+  const [memberStats, setMemberStats]     = useState<GroupMemberStats[]>([])
+  const [statsLoading, setStatsLoading]   = useState(false)
+  const [statsPeriod, setStatsPeriod]     = useState<'week' | 'month'>('month')
 
   const driverId = user?.id ?? null
 
@@ -34,16 +37,23 @@ export function useDriverGroupes() {
 
   useEffect(() => { loadGroups() }, [loadGroups])
 
-  const openMembers = async (group: Group) => {
+  // Recharge les stats quand le groupe sélectionné ou la période change
+  useEffect(() => {
+    if (!selectedGroup) return
+    setStatsLoading(true)
+    const since = statsPeriod === 'week'
+      ? new Date(Date.now() - 7  * 86_400_000).toISOString()
+      : new Date(Date.now() - 30 * 86_400_000).toISOString()
+
+    groupService.getMemberStats(selectedGroup.id, since)
+      .then(setMemberStats)
+      .catch(() => { /* stats optionnelles — on affiche 0s */ })
+      .finally(() => setStatsLoading(false))
+  }, [selectedGroup?.id, statsPeriod])
+
+  const openMembers = (group: Group) => {
+    setMemberStats([])
     setSelectedGroup(group)
-    setMembersLoading(true)
-    try {
-      setMembers(await groupService.getMembers(group.id))
-    } catch {
-      setError('Impossible de charger les membres')
-    } finally {
-      setMembersLoading(false)
-    }
   }
 
   const handleCreate = async () => {
@@ -57,7 +67,6 @@ export function useDriverGroupes() {
       setNewDesc('')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      console.error('[handleCreate]', msg)
       setError(`Erreur: ${msg}`)
     } finally {
       setSaving(false)
@@ -73,7 +82,7 @@ export function useDriverGroupes() {
       setShowJoin(false)
       setJoinId('')
     } catch {
-      setError("Groupe introuvable ou déjà membre")
+      setError('Groupe introuvable ou déjà membre')
     } finally {
       setSaving(false)
     }
@@ -101,10 +110,11 @@ export function useDriverGroupes() {
   const isAdmin = (group: Group) => group.createdBy === driverId
 
   return {
-    groups, members, selectedGroup, loading, membersLoading, error,
+    groups, loading, error,
     showCreate, setShowCreate, showJoin, setShowJoin,
     newName, setNewName, newDesc, setNewDesc,
     joinId, setJoinId, saving,
+    selectedGroup, memberStats, statsLoading, statsPeriod, setStatsPeriod,
     openMembers, closeMembers: () => setSelectedGroup(null),
     handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
   }

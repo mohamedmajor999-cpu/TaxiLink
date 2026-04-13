@@ -45,7 +45,7 @@ export function InstallPage() {
           {/* QR Code */}
           <div className="flex flex-col items-center">
             <div className="text-xs font-bold text-muted uppercase tracking-wider mb-4">
-              Scannez pour ouvrir l'app
+              Scannez pour ouvrir l&apos;app
             </div>
             <div className="p-4 bg-white rounded-2xl border-2 border-line shadow-soft">
               <QRCodeSVG
@@ -65,7 +65,7 @@ export function InstallPage() {
           {/* Divider */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-line" />
-            <span className="text-xs text-muted font-semibold">Puis installez l'app</span>
+            <span className="text-xs text-muted font-semibold">Puis installez l&apos;app</span>
             <div className="flex-1 h-px bg-line" />
           </div>
 
@@ -110,7 +110,7 @@ export function InstallPage() {
             className="w-full h-12 rounded-2xl bg-primary font-bold text-secondary text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
           >
             <Icon name="open_in_browser" size={18} />
-            Ouvrir l'application
+            Ouvrir l&apos;application
           </a>
 
           {/* Features */}

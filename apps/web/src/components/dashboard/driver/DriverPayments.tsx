@@ -64,7 +64,7 @@ export function DriverPayments() {
             ? <><Icon name="sync" size={16} className="animate-spin" />Enregistrement...</>
             : ibanSaved
             ? <><Icon name="check_circle" size={16} />Enregistré !</>
-            : <><Icon name="save" size={16} />Enregistrer l'IBAN</>}
+            : <><Icon name="save" size={16} />Enregistrer l&apos;IBAN</>}
         </button>
       </div>
 

@@ -25,7 +25,7 @@ export function DriverMissions({ isOnline }: { isOnline: boolean }) {
         </div>
         <h3 className="text-xl font-bold text-secondary mb-2">Vous êtes hors ligne</h3>
         <p className="text-muted max-w-sm">
-          Activez votre statut "En ligne" en haut de la page pour recevoir des missions.
+          Activez votre statut &quot;En ligne&quot; en haut de la page pour recevoir des missions.
         </p>
       </div>
     )

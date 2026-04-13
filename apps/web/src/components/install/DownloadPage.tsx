@@ -44,7 +44,7 @@ export function DownloadPage() {
               TaxiLink Pro<br /><span className="text-primary">dans votre poche</span>
             </h1>
             <p className="text-white/60 text-lg max-w-xl mx-auto">
-              Installez l'application en 30 secondes. Pas d'App Store, pas de Play Store. Juste votre navigateur.
+              Installez l&apos;application en 30 secondes. Pas d&apos;App Store, pas de Play Store. Juste votre navigateur.
             </p>
           </div>
         </div>
@@ -55,7 +55,7 @@ export function DownloadPage() {
             {/* QR Code */}
             <div className="bg-white rounded-3xl shadow-card p-8 text-center">
               <h2 className="text-xl font-black text-secondary mb-2">Scannez avec votre téléphone</h2>
-              <p className="text-muted text-sm mb-8">Pointez l'appareil photo de votre téléphone vers ce QR code</p>
+              <p className="text-muted text-sm mb-8">Pointez l&apos;appareil photo de votre téléphone vers ce QR code</p>
 
               <div className="inline-block p-5 bg-white rounded-2xl border-2 border-line shadow-soft">
                 <QRCodeSVG value={appUrl} size={220} bgColor="#FFFFFF" fgColor="#1A1A1A" level="M" />
@@ -116,7 +116,7 @@ export function DownloadPage() {
                     <p className="text-xs text-muted mb-3">Si vous lisez cette page depuis votre mobile, cliquez directement sur le bouton ci-dessous.</p>
                     <Link href="/"
                       className="inline-flex h-9 px-4 rounded-xl bg-primary text-secondary font-bold text-xs items-center gap-1.5 hover:bg-yellow-400 transition-colors">
-                      <Icon name="open_in_browser" size={15} />Ouvrir l'application
+                      <Icon name="open_in_browser" size={15} />Ouvrir l&apos;application
                     </Link>
                   </div>
                 </div>

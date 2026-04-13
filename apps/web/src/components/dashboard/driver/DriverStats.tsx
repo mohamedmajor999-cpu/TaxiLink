@@ -14,7 +14,7 @@ export function DriverStats() {
     <div className="space-y-6 pb-20 md:pb-0">
       <div>
         <h2 className="text-2xl font-black text-secondary mb-1">Statistiques</h2>
-        <p className="text-muted text-sm">Votre performance en un coup d'œil</p>
+        <p className="text-muted text-sm">Votre performance en un coup d&apos;œil</p>
       </div>
       {error && <ErrorBanner message={error} onRetry={loadStats} />}
       {loading ? (

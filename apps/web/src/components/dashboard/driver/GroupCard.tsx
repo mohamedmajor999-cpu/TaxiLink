@@ -17,6 +17,7 @@ export function GroupCard({ group, isAdmin, onViewMembers, onLeave, onDelete }: 
   const {
     menuOpen, setMenuOpen, menuRef,
     copied, copyId,
+    shareViaSms, shareViaWhatsApp,
     pendingAction, triggerDelete, triggerLeave, cancelAction,
   } = useGroupCard(group)
 
@@ -38,9 +39,18 @@ export function GroupCard({ group, isAdmin, onViewMembers, onLeave, onDelete }: 
                 </span>
               )}
             </div>
-            {group.description && (
-              <p className="text-xs text-muted truncate mt-0.5">{group.description}</p>
-            )}
+            <div className="flex items-center gap-2 mt-0.5">
+              {group.description && (
+                <p className="text-xs text-muted truncate">{group.description}</p>
+              )}
+              {group.memberCount !== undefined && (
+                <span className="flex-shrink-0 flex items-center gap-1 text-xs text-muted">
+                  {group.description && <span className="text-line">·</span>}
+                  <Icon name="group" size={12} className="text-muted" />
+                  {group.memberCount}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -60,7 +70,7 @@ export function GroupCard({ group, isAdmin, onViewMembers, onLeave, onDelete }: 
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-11 z-50 w-52 bg-white rounded-2xl shadow-lg border border-line overflow-hidden">
+            <div className="absolute right-0 top-11 z-50 w-56 bg-white rounded-2xl shadow-lg border border-line overflow-hidden">
               <button
                 onClick={() => { onViewMembers(group); setMenuOpen(false) }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-secondary hover:bg-bgsoft transition-colors"
@@ -69,12 +79,33 @@ export function GroupCard({ group, isAdmin, onViewMembers, onLeave, onDelete }: 
                 Voir les membres
               </button>
 
+              <div className="border-t border-line mx-4" />
+              <p className="px-4 pt-2 pb-1 text-[10px] font-black uppercase text-muted tracking-wider">
+                Inviter un collègue
+              </p>
+
               <button
                 onClick={copyId}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-secondary hover:bg-bgsoft transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-secondary hover:bg-bgsoft transition-colors"
               >
                 <Icon name="content_copy" size={16} className="text-muted" />
-                Copier l'ID du groupe
+                Copier l&apos;ID
+              </button>
+
+              <button
+                onClick={shareViaSms}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-secondary hover:bg-bgsoft transition-colors"
+              >
+                <Icon name="sms" size={16} className="text-muted" />
+                Envoyer par SMS
+              </button>
+
+              <button
+                onClick={shareViaWhatsApp}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-secondary hover:bg-bgsoft transition-colors"
+              >
+                <Icon name="share" size={16} className="text-muted" />
+                Partager WhatsApp
               </button>
 
               <div className="border-t border-line" />

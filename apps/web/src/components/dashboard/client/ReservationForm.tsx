@@ -64,7 +64,7 @@ export function ReservationForm({ onBookSuccess, onSwitchToMissions }: Props) {
         </div>
 
         <div>
-          <label htmlFor="destination" className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">Adresse d'arrivée</label>
+          <label htmlFor="destination" className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">Adresse d&apos;arrivée</label>
           <div className="relative">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-primary border-2 border-secondary" />
             <input id="destination" type="text" value={destination} onChange={(e) => setDestination(e.target.value)} required

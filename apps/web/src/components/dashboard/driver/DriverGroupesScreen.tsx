@@ -4,14 +4,16 @@ import { Icon } from '@/components/ui/Icon'
 import { ErrorBanner } from '@/components/ui/ErrorBanner'
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader'
 import { GroupCard } from './GroupCard'
+import { GroupMembersModal } from './GroupMembersModal'
 import { useDriverGroupes } from './useDriverGroupes'
 
 export function DriverGroupesScreen() {
   const {
-    groups, members, selectedGroup, loading, membersLoading, error,
+    groups, loading, error,
     showCreate, setShowCreate, showJoin, setShowJoin,
     newName, setNewName, newDesc, setNewDesc,
     joinId, setJoinId, saving,
+    selectedGroup, memberStats, statsLoading, statsPeriod, setStatsPeriod,
     openMembers, closeMembers, handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
   } = useDriverGroupes()
 
@@ -45,7 +47,7 @@ export function DriverGroupesScreen() {
           <div className="w-16 h-16 rounded-2xl bg-bgsoft flex items-center justify-center">
             <Icon name="group" size={32} className="text-muted" />
           </div>
-          <p className="font-bold text-secondary">Aucun groupe pour l'instant</p>
+          <p className="font-bold text-secondary">Aucun groupe pour l&apos;instant</p>
           <p className="text-sm text-muted max-w-xs">
             Créez un groupe avec vos collègues ou rejoignez-en un avec son identifiant.
           </p>
@@ -109,7 +111,7 @@ export function DriverGroupesScreen() {
                 <Icon name="close" size={16} />
               </button>
             </div>
-            <p className="text-sm text-muted">Demandez l'identifiant du groupe à son administrateur et collez-le ci-dessous.</p>
+            <p className="text-sm text-muted">Demandez l&apos;identifiant du groupe à son administrateur et collez-le ci-dessous.</p>
             <div>
               <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">Identifiant du groupe</label>
               <input value={joinId} onChange={(e) => setJoinId(e.target.value)}
@@ -124,49 +126,17 @@ export function DriverGroupesScreen() {
         </div>
       )}
 
-      {/* Modal — Membres du groupe */}
+      {/* Modal — Membres + stats */}
       {selectedGroup && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={closeMembers} />
-          <div className="relative bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-6 shadow-xl space-y-4 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-secondary">{selectedGroup.name}</h3>
-              <button onClick={closeMembers} aria-label="Fermer"
-                className="w-8 h-8 rounded-xl bg-bgsoft flex items-center justify-center">
-                <Icon name="close" size={16} />
-              </button>
-            </div>
-
-            {isAdmin(selectedGroup) && (
-              <div className="bg-primary/10 rounded-xl p-3 flex items-center gap-2">
-                <Icon name="info" size={16} className="text-secondary flex-shrink-0" />
-                <p className="text-xs font-semibold text-secondary">
-                  ID à partager : <span className="font-mono">{selectedGroup.id}</span>
-                </p>
-              </div>
-            )}
-
-            {membersLoading ? (
-              <SkeletonLoader count={3} height="h-12" />
-            ) : (
-              <div className="space-y-2">
-                {members.map((m) => (
-                  <div key={m.id} className="flex items-center justify-between p-3 bg-bgsoft rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-primary font-black text-sm">
-                        {(m.fullName ?? '?').charAt(0).toUpperCase()}
-                      </div>
-                      <span className="text-sm font-semibold text-secondary">{m.fullName ?? 'Chauffeur'}</span>
-                    </div>
-                    {m.role === 'admin' && (
-                      <span className="text-[10px] font-black uppercase bg-secondary text-primary px-2 py-0.5 rounded-lg">Admin</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        <GroupMembersModal
+          group={selectedGroup}
+          stats={memberStats}
+          loading={statsLoading}
+          period={statsPeriod}
+          onPeriod={setStatsPeriod}
+          isAdmin={isAdmin(selectedGroup)}
+          onClose={closeMembers}
+        />
       )}
     </div>
   )

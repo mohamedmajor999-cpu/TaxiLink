@@ -66,7 +66,7 @@ export function Testimonials() {
                   <Icon key={i} name="star" size={14} className={i < t.rating ? 'text-primary' : 'text-white/20'} />
                 ))}
               </div>
-              <p className="text-white/80 text-sm leading-relaxed mb-5">"{t.text}"</p>
+              <p className="text-white/80 text-sm leading-relaxed mb-5">&quot;{t.text}&quot;</p>
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-secondary font-bold text-xs">
                   {t.avatar}

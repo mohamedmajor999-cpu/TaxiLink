@@ -12,7 +12,7 @@ export function Footer() {
               <span className="text-lg font-black text-secondary">TaxiLink <span className="text-primary">Pro</span></span>
             </Link>
             <p className="text-muted text-sm leading-relaxed max-w-xs mb-4">
-              La plateforme d'échange de courses entre chauffeurs professionnels. Hôpital, privé — sans WhatsApp.
+              La plateforme d&apos;échange de courses entre chauffeurs professionnels. Hôpital, privé — sans WhatsApp.
             </p>
             <div className="flex gap-3">
               {['facebook', 'twitter', 'linkedin'].map(s => (

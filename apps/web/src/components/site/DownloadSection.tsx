@@ -18,8 +18,8 @@ export function DownloadSection() {
                 <span className="text-primary">même hors ligne</span>
               </h2>
               <p className="text-white/60 text-base leading-relaxed mb-8">
-                Installez l'application depuis votre navigateur en 30 secondes.
-                Pas besoin de l'App Store. Fonctionne sur iPhone et Android. Notifications push incluses.
+                Installez l&apos;application depuis votre navigateur en 30 secondes.
+                Pas besoin de l&apos;App Store. Fonctionne sur iPhone et Android. Notifications push incluses.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
                 <Link href="/telecharger"

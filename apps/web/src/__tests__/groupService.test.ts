@@ -2,13 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { groupService } from '@/services/groupService'
 
 // ─── Mock Supabase (vi.hoisted pour éviter le problème d'initialisation) ──────
-const { mockFrom, mockSelect, mockInsert, mockDelete, mockEq, mockEq2, mockSingle } = vi.hoisted(() => ({
+const { mockFrom, mockSelect, mockInsert, mockDelete, mockEq, mockEq2, mockIn, mockSingle } = vi.hoisted(() => ({
   mockFrom:   vi.fn(),
   mockSelect: vi.fn(),
   mockInsert: vi.fn(),
   mockDelete: vi.fn(),
   mockEq:     vi.fn(),
   mockEq2:    vi.fn(),
+  mockIn:     vi.fn(),
   mockSingle: vi.fn(),
 }))
 
@@ -20,8 +21,9 @@ beforeEach(() => {
   vi.clearAllMocks()
   mockEq2.mockResolvedValue({ data: null, error: null })
   mockEq.mockReturnValue({ eq: mockEq2 })
+  mockIn.mockResolvedValue({ data: [], error: null })
   mockSingle.mockResolvedValue({ data: null, error: null })
-  mockSelect.mockReturnValue({ eq: mockEq, single: mockSingle })
+  mockSelect.mockReturnValue({ eq: mockEq, single: mockSingle, in: mockIn })
   mockInsert.mockReturnValue({ select: mockSelect })
   mockDelete.mockReturnValue({ eq: mockEq })
   mockFrom.mockReturnValue({ select: mockSelect, insert: mockInsert, delete: mockDelete })
@@ -29,17 +31,19 @@ beforeEach(() => {
 
 // ─── getMyGroups ──────────────────────────────────────────────────────────────
 describe('groupService.getMyGroups', () => {
-  it('retourne les groupes du chauffeur', async () => {
+  it('retourne les groupes du chauffeur avec memberCount', async () => {
     mockEq.mockResolvedValue({
       data: [
-        { groups: { id: 'g1', name: 'Groupe A', description: null, created_by: 'drv-1', created_at: '2026-01-01', updated_at: '2026-01-01' } },
+        { groups: { id: 'g1', name: 'Groupe A', description: null, created_by: 'drv-1', created_at: '2026-01-01' } },
       ],
       error: null,
     })
+    mockIn.mockResolvedValue({ data: [{ group_id: 'g1' }, { group_id: 'g1' }], error: null })
     const result = await groupService.getMyGroups('drv-1')
     expect(result).toHaveLength(1)
     expect(result[0].id).toBe('g1')
     expect(result[0].name).toBe('Groupe A')
+    expect(result[0].memberCount).toBe(2)
   })
 
   it('retourne un tableau vide si data est null', async () => {

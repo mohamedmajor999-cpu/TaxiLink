@@ -4,8 +4,8 @@ import type { Group } from '@taxilink/core'
 export type PendingAction = 'delete' | 'leave' | null
 
 export function useGroupCard(group: Group) {
-  const [menuOpen, setMenuOpen]         = useState(false)
-  const [copied, setCopied]             = useState(false)
+  const [menuOpen, setMenuOpen]           = useState(false)
+  const [copied, setCopied]               = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -20,12 +20,24 @@ export function useGroupCard(group: Group) {
     return () => document.removeEventListener('mousedown', close)
   }, [menuOpen])
 
+  const inviteText = `Rejoins mon groupe "${group.name}" sur TaxiLink Pro 🚖\nOuvre l'app → Groupes → Rejoindre → colle cet ID :\n${group.id}`
+
   const copyId = useCallback(async () => {
     await navigator.clipboard.writeText(group.id)
     setCopied(true)
     setMenuOpen(false)
     setTimeout(() => setCopied(false), 2000)
   }, [group.id])
+
+  const shareViaSms = useCallback(() => {
+    window.open(`sms:?body=${encodeURIComponent(inviteText)}`, '_self')
+    setMenuOpen(false)
+  }, [inviteText])
+
+  const shareViaWhatsApp = useCallback(() => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(inviteText)}`, '_blank')
+    setMenuOpen(false)
+  }, [inviteText])
 
   const triggerDelete = () => { setMenuOpen(false); setPendingAction('delete') }
   const triggerLeave  = () => { setMenuOpen(false); setPendingAction('leave')  }
@@ -34,6 +46,7 @@ export function useGroupCard(group: Group) {
   return {
     menuOpen, setMenuOpen, menuRef,
     copied, copyId,
+    shareViaSms, shareViaWhatsApp,
     pendingAction, triggerDelete, triggerLeave, cancelAction,
   }
 }

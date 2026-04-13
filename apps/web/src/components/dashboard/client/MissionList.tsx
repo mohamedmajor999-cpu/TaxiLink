@@ -19,7 +19,7 @@ export function MissionList({ missions, onReserve }: Props) {
       {missions.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl shadow-soft">
           <Icon name="local_taxi" size={48} className="text-line mx-auto mb-3 block" />
-          <p className="font-semibold text-secondary">Aucune course pour l'instant</p>
+          <p className="font-semibold text-secondary">Aucune course pour l&apos;instant</p>
           <button
             onClick={onReserve}
             className="mt-4 h-10 px-6 rounded-xl bg-primary text-secondary font-bold text-sm inline-flex items-center gap-2 hover:bg-yellow-400 transition-colors"
@@ -49,7 +49,7 @@ export function MissionList({ missions, onReserve }: Props) {
                     <p className="text-sm text-secondary font-semibold">{m.destination}</p>
                   </div>
                 </div>
-                {m.notes && <p className="text-xs text-muted mt-3 italic">"{m.notes}"</p>}
+                {m.notes && <p className="text-xs text-muted mt-3 italic">&quot;{m.notes}&quot;</p>}
               </div>
             )
           })}
