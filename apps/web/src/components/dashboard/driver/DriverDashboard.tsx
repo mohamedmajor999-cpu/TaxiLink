@@ -134,7 +134,7 @@ export function DriverDashboard() {
 
       {showCreer && <PartagerMissionModal onClose={() => setShowCreer(false)} />}
 
-      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-line px-1 pt-2 pb-2 grid grid-cols-4 z-40"
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-line px-1 pt-2 pb-2 grid grid-cols-5 z-40"
         style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}
       >
         {leftItems.map(({ tab, icon, label }) => (
@@ -156,9 +156,9 @@ export function DriverDashboard() {
           <button
             onClick={() => setShowCreer(true)}
             aria-label="Partager une mission"
-            className="w-14 h-14 rounded-full bg-primary text-secondary flex items-center justify-center shadow-lg hover:bg-yellow-400 transition-all -translate-y-3 border-4 border-white"
+            className="w-16 h-16 rounded-full bg-primary text-secondary flex items-center justify-center shadow-lg hover:bg-yellow-400 transition-all -translate-y-5 border-4 border-white"
           >
-            <Icon name="add" size={28} />
+            <Icon name="add" size={32} />
           </button>
         </div>
 
