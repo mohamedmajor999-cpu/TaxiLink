@@ -42,6 +42,19 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | PaiementsModal          | ✅ Terminé | Branché sur `paymentService.getPayments()` via `usePaiementsModal` |
 | SecuriteModal           | ✅ Terminé | Changement de mot de passe avec re-auth via `useSecuriteModal` |
 | NotificationsModal      | ✅ Terminé | Préférences sauvegardées dans user metadata Supabase via `useNotificationsModal` |
+| `PartagerMissionModal`  | ⏳ À faire | Placeholder actuel — formulaire multi-étapes à implémenter (BAN, OSRM, Web Speech API, RGPD) |
+
+---
+
+## Dashboard chauffeur — Bugs corrigés (session 2026-04-13)
+
+| Élément                          | État       | Notes |
+|----------------------------------|------------|-------|
+| Navbar mobile — colonnes         | ✅ Terminé | `grid-cols-4` → `grid-cols-5` (5 items : 2 gauche + FAB + 2 droite) |
+| Navbar mobile — bouton FAB       | ✅ Terminé | `w-14 h-14` → `w-16 h-16`, `-translate-y-3` → `-translate-y-5`, icône 28→32 |
+| Inscription — "database error"   | ✅ Terminé | Triggers Supabase `handle_new_user` + `create_driver_on_profile` recréés avec `SECURITY DEFINER` |
+| Inscription — champ `phone`      | ✅ Terminé | Ajouté dans `handle_new_user` depuis `raw_user_meta_data` |
+| Inscription — champ `pro_number` | ✅ Terminé | Ajouté dans `create_driver_on_profile` via lookup `auth.users` |
 
 ---
 
