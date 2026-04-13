@@ -89,6 +89,8 @@ export function GroupMembersModal({ group, stats, loading, period, onPeriod, isA
                     <p className="text-sm font-semibold text-secondary truncate">
                       {m.lastName && m.firstName
                         ? `${m.lastName} ${m.firstName.charAt(0).toUpperCase()}.${m.department ? ` · ${m.department}` : ''}`
+                        : m.lastName
+                        ? m.lastName
                         : (m.fullName ?? 'Chauffeur')}
                     </p>
                     {m.role === 'admin' && (
