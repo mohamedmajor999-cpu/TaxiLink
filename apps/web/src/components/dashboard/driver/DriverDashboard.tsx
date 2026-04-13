@@ -11,15 +11,18 @@ import { DriverProfilTab } from './DriverProfilTab'
 
 type Tab = 'missions' | 'agenda' | 'profil'
 
-const navItems: { tab: Tab; icon: string; label: string }[] = [
-  { tab: 'missions', icon: 'explore',       label: 'Missions' },
+const leftItems:  { tab: Tab; icon: string; label: string }[] = [
+  { tab: 'missions', icon: 'explore',        label: 'Missions' },
   { tab: 'agenda',   icon: 'calendar_month', label: 'Agenda'   },
-  { tab: 'profil',   icon: 'person',         label: 'Profil'   },
+]
+const rightItems: { tab: Tab; icon: string; label: string }[] = [
+  { tab: 'profil', icon: 'person', label: 'Profil' },
 ]
 
 export function DriverDashboard() {
   const { driverName, loading, handleLogout } = useDriverAuth()
   const [activeTab, setActiveTab] = useState<Tab>('missions')
+  const [showCreer, setShowCreer] = useState(false)
   const { driver, setOnline } = useDriverStore()
 
   if (loading) {
@@ -76,8 +79,32 @@ export function DriverDashboard() {
             </div>
           </div>
 
-          <nav className="hidden md:flex gap-1 -mb-px">
-            {navItems.map(({ tab, icon, label }) => (
+          <nav className="hidden md:flex items-center gap-1 -mb-px">
+            {leftItems.map(({ tab, icon, label }) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
+                  activeTab === tab
+                    ? 'border-primary text-secondary'
+                    : 'border-transparent text-muted hover:text-secondary'
+                }`}
+              >
+                <Icon name={icon} size={16} />
+                {label}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setShowCreer(true)}
+              aria-label="Partager une mission"
+              className="mx-3 flex items-center gap-2 h-9 px-5 rounded-xl bg-primary text-secondary font-bold text-sm hover:bg-yellow-400 transition-all shadow-sm"
+            >
+              <Icon name="add" size={20} />
+              Partager une mission
+            </button>
+
+            {rightItems.map(({ tab, icon, label }) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -101,8 +128,60 @@ export function DriverDashboard() {
         {activeTab === 'profil'   && <DriverProfilTab driverName={driverName} />}
       </main>
 
-      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-line px-1 py-2 grid grid-cols-3 gap-0.5 z-40">
-        {navItems.map(({ tab, icon, label }) => (
+      {/* Modal — Partager une mission */}
+      {showCreer && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowCreer(false)} />
+          <div className="relative bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-black text-secondary">Partager une mission</h2>
+              <button onClick={() => setShowCreer(false)} aria-label="Fermer"
+                className="w-9 h-9 rounded-xl bg-bgsoft flex items-center justify-center hover:bg-line transition-colors">
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Icon name="share" size={32} className="text-primary" />
+              </div>
+              <p className="font-bold text-secondary">Fonctionnalité en cours de développement</p>
+              <p className="text-sm text-muted max-w-xs">
+                Tu pourras bientôt créer une mission et la partager avec les autres chauffeurs du réseau.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-line px-1 pt-2 pb-2 grid grid-cols-4 z-40"
+        style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}
+      >
+        {leftItems.map(({ tab, icon, label }) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            aria-label={label}
+            className={`flex flex-col items-center py-2 rounded-xl transition-all ${
+              activeTab === tab ? 'bg-primary text-secondary' : 'text-muted'
+            }`}
+          >
+            <Icon name={icon} size={20} />
+            <span className="text-[10px] font-semibold mt-1">{label}</span>
+          </button>
+        ))}
+
+        {/* Bouton + central surélevé */}
+        <div className="flex items-end justify-center pb-1">
+          <button
+            onClick={() => setShowCreer(true)}
+            aria-label="Partager une mission"
+            className="w-14 h-14 rounded-full bg-primary text-secondary flex items-center justify-center shadow-lg hover:bg-yellow-400 transition-all -translate-y-3 border-4 border-white"
+          >
+            <Icon name="add" size={28} />
+          </button>
+        </div>
+
+        {rightItems.map(({ tab, icon, label }) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
