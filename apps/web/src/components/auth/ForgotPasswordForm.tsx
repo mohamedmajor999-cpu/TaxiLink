@@ -1,34 +1,15 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { authService } from '@/services/authService'
 import { Icon } from '@/components/ui/Icon'
+import { useForgotPasswordForm } from './useForgotPasswordForm'
 
 export function ForgotPasswordForm() {
-  const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [error, setError] = useState('')
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      await authService.resetPassword(email, `${window.location.origin}/auth/reset-password`)
-      setSent(true)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inconnue')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { email, setEmail, loading, sent, error, handleSubmit } = useForgotPasswordForm()
 
   return (
     <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-xl font-black text-secondary">T</div>
@@ -36,9 +17,7 @@ export function ForgotPasswordForm() {
           </Link>
           <h1 className="text-2xl font-black text-secondary">Mot de passe oublié</h1>
           <p className="text-muted mt-2 text-sm">
-            {sent
-              ? 'Vérifiez votre boîte mail'
-              : 'Saisissez votre email pour recevoir un lien de réinitialisation'}
+            {sent ? 'Vérifiez votre boîte mail' : 'Saisissez votre email pour recevoir un lien de réinitialisation'}
           </p>
         </div>
 
@@ -55,10 +34,8 @@ export function ForgotPasswordForm() {
                   Vérifiez vos spams si vous ne le trouvez pas.
                 </p>
               </div>
-              <Link
-                href="/auth/login"
-                className="block w-full h-12 rounded-xl bg-primary font-bold text-secondary text-sm flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors btn-ripple"
-              >
+              <Link href="/auth/login"
+                className="block w-full h-12 rounded-xl bg-primary font-bold text-secondary text-sm flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors btn-ripple">
                 <Icon name="arrow_back" size={16} />
                 Retour à la connexion
               </Link>
@@ -66,15 +43,10 @@ export function ForgotPasswordForm() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-2">
-                  Adresse email
-                </label>
+                <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-2">Adresse email</label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="marc@exemple.fr"
-                  required
+                  type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="marc@exemple.fr" required
                   className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors"
                 />
               </div>
@@ -86,20 +58,15 @@ export function ForgotPasswordForm() {
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 rounded-xl bg-primary font-bold text-secondary flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors btn-ripple disabled:opacity-60"
-              >
+              <button type="submit" disabled={loading}
+                className="w-full h-12 rounded-xl bg-primary font-bold text-secondary flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors btn-ripple disabled:opacity-60">
                 {loading
                   ? <><Icon name="sync" size={18} className="animate-spin" />Envoi en cours...</>
                   : <><Icon name="send" size={18} />Envoyer le lien</>}
               </button>
 
               <p className="text-center text-sm text-muted">
-                <Link href="/auth/login" className="font-semibold text-accent hover:underline">
-                  Retour à la connexion
-                </Link>
+                <Link href="/auth/login" className="font-semibold text-accent hover:underline">Retour à la connexion</Link>
               </p>
             </form>
           )}

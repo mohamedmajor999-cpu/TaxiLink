@@ -1,48 +1,15 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Icon } from '@/components/ui/Icon'
-import { isValidEmail } from '@/lib/validators'
-import { authService } from '@/services/authService'
-import { profileService } from '@/services/profileService'
+import { useLoginForm } from './useLoginForm'
 
 export function LoginForm() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPw, setShowPw] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-
-    if (!isValidEmail(email)) {
-      setError('Adresse email invalide')
-      return
-    }
-
-    setLoading(true)
-    try {
-      const { user } = await authService.signIn(email, password)
-      const role = await profileService.getRole(user.id)
-      if (role === 'driver') router.push('/dashboard/chauffeur')
-      else router.push('/dashboard/client')
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erreur inconnue'
-      setError(msg === 'Invalid login credentials' ? 'Email ou mot de passe incorrect' : msg)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { email, setEmail, password, setPassword, showPw, setShowPw, loading, error, handleSubmit } = useLoginForm()
 
   return (
     <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-2xl font-black text-secondary">T</div>
