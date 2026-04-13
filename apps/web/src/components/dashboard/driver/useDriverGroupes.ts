@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { createClient } from '@/lib/supabase/client'
 import { groupService } from '@/services/groupService'
 import type { Group, GroupMemberStats } from '@taxilink/core'
 
@@ -36,6 +37,18 @@ export function useDriverGroupes() {
   }, [driverId])
 
   useEffect(() => { loadGroups() }, [loadGroups])
+
+  // Real-time : recharge la liste quand un membre rejoint ou quitte un groupe
+  useEffect(() => {
+    if (!driverId) return
+    const supabase = createClient()
+    const channel = supabase
+      .channel('group-members-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_members' }, () => loadGroups())
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'group_members' }, () => loadGroups())
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [driverId, loadGroups])
 
   // Recharge les stats quand le groupe sélectionné ou la période change
   useEffect(() => {

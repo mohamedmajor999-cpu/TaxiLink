@@ -24,7 +24,11 @@ export function GroupCard({ group, isAdmin, onViewMembers, onLeave, onDelete }: 
   return (
     <>
       <div className="bg-white rounded-2xl shadow-soft p-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
+        <button
+          onClick={() => onViewMembers(group)}
+          className="flex items-center gap-3 min-w-0 flex-1 text-left hover:opacity-75 transition-opacity"
+          aria-label={`Voir les membres de ${group.name}`}
+        >
           <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
             <span className="text-secondary font-black text-lg">
               {group.name.charAt(0).toUpperCase()}
@@ -52,7 +56,7 @@ export function GroupCard({ group, isAdmin, onViewMembers, onLeave, onDelete }: 
               )}
             </div>
           </div>
-        </div>
+        </button>
 
         <div className="relative flex-shrink-0" ref={menuRef}>
           {copied && (
