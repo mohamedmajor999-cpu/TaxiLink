@@ -12,6 +12,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      groups: {
+        Row: {
+          id:          string
+          name:        string
+          description: string | null
+          created_by:  string
+          created_at:  string
+          updated_at:  string
+        }
+        Insert: {
+          id?:          string
+          name:         string
+          description?: string | null
+          created_by:   string
+          created_at?:  string
+          updated_at?:  string
+        }
+        Update: {
+          id?:          string
+          name?:        string
+          description?: string | null
+          created_by?:  string
+          created_at?:  string
+          updated_at?:  string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_members: {
+        Row: {
+          id:        string
+          group_id:  string
+          driver_id: string
+          role:      string
+          joined_at: string
+        }
+        Insert: {
+          id?:        string
+          group_id:   string
+          driver_id:  string
+          role?:      string
+          joined_at?: string
+        }
+        Update: {
+          id?:        string
+          group_id?:  string
+          driver_id?: string
+          role?:      string
+          joined_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       driver_documents: {
         Row: {
           created_at: string
@@ -133,6 +207,9 @@ export type Database = {
           status: string
           type: string
           updated_at: string
+          shared_by:  string | null
+          group_id:   string | null
+          visibility: string
         }
         Insert: {
           accepted_at?: string | null
@@ -157,6 +234,9 @@ export type Database = {
           status?: string
           type?: string
           updated_at?: string
+          shared_by?:  string | null
+          group_id?:   string | null
+          visibility?: string
         }
         Update: {
           accepted_at?: string | null
@@ -181,6 +261,9 @@ export type Database = {
           status?: string
           type?: string
           updated_at?: string
+          shared_by?:  string | null
+          group_id?:   string | null
+          visibility?: string
         }
         Relationships: [
           {
