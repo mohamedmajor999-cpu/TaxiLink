@@ -115,6 +115,68 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ---
 
+## Audit CLAUDE.md & Refactoring qualité (session 2026-04-13 — suite)
+
+### P1 — Découpage RegisterForm (>200 lignes → 3 fichiers)
+
+| Fichier                          | État       | Notes |
+|----------------------------------|------------|-------|
+| `RegisterForm.tsx`               | ✅ Terminé | Orchestrateur ~80 lignes, utilise `useRegisterForm()` |
+| `RegisterStep1.tsx`              | ✅ Terminé | Email + password + Google (~100 lignes) |
+| `RegisterStep2.tsx`              | ✅ Terminé | lastName + firstName + phone + department (~70 lignes) |
+
+### P1 — Refactoring useDriverGroupes + groupService (test "et" ❌ → ✅)
+
+| Fichier                          | État       | Notes |
+|----------------------------------|------------|-------|
+| `groupStatsService.ts`           | ✅ Terminé | Extrait de groupService : `getMembers()` + `getMemberStats()` |
+| `groupService.ts`                | ✅ Terminé | CRUD seulement (getMyGroups, create, join, leave, delete) |
+| `useGroupActions.ts`             | ✅ Terminé | Hook co-localisé : mutations create/join/leave/delete |
+| `useGroupStats.ts`               | ✅ Terminé | Hook co-localisé : selectedGroup, memberStats, statsPeriod |
+| `useDriverGroupes.ts`            | ✅ Terminé | Orchestrateur ~50 lignes : compose useGroupActions + useGroupStats |
+
+### P2 — Hooks co-localisés manquants
+
+| Fichier                          | État       | Notes |
+|----------------------------------|------------|-------|
+| `useVoiceSimulator.ts`           | ✅ Terminé | Extrait de VoiceSimulator.tsx (state + run + reset) |
+| `useInstallPage.ts`              | ✅ Terminé | Extrait de InstallPage.tsx (appUrl + activeTab) |
+| `useDownloadPage.ts`             | ✅ Terminé | Extrait de DownloadPage.tsx (appUrl + activeOs) |
+| `useNavbar.ts`                   | ✅ Terminé | Extrait de Navbar.tsx (open + toggle + close) |
+
+### P3 — Tests services (nouveaux)
+
+| Fichier test                     | Tests | État       |
+|----------------------------------|-------|------------|
+| `driverService.test.ts`          | 7     | ✅ Passant |
+| `profileService.test.ts`         | 7     | ✅ Passant |
+| `paymentService.test.ts`         | 5     | ✅ Passant |
+| `documentService.test.ts`        | 9     | ✅ Passant |
+| `groupStatsService.test.ts`      | 5     | ✅ Passant (nouveau service) |
+
+### P4 — Tests hooks (nouveaux)
+
+| Fichier test                     | Tests | État       |
+|----------------------------------|-------|------------|
+| `useLoginForm.test.ts`           | 6     | ✅ Passant |
+| `useDriverStats.test.ts`         | 6     | ✅ Passant |
+| `useDriverMissions.test.ts`      | 6     | ✅ Passant (seul) |
+| `useDriverProfile.test.ts`       | 3     | ✅ Passant (seul) |
+
+### Bilan audit
+
+| Critère                          | Avant      | Après      |
+|----------------------------------|------------|------------|
+| Fichiers > seuil CLAUDE.md       | 3          | 0          |
+| Violations test "et"             | 2          | 0          |
+| Hooks sans co-localisation       | 4          | 0          |
+| Tests services                   | 37 tests   | 70 tests   |
+| Tests hooks                      | 0          | 21 tests ✅ |
+| TypeScript errors                | 0          | 0 ✅       |
+| Note OOM                         | —          | Windows : tests à lancer par fichier, pas en batch (heap OOM) |
+
+---
+
 ## Légende
 
 - ✅ Terminé

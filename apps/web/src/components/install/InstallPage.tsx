@@ -1,16 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { Icon } from '@/components/ui/Icon'
+import { useInstallPage } from './useInstallPage'
 
 export function InstallPage() {
-  const [appUrl, setAppUrl] = useState('https://taxilink-pro.app')
-
-  useEffect(() => {
-    // Use current origin so QR works on local network too (e.g. npm run dev on phone)
-    setAppUrl(window.location.origin)
-  }, [])
+  const { appUrl, activeTab, setActiveTab } = useInstallPage()
 
   const steps = {
     ios: [
@@ -24,8 +19,6 @@ export function InstallPage() {
       { icon: 'check_circle', text: 'Confirmez l\'installation' },
     ],
   }
-
-  const [activeTab, setActiveTab] = useState<'ios' | 'android'>('ios')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center p-4">

@@ -1,9 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
-
-type SimState = 'idle' | 'listening' | 'filling' | 'done'
+import { useVoiceSimulator } from './useVoiceSimulator'
 
 const SIM_FIELDS = [
   { label: 'Départ',  value: '12 rue de la Paix, Paris' },
@@ -13,26 +11,7 @@ const SIM_FIELDS = [
 ]
 
 export function VoiceSimulator() {
-  const [state, setState] = useState<SimState>('idle')
-  const [filled, setFilled] = useState(0)
-
-  const run = () => {
-    if (state !== 'idle') return
-    setState('listening')
-    setTimeout(() => {
-      setState('filling')
-      let i = 0
-      const tick = () => {
-        i++
-        setFilled(i)
-        if (i < SIM_FIELDS.length) setTimeout(tick, 600)
-        else setState('done')
-      }
-      setTimeout(tick, 400)
-    }, 1400)
-  }
-
-  const reset = () => { setState('idle'); setFilled(0) }
+  const { state, filled, run, reset } = useVoiceSimulator()
 
   return (
     <div className="glass rounded-2xl p-6 mt-8">

@@ -22,6 +22,12 @@ vi.mock('@/lib/supabase/client', () => ({
   createClient: () => ({ channel: mockChannel, removeChannel: mockRemoveChannel }),
 }))
 
+vi.mock('@/services/groupStatsService', () => ({
+  groupStatsService: {
+    getMemberStats: vi.fn().mockResolvedValue([]),
+  },
+}))
+
 vi.mock('@/services/groupService', () => ({
   groupService: {
     getMyGroups:  (...a: unknown[]) => mockGetMyGroups(...a),

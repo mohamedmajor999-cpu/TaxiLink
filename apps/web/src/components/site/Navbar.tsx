@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
+import { useNavbar } from './useNavbar'
 
 export function Navbar() {
-  const [open, setOpen] = useState(false)
+  const { open, toggle, close } = useNavbar()
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-sm border-b border-line">
@@ -46,7 +46,7 @@ export function Navbar() {
 
           {/* Mobile burger */}
           <button
-            onClick={() => setOpen(!open)}
+            onClick={toggle}
             className="md:hidden w-10 h-10 rounded-xl flex items-center justify-center hover:bg-bgsoft"
             aria-label="Menu"
           >
@@ -63,7 +63,7 @@ export function Navbar() {
             { href: '#comment-ca-marche', label: 'Comment ça marche'  },
             { href: '#temoignages',       label: 'Avis'               },
           ].map(l => (
-            <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
+            <Link key={l.href} href={l.href} onClick={close}
               className="block py-2.5 text-sm font-semibold text-secondary">{l.label}</Link>
           ))}
           <div className="pt-2 border-t border-line flex flex-col gap-2">

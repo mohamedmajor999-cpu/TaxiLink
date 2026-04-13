@@ -84,7 +84,7 @@ describe('useRegisterForm — étape 1', () => {
 
 // ─── Étape 2 : soumission du profil ──────────────────────────────────────────
 describe('useRegisterForm — étape 2', () => {
-  const goToStep2 = (result: ReturnType<typeof renderHook<ReturnType<typeof useRegisterForm>>>['result']) => {
+  const goToStep2 = (result: { current: ReturnType<typeof useRegisterForm> }) => {
     act(() => {
       result.current.setEmail('test@test.com')
       result.current.setPassword('password123')

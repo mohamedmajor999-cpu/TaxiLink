@@ -1,17 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { Navbar } from '@/components/site/Navbar'
 import { Footer } from '@/components/site/Footer'
 import { Icon } from '@/components/ui/Icon'
+import { useDownloadPage } from './useDownloadPage'
 
 export function DownloadPage() {
-  const [appUrl, setAppUrl] = useState('https://taxilink-pro.app')
-  useEffect(() => { setAppUrl(window.location.origin) }, [])
-
-  const [activeOs, setActiveOs] = useState<'ios'|'android'>('ios')
+  const { appUrl, activeOs, setActiveOs } = useDownloadPage()
 
   const steps = {
     ios: [
