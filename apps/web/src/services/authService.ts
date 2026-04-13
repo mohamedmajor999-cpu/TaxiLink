@@ -9,12 +9,12 @@ export const authService = {
   },
 
   async signUp(params: {
-    email: string
-    password: string
-    full_name: string
-    role: string
-    phone?: string
-    pro_number?: string
+    email:      string
+    password:   string
+    first_name: string
+    last_name:  string
+    phone?:     string
+    department?: string
   }) {
     const supabase = createClient()
     const { error } = await supabase.auth.signUp({
@@ -22,11 +22,25 @@ export const authService = {
       password: params.password,
       options: {
         data: {
-          full_name: params.full_name,
-          role: params.role,
-          pro_number: params.pro_number,
-          phone: params.phone,
+          full_name:  `${params.first_name} ${params.last_name}`,
+          first_name: params.first_name,
+          last_name:  params.last_name,
+          role:       'driver',
+          phone:      params.phone,
+          department: params.department,
         },
+      },
+    })
+    if (error) throw new Error(error.message)
+  },
+
+  async signInWithGoogle(redirectTo: string) {
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo,
+        queryParams: { access_type: 'offline', prompt: 'consent' },
       },
     })
     if (error) throw new Error(error.message)

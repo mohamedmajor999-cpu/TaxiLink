@@ -86,7 +86,11 @@ export function GroupMembersModal({ group, stats, loading, period, onPeriod, isA
                     }`} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-secondary truncate">{m.fullName ?? 'Chauffeur'}</p>
+                    <p className="text-sm font-semibold text-secondary truncate">
+                      {m.lastName && m.firstName
+                        ? `${m.lastName} ${m.firstName.charAt(0).toUpperCase()}.${m.department ? ` · ${m.department}` : ''}`
+                        : (m.fullName ?? 'Chauffeur')}
+                    </p>
                     {m.role === 'admin' && (
                       <span className="text-[9px] font-black uppercase bg-secondary text-primary px-1.5 py-0.5 rounded">Admin</span>
                     )}
