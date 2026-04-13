@@ -2,12 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { authService } from '@/services/authService'
 
 // ─── Mocks Supabase auth ──────────────────────────────────────────────────────
-const mockSignIn         = vi.fn()
-const mockSignUp         = vi.fn()
-const mockResetPassword  = vi.fn()
-const mockUpdateUser     = vi.fn()
-const mockSignOut        = vi.fn()
-const mockGetUser        = vi.fn()
+const mockSignIn            = vi.fn()
+const mockSignUp            = vi.fn()
+const mockResetPassword     = vi.fn()
+const mockUpdateUser        = vi.fn()
+const mockSignOut           = vi.fn()
+const mockGetUser           = vi.fn()
+const mockSignInWithOAuth   = vi.fn()
 
 vi.mock('@/lib/supabase/client', () => ({
   createClient: () => ({
@@ -18,6 +19,7 @@ vi.mock('@/lib/supabase/client', () => ({
       updateUser:            mockUpdateUser,
       signOut:               mockSignOut,
       getUser:               mockGetUser,
+      signInWithOAuth:       mockSignInWithOAuth,
     },
   }),
 }))
@@ -44,7 +46,10 @@ describe('authService.signIn', () => {
 
 // ─── signUp ───────────────────────────────────────────────────────────────────
 describe('authService.signUp', () => {
-  const params = { email: 'new@test.com', password: 'pass123', full_name: 'Jean Dupont', role: 'driver' }
+  const params = {
+    email: 'new@test.com', password: 'pass123',
+    first_name: 'Marc', last_name: 'Dupont', department: '13',
+  }
 
   it('inscrit un utilisateur sans erreur', async () => {
     mockSignUp.mockResolvedValue({ error: null })
@@ -52,9 +57,36 @@ describe('authService.signUp', () => {
     expect(mockSignUp).toHaveBeenCalledWith(expect.objectContaining({ email: params.email }))
   })
 
+  it('passe first_name et last_name dans les metadata', async () => {
+    mockSignUp.mockResolvedValue({ error: null })
+    await authService.signUp(params)
+    expect(mockSignUp).toHaveBeenCalledWith(expect.objectContaining({
+      options: expect.objectContaining({
+        data: expect.objectContaining({ first_name: 'Marc', last_name: 'Dupont', role: 'driver' }),
+      }),
+    }))
+  })
+
   it('leve une erreur si l email est deja utilise', async () => {
     mockSignUp.mockResolvedValue({ error: { message: 'User already registered' } })
     await expect(authService.signUp(params)).rejects.toThrow('User already registered')
+  })
+})
+
+// ─── signInWithGoogle ─────────────────────────────────────────────────────────
+describe('authService.signInWithGoogle', () => {
+  it('appelle signInWithOAuth avec provider google', async () => {
+    mockSignInWithOAuth.mockResolvedValue({ error: null })
+    await authService.signInWithGoogle('https://app.com/auth/callback')
+    expect(mockSignInWithOAuth).toHaveBeenCalledWith(expect.objectContaining({
+      provider: 'google',
+      options: expect.objectContaining({ redirectTo: 'https://app.com/auth/callback' }),
+    }))
+  })
+
+  it('leve une erreur si OAuth echoue', async () => {
+    mockSignInWithOAuth.mockResolvedValue({ error: { message: 'OAuth error' } })
+    await expect(authService.signInWithGoogle('https://app.com/auth/callback')).rejects.toThrow('OAuth error')
   })
 })
 

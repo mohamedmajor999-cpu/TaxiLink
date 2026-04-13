@@ -10,6 +10,18 @@ const mockJoin        = vi.fn()
 const mockLeave       = vi.fn()
 const mockDeleteGroup = vi.fn()
 
+// Mock Supabase client (real-time channel)
+const mockSubscribe        = vi.fn().mockReturnValue({})
+const mockOn               = vi.fn()
+const mockChannelInstance  = { on: mockOn, subscribe: mockSubscribe }
+const mockChannel          = vi.fn().mockReturnValue(mockChannelInstance)
+const mockRemoveChannel    = vi.fn()
+mockOn.mockReturnValue(mockChannelInstance)
+
+vi.mock('@/lib/supabase/client', () => ({
+  createClient: () => ({ channel: mockChannel, removeChannel: mockRemoveChannel }),
+}))
+
 vi.mock('@/services/groupService', () => ({
   groupService: {
     getMyGroups:  (...a: unknown[]) => mockGetMyGroups(...a),
