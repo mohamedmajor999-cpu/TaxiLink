@@ -169,6 +169,9 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | `useDriverAgenda.test.ts`        | 4     | ✅ Passant |
 | `useGroupActions.test.ts`        | 4     | ✅ Passant |
 | `useGroupStats.test.ts`          | 3     | ✅ Passant |
+| `useGroupCard.test.ts`           | 5     | ✅ Passant |
+| `useConfirmWithPassword.test.ts` | 3     | ✅ Passant |
+| `useReservationForm.test.ts`     | 3     | ✅ Passant |
 
 ### Bilan audit (session 2026-04-14)
 
@@ -176,9 +179,9 @@ Suivi de l'avancement du projet TaxiLink Pro.
 |----------------------------------|------------|------------|
 | Fichiers > seuil CLAUDE.md       | 0          | 0 ✅       |
 | Violations test "et"             | 0          | 0 ✅       |
-| Hooks sans co-localisation       | 6          | 3 (DriverProfilTab exempt, Toast exempt, CountdownCircle exempt) |
-| Tests hooks                      | 21 tests   | 34 tests ✅ |
-| Score CLAUDE.md                  | 81/100     | ~88/100 🎯 |
+| Hooks sans co-localisation       | 6          | 3 (DriverProfilTab/Toast/CountdownCircle : exempts) |
+| Tests hooks                      | 21 tests   | 45 tests ✅ |
+| Score CLAUDE.md                  | 81/100     | ~92/100 🎯 |
 | TypeScript errors                | 0          | 0 ✅       |
 | Note OOM                         | —          | Windows : tests à lancer par fichier, pas en batch (heap OOM) |
 
