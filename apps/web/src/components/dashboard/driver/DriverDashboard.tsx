@@ -1,17 +1,15 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
 import { useDriverStore } from '@/store/driverStore'
 import { useDriverAuth } from './useDriverAuth'
+import { useDriverDashboard, Tab } from './useDriverDashboard'
 import { DriverMissions } from './DriverMissions'
 import { DriverAgenda } from './DriverAgenda'
 import { DriverGroupesScreen } from './DriverGroupesScreen'
 import { DriverProfilTab } from './DriverProfilTab'
 import { PartagerMissionModal } from './PartagerMissionModal'
-
-type Tab = 'missions' | 'agenda' | 'groupes' | 'profil'
 
 const leftItems:  { tab: Tab; icon: string; label: string }[] = [
   { tab: 'missions', icon: 'explore',        label: 'Missions' },
@@ -24,8 +22,7 @@ const rightItems: { tab: Tab; icon: string; label: string }[] = [
 
 export function DriverDashboard() {
   const { driverName, loading, handleLogout } = useDriverAuth()
-  const [activeTab, setActiveTab] = useState<Tab>('missions')
-  const [showCreer, setShowCreer] = useState(false)
+  const { activeTab, setActiveTab, showCreer, setShowCreer } = useDriverDashboard()
   const { driver, setOnline } = useDriverStore()
 
   if (loading) {

@@ -1,18 +1,16 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
 import { ErrorBanner } from '@/components/ui/ErrorBanner'
 import { ReservationForm } from './ReservationForm'
 import { MissionList } from './MissionList'
 import { useClientAuth } from './useClientAuth'
-
-type Tab = 'reserver' | 'mes-courses'
+import { useClientDashboard, Tab } from './useClientDashboard'
 
 export function ClientDashboard() {
   const { clientName, loading, missions, missionsError, refreshMissions, handleLogout } = useClientAuth()
-  const [tab, setTab] = useState<Tab>('reserver')
+  const { tab, setTab } = useClientDashboard()
 
   if (loading) {
     return (

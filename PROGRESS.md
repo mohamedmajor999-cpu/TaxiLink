@@ -143,6 +143,9 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | `useInstallPage.ts`              | ✅ Terminé | Extrait de InstallPage.tsx (appUrl + activeTab) |
 | `useDownloadPage.ts`             | ✅ Terminé | Extrait de DownloadPage.tsx (appUrl + activeOs) |
 | `useNavbar.ts`                   | ✅ Terminé | Extrait de Navbar.tsx (open + toggle + close) |
+| `useDriverDashboard.ts`          | ✅ Terminé | Extrait de DriverDashboard.tsx (activeTab + showCreer) |
+| `useClientDashboard.ts`          | ✅ Terminé | Extrait de ClientDashboard.tsx (tab) |
+| `useOnboardingPage.ts`           | ✅ Terminé | Extrait de OnboardingPage.tsx (showCta + IntersectionObserver) |
 
 ### P3 — Tests services (nouveaux)
 
@@ -162,16 +165,20 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | `useDriverStats.test.ts`         | 6     | ✅ Passant |
 | `useDriverMissions.test.ts`      | 6     | ✅ Passant (seul) |
 | `useDriverProfile.test.ts`       | 3     | ✅ Passant (seul) |
+| `useDriverPayments.test.ts`      | 2     | ✅ Passant |
+| `useDriverAgenda.test.ts`        | 4     | ✅ Passant |
+| `useGroupActions.test.ts`        | 4     | ✅ Passant |
+| `useGroupStats.test.ts`          | 3     | ✅ Passant |
 
-### Bilan audit
+### Bilan audit (session 2026-04-14)
 
 | Critère                          | Avant      | Après      |
 |----------------------------------|------------|------------|
-| Fichiers > seuil CLAUDE.md       | 3          | 0          |
-| Violations test "et"             | 2          | 0          |
-| Hooks sans co-localisation       | 4          | 0          |
-| Tests services                   | 37 tests   | 70 tests   |
-| Tests hooks                      | 0          | 21 tests ✅ |
+| Fichiers > seuil CLAUDE.md       | 0          | 0 ✅       |
+| Violations test "et"             | 0          | 0 ✅       |
+| Hooks sans co-localisation       | 6          | 3 (DriverProfilTab exempt, Toast exempt, CountdownCircle exempt) |
+| Tests hooks                      | 21 tests   | 34 tests ✅ |
+| Score CLAUDE.md                  | 81/100     | ~88/100 🎯 |
 | TypeScript errors                | 0          | 0 ✅       |
 | Note OOM                         | —          | Windows : tests à lancer par fichier, pas en batch (heap OOM) |
 

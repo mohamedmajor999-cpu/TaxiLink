@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
 import { VoiceSimulator } from './VoiceSimulator'
 import { OnboardingCtaSection } from './OnboardingCtaSection'
 import { OnboardingStickyBar } from './OnboardingStickyBar'
+import { useOnboardingPage } from './useOnboardingPage'
 
 const PATRON_STEPS = [
   { n: '01', icon: 'gps_fixed',     title: 'Géolocaliser ses voitures en temps réel',  desc: 'Suivez chaque véhicule en direct. Sachez qui est disponible, où et quand.' },
@@ -21,19 +21,7 @@ const SOLUTION_FEATURES = [
 ]
 
 export function OnboardingPage() {
-  const lastSectionRef = useRef<HTMLDivElement>(null)
-  const [showCta, setShowCta] = useState(false)
-
-  useEffect(() => {
-    const el = lastSectionRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setShowCta(true) },
-      { threshold: 0.2 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
+  const { showCta, lastSectionRef } = useOnboardingPage()
 
   return (
     <div className="min-h-screen">
