@@ -7,7 +7,6 @@ const mockSignUp            = vi.fn()
 const mockResetPassword     = vi.fn()
 const mockUpdateUser        = vi.fn()
 const mockSignOut           = vi.fn()
-const mockGetUser           = vi.fn()
 const mockSignInWithOAuth   = vi.fn()
 
 vi.mock('@/lib/supabase/client', () => ({
@@ -18,7 +17,6 @@ vi.mock('@/lib/supabase/client', () => ({
       resetPasswordForEmail: mockResetPassword,
       updateUser:            mockUpdateUser,
       signOut:               mockSignOut,
-      getUser:               mockGetUser,
       signInWithOAuth:       mockSignInWithOAuth,
     },
   }),
@@ -141,41 +139,3 @@ describe('authService.updatePassword', () => {
   })
 })
 
-// ─── getNotificationPrefs ─────────────────────────────────────────────────────
-describe('authService.getNotificationPrefs', () => {
-  it('retourne les prefs stockees dans user_metadata', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { user_metadata: { notification_prefs: { new_missions: true, sounds: false } } } },
-      error: null,
-    })
-    const result = await authService.getNotificationPrefs()
-    expect(result).toEqual({ new_missions: true, sounds: false })
-  })
-
-  it('retourne null si Supabase retourne une erreur', async () => {
-    mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: 'Non connecte' } })
-    const result = await authService.getNotificationPrefs()
-    expect(result).toBeNull()
-  })
-
-  it('retourne null si notification_prefs est absent', async () => {
-    mockGetUser.mockResolvedValue({ data: { user: { user_metadata: {} } }, error: null })
-    const result = await authService.getNotificationPrefs()
-    expect(result).toBeNull()
-  })
-})
-
-// ─── updateNotificationPrefs ──────────────────────────────────────────────────
-describe('authService.updateNotificationPrefs', () => {
-  it('appelle updateUser avec les prefs dans data', async () => {
-    mockUpdateUser.mockResolvedValue({ error: null })
-    const prefs = { new_missions: true, reminders: false }
-    await authService.updateNotificationPrefs(prefs)
-    expect(mockUpdateUser).toHaveBeenCalledWith({ data: { notification_prefs: prefs } })
-  })
-
-  it('leve une erreur si Supabase retourne une erreur', async () => {
-    mockUpdateUser.mockResolvedValue({ error: { message: 'Erreur reseau' } })
-    await expect(authService.updateNotificationPrefs({ new_missions: true })).rejects.toThrow('Erreur reseau')
-  })
-})

@@ -111,7 +111,7 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | `useDriverGroupes.ts`           | ✅ Terminé | Refactorisé : suppression `members`, ajout `memberStats`, `statsLoading`, `statsPeriod` |
 | `DriverGroupesScreen.tsx`       | ✅ Terminé | Utilise `GroupMembersModal` à la place de l'ancien modal inline |
 | Test `groupService.test.ts`     | ✅ Terminé | Mis à jour : mock `in()` ajouté, test `memberCount` ajouté |
-| Tests totaux                    | ✅ 152 passing | 0 erreur TypeScript, 0 erreur ESLint |
+| Tests totaux                    | ✅ 152 passing | 0 erreur TypeScript, 0 erreur ESLint (session 2026-04-13) |
 
 ---
 
@@ -147,6 +147,14 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | `useClientDashboard.ts`          | ✅ Terminé | Extrait de ClientDashboard.tsx (tab) |
 | `useOnboardingPage.ts`           | ✅ Terminé | Extrait de OnboardingPage.tsx (showCta + IntersectionObserver) |
 
+### P1 — Split authService (test "et" ✅)
+
+| Fichier                          | État       | Notes |
+|----------------------------------|------------|-------|
+| `authService.ts`                 | ✅ Terminé | Auth seul : signIn, signUp, signOut, updatePassword, Google, reset |
+| `userPrefsService.ts`            | ✅ Terminé | Extrait : getNotificationPrefs, updateNotificationPrefs |
+| `userPrefsService.test.ts`       | ✅ Terminé | 5 tests (get + update prefs) |
+
 ### P3 — Tests services (nouveaux)
 
 | Fichier test                     | Tests | État       |
@@ -156,6 +164,7 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | `paymentService.test.ts`         | 5     | ✅ Passant |
 | `documentService.test.ts`        | 9     | ✅ Passant |
 | `groupStatsService.test.ts`      | 5     | ✅ Passant (nouveau service) |
+| `userPrefsService.test.ts`       | 5     | ✅ Passant (nouveau service) |
 
 ### P4 — Tests hooks (nouveaux)
 
@@ -172,16 +181,21 @@ Suivi de l'avancement du projet TaxiLink Pro.
 | `useGroupCard.test.ts`           | 5     | ✅ Passant |
 | `useConfirmWithPassword.test.ts` | 3     | ✅ Passant |
 | `useReservationForm.test.ts`     | 3     | ✅ Passant |
+| `useNavbar.test.ts`              | 3     | ✅ Passant |
+| `useVoiceSimulator.test.ts`      | 5     | ✅ Passant |
+| `useInstallPage.test.ts`         | 3     | ✅ Passant |
+| `useDownloadPage.test.ts`        | 3     | ✅ Passant |
 
 ### Bilan audit (session 2026-04-14)
 
 | Critère                          | Avant      | Après      |
 |----------------------------------|------------|------------|
 | Fichiers > seuil CLAUDE.md       | 0          | 0 ✅       |
-| Violations test "et"             | 0          | 0 ✅       |
+| Violations test "et"             | 1          | 0 ✅ (authService → +userPrefsService) |
 | Hooks sans co-localisation       | 6          | 3 (DriverProfilTab/Toast/CountdownCircle : exempts) |
-| Tests hooks                      | 21 tests   | 45 tests ✅ |
-| Score CLAUDE.md                  | 81/100     | ~92/100 🎯 |
+| Tests hooks                      | 21 tests   | 59 tests ✅ |
+| Tests services                   | 70 tests   | 75 tests ✅ |
+| Score CLAUDE.md                  | 81/100     | ~95/100 🎯 |
 | TypeScript errors                | 0          | 0 ✅       |
 | Note OOM                         | —          | Windows : tests à lancer par fichier, pas en batch (heap OOM) |
 

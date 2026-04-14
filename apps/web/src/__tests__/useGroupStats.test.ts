@@ -17,7 +17,7 @@ const fakeGroup: Group = {
   createdBy: 'd1', createdAt: '2026-01-01', memberCount: 2,
 }
 const fakeStats: GroupMemberStats[] = [
-  { driverId: 'd1', fullName: 'Marc', isOnline: true, role: 'admin', sharedCount: 5, acceptedCount: 3 },
+  { driverId: 'd1', fullName: 'Marc Dupont', firstName: 'Marc', lastName: 'Dupont', department: '95', isOnline: true, role: 'admin', sharedCount: 5, acceptedCount: 3 },
 ]
 
 beforeEach(() => {
