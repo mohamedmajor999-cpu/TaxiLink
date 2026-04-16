@@ -62,7 +62,7 @@ export function RegisterForm() {
               showPw={form.showPw}           togglePw={form.togglePw}
               showConfirmPw={form.showConfirmPw} toggleConfirmPw={form.toggleConfirmPw}
               googleLoading={form.googleLoading}
-              passwordStrength={form.passwordStrength}
+              passwordStrengthInfo={form.passwordStrengthInfo}
               onSubmit={form.handleNextStep}
               onGoogle={form.handleGoogle}
             />

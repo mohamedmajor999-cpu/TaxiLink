@@ -3,13 +3,7 @@
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
 
-const STRENGTH_CONFIG = [
-  null,
-  { label: 'Trop court',  bar: 'w-1/4',  color: 'bg-red-500',    text: 'text-red-500'    },
-  { label: 'Faible',      bar: 'w-2/4',  color: 'bg-orange-400', text: 'text-orange-400' },
-  { label: 'Moyen',       bar: 'w-3/4',  color: 'bg-yellow-400', text: 'text-yellow-500' },
-  { label: 'Fort',        bar: 'w-full', color: 'bg-green-500',  text: 'text-green-500'  },
-] as const
+import type { PasswordStrengthInfo } from './useRegisterForm'
 
 interface Props {
   email:            string
@@ -23,7 +17,7 @@ interface Props {
   showConfirmPw:    boolean
   toggleConfirmPw:  () => void
   googleLoading:    boolean
-  passwordStrength: 0 | 1 | 2 | 3 | 4
+  passwordStrengthInfo: PasswordStrengthInfo | null
   onSubmit:         (e: React.FormEvent) => void
   onGoogle:         () => void
 }
@@ -34,9 +28,8 @@ export function RegisterStep1({
   confirmPassword, setConfirmPassword,
   showPw, togglePw,
   showConfirmPw, toggleConfirmPw,
-  googleLoading, passwordStrength, onSubmit, onGoogle,
+  googleLoading, passwordStrengthInfo, onSubmit, onGoogle,
 }: Props) {
-  const strength = STRENGTH_CONFIG[passwordStrength]
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
@@ -56,12 +49,12 @@ export function RegisterStep1({
             <Icon name={showPw ? 'visibility_off' : 'visibility'} size={18} />
           </button>
         </div>
-        {strength && (
+        {passwordStrengthInfo && (
           <div className="mt-2 space-y-1">
             <div className="h-1.5 bg-line rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-300 ${strength.bar} ${strength.color}`} />
+              <div className={`h-full rounded-full transition-all duration-300 ${passwordStrengthInfo.bar} ${passwordStrengthInfo.color}`} />
             </div>
-            <p className={`text-xs font-semibold ${strength.text}`}>{strength.label}</p>
+            <p className={`text-xs font-semibold ${passwordStrengthInfo.text}`}>{passwordStrengthInfo.label}</p>
           </div>
         )}
       </div>

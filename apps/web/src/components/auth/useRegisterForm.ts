@@ -2,6 +2,16 @@ import { useState, useMemo } from 'react'
 import { authService } from '@/services/authService'
 import { isValidEmail, isValidPassword, isValidPhone } from '@/lib/validators'
 
+const STRENGTH_CONFIG = [
+  null,
+  { label: 'Trop court',  bar: 'w-1/4',  color: 'bg-red-500',    text: 'text-red-500'    },
+  { label: 'Faible',      bar: 'w-2/4',  color: 'bg-orange-400', text: 'text-orange-400' },
+  { label: 'Moyen',       bar: 'w-3/4',  color: 'bg-yellow-400', text: 'text-yellow-500' },
+  { label: 'Fort',        bar: 'w-full', color: 'bg-green-500',  text: 'text-green-500'  },
+] as const
+
+export type PasswordStrengthInfo = typeof STRENGTH_CONFIG[1]
+
 function getPasswordStrength(pw: string): 0 | 1 | 2 | 3 | 4 {
   if (!pw) return 0
   if (pw.length < 8) return 1
@@ -36,7 +46,8 @@ export function useRegisterForm() {
   const [error,         setError]         = useState('')
   const [success,       setSuccess]       = useState(false)
 
-  const passwordStrength = useMemo(() => getPasswordStrength(password), [password])
+  const passwordStrength     = useMemo(() => getPasswordStrength(password), [password])
+  const passwordStrengthInfo = useMemo(() => STRENGTH_CONFIG[passwordStrength] ?? null, [passwordStrength])
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault()
@@ -95,7 +106,7 @@ export function useRegisterForm() {
     phone,     setPhone,
     department, setDepartment,
     loading, googleLoading, error, success,
-    passwordStrength,
+    passwordStrength, passwordStrengthInfo,
     handleNextStep, handleSubmit, handleGoogle,
   }
 }
