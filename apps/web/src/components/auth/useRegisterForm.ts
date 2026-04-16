@@ -12,11 +12,20 @@ export interface PasswordCriteria {
 }
 
 export interface PasswordStrengthInfo {
-  level:    StrengthLevel
-  label:    string
-  color:    string
-  criteria: PasswordCriteria
+  level:      StrengthLevel
+  label:      string
+  segColor:   string
+  labelColor: string
+  criteria:   PasswordCriteria
 }
+
+const STRENGTH_LEVELS = [
+  null,
+  { label: 'Trop court', segColor: 'bg-red-500',    labelColor: 'text-red-500'    },
+  { label: 'Faible',     segColor: 'bg-orange-400', labelColor: 'text-orange-400' },
+  { label: 'Moyen',      segColor: 'bg-amber-400',  labelColor: 'text-amber-500'  },
+  { label: 'Fort',       segColor: 'bg-emerald-500',labelColor: 'text-emerald-600'},
+] as const
 
 function computeStrengthInfo(pw: string): PasswordStrengthInfo {
   const criteria: PasswordCriteria = {
@@ -26,14 +35,13 @@ function computeStrengthInfo(pw: string): PasswordStrengthInfo {
     hasSpecial: /[^a-zA-Z0-9]/.test(pw),
   }
 
-  if (!pw) return { level: 0, label: '', color: '', criteria }
-  if (!criteria.minLength) return { level: 1, label: 'Trop court', color: 'red', criteria }
+  if (!pw) return { level: 0, label: '', segColor: '', labelColor: '', criteria }
+  if (!criteria.minLength) return { level: 1, ...STRENGTH_LEVELS[1]!, criteria }
 
-  // Score basé sur les types de caractères uniquement (hors longueur)
   const typeScore = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^a-zA-Z0-9]/].filter(r => r.test(pw)).length
-  if (typeScore <= 1) return { level: 2, label: 'Faible', color: 'orange', criteria }
-  if (typeScore === 2) return { level: 3, label: 'Moyen',  color: 'yellow', criteria }
-  return                     { level: 4, label: 'Fort',   color: 'green',  criteria }
+  if (typeScore <= 1) return { level: 2, ...STRENGTH_LEVELS[2]!, criteria }
+  if (typeScore === 2) return { level: 3, ...STRENGTH_LEVELS[3]!, criteria }
+  return                     { level: 4, ...STRENGTH_LEVELS[4]!, criteria }
 }
 
 export function useRegisterForm() {

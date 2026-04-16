@@ -22,20 +22,6 @@ interface Props {
   onGoogle:         () => void
 }
 
-const SEGMENT_COLORS: Record<string, string> = {
-  red:    'bg-red-500',
-  orange: 'bg-orange-400',
-  yellow: 'bg-amber-400',
-  green:  'bg-emerald-500',
-}
-
-const LABEL_COLORS: Record<string, string> = {
-  red:    'text-red-500',
-  orange: 'text-orange-400',
-  yellow: 'text-amber-500',
-  green:  'text-emerald-600',
-}
-
 export function RegisterStep1({
   email, setEmail,
   password, setPassword,
@@ -44,9 +30,7 @@ export function RegisterStep1({
   showConfirmPw, toggleConfirmPw,
   googleLoading, step1Loading, passwordStrengthInfo, onSubmit, onGoogle,
 }: Props) {
-  const { level, label, color, criteria } = passwordStrengthInfo
-  const segColor = SEGMENT_COLORS[color] ?? 'bg-line'
-  const labelColor = LABEL_COLORS[color] ?? ''
+  const { level, label, segColor, labelColor, criteria } = passwordStrengthInfo
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
