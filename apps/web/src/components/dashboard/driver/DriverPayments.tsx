@@ -2,7 +2,7 @@
 
 import { Icon } from '@/components/ui/Icon'
 import { PAYMENT_STATUS_MAP, type PaymentStatus } from '@/constants/paymentStatus'
-import { formatDateWithYear } from '@/lib/utils'
+import { formatDateWithYear } from '@/lib/dateUtils'
 import { useDriverPayments } from './useDriverPayments'
 
 export function DriverPayments() {

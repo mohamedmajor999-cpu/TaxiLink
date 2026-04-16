@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
-import { isSameMonth } from '@/lib/utils'
+import { isSameMonth } from '@/lib/dateUtils'
 import { computeStats } from '@/lib/statsUtils'
 import type { Mission } from '@/lib/supabase/types'
 

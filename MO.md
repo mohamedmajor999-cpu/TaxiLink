@@ -1,7 +1,7 @@
 # TaxiLink Pro — Journal de projet
 
 > Fichier de suivi pour reprendre le développement à tout moment.
-> Dernière mise à jour : 07 avril 2026 (session 3)
+> Dernière mise à jour : 15 avril 2026 (session 4)
 
 ---
 
@@ -137,7 +137,34 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ---
 
+### 6. Maquettes HTML (session 4)
+
+- **`mockup-redesign.html`** — Maquette landing page (style SensorTower / Vercel)
+  - Suppression des deux sections "trust bars" (logos entreprises taxi + logos médias)
+  - Design épuré, fond blanc, typographie Inter, palette noir/gris/amber
+- **`mockup-app.html`** — Maquette application chauffeur (8 écrans navigables)
+  - Barre de navigation storyboard (noire, en haut) pour switcher entre écrans
+  - **Connexion** : carte centrée 380px, champs email/password, lien "Mot de passe oublié"
+  - **Inscription étape 1** : email/password/confirmation + bouton Google, barre progression 2px
+  - **Inscription étape 2** : nom/prénom/téléphone/département, grille 2×2
+  - **Missions** : bannière mission en cours (bordure gauche amber), liste en tableau (Type | Trajet | Date·Durée | Montant)
+  - **Agenda** : semaine en bandeaux de boutons jour (40px), KPIs du jour, timeline en lignes bordées
+  - **Groupes** : liste de lignes avec stack d'avatars, compteur membres, badge admin
+  - **Profil** : sidebar 240px (avatar + info) + zone principale KPIs + menu paramètres
+  - **Partager mission** (modal) : étapes en segments 2px, sélecteur de type, champs adresse avec points de repère, rangée saisie vocale
+  - Direction design : Inter, radius 6px max, bordures 1px `#E5E7EB`, hauteur header 52px, boutons 36px, **zéro emoji** (tout en SVG Feather), couleurs restraintes (amber uniquement pour accents)
+
+---
+
 ## ❌ CE QUI RESTE À FAIRE
+
+### PRIORITÉ 0 — Appliquer les maquettes au code Next.js (session 4, en attente validation)
+
+- [ ] **Landing page** : appliquer `mockup-redesign.html` aux composants `src/components/site/` (Hero, Features, HowItWorks, etc.)
+- [ ] **Auth pages** : appliquer `mockup-app.html` (Connexion + Inscription 2 étapes) à `LoginForm.tsx`, `RegisterStep1.tsx`, `RegisterStep2.tsx`
+- [ ] **Dashboard chauffeur** : appliquer design SensorTower (Inter, radius 6px, tableau missions, aucun emoji) à `DriverMissions.tsx`, `DriverAgenda.tsx`, `DriverGroupesScreen.tsx`, `DriverProfilTab.tsx`
+- [ ] **PartagerMissionModal** : implémenter le formulaire multi-étapes (BAN+OSRM geocoding, Web Speech API voix, RGPD patient, tarif CPAM préfectoral)
+- [ ] **driverStore.load()** : n'est appelé nulle part — connecter dans `DriverDashboard.tsx` au montage
 
 ### PRIORITÉ 1 — Tests (à faire dès le prochain lancement)
 
@@ -234,13 +261,21 @@ MO/
 
 | Élément | Valeur |
 |---------|--------|
-| Couleur principale | `#FFD23F` (jaune TaxiLink) |
-| Couleur secondaire | `#1A1A1A` (noir) |
-| Couleur accent | `#3B82F6` (bleu) |
-| Fond doux | `#F8F9FA` |
-| Bordure | `#E5E7EB` |
-| Texte gris | `#9CA3AF` |
-| Police | Inter (400/500/600/700/800) |
-| Radius cards | 12-16px |
-| Radius modals | 20-24px |
-| Radius boutons | 12px |
+| Couleur principale | `#D97706` (amber — accent uniquement) |
+| Couleur texte | `#111827` (near-black) |
+| Fond | `#FFFFFF` blanc pur |
+| Fond doux | `#F9FAFB` |
+| Bordure | `#E5E7EB` (1px partout) |
+| Texte secondaire | `#6B7280` |
+| Texte muted | `#9CA3AF` |
+| Statut en ligne | `#10B981` (vert, usage unique) |
+| Police | Inter (400/500/600/700) |
+| Radius small | 4px |
+| Radius standard | 6px |
+| Radius medium | 8px |
+| Hauteur header | 52px |
+| Hauteur tab bar | 40px |
+| Hauteur bouton | 36px |
+| Icônes | SVG inline Feather-style — **zéro emoji** |
+
+> **Direction design** : SensorTower / Linear / Vercel — sobre, adulte, data-dense. Missions en tableau, pas en cartes. Couleurs restraintes.

@@ -1,5 +1,5 @@
 import { Icon } from '@/components/ui/Icon'
-import { formatDateShort } from '@/lib/utils'
+import { formatDateShort } from '@/lib/dateUtils'
 import { DOC_CONFIG, DOC_STATUS_MAP, type DocType, type DocStatus } from '@/constants/documentConfig'
 import type { Document } from '@/lib/supabase/types'
 

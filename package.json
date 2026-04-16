@@ -10,7 +10,8 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
-    "web": "turbo dev --filter=web"
+    "web": "turbo dev --filter=web",
+    "test": "turbo test --filter=web -- "
   },
   "devDependencies": {
     "turbo": "^2.3.3",

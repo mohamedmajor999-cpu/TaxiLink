@@ -1,7 +1,7 @@
 'use client'
 
 import { TYPE_COLORS } from '@/constants/missionTypes'
-import { formatDateShort } from '@/lib/utils'
+import { formatDateShort } from '@/lib/dateUtils'
 import type { Mission } from '@/lib/supabase/types'
 
 export function StatsRecentList({ missions }: { missions: Mission[] }) {

@@ -2,7 +2,7 @@
 
 import { Icon } from '@/components/ui/Icon'
 import { TYPE_COLORS } from '@/constants/missionTypes'
-import { getMinutesUntil } from '@/lib/utils'
+import { getMinutesUntil } from '@/lib/dateUtils'
 import type { Mission } from '@/lib/supabase/types'
 
 type AvailableMissionGridProps = {

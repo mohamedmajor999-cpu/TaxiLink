@@ -1,5 +1,5 @@
 import { MISSION_STATUS_LABELS, MISSION_STATUS_COLORS } from '@/constants/missionTypes'
-import { formatDateTime } from '@/lib/utils'
+import { formatDateTime } from '@/lib/dateUtils'
 import { Icon } from '@/components/ui/Icon'
 import type { Mission } from '@/lib/supabase/types'
 

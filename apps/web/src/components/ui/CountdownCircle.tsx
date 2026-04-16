@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useLiveCountdown } from './useLiveCountdown'
 
 interface CountdownCircleProps {
   totalSeconds: number
@@ -60,24 +60,7 @@ interface LiveCountdownProps {
 }
 
 export function LiveCountdown({ scheduledAt, onExpire }: LiveCountdownProps) {
-  const totalSeconds = 30
-  const getRemaining = () => {
-    const diff = new Date(scheduledAt).getTime() - Date.now()
-    if (diff <= 0) return 0
-    // Map to 0-30s window for display
-    return Math.min(totalSeconds, Math.max(0, Math.round(diff / 1000)))
-  }
-
-  const [remaining, setRemaining] = useState(getRemaining)
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      const r = getRemaining()
-      setRemaining(r)
-      if (r === 0) onExpire?.()
-    }, 1000)
-    return () => clearInterval(id)
-  }, [scheduledAt])
+  const { remaining, totalSeconds } = useLiveCountdown(scheduledAt, onExpire)
 
   return (
     <CountdownCircle

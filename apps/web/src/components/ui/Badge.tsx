@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils'
-import { getMissionTypeColors, getMissionTypeLabel } from '@/lib/utils'
+import { cn } from '@/lib/cn'
+import { getMissionTypeColors, getMissionTypeLabel } from '@/lib/missionDisplay'
 
 interface BadgeProps {
   type: string

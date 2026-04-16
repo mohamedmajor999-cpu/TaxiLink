@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxiLink Pro — Plateforme d'échange de courses taxi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --white:    #FFFFFF;
+  --gray-50:  #FAFAFA;
+  --gray-100: #F4F4F5;
+  --gray-200: #E4E4E7;
+  --gray-300: #D4D4D8;
+  --gray-400: #A1A1AA;
+  --gray-500: #71717A;
+  --gray-600: #52525B;
+  --gray-700: #3F3F46;
+  --gray-800: #27272A;
+  --gray-900: #18181B;
+  --gray-950: #09090B;
+
+  --amber-50:  #FFFBEB;
+  --amber-100: #FEF3C7;
+  --amber-400: #FBBF24;
+  --amber-500: #F59E0B;
+  --amber-600: #D97706;
+
+  --teal-50:  #F0FDFA;
+  --teal-400: #2DD4BF;
+  --teal-500: #14B8A6;
+  --teal-600: #0D9488;
+
+  --blue-50:  #EFF6FF;
+  --blue-500: #3B82F6;
+
+  --green-50:  #F0FDF4;
+  --green-500: #22C55E;
+  --green-600: #16A34A;
+
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --max-w:   1120px;
+  --radius:    12px;
+  --radius-sm:  8px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--white);
+  color: var(--gray-900);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+.l-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--gray-200);
+}
+.l-nav-inner {
+  max-width: var(--max-w); margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 60px;
+}
+.l-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--gray-900);
+}
+.l-logo svg { width: 28px; height: 28px; }
+.l-logo-name {
+  font-family: var(--font-display);
+  font-weight: 800; font-size: 1.1rem; letter-spacing: -0.4px;
+}
+.l-logo-name span { color: var(--gray-400); font-weight: 600; }
+.l-nav-links { display: flex; align-items: center; gap: 32px; }
+.l-nav-links a {
+  color: var(--gray-500); text-decoration: none;
+  font-size: 0.85rem; font-weight: 500; transition: color 0.15s;
+}
+.l-nav-links a:hover { color: var(--gray-900); }
+.l-nav-cta { display: flex; align-items: center; gap: 10px; }
+.btn-ghost {
+  padding: 8px 16px; font-size: 0.82rem; font-weight: 600;
+  color: var(--gray-600); background: none; border: none;
+  cursor: pointer; font-family: var(--font-body); transition: color 0.15s;
+  text-decoration: none;
+}
+.btn-ghost:hover { color: var(--gray-900); }
+.btn-primary {
+  padding: 9px 20px; font-size: 0.82rem; font-weight: 600;
+  color: var(--white); background: var(--gray-900);
+  border: none; border-radius: var(--radius-sm); cursor: pointer;
+  font-family: var(--font-body); transition: all 0.15s;
+  text-decoration: none; display: inline-block;
+}
+.btn-primary:hover { background: var(--gray-800); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+/* ── HERO ── */
+.l-hero {
+  max-width: var(--max-w); margin: 0 auto;
+  text-align: center; padding: 72px 32px 48px;
+}
+.l-hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--gray-100); border: 1px solid var(--gray-200);
+  border-radius: 100px; padding: 5px 14px;
+  font-size: 0.72rem; font-weight: 600; color: var(--gray-600);
+  margin-bottom: 28px;
+}
+.l-hero-badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green-500);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.l-hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 800; letter-spacing: -1.5px;
+  line-height: 1.1; margin-bottom: 18px;
+}
+.l-hero h1 span { color: var(--gray-400); }
+.l-hero p {
+  font-size: 1.05rem; color: var(--gray-500);
+  max-width: 500px; margin: 0 auto 32px; line-height: 1.7;
+}
+.l-hero-actions {
+  display: flex; gap: 12px; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 56px;
+}
+.btn-primary-lg {
+  padding: 13px 30px; font-size: 0.9rem; font-weight: 600;
+  color: var(--white); background: var(--gray-900);
+  border: none; border-radius: 10px; cursor: pointer;
+  font-family: var(--font-body); transition: all 0.15s;
+  text-decoration: none; display: inline-block;
+}
+.btn-primary-lg:hover { background: var(--gray-800); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.btn-outline-lg {
+  padding: 13px 30px; font-size: 0.9rem; font-weight: 600;
+  color: var(--gray-700); background: transparent;
+  border: 1.5px solid var(--gray-200); border-radius: 10px; cursor: pointer;
+  font-family: var(--font-body); transition: all 0.15s;
+  text-decoration: none; display: inline-block;
+}
+.btn-outline-lg:hover { border-color: var(--gray-300); background: var(--gray-50); }
+
+/* ── HERO BROWSER MOCKUP ── */
+.l-hero-img {
+  max-width: 960px; margin: 0 auto;
+  border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--gray-200);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+}
+.screen-chrome {
+  display: flex; align-items: center; gap: 7px;
+  padding: 11px 18px; background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+.screen-dot { width: 10px; height: 10px; border-radius: 50%; }
+.screen-dot-r { background: #FF5F56; }
+.screen-dot-y { background: #FFBD2E; }
+.screen-dot-g { background: #27C93F; }
+.screen-url {
+  flex: 1; text-align: center;
+  font-size: 0.72rem; color: var(--gray-400); font-weight: 500;
+}
+.screen-body {
+  display: grid; grid-template-columns: 180px 1fr;
+  min-height: 340px; background: var(--gray-50);
+}
+.screen-sb {
+  background: var(--white); border-right: 1px solid var(--gray-200); padding: 14px 0;
+}
+.screen-sb-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 16px; font-size: 0.75rem;
+  color: var(--gray-500); font-weight: 500;
+}
+.screen-sb-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.screen-sb-item.active { color: var(--amber-600); background: var(--amber-50); font-weight: 600; }
+.screen-main { padding: 20px; }
+.screen-main h4 {
+  font-family: var(--font-display); font-size: 0.88rem;
+  font-weight: 700; margin-bottom: 14px;
+}
+.screen-kpi-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.screen-kpi {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 10px; padding: 12px;
+}
+.screen-kpi-label { font-size: 0.62rem; color: var(--gray-400); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.screen-kpi-val { font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; margin-top: 2px; }
+.screen-kpi-delta { font-size: 0.65rem; font-weight: 600; color: var(--teal-600); margin-top: 1px; }
+.screen-chart {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 10px; padding: 16px; height: 140px;
+}
+
+/* ── TRUST ── */
+.l-trust {
+  padding: 48px 32px; text-align: center;
+  border-top: 1px solid var(--gray-100);
+}
+.l-trust p {
+  font-size: 0.7rem; text-transform: uppercase;
+  letter-spacing: 2.5px; color: var(--gray-400);
+  font-weight: 600; margin-bottom: 24px;
+}
+.l-trust-row { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+.l-trust-item {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: 0.9rem; color: var(--gray-300); letter-spacing: -0.2px;
+}
+
+/* ── FEATURE SECTIONS ── */
+.l-feat {
+  max-width: var(--max-w); margin: 0 auto;
+  padding: 72px 32px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 72px; align-items: center;
+}
+.l-feat.reverse .l-feat-text { order: 2; }
+.l-feat.reverse .l-feat-visual { order: 1; }
+.l-feat-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.7rem; text-transform: uppercase;
+  letter-spacing: 1.5px; font-weight: 700;
+  padding: 5px 12px; border-radius: 6px; margin-bottom: 14px;
+}
+.l-feat-label.amber { background: var(--amber-50); color: var(--amber-600); }
+.l-feat-label.teal  { background: var(--teal-50);  color: var(--teal-600);  }
+.l-feat-label.blue  { background: var(--blue-50);   color: var(--blue-500);  }
+.l-feat-label.green { background: var(--green-50);  color: var(--green-600); }
+
+.l-feat-text h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 800; letter-spacing: -0.8px;
+  line-height: 1.15; margin-bottom: 14px;
+}
+.l-feat-text h2 em { font-style: normal; color: var(--gray-400); }
+.l-feat-text p { color: var(--gray-500); font-size: 0.92rem; line-height: 1.7; margin-bottom: 20px; }
+.l-feat-link {
+  font-size: 0.85rem; font-weight: 600; color: var(--gray-900);
+  text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+  transition: gap 0.2s;
+}
+.l-feat-link:hover { gap: 10px; }
+.l-feat-link svg { width: 16px; height: 16px; }
+.l-feat-visual {
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: var(--radius); padding: 32px;
+}
+
+/* Voice visual */
+.voice-demo {
+  display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 24px 0;
+}
+.voice-circle {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--amber-500); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 12px var(--amber-100), 0 0 0 24px rgba(251,191,36,0.05);
+}
+.voice-circle svg { width: 28px; height: 28px; color: var(--white); }
+.voice-bars { display: flex; align-items: center; gap: 3px; height: 28px; }
+.voice-bar {
+  width: 3px; border-radius: 3px; background: var(--amber-400);
+  animation: vwave 1.2s ease-in-out infinite;
+}
+.voice-bar:nth-child(1) { height: 10px; animation-delay: 0s; }
+.voice-bar:nth-child(2) { height: 18px; animation-delay: 0.1s; }
+.voice-bar:nth-child(3) { height: 26px; animation-delay: 0.2s; }
+.voice-bar:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+.voice-bar:nth-child(5) { height: 22px; animation-delay: 0.15s; }
+.voice-bar:nth-child(6) { height: 12px; animation-delay: 0.25s; }
+@keyframes vwave { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1)} }
+.voice-transcript {
+  font-size: 0.82rem; color: var(--gray-500);
+  font-style: italic; text-align: center; max-width: 220px;
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 10px; padding: 10px 16px;
+}
+
+/* Group visual */
+.group-demo { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 16px 0; }
+.avatar-stack { display: flex; }
+.avatar-stack .av {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid var(--white); margin-left: -10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.7rem; color: var(--white);
+}
+.avatar-stack .av:first-child { margin-left: 0; }
+.group-demo-name { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; }
+.group-demo-meta { font-size: 0.75rem; color: var(--gray-500); }
+.invite-code-box {
+  background: var(--white); border: 1.5px dashed var(--gray-300);
+  border-radius: 8px; padding: 9px 24px;
+  font-size: 0.78rem; color: var(--gray-500);
+  font-weight: 600; letter-spacing: 3px;
+}
+
+/* Phone visual */
+.phone-demo {
+  width: 220px; margin: 0 auto;
+  background: var(--white); border-radius: 24px;
+  border: 1.5px solid var(--gray-200); overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+}
+.phone-notch { height: 22px; display: flex; align-items: center; justify-content: center; }
+.phone-notch-bar { width: 68px; height: 5px; background: var(--gray-200); border-radius: 10px; }
+.phone-content { padding: 10px 14px 18px; }
+.phone-content h5 {
+  font-family: var(--font-display); font-size: 0.78rem;
+  font-weight: 700; margin-bottom: 10px;
+}
+.demo-ride-card {
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: 8px; padding: 10px; margin-bottom: 8px;
+}
+.demo-ride-route {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; font-weight: 600; margin-bottom: 4px;
+}
+.demo-ride-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.demo-ride-meta { font-size: 0.62rem; color: var(--gray-400); }
+.demo-ride-btn {
+  display: block; width: 100%; margin-top: 7px; padding: 8px;
+  background: var(--gray-900); color: var(--white);
+  border: none; border-radius: 6px; font-weight: 700; font-size: 0.65rem;
+  cursor: pointer; font-family: var(--font-body);
+}
+.demo-ride-btn.accepted { background: var(--teal-500); }
+
+/* Agenda visual */
+.agenda-demo { display: flex; flex-direction: column; gap: 10px; }
+.agenda-date-row {
+  display: flex; gap: 6px;
+}
+.agenda-chip {
+  flex: 1; padding: 8px 0; text-align: center;
+  border-radius: 8px; border: 1.5px solid var(--gray-200);
+  background: var(--white);
+}
+.agenda-chip.active { background: var(--gray-900); border-color: var(--gray-900); color: var(--white); }
+.agenda-chip-d { font-size: 0.58rem; font-weight: 600; text-transform: uppercase; color: var(--gray-400); }
+.agenda-chip.active .agenda-chip-d { color: var(--gray-400); }
+.agenda-chip-n { font-family: var(--font-display); font-size: 0.9rem; font-weight: 800; }
+.agenda-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 10px; padding: 10px 12px;
+}
+.agenda-item-time { font-size: 0.7rem; font-weight: 700; color: var(--gray-500); min-width: 36px; }
+.agenda-item-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.agenda-item-text { font-size: 0.75rem; font-weight: 600; }
+.agenda-item-meta { font-size: 0.62rem; color: var(--gray-400); margin-top: 1px; }
+
+/* ── STEPS ── */
+.l-steps {
+  background: var(--gray-50); padding: 72px 32px;
+  border-top: 1px solid var(--gray-100); border-bottom: 1px solid var(--gray-100);
+}
+.l-steps-inner { max-width: var(--max-w); margin: 0 auto; text-align: center; }
+.l-steps-inner > h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 800; letter-spacing: -1px; margin-bottom: 48px;
+}
+.l-steps-inner > h2 span { color: var(--gray-400); }
+.l-steps-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 40px; text-align: left; }
+.l-step-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+.l-step-icon svg { width: 22px; height: 22px; }
+.l-step-icon.amber { background: var(--amber-50); color: var(--amber-600); }
+.l-step-icon.teal  { background: var(--teal-50);  color: var(--teal-600);  }
+.l-step-icon.blue  { background: var(--blue-50);   color: var(--blue-500);  }
+.l-step h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+.l-step p  { font-size: 0.85rem; color: var(--gray-500); line-height: 1.65; }
+.l-step-num {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--white); border: 1.5px solid var(--gray-200);
+  font-size: 0.68rem; font-weight: 800; color: var(--gray-500);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+
+/* ── PRICING ── */
+.l-pricing {
+  max-width: 680px; margin: 0 auto; padding: 72px 32px; text-align: center;
+}
+.l-pricing > h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 800; letter-spacing: -1px; margin-bottom: 8px;
+}
+.l-pricing > p { color: var(--gray-500); font-size: 0.92rem; margin-bottom: 36px; }
+
+.l-price-card {
+  border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+  padding: 32px; background: var(--white); text-align: left;
+  max-width: 420px; margin: 0 auto;
+  position: relative;
+}
+.l-price-card::before {
+  content: 'Gratuit pour toujours'; position: absolute; top: -12px; left: 24px;
+  background: var(--amber-400); color: var(--gray-900);
+  font-size: 0.62rem; font-weight: 700; padding: 4px 12px;
+  border-radius: 50px; text-transform: uppercase; letter-spacing: 0.8px;
+}
+.l-price-card h4 { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; margin-bottom: 2px; }
+.l-price-desc { font-size: 0.78rem; color: var(--gray-500); margin-bottom: 20px; }
+.l-price-val {
+  font-family: var(--font-display); font-size: 3rem;
+  font-weight: 800; line-height: 1; margin-bottom: 4px; letter-spacing: -2px;
+}
+.l-price-val span { font-size: 1rem; font-weight: 500; color: var(--gray-400); letter-spacing: 0; }
+.l-price-period { font-size: 0.75rem; color: var(--gray-400); margin-bottom: 24px; }
+.l-price-list { list-style: none; margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px; }
+.l-price-list li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.85rem; color: var(--gray-700);
+}
+.l-price-list li svg { width: 18px; height: 18px; color: var(--teal-500); flex-shrink: 0; }
+.l-price-btn {
+  display: block; width: 100%; text-align: center;
+  padding: 12px; border-radius: 8px;
+  font-weight: 600; font-size: 0.88rem;
+  border: none; cursor: pointer; font-family: var(--font-body); transition: all 0.15s;
+  text-decoration: none;
+}
+.l-price-btn.dark { background: var(--gray-900); color: var(--white); }
+.l-price-btn.dark:hover { background: var(--gray-800); transform: translateY(-1px); }
+
+/* ── CTA DARK ── */
+.l-cta {
+  background: var(--gray-950); color: var(--white);
+  text-align: center; padding: 72px 32px;
+  margin: 40px auto; border-radius: 16px;
+  max-width: var(--max-w);
+}
+.l-cta h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  font-weight: 800; letter-spacing: -1px; margin-bottom: 12px;
+}
+.l-cta p { color: var(--gray-400); font-size: 0.95rem; margin-bottom: 28px; }
+.btn-amber {
+  padding: 13px 32px; font-size: 0.92rem; font-weight: 600;
+  color: var(--gray-900); background: var(--amber-400);
+  border: none; border-radius: 10px; cursor: pointer;
+  font-family: var(--font-body); transition: all 0.15s;
+  text-decoration: none; display: inline-block;
+}
+.btn-amber:hover { background: var(--amber-500); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(251,191,36,0.3); }
+
+/* ── FOOTER ── */
+.l-footer { border-top: 1px solid var(--gray-200); padding: 32px; }
+.l-footer-inner {
+  max-width: var(--max-w); margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.l-footer-left {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.78rem; color: var(--gray-400);
+}
+.l-footer-right { display: flex; gap: 24px; }
+.l-footer-right a {
+  color: var(--gray-400); text-decoration: none;
+  font-size: 0.78rem; font-weight: 500; transition: color 0.15s;
+}
+.l-footer-right a:hover { color: var(--gray-700); }
+
+/* ── SECTION SEPARATOR ── */
+.sect-border { border-top: 1px solid var(--gray-100); }
+
+/* ── DESIGN NOTE ── */
+.design-note {
+  position: fixed; bottom: 20px; right: 20px;
+  background: var(--gray-900); color: var(--white);
+  font-size: 0.7rem; font-weight: 600; padding: 7px 14px;
+  border-radius: 100px; z-index: 200; font-family: var(--font-body);
+}
+.design-note span { color: var(--amber-400); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .l-nav-links, .l-nav-cta .btn-ghost { display: none; }
+  .l-feat { grid-template-columns: 1fr; gap: 32px; }
+  .l-feat.reverse .l-feat-text { order: 1; }
+  .l-feat.reverse .l-feat-visual { order: 2; }
+  .l-steps-grid { grid-template-columns: 1fr; gap: 28px; }
+  .screen-body { grid-template-columns: 1fr; }
+  .screen-sb { display: none; }
+  .l-cta { margin: 24px 16px; border-radius: 12px; }
+  .l-hero { padding: 56px 20px 40px; }
+  .l-feat { padding: 48px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="design-note">Aperçu redesign — <span>non publié</span></div>
+
+<!-- ══════════════════════════════════════════════════
+     NAV
+═══════════════════════════════════════════════════ -->
+<nav class="l-nav">
+  <div class="l-nav-inner">
+    <a href="#" class="l-logo">
+      <svg viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="7" fill="#18181B"/>
+        <path d="M8.5 8.5h15v3.2H19v11.8h-3.2V11.7H8.5V8.5z" fill="#FBBF24"/>
+        <circle cx="23.5" cy="20" r="3" fill="#14B8A6" opacity="0.8"/>
+      </svg>
+      <span class="l-logo-name">TaxiLink <span>Pro</span></span>
+    </a>
+    <div class="l-nav-links">
+      <a href="#fonctions">Fonctionnalités</a>
+      <a href="#etapes">Comment ça marche</a>
+      <a href="#tarifs">Tarifs</a>
+    </div>
+    <div class="l-nav-cta">
+      <a href="#" class="btn-ghost">Se connecter</a>
+      <a href="#" class="btn-primary">Commencer — c'est gratuit</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════ -->
+<section class="l-hero">
+  <div class="l-hero-badge">
+    <div class="l-hero-badge-dot"></div>
+    Réservé aux chauffeurs de taxi · 100% gratuit
+  </div>
+  <h1>Fini WhatsApp.<br><span>Échangez vos courses</span><br>entre collègues.</h1>
+  <p>Postez une course hôpital ou privée en 30 secondes. Un collègue la récupère, vous êtes notifié, elle s'ajoute à son agenda. Sans appel.</p>
+  <div class="l-hero-actions">
+    <a href="#" class="btn-primary-lg">Je suis chauffeur — s'inscrire</a>
+    <a href="#" class="btn-outline-lg">Voir la démo</a>
+  </div>
+
+  <!-- Browser mockup -->
+  <div class="l-hero-img">
+    <div class="screen-chrome">
+      <div class="screen-dot screen-dot-r"></div>
+      <div class="screen-dot screen-dot-y"></div>
+      <div class="screen-dot screen-dot-g"></div>
+      <span class="screen-url">taxilink.app/dashboard/chauffeur</span>
+    </div>
+    <div class="screen-body">
+      <div class="screen-sb">
+        <div class="screen-sb-item active">
+          <svg viewBox="0 0 18 18" fill="none"><path d="M2 4h14M2 7.5h10M2 11h12M2 14.5h7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Missions
+        </div>
+        <div class="screen-sb-item">
+          <svg viewBox="0 0 18 18" fill="none"><circle cx="7" cy="6" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M1 16c0-3 2.7-4.5 6-4.5s6 1.5 6 4.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          Groupes
+        </div>
+        <div class="screen-sb-item">
+          <svg viewBox="0 0 18 18" fill="none"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Nouvelle
+        </div>
+        <div class="screen-sb-item">
+          <svg viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M12 1.5v3M6 1.5v3M2 8h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Agenda
+        </div>
+      </div>
+      <div class="screen-main">
+        <h4>Mes missions — Aujourd'hui</h4>
+        <div class="screen-kpi-row">
+          <div class="screen-kpi">
+            <div class="screen-kpi-label">Partagées</div>
+            <div class="screen-kpi-val">12</div>
+            <div class="screen-kpi-delta">ce mois</div>
+          </div>
+          <div class="screen-kpi">
+            <div class="screen-kpi-label">Acceptées</div>
+            <div class="screen-kpi-val">9</div>
+            <div class="screen-kpi-delta">+3 semaine</div>
+          </div>
+          <div class="screen-kpi">
+            <div class="screen-kpi-label">Temps moyen</div>
+            <div class="screen-kpi-val">38s</div>
+            <div class="screen-kpi-delta">-6s vs mois</div>
+          </div>
+        </div>
+        <div class="screen-chart">
+          <svg viewBox="0 0 500 90" fill="none">
+            <line x1="0" y1="22" x2="500" y2="22" stroke="#E4E4E7" stroke-width="0.8"/>
+            <line x1="0" y1="45" x2="500" y2="45" stroke="#E4E4E7" stroke-width="0.8"/>
+            <line x1="0" y1="68" x2="500" y2="68" stroke="#E4E4E7" stroke-width="0.8"/>
+            <path d="M0 78 Q50 72 100 62 T200 44 T300 32 T400 20 T500 12" stroke="#FBBF24" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M0 78 Q50 72 100 62 T200 44 T300 32 T400 20 T500 12 V90 H0Z" fill="url(#hg)" opacity="0.35"/>
+            <path d="M0 82 Q50 78 100 75 T200 65 T300 58 T400 52 T500 46" stroke="#14B8A6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-dasharray="4 3"/>
+            <circle cx="300" cy="32" r="3.5" fill="#FBBF24"/>
+            <circle cx="500" cy="12" r="3.5" fill="#FBBF24"/>
+            <text x="6"   y="88" fill="#A1A1AA" font-size="8" font-family="DM Sans">S1</text>
+            <text x="118" y="88" fill="#A1A1AA" font-size="8" font-family="DM Sans">S2</text>
+            <text x="238" y="88" fill="#A1A1AA" font-size="8" font-family="DM Sans">S3</text>
+            <text x="358" y="88" fill="#A1A1AA" font-size="8" font-family="DM Sans">S4</text>
+            <text x="462" y="88" fill="#A1A1AA" font-size="8" font-family="DM Sans">Auj.</text>
+            <defs>
+              <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FBBF24" stop-opacity="0.18"/>
+                <stop offset="100%" stop-color="#FBBF24" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     FEATURES
+═══════════════════════════════════════════════════ -->
+<div id="fonctions" class="sect-border">
+
+<!-- F1 — Voice -->
+<div class="l-feat">
+  <div class="l-feat-text">
+    <div class="l-feat-label amber">
+      <svg viewBox="0 0 16 16" fill="none" width="11" height="11"><path d="M8 1.5a2.5 2.5 0 00-2.5 2.5v3.5a2.5 2.5 0 005 0V4A2.5 2.5 0 008 1.5z" fill="currentColor"/><path d="M13 7v.5a5 5 0 01-10 0V7M8 13v2.5M5.5 15.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Création vocale IA
+    </div>
+    <h2>Créez votre course<br><em>par la voix, en roulant</em></h2>
+    <p>Appuyez sur le micro et dictez en langage naturel. L'IA comprend le départ, l'arrivée, l'heure et le type de course — et remplit tout automatiquement. Zéro saisie clavier au volant.</p>
+    <a href="#" class="l-feat-link">
+      En savoir plus
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+  <div class="l-feat-visual">
+    <div class="voice-demo">
+      <div class="voice-circle">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a3 3 0 00-3 3v4a3 3 0 006 0V5a3 3 0 00-3-3z" fill="currentColor"/><path d="M19 10v1a7 7 0 01-14 0v-1M12 18v4M8 22h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="voice-bars">
+        <div class="voice-bar"></div><div class="voice-bar"></div>
+        <div class="voice-bar"></div><div class="voice-bar"></div>
+        <div class="voice-bar"></div><div class="voice-bar"></div>
+      </div>
+      <div class="voice-transcript">
+        "Course CPAM, La Timone vers CHU Nord, demain 8h30"
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- F2 — Groups -->
+<div class="l-feat reverse sect-border">
+  <div class="l-feat-text">
+    <div class="l-feat-label teal">
+      <svg viewBox="0 0 16 16" fill="none" width="11" height="11"><path d="M11 14v-1.5a3 3 0 00-3-3H5a3 3 0 00-3 3V14M6.5 6.5a3 3 0 100-6 3 3 0 000 6zM15 14v-1.5a3 3 0 00-2.25-2.9M10.75.6a3 3 0 010 5.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Réseau de confiance
+    </div>
+    <h2>Votre réseau de collègues,<br><em>organisé et privé</em></h2>
+    <p>Créez un groupe fermé avec les chauffeurs que vous connaissez. Partagez vos courses uniquement avec eux. Code d'invitation avec expiration automatique. Fini le groupe WhatsApp incontrôlable.</p>
+    <a href="#" class="l-feat-link">
+      En savoir plus
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+  <div class="l-feat-visual">
+    <div class="group-demo">
+      <div class="avatar-stack">
+        <div class="av" style="background:#FBBF24">KM</div>
+        <div class="av" style="background:#14B8A6">SB</div>
+        <div class="av" style="background:#3B82F6">YA</div>
+        <div class="av" style="background:#F43F5E">NR</div>
+        <div class="av" style="background:#8B5CF6">+4</div>
+      </div>
+      <div class="group-demo-name">Taxi Station Vieux-Port</div>
+      <div class="group-demo-meta">8 membres · 42 courses ce mois</div>
+      <div class="invite-code-box">CODE : VXPT-7A2K</div>
+      <div style="font-size:0.68rem;color:var(--gray-400);margin-top:2px;">Expire dans 48h · RGPD conforme</div>
+    </div>
+  </div>
+</div>
+
+<!-- F3 — Accept -->
+<div class="l-feat sect-border">
+  <div class="l-feat-text">
+    <div class="l-feat-label blue">
+      <svg viewBox="0 0 16 16" fill="none" width="11" height="11"><path d="M13.5 4L6 12 2.5 8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Acceptation instantanée
+    </div>
+    <h2>Un appui long.<br><em>Course acceptée.</em></h2>
+    <p>Pas de swipe compliqué ni de formulaire. Un appui long fiable, même en conduisant. Notification push instantanée à tout le groupe dès qu'un collègue accepte. Premier arrivé, premier servi.</p>
+    <a href="#" class="l-feat-link">
+      En savoir plus
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+  <div class="l-feat-visual" style="display:flex;justify-content:center;">
+    <div class="phone-demo">
+      <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+      <div class="phone-content">
+        <h5>Courses disponibles</h5>
+        <div class="demo-ride-card">
+          <div class="demo-ride-route">
+            <span class="demo-ride-dot" style="background:var(--teal-500)"></span>
+            Gare St-Charles
+            <span style="color:var(--gray-300)">→</span>
+            <span class="demo-ride-dot" style="background:var(--amber-500)"></span>
+            Aéroport MRS
+          </div>
+          <div class="demo-ride-meta">Demain · 14h00 · Karim M.</div>
+          <button class="demo-ride-btn">Maintenir pour accepter</button>
+        </div>
+        <div class="demo-ride-card">
+          <div class="demo-ride-route">
+            <span class="demo-ride-dot" style="background:var(--teal-500)"></span>
+            La Timone
+            <span style="color:var(--gray-300)">→</span>
+            <span class="demo-ride-dot" style="background:var(--amber-500)"></span>
+            CHU Nord
+          </div>
+          <div class="demo-ride-meta">Auj. · 09h15 · Sami B.</div>
+          <button class="demo-ride-btn accepted">✓ Acceptée par vous</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- F4 — Agenda -->
+<div class="l-feat reverse sect-border">
+  <div class="l-feat-text">
+    <div class="l-feat-label green">
+      <svg viewBox="0 0 16 16" fill="none" width="11" height="11"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 1v2M11 1v2M2 6h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Agenda automatique
+    </div>
+    <h2>Votre planning,<br><em>toujours à jour</em></h2>
+    <p>La course acceptée s'ajoute automatiquement à votre agenda. Zéro saisie manuelle, zéro oubli. Consultez votre semaine en un coup d'œil et naviguez entre les jours.</p>
+    <a href="#" class="l-feat-link">
+      En savoir plus
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+  <div class="l-feat-visual">
+    <div class="agenda-demo">
+      <div class="agenda-date-row">
+        <div class="agenda-chip"><div class="agenda-chip-d">Lun</div><div class="agenda-chip-n">14</div></div>
+        <div class="agenda-chip active"><div class="agenda-chip-d">Mar</div><div class="agenda-chip-n">15</div></div>
+        <div class="agenda-chip"><div class="agenda-chip-d">Mer</div><div class="agenda-chip-n">16</div></div>
+        <div class="agenda-chip"><div class="agenda-chip-d">Jeu</div><div class="agenda-chip-n">17</div></div>
+        <div class="agenda-chip"><div class="agenda-chip-d">Ven</div><div class="agenda-chip-n">18</div></div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-item-time">08h30</div>
+        <div class="agenda-item-dot" style="background:var(--teal-500)"></div>
+        <div>
+          <div class="agenda-item-text">La Timone → CHU Nord</div>
+          <div class="agenda-item-meta">CPAM · Partagée par Sami B.</div>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-item-time">14h00</div>
+        <div class="agenda-item-dot" style="background:var(--amber-500)"></div>
+        <div>
+          <div class="agenda-item-text">Gare St-Charles → Aéroport</div>
+          <div class="agenda-item-meta">Privé · Partagée par Karim M.</div>
+        </div>
+      </div>
+      <div class="agenda-item" style="opacity:0.45;">
+        <div class="agenda-item-time">19h00</div>
+        <div class="agenda-item-dot" style="background:var(--gray-300)"></div>
+        <div>
+          <div class="agenda-item-text">Vieux-Port → Castellane</div>
+          <div class="agenda-item-meta">Standard · Partagée par vous</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /fonctions -->
+
+<!-- ══════════════════════════════════════════════════
+     STEPS
+═══════════════════════════════════════════════════ -->
+<section class="l-steps" id="etapes">
+  <div class="l-steps-inner">
+    <div class="l-feat-label amber" style="margin-bottom:14px;">Comment ça marche</div>
+    <h2>3 étapes. <span>30 secondes.</span></h2>
+    <div class="l-steps-grid">
+      <div class="l-step">
+        <div class="l-step-num">1</div>
+        <div class="l-step-icon amber">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a3 3 0 00-3 3v4a3 3 0 006 0V5a3 3 0 00-3-3z" fill="currentColor"/><path d="M19 10v1a7 7 0 01-14 0v-1M12 18v4M8 22h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h4>Dictez la course</h4>
+        <p>Appuyez sur le micro et parlez naturellement. L'IA extrait le départ, l'arrivée, l'heure et le type de course en quelques secondes.</p>
+      </div>
+      <div class="l-step">
+        <div class="l-step-num">2</div>
+        <div class="l-step-icon teal">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <h4>L'IA publie pour vous</h4>
+        <p>L'annonce est formatée et envoyée instantanément à votre groupe de chauffeurs de confiance. Aucune saisie supplémentaire.</p>
+      </div>
+      <div class="l-step">
+        <div class="l-step-num">3</div>
+        <div class="l-step-icon blue">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h4>Un collègue accepte</h4>
+        <p>Appui long = accepté. Notification push immédiate pour tout le groupe. La course s'ajoute automatiquement à son agenda. C'est terminé.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     PRICING
+═══════════════════════════════════════════════════ -->
+<section class="l-pricing" id="tarifs">
+  <div class="l-feat-label teal" style="margin-bottom:14px;">Tarifs</div>
+  <h2>Gratuit. Pour toujours.</h2>
+  <p>Aucune carte bleue. Aucune commission. Accès illimité dès l'inscription.</p>
+  <div class="l-price-card">
+    <h4>Chauffeur</h4>
+    <div class="l-price-desc">Pour tous les chauffeurs de taxi professionnels</div>
+    <div class="l-price-val">0 <span>€ / mois</span></div>
+    <div class="l-price-period">Pour toujours · 0% de commission</div>
+    <ul class="l-price-list">
+      <li>
+        <svg viewBox="0 0 16 16" fill="none"><path d="M13 4L6 12 3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Création vocale IA illimitée
+      </li>
+      <li>
+        <svg viewBox="0 0 16 16" fill="none"><path d="M13 4L6 12 3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Groupes et partage de courses
+      </li>
+      <li>
+        <svg viewBox="0 0 16 16" fill="none"><path d="M13 4L6 12 3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Agenda synchronisé automatiquement
+      </li>
+      <li>
+        <svg viewBox="0 0 16 16" fill="none"><path d="M13 4L6 12 3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Notifications push en temps réel
+      </li>
+      <li>
+        <svg viewBox="0 0 16 16" fill="none"><path d="M13 4L6 12 3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Historique complet des courses
+      </li>
+      <li>
+        <svg viewBox="0 0 16 16" fill="none"><path d="M13 4L6 12 3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Données 100% RGPD · Hébergées en France
+      </li>
+    </ul>
+    <a href="#" class="l-price-btn dark">Créer mon compte gratuitement</a>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     CTA
+═══════════════════════════════════════════════════ -->
+<section class="l-cta">
+  <h2>Prêt à simplifier vos<br>échanges de courses ?</h2>
+  <p>Rejoignez +2 400 chauffeurs. 5 minutes pour créer votre compte et votre premier groupe.</p>
+  <a href="#" class="btn-amber">Créer mon compte — c'est gratuit</a>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════ -->
+<footer class="l-footer">
+  <div class="l-footer-inner">
+    <div class="l-footer-left">
+      <svg viewBox="0 0 32 32" fill="none" width="22" height="22">
+        <rect width="32" height="32" rx="7" fill="#18181B"/>
+        <path d="M8.5 8.5h15v3.2H19v11.8h-3.2V11.7H8.5V8.5z" fill="#FBBF24"/>
+      </svg>
+      © 2026 TaxiLink Pro. Tous droits réservés.
+    </div>
+    <div class="l-footer-right">
+      <a href="#">Confidentialité</a>
+      <a href="#">CGU</a>
+      <a href="#">RGPD</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -201,6 +201,50 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ---
 
+## Maquettes HTML (session 2026-04-15)
+
+### Landing page — `mockup-redesign.html`
+
+| Élément                          | État       | Notes |
+|----------------------------------|------------|-------|
+| Suppression trust bars chauffeurs | ✅ Terminé | Section "Utilisé par des chauffeurs..." + logos taxi retirée |
+| Suppression trust bars médias    | ✅ Terminé | Section "Les données TaxiLink sont citées par..." + logos médias retirée |
+
+### Application chauffeur — `mockup-app.html` (8 écrans storyboard)
+
+| Écran                   | État       | Notes |
+|-------------------------|------------|-------|
+| Connexion               | ✅ Terminé | Carte centrée 380px, champs email/password, lien oublié |
+| Inscription étape 1     | ✅ Terminé | Email/password/confirmation + Google, barre progression 2px |
+| Inscription étape 2     | ✅ Terminé | Nom/prénom/téléphone/département, grille 2×2 |
+| Missions                | ✅ Terminé | Bannière mission en cours (bordure amber), liste en tableau (Type \| Trajet \| Date·Durée \| Montant) |
+| Agenda                  | ✅ Terminé | Bande semaine (boutons 40px), KPIs du jour, timeline en lignes bordées |
+| Groupes                 | ✅ Terminé | Lignes avec stacks avatars, compteur membres, badge admin |
+| Profil                  | ✅ Terminé | Sidebar 240px (avatar + infos) + KPIs + menu paramètres |
+| Partager mission (modal)| ✅ Terminé | Étapes en segments 2px, sélecteur type, champs adresse, rangée voix |
+
+**Direction design retenue (SensorTower / Vercel) :**
+- Police : Inter
+- Radius : 6px max (4px small, 8px medium)
+- Bordures : 1px `#E5E7EB` partout
+- Header 52px · Tab bar 40px · Boutons 36px
+- Icônes : SVG Feather inline — **zéro emoji**
+- Couleurs : noir/gris + amber `#D97706` uniquement en accent
+
+---
+
+## Prochaines étapes (session 2026-04-15)
+
+| Tâche                                    | Priorité | Notes |
+|------------------------------------------|----------|-------|
+| Appliquer mockup landing → composants site/ | P0 | Hero, Features, HowItWorks, etc. |
+| Appliquer mockup auth → LoginForm + RegisterStep* | P0 | Inter + design épuré |
+| Appliquer mockup dashboard → DriverMissions, DriverAgenda, DriverGroupesScreen, DriverProfilTab | P0 | Tableau missions, SVG icons, radius 6px |
+| `PartagerMissionModal` — formulaire multi-étapes | P1 | BAN+OSRM, Web Speech API, RGPD, tarif CPAM |
+| `driverStore.load()` — connecter dans DriverDashboard | P1 | N'est appelé nulle part actuellement |
+
+---
+
 ## Légende
 
 - ✅ Terminé

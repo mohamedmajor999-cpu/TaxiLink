@@ -1,16 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { formatEur, formatKm } from '@/lib/formatters'
+import { getMissionTypeLabel, getMissionTypeColors } from '@/lib/missionDisplay'
 import {
-  formatEur,
-  formatKm,
   formatTime,
   formatDate,
   formatDateShort,
   isSameDay,
-  getMissionTypeLabel,
-  getMissionTypeColors,
   getMinutesUntil,
   getSecondsUntil,
-} from '@/lib/utils'
+} from '@/lib/dateUtils'
 
 // ─── formatEur ────────────────────────────────────────────────────────────────
 describe('formatEur', () => {

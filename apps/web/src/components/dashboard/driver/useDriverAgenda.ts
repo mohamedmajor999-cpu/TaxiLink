@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
-import { isSameDay } from '@/lib/utils'
+import { isSameDay } from '@/lib/dateUtils'
 import type { Mission } from '@/lib/supabase/types'
 
 function addDays(d: Date, n: number) {

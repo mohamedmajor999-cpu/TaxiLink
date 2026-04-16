@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { Icon } from './Icon'
+import { useToastItem } from './useToastItem'
 
 export type ToastData = {
   id: string
@@ -38,18 +38,8 @@ export function ToastContainer({ toasts, onDismiss }: Props) {
 }
 
 function ToastItem({ toast, onDismiss }: { toast: ToastData; onDismiss: (id: string) => void }) {
-  const [visible, setVisible] = useState(false)
+  const { visible, dismiss } = useToastItem(toast.id, onDismiss)
   const type = toast.type ?? 'info'
-
-  useEffect(() => {
-    // Animate in
-    requestAnimationFrame(() => setVisible(true))
-    const timer = setTimeout(() => {
-      setVisible(false)
-      setTimeout(() => onDismiss(toast.id), 300)
-    }, 4000)
-    return () => clearTimeout(timer)
-  }, [toast.id, onDismiss])
 
   return (
     <div
@@ -63,7 +53,7 @@ function ToastItem({ toast, onDismiss }: { toast: ToastData; onDismiss: (id: str
         {toast.sub && <p className="text-xs text-white/70 mt-0.5 truncate">{toast.sub}</p>}
       </div>
       <button
-        onClick={() => { setVisible(false); setTimeout(() => onDismiss(toast.id), 300) }}
+        onClick={dismiss}
         className="text-white/60 hover:text-white transition-colors"
         aria-label="Fermer"
       >

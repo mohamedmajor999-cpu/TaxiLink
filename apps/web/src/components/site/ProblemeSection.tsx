@@ -1,7 +1,7 @@
 'use client'
 
 import { Icon } from '@/components/ui/Icon'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 import { useProblemeSection } from './useProblemeSection'
 
 const pills = [

@@ -1,20 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useDriverProfilTab } from './useDriverProfilTab'
 import { DriverProfile } from './DriverProfile'
 import { DriverStats } from './DriverStats'
 import { DriverDocuments } from './DriverDocuments'
 
-type SubTab = 'profil' | 'stats' | 'documents'
-
-const subTabs: { id: SubTab; label: string }[] = [
-  { id: 'profil',     label: 'Mon profil'  },
-  { id: 'stats',      label: 'Statistiques' },
-  { id: 'documents',  label: 'Documents'   },
-]
-
 export function DriverProfilTab({ driverName }: { driverName: string }) {
-  const [active, setActive] = useState<SubTab>('profil')
+  const { active, setActive, subTabs } = useDriverProfilTab()
 
   return (
     <div>

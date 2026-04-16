@@ -1,7 +1,7 @@
 'use client'
 
 import { Icon } from '@/components/ui/Icon'
-import { isSameDay } from '@/lib/utils'
+import { isSameDay } from '@/lib/dateUtils'
 import type { Mission } from '@/lib/supabase/types'
 
 const DAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
