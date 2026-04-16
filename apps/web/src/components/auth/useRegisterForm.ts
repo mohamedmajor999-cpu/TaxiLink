@@ -1,6 +1,19 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { authService } from '@/services/authService'
 import { isValidEmail, isValidPassword, isValidPhone } from '@/lib/validators'
+
+function getPasswordStrength(pw: string): 0 | 1 | 2 | 3 | 4 {
+  if (!pw) return 0
+  if (pw.length < 8) return 1
+  let score = 0
+  if (/[a-z]/.test(pw)) score++
+  if (/[A-Z]/.test(pw)) score++
+  if (/[0-9]/.test(pw)) score++
+  if (/[^a-zA-Z0-9]/.test(pw)) score++
+  if (score <= 1) return 2
+  if (score === 2) return 3
+  return 4
+}
 
 export function useRegisterForm() {
   const [step, setStep] = useState<1 | 2>(1)
@@ -22,6 +35,8 @@ export function useRegisterForm() {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error,         setError]         = useState('')
   const [success,       setSuccess]       = useState(false)
+
+  const passwordStrength = useMemo(() => getPasswordStrength(password), [password])
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,6 +95,7 @@ export function useRegisterForm() {
     phone,     setPhone,
     department, setDepartment,
     loading, googleLoading, error, success,
+    passwordStrength,
     handleNextStep, handleSubmit, handleGoogle,
   }
 }

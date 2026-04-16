@@ -151,4 +151,46 @@ describe('useRegisterForm — étape 2', () => {
     act(() => { result.current.setStep(1) })
     expect(result.current.step).toBe(1)
   })
+
+  it('affiche l erreur email déjà inscrit si identities vide', async () => {
+    mockSignUp.mockRejectedValue(new Error('Cette adresse email est déjà inscrite. Connectez-vous ou réinitialisez votre mot de passe.'))
+    const { result } = renderHook(() => useRegisterForm())
+    goToStep2(result)
+    act(() => { result.current.setFirstName('Marc'); result.current.setLastName('Dupont') })
+    await act(async () => { await result.current.handleSubmit(fakeEvent) })
+    expect(result.current.error).toContain('déjà inscrite')
+    expect(result.current.success).toBe(false)
+  })
+})
+
+// ─── passwordStrength ─────────────────────────────────────────────────────────
+describe('useRegisterForm — passwordStrength', () => {
+  it('vaut 0 si le mot de passe est vide', () => {
+    const { result } = renderHook(() => useRegisterForm())
+    expect(result.current.passwordStrength).toBe(0)
+  })
+
+  it('vaut 1 si moins de 8 caractères', () => {
+    const { result } = renderHook(() => useRegisterForm())
+    act(() => { result.current.setPassword('abc') })
+    expect(result.current.passwordStrength).toBe(1)
+  })
+
+  it('vaut 2 si 8+ caractères mais un seul type', () => {
+    const { result } = renderHook(() => useRegisterForm())
+    act(() => { result.current.setPassword('abcdefgh') })
+    expect(result.current.passwordStrength).toBe(2)
+  })
+
+  it('vaut 3 si 8+ caractères avec lettres + chiffres', () => {
+    const { result } = renderHook(() => useRegisterForm())
+    act(() => { result.current.setPassword('abcdef12') })
+    expect(result.current.passwordStrength).toBe(3)
+  })
+
+  it('vaut 4 si 8+ caractères avec majuscule + chiffre + spécial', () => {
+    const { result } = renderHook(() => useRegisterForm())
+    act(() => { result.current.setPassword('Abcdef1!') })
+    expect(result.current.passwordStrength).toBe(4)
+  })
 })

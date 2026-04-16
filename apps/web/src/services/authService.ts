@@ -17,7 +17,7 @@ export const authService = {
     department?: string
   }) {
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: params.email,
       password: params.password,
       options: {
@@ -32,6 +32,10 @@ export const authService = {
       },
     })
     if (error) throw new Error(error.message)
+    // Supabase renvoie un user avec identities vides si l'email est déjà utilisé
+    if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      throw new Error('Cette adresse email est déjà inscrite. Connectez-vous ou réinitialisez votre mot de passe.')
+    }
   },
 
   async signInWithGoogle(redirectTo: string) {
