@@ -42,32 +42,38 @@ describe('authService.signIn', () => {
   })
 })
 
-// ─── signUp ───────────────────────────────────────────────────────────────────
-describe('authService.signUp', () => {
-  const params = {
-    email: 'new@test.com', password: 'pass123',
-    first_name: 'Marc', last_name: 'Dupont', department: '13',
-  }
-
-  it('inscrit un utilisateur sans erreur', async () => {
-    mockSignUp.mockResolvedValue({ error: null })
-    await expect(authService.signUp(params)).resolves.toBeUndefined()
-    expect(mockSignUp).toHaveBeenCalledWith(expect.objectContaining({ email: params.email }))
+// ─── beginSignUp ─────────────────────────────────────────────────────────────
+describe('authService.beginSignUp', () => {
+  it('crée un compte et résout sans erreur', async () => {
+    mockSignUp.mockResolvedValue({ data: { user: { identities: [{ id: '1' }] } }, error: null })
+    await expect(authService.beginSignUp('new@test.com', 'pass123')).resolves.toBeUndefined()
+    expect(mockSignUp).toHaveBeenCalledWith(expect.objectContaining({ email: 'new@test.com' }))
   })
 
-  it('passe first_name et last_name dans les metadata', async () => {
-    mockSignUp.mockResolvedValue({ error: null })
-    await authService.signUp(params)
-    expect(mockSignUp).toHaveBeenCalledWith(expect.objectContaining({
-      options: expect.objectContaining({
-        data: expect.objectContaining({ first_name: 'Marc', last_name: 'Dupont', role: 'driver' }),
-      }),
-    }))
+  it('lève une erreur si email déjà inscrit (identities vides)', async () => {
+    mockSignUp.mockResolvedValue({ data: { user: { identities: [] } }, error: null })
+    await expect(authService.beginSignUp('taken@test.com', 'pass123')).rejects.toThrow('déjà inscrite')
   })
 
-  it('leve une erreur si l email est deja utilise', async () => {
-    mockSignUp.mockResolvedValue({ error: { message: 'User already registered' } })
-    await expect(authService.signUp(params)).rejects.toThrow('User already registered')
+  it('lève une erreur Supabase si signUp échoue', async () => {
+    mockSignUp.mockResolvedValue({ data: null, error: { message: 'Rate limit' } })
+    await expect(authService.beginSignUp('x@test.com', 'pass')).rejects.toThrow('Rate limit')
+  })
+})
+
+// ─── finalizeSignUp ───────────────────────────────────────────────────────────
+describe('authService.finalizeSignUp', () => {
+  it('met à jour les metadata utilisateur', async () => {
+    mockUpdateUser.mockResolvedValue({ error: null })
+    await authService.finalizeSignUp({ first_name: 'Marc', last_name: 'Dupont' })
+    expect(mockUpdateUser).toHaveBeenCalledWith({
+      data: expect.objectContaining({ first_name: 'Marc', last_name: 'Dupont', role: 'driver' }),
+    })
+  })
+
+  it('lève une erreur si updateUser échoue', async () => {
+    mockUpdateUser.mockResolvedValue({ error: { message: 'Unauthorized' } })
+    await expect(authService.finalizeSignUp({ first_name: 'Marc', last_name: 'Dupont' })).rejects.toThrow('Unauthorized')
   })
 })
 

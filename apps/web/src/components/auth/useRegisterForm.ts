@@ -2,60 +2,77 @@ import { useState, useMemo } from 'react'
 import { authService } from '@/services/authService'
 import { isValidEmail, isValidPassword, isValidPhone } from '@/lib/validators'
 
-const STRENGTH_CONFIG = [
-  null,
-  { label: 'Trop court',  bar: 'w-1/4',  color: 'bg-red-500',    text: 'text-red-500'    },
-  { label: 'Faible',      bar: 'w-2/4',  color: 'bg-orange-400', text: 'text-orange-400' },
-  { label: 'Moyen',       bar: 'w-3/4',  color: 'bg-yellow-400', text: 'text-yellow-500' },
-  { label: 'Fort',        bar: 'w-full', color: 'bg-green-500',  text: 'text-green-500'  },
-] as const
+export type StrengthLevel = 0 | 1 | 2 | 3 | 4
 
-export type PasswordStrengthInfo = typeof STRENGTH_CONFIG[1]
+export interface PasswordCriteria {
+  minLength:  boolean
+  hasUpper:   boolean
+  hasNumber:  boolean
+  hasSpecial: boolean
+}
 
-function getPasswordStrength(pw: string): 0 | 1 | 2 | 3 | 4 {
-  if (!pw) return 0
-  if (pw.length < 8) return 1
-  let score = 0
-  if (/[a-z]/.test(pw)) score++
-  if (/[A-Z]/.test(pw)) score++
-  if (/[0-9]/.test(pw)) score++
-  if (/[^a-zA-Z0-9]/.test(pw)) score++
-  if (score <= 1) return 2
-  if (score === 2) return 3
-  return 4
+export interface PasswordStrengthInfo {
+  level:    StrengthLevel
+  label:    string
+  color:    string
+  criteria: PasswordCriteria
+}
+
+function computeStrengthInfo(pw: string): PasswordStrengthInfo {
+  const criteria: PasswordCriteria = {
+    minLength:  pw.length >= 8,
+    hasUpper:   /[A-Z]/.test(pw),
+    hasNumber:  /[0-9]/.test(pw),
+    hasSpecial: /[^a-zA-Z0-9]/.test(pw),
+  }
+
+  if (!pw) return { level: 0, label: '', color: '', criteria }
+  if (!criteria.minLength) return { level: 1, label: 'Trop court', color: 'red', criteria }
+
+  // Score basé sur les types de caractères uniquement (hors longueur)
+  const typeScore = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^a-zA-Z0-9]/].filter(r => r.test(pw)).length
+  if (typeScore <= 1) return { level: 2, label: 'Faible', color: 'orange', criteria }
+  if (typeScore === 2) return { level: 3, label: 'Moyen',  color: 'yellow', criteria }
+  return                     { level: 4, label: 'Fort',   color: 'green',  criteria }
 }
 
 export function useRegisterForm() {
   const [step, setStep] = useState<1 | 2>(1)
 
-  // Étape 1
   const [email,           setEmail]           = useState('')
   const [password,        setPassword]        = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPw,          setShowPw]          = useState(false)
   const [showConfirmPw,   setShowConfirmPw]   = useState(false)
 
-  // Étape 2
   const [firstName,  setFirstName]  = useState('')
   const [lastName,   setLastName]   = useState('')
   const [phone,      setPhone]      = useState('')
   const [department, setDepartment] = useState('')
 
+  const [step1Loading,  setStep1Loading]  = useState(false)
   const [loading,       setLoading]       = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error,         setError]         = useState('')
   const [success,       setSuccess]       = useState(false)
 
-  const passwordStrength     = useMemo(() => getPasswordStrength(password), [password])
-  const passwordStrengthInfo = useMemo(() => STRENGTH_CONFIG[passwordStrength] ?? null, [passwordStrength])
+  const passwordStrengthInfo = useMemo(() => computeStrengthInfo(password), [password])
 
-  const handleNextStep = (e: React.FormEvent) => {
+  const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (!isValidEmail(email))       { setError('Adresse email invalide'); return }
-    if (!isValidPassword(password)) { setError('Le mot de passe doit contenir au moins 8 caractères'); return }
-    if (password !== confirmPassword){ setError('Les mots de passe ne correspondent pas'); return }
-    setStep(2)
+    if (!isValidEmail(email))        { setError('Adresse email invalide'); return }
+    if (!isValidPassword(password))  { setError('Le mot de passe doit contenir au moins 8 caractères'); return }
+    if (password !== confirmPassword) { setError('Les mots de passe ne correspondent pas'); return }
+    setStep1Loading(true)
+    try {
+      await authService.beginSignUp(email, password)
+      setStep(2)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue')
+    } finally {
+      setStep1Loading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,9 +83,7 @@ export function useRegisterForm() {
     if (phone && !isValidPhone(phone)) { setError('Format de téléphone invalide (ex: 0601020304)'); return }
     setLoading(true)
     try {
-      await authService.signUp({
-        email,
-        password,
+      await authService.finalizeSignUp({
         first_name: firstName.trim(),
         last_name:  lastName.trim(),
         phone:      phone || undefined,
@@ -105,8 +120,8 @@ export function useRegisterForm() {
     lastName,  setLastName,
     phone,     setPhone,
     department, setDepartment,
-    loading, googleLoading, error, success,
-    passwordStrength, passwordStrengthInfo,
+    step1Loading, loading, googleLoading, error, success,
+    passwordStrengthInfo,
     handleNextStep, handleSubmit, handleGoogle,
   }
 }

@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
-
 import type { PasswordStrengthInfo } from './useRegisterForm'
 
 interface Props {
@@ -17,9 +16,24 @@ interface Props {
   showConfirmPw:    boolean
   toggleConfirmPw:  () => void
   googleLoading:    boolean
-  passwordStrengthInfo: PasswordStrengthInfo | null
+  step1Loading:     boolean
+  passwordStrengthInfo: PasswordStrengthInfo
   onSubmit:         (e: React.FormEvent) => void
   onGoogle:         () => void
+}
+
+const SEGMENT_COLORS: Record<string, string> = {
+  red:    'bg-red-500',
+  orange: 'bg-orange-400',
+  yellow: 'bg-amber-400',
+  green:  'bg-emerald-500',
+}
+
+const LABEL_COLORS: Record<string, string> = {
+  red:    'text-red-500',
+  orange: 'text-orange-400',
+  yellow: 'text-amber-500',
+  green:  'text-emerald-600',
 }
 
 export function RegisterStep1({
@@ -28,8 +42,12 @@ export function RegisterStep1({
   confirmPassword, setConfirmPassword,
   showPw, togglePw,
   showConfirmPw, toggleConfirmPw,
-  googleLoading, passwordStrengthInfo, onSubmit, onGoogle,
+  googleLoading, step1Loading, passwordStrengthInfo, onSubmit, onGoogle,
 }: Props) {
+  const { level, label, color, criteria } = passwordStrengthInfo
+  const segColor = SEGMENT_COLORS[color] ?? 'bg-line'
+  const labelColor = LABEL_COLORS[color] ?? ''
+
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
@@ -49,12 +67,32 @@ export function RegisterStep1({
             <Icon name={showPw ? 'visibility_off' : 'visibility'} size={18} />
           </button>
         </div>
-        {passwordStrengthInfo && (
-          <div className="mt-2 space-y-1">
-            <div className="h-1.5 bg-line rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-300 ${passwordStrengthInfo.bar} ${passwordStrengthInfo.color}`} />
+
+        {level > 0 && (
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center gap-1.5">
+              <div className="flex gap-1 flex-1">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i}
+                    className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= level ? segColor : 'bg-line'}`} />
+                ))}
+              </div>
+              <span className={`text-xs font-bold ml-1 w-16 text-right ${labelColor}`}>{label}</span>
             </div>
-            <p className={`text-xs font-semibold ${passwordStrengthInfo.text}`}>{passwordStrengthInfo.label}</p>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+              {([
+                { ok: criteria.minLength, text: '8 caractères min.' },
+                { ok: criteria.hasUpper,  text: 'Majuscule' },
+                { ok: criteria.hasNumber, text: 'Chiffre' },
+                { ok: criteria.hasSpecial, text: 'Caractère spécial' },
+              ] as const).map(({ ok, text }) => (
+                <div key={text} className="flex items-center gap-1">
+                  <span className={`text-xs font-semibold transition-colors ${ok ? 'text-emerald-500' : 'text-muted'}`}>
+                    {ok ? '✓' : '·'} {text}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -68,7 +106,7 @@ export function RegisterStep1({
               confirmPassword && password !== confirmPassword
                 ? 'border-red-300 focus:border-red-400'
                 : confirmPassword && password === confirmPassword
-                ? 'border-green-300 focus:border-green-400'
+                ? 'border-emerald-300 focus:border-emerald-400'
                 : 'border-line focus:border-accent'
             }`} />
           <button type="button" onClick={toggleConfirmPw} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted" aria-label="Afficher">
@@ -77,9 +115,11 @@ export function RegisterStep1({
         </div>
       </div>
 
-      <button type="submit"
-        className="w-full h-12 rounded-xl bg-primary font-bold text-secondary text-sm flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors btn-ripple">
-        Continuer <Icon name="arrow_forward" size={18} />
+      <button type="submit" disabled={step1Loading}
+        className="w-full h-12 rounded-xl bg-primary font-bold text-secondary text-sm flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors btn-ripple disabled:opacity-60">
+        {step1Loading
+          ? <><Icon name="sync" size={18} className="animate-spin" />Vérification...</>
+          : <>Continuer <Icon name="arrow_forward" size={18} /></>}
       </button>
 
       <div className="flex items-center gap-3">
