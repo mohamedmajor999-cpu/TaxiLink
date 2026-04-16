@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { profileService } from '@/services/profileService'
@@ -13,10 +13,11 @@ export function useClientAuth() {
   const [loading, setLoading] = useState(true)
   const [missions, setMissions] = useState<Mission[]>([])
   const [missionsError, setMissionsError] = useState<string | null>(null)
+  const loggingOut = useRef(false)
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) { router.push('/auth/login'); return }
+    if (!user) { if (!loggingOut.current) router.push('/auth/login'); return }
 
     Promise.all([
       profileService.getProfile(user.id),
@@ -45,6 +46,7 @@ export function useClientAuth() {
   }
 
   const handleLogout = async () => {
+    loggingOut.current = true
     await authService.signOut()
     router.push('/')
   }

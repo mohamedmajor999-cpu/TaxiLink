@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useDriverStore } from '@/store/driverStore'
@@ -10,10 +10,11 @@ export function useDriverAuth() {
   const { user, loading: authLoading } = useAuth()
   const { load, driver }    = useDriverStore()
   const [loading, setLoading] = useState(true)
+  const loggingOut          = useRef(false)
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) { router.push('/auth/login'); return }
+    if (!user) { if (!loggingOut.current) router.push('/auth/login'); return }
 
     profileService.getProfile(user.id)
       .then(async (profile) => {
@@ -29,6 +30,7 @@ export function useDriverAuth() {
   }, [user, authLoading, router, load])
 
   const handleLogout = async () => {
+    loggingOut.current = true
     await authService.signOut()
     router.push('/')
   }

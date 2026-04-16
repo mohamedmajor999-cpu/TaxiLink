@@ -108,4 +108,24 @@ describe('useDriverAuth — handleLogout', () => {
     expect(mockSignOut).toHaveBeenCalled()
     expect(mockPush).toHaveBeenCalledWith('/')
   })
+
+  it('ne redirige pas vers /auth/login après signOut', async () => {
+    const user = { id: 'drv-3', email: 'd@taxi.fr' }
+    mockUseAuth.mockReturnValue({ user, loading: false } as ReturnType<typeof useAuth>)
+    mockGetProfile.mockResolvedValue({ role: 'driver' })
+    mockSignOut.mockResolvedValue(undefined)
+
+    const { result, rerender } = renderHook(() => useDriverAuth())
+    await act(async () => {})
+    await act(async () => { await result.current.handleLogout() })
+
+    // Simule onAuthStateChange → user = null après signOut
+    mockUseAuth.mockReturnValue({ user: null, loading: false } as ReturnType<typeof useAuth>)
+    rerender()
+    await act(async () => {})
+
+    const calls = mockPush.mock.calls.map(([path]) => path)
+    expect(calls).not.toContain('/auth/login')
+    expect(calls).toContain('/')
+  })
 })
