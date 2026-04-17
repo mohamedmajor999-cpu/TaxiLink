@@ -1,7 +1,11 @@
 'use client'
-import { Mic, X, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react'
+import { Mic, X, ArrowRight, Loader2, AlertCircle, Navigation } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
+import { useVoiceDictation } from '@/hooks/useVoiceDictation'
 import { usePartagerMissionModal } from './usePartagerMissionModal'
+import { MissionVisibilityField } from './MissionVisibilityField'
+import { AddressField } from './AddressField'
+import { FieldCard, Chip } from './MissionFormPrimitives'
 
 interface Props {
   onClose: () => void
@@ -10,18 +14,20 @@ interface Props {
 
 export function PartagerMissionModal({ onClose, mission }: Props) {
   const {
-    isEdit,
-    type, setType,
-    payment, setPayment,
-    visible, toggleVisible,
-    departure, setDeparture,
-    destination, setDestination,
-    time, setTime,
-    price, setPrice,
-    patientName, setPatientName,
-    saving, error, canSubmit,
-    submit,
+    isEdit, type, setType, payment, setPayment,
+    visibility, setVisibility, groupId, setGroupId, myGroups,
+    departure, setDeparture, destination, setDestination,
+    onSelectDeparture, onSelectDestination,
+    distanceKm, durationMin, loadingRoute,
+    time, setTime, price, setPrice, patientName, setPatientName,
+    saving, error, canSubmit, submit,
   } = usePartagerMissionModal(onClose, mission)
+
+  const voice = useVoiceDictation({
+    lang: 'fr-FR',
+    continuous: false,
+    onFinalTranscript: (text) => setDeparture((prev) => (prev ? `${prev} ${text}`.trim() : text)),
+  })
 
   return (
     <div className="fixed inset-0 z-50 bg-paper overflow-y-auto md:static md:z-auto md:overflow-visible">
@@ -47,10 +53,30 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
 
         <div className="px-5 md:px-8 py-8 max-w-2xl mx-auto">
           <div className="flex flex-col items-center text-center gap-2 mb-8">
-            <button type="button" disabled aria-label="Dicter (bientôt disponible)" className="relative w-20 h-20 rounded-full bg-warm-100 flex items-center justify-center text-warm-500 cursor-not-allowed">
-              <Mic className="w-8 h-8" strokeWidth={1.8} />
+            <button
+              type="button"
+              disabled={!voice.isSupported}
+              onClick={voice.isListening ? voice.stop : voice.start}
+              aria-label={!voice.isSupported ? 'Non supporté par votre navigateur' : voice.isListening ? 'Arrêter la dictée' : 'Démarrer la dictée vocale'}
+              title={!voice.isSupported ? 'Non supporté par votre navigateur' : undefined}
+              className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-colors ${
+                !voice.isSupported
+                  ? 'bg-warm-100 text-warm-500 cursor-not-allowed'
+                  : voice.isListening
+                    ? 'bg-brand text-ink'
+                    : 'bg-warm-100 text-warm-500 hover:bg-warm-200'
+              }`}
+            >
+              {voice.isListening && <span className="absolute inset-0 rounded-full bg-brand/40 animate-ping" />}
+              <Mic className="relative w-8 h-8" strokeWidth={1.8} />
             </button>
-            <p className="text-[13px] text-warm-500">Dictée vocale bientôt disponible</p>
+            <p className="text-[13px] text-warm-500 min-h-[1.25rem] max-w-xs truncate">
+              {voice.error
+                ? 'Erreur micro'
+                : voice.isListening
+                  ? voice.interimTranscript || 'J\u2019\u00e9coute\u2026'
+                  : 'Dict\u00e9e vocale'}
+            </p>
           </div>
 
           <h3 className="text-[11px] font-bold uppercase tracking-wider text-warm-500 mb-3">Type de course</h3>
@@ -72,23 +98,34 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
             </FieldCard>
           )}
 
-          <FieldCard label="Départ" filled={departure.trim().length >= 5}>
-            <input
-              value={departure}
-              onChange={(e) => setDeparture(e.target.value)}
-              placeholder="Ex : 12 rue de la République, Marseille"
-              className="w-full h-10 px-3 rounded-xl border border-warm-200 focus:border-ink focus:outline-none text-[14px] text-ink transition-colors"
-            />
-          </FieldCard>
+          <AddressField
+            label="Départ"
+            placeholder="Ex : 12 rue de la République, Marseille"
+            value={departure}
+            onChange={setDeparture}
+            onSelectSuggestion={onSelectDeparture}
+            filled={departure.trim().length >= 5}
+          />
 
-          <FieldCard label="Arrivée" filled={destination.trim().length >= 5}>
-            <input
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              placeholder="Ex : Hôpital Nord, Marseille"
-              className="w-full h-10 px-3 rounded-xl border border-warm-200 focus:border-ink focus:outline-none text-[14px] text-ink transition-colors"
-            />
-          </FieldCard>
+          <AddressField
+            label="Arrivée"
+            placeholder="Ex : Hôpital Nord, Marseille"
+            value={destination}
+            onChange={setDestination}
+            onSelectSuggestion={onSelectDestination}
+            filled={destination.trim().length >= 5}
+          />
+
+          {(loadingRoute || (distanceKm !== null && durationMin !== null)) && (
+            <div className="-mt-1 mb-3 flex items-center gap-1.5 text-[13px] text-warm-500">
+              <Navigation className="w-3.5 h-3.5" strokeWidth={1.8} />
+              {loadingRoute ? (
+                <span>Calcul de l&apos;itinéraire…</span>
+              ) : (
+                <span>{distanceKm} km · {durationMin} min</span>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3 mb-3">
             <FieldCard label="Heure" filled={/^\d{1,2}:\d{2}$/.test(time.trim())} compact>
@@ -121,13 +158,13 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
             </div>
           </FieldCard>
 
-          <FieldCard label="Visible par">
-            <div className="flex flex-wrap gap-2">
-              <Chip dot active={visible.has('taxi13')} onClick={() => toggleVisible('taxi13')}>Taxi13</Chip>
-              <Chip active={visible.has('allo')} onClick={() => toggleVisible('allo')}>+ Allo Taxi Marseille</Chip>
-              <Chip active={visible.has('public')} onClick={() => toggleVisible('public')}>+ Public</Chip>
-            </div>
-          </FieldCard>
+          <MissionVisibilityField
+            visibility={visibility}
+            groupId={groupId}
+            myGroups={myGroups}
+            onSelectPublic={() => { setVisibility('PUBLIC'); setGroupId(null) }}
+            onSelectGroup={(id) => { setVisibility('GROUP'); setGroupId(id) }}
+          />
 
           {error && (
             <div className="mt-3 flex items-start gap-2 rounded-2xl border border-danger/30 bg-danger-soft p-3 text-[13px] text-danger">
@@ -160,39 +197,3 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
   )
 }
 
-function FieldCard({
-  label, children, filled = false, compact = false,
-}: { label?: string; children: React.ReactNode; filled?: boolean; compact?: boolean }) {
-  return (
-    <div className={`rounded-2xl border border-warm-200 bg-paper mb-3 ${compact ? 'p-3' : 'p-4'}`}>
-      {label && (
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-warm-500">{label}</span>
-          {filled && (
-            <span className="w-5 h-5 rounded-full bg-brand flex items-center justify-center">
-              <Check className="w-3 h-3 text-ink" strokeWidth={2.5} />
-            </span>
-          )}
-        </div>
-      )}
-      {children}
-    </div>
-  )
-}
-
-function Chip({
-  active, children, onClick, dot = false,
-}: { active: boolean; children: React.ReactNode; onClick?: () => void; dot?: boolean }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold transition-colors ${
-        active ? 'bg-ink text-paper' : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
-      }`}
-    >
-      {active && dot && <span className="w-1.5 h-1.5 rounded-full bg-brand" />}
-      {children}
-    </button>
-  )
-}

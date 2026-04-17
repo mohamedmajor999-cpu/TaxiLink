@@ -8,9 +8,15 @@ export interface ValidationError {
   message: string
 }
 
+export type MissionVisibility = 'GROUP' | 'PUBLIC'
+
 export interface MissionInput {
   departure: string
   destination: string
+  departure_lat?: number | null
+  departure_lng?: number | null
+  destination_lat?: number | null
+  destination_lng?: number | null
   distance_km?: number | null
   duration_min?: number | null
   price_eur?: number | null
@@ -19,6 +25,8 @@ export interface MissionInput {
   notes?: string | null
   type: 'CPAM' | 'PRIVE' | 'TAXILINK'
   scheduled_at?: string | null
+  visibility?: MissionVisibility
+  group_id?: string | null
 }
 
 export function validateMission(data: MissionInput): ValidationError[] {
@@ -56,6 +64,21 @@ export function validateMission(data: MissionInput): ValidationError[] {
     if (data.duration_min > 600)  errors.push({ field: 'duration_min', message: 'La durée ne peut pas dépasser 600 minutes' })
   }
 
+  for (const [field, val] of [
+    ['departure_lat', data.departure_lat], ['destination_lat', data.destination_lat],
+  ] as const) {
+    if (val !== null && val !== undefined && (val < -90 || val > 90)) {
+      errors.push({ field, message: 'La latitude doit être comprise entre -90 et 90' })
+    }
+  }
+  for (const [field, val] of [
+    ['departure_lng', data.departure_lng], ['destination_lng', data.destination_lng],
+  ] as const) {
+    if (val !== null && val !== undefined && (val < -180 || val > 180)) {
+      errors.push({ field, message: 'La longitude doit être comprise entre -180 et 180' })
+    }
+  }
+
   if (data.phone?.trim()) {
     const cleaned = data.phone.replace(/\s/g, '')
     if (!PHONE_REGEX.test(cleaned)) {
@@ -76,6 +99,14 @@ export function validateMission(data: MissionInput): ValidationError[] {
     if (Number.isNaN(ts)) {
       errors.push({ field: 'scheduled_at', message: 'La date planifiée est invalide' })
     }
+  }
+
+  if (data.visibility !== undefined && data.visibility !== 'GROUP' && data.visibility !== 'PUBLIC') {
+    errors.push({ field: 'visibility', message: 'La visibilité doit être GROUP ou PUBLIC' })
+  }
+
+  if (data.visibility === 'GROUP' && !data.group_id?.trim()) {
+    errors.push({ field: 'group_id', message: 'Un groupe doit être sélectionné pour une course visible par groupe' })
   }
 
   return errors

@@ -81,12 +81,19 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ errors }, { status: 422 })
     }
 
+    const visibility = body.visibility ?? 'GROUP'
+    const groupId = visibility === 'PUBLIC' ? null : (body.group_id ?? null)
+
     const { data, error: updateError } = await ctx.supabase
       .from('missions')
       .update({
         type: body.type,
         departure: body.departure.trim(),
         destination: body.destination.trim(),
+        departure_lat: body.departure_lat ?? null,
+        departure_lng: body.departure_lng ?? null,
+        destination_lat: body.destination_lat ?? null,
+        destination_lng: body.destination_lng ?? null,
         distance_km: body.distance_km ?? null,
         duration_min: body.duration_min ?? null,
         price_eur: body.price_eur ?? null,
@@ -94,6 +101,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         phone: body.phone?.replace(/\s/g, '') || null,
         notes: body.notes?.trim() || null,
         scheduled_at: body.scheduled_at ?? ctx.mission.scheduled_at,
+        visibility,
+        group_id: groupId,
       })
       .eq('id', ctx.id)
       .eq('client_id', ctx.user.id)

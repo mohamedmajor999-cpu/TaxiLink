@@ -45,12 +45,19 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Insertion sécurisée en base
+    const visibility = body.visibility ?? 'GROUP'
+    const groupId = visibility === 'PUBLIC' ? null : (body.group_id ?? null)
+
     const { data, error: insertError } = await supabase.from('missions').insert({
       client_id: user.id,
       type: body.type,
       status: 'AVAILABLE',
       departure: body.departure.trim(),
       destination: body.destination.trim(),
+      departure_lat: body.departure_lat ?? null,
+      departure_lng: body.departure_lng ?? null,
+      destination_lat: body.destination_lat ?? null,
+      destination_lng: body.destination_lng ?? null,
       distance_km: body.distance_km ?? null,
       duration_min: body.duration_min ?? null,
       price_eur: body.price_eur ?? null,
@@ -58,6 +65,8 @@ export async function POST(req: NextRequest) {
       phone: body.phone?.replace(/\s/g, '') || null,
       notes: body.notes?.trim() || null,
       scheduled_at: body.scheduled_at ?? new Date().toISOString(),
+      visibility,
+      group_id: groupId,
     }).select().single()
 
     if (insertError) {

@@ -1,51 +1,38 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { missionService } from '@/services/missionService'
-import { validateMission, type MissionInput } from '@/lib/validators'
+import { useEffect, useMemo, useState } from 'react'
+import { groupService } from '@/services/groupService'
+import { type MissionVisibility } from '@/lib/validators'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
 import type { Mission } from '@/lib/supabase/types'
+import type { Group } from '@taxilink/core'
+import type { AddressSuggestion } from '@/services/addressService'
+import { initialType, timeFromMission, type MissionFormType } from './missionFormHelpers'
+import { useMissionRoute } from './useMissionRoute'
+import { submitMission } from './submitMission'
 
-type MissionType = 'CPAM' | 'PRIVE'
 type PaymentMethod = 'CPAM' | 'CASH' | 'CB'
 
-function defaultTime(): string {
-  const d = new Date(Date.now() + 30 * 60_000)
-  const m = Math.ceil(d.getMinutes() / 15) * 15
-  d.setMinutes(m % 60, 0, 0)
-  if (m >= 60) d.setHours(d.getHours() + 1)
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+function initialVisibility(m: Mission | undefined): MissionVisibility {
+  if (m?.visibility === 'PUBLIC') return 'PUBLIC'
+  return 'GROUP'
 }
 
-function buildScheduledAt(time: string, reference?: string): string | null {
-  const match = /^(\d{1,2}):(\d{2})$/.exec(time.trim())
-  if (!match) return null
-  const [, hh, mm] = match
-  const h = Number(hh), m = Number(mm)
-  if (h > 23 || m > 59) return null
-  const d = reference ? new Date(reference) : new Date()
-  if (Number.isNaN(d.getTime())) return null
-  d.setHours(h, m, 0, 0)
-  return d.toISOString()
-}
-
-function timeFromMission(m: Mission | undefined): string {
-  if (!m) return defaultTime()
-  const d = new Date(m.scheduled_at)
-  if (Number.isNaN(d.getTime())) return defaultTime()
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}
-
-function initialType(m: Mission | undefined): MissionType {
-  return m?.type === 'PRIVE' ? 'PRIVE' : 'CPAM'
+function initialCoords(lat: number | null | undefined, lng: number | null | undefined) {
+  if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng }
+  return null
 }
 
 export function usePartagerMissionModal(onClose: () => void, mission?: Mission) {
   const isEdit = Boolean(mission)
-  const [type, setType] = useState<MissionType>(initialType(mission))
+  const driverId = useDriverStore((s) => s.driver.id)
+
+  const [type, setType] = useState<MissionFormType>(initialType(mission))
   const [payment, setPayment] = useState<PaymentMethod>('CPAM')
-  const [visible, setVisible] = useState<Set<string>>(new Set(['taxi13']))
+  const [visibility, setVisibility] = useState<MissionVisibility>(initialVisibility(mission))
+  const [groupId, setGroupId] = useState<string | null>(mission?.group_id ?? null)
+  const [myGroups, setMyGroups] = useState<Group[]>([])
   const [departure, setDeparture] = useState(mission?.departure ?? '')
   const [destination, setDestination] = useState(mission?.destination ?? '')
   const [time, setTime] = useState(timeFromMission(mission))
@@ -56,12 +43,35 @@ export function usePartagerMissionModal(onClose: () => void, mission?: Mission) 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const toggleVisible = (k: string) => {
-    setVisible((prev) => {
-      const next = new Set(prev)
-      if (next.has(k)) next.delete(k); else next.add(k)
-      return next
-    })
+  const route = useMissionRoute({
+    initialDeparture: initialCoords(mission?.departure_lat, mission?.departure_lng),
+    initialDestination: initialCoords(mission?.destination_lat, mission?.destination_lng),
+    initialDistanceKm: mission?.distance_km ?? null,
+    initialDurationMin: mission?.duration_min ?? null,
+  })
+
+  useEffect(() => {
+    if (!driverId) return
+    let cancelled = false
+    groupService.getMyGroups(driverId).then((groups) => {
+      if (cancelled) return
+      setMyGroups(groups)
+      setGroupId((current) => current ?? mission?.group_id ?? groups[0]?.id ?? null)
+      setVisibility((current) => {
+        if (mission) return current
+        return groups.length === 0 ? 'PUBLIC' : current
+      })
+    }).catch(() => { /* silencieux */ })
+    return () => { cancelled = true }
+  }, [driverId, mission])
+
+  const onSelectDeparture = (s: AddressSuggestion) => {
+    setDeparture(s.label)
+    route.setDepartureCoords({ lat: s.lat, lng: s.lng })
+  }
+  const onSelectDestination = (s: AddressSuggestion) => {
+    setDestination(s.label)
+    route.setDestinationCoords({ lat: s.lat, lng: s.lng })
   }
 
   const canSubmit = useMemo(() => {
@@ -69,57 +79,21 @@ export function usePartagerMissionModal(onClose: () => void, mission?: Mission) 
     if (departure.trim().length < 5) return false
     if (destination.trim().length < 5) return false
     if (type === 'CPAM' && !patientName.trim()) return false
+    if (visibility === 'GROUP' && !groupId) return false
     return true
-  }, [saving, departure, destination, type, patientName])
+  }, [saving, departure, destination, type, patientName, visibility, groupId])
 
   const submit = async () => {
     setError(null)
-
-    const scheduled_at = buildScheduledAt(time, mission?.scheduled_at)
-    if (!scheduled_at) {
-      setError("L'heure doit être au format HH:MM (ex : 15h30 → 15:30)")
-      return
-    }
-
-    const priceNum = price.trim() ? Number(price.replace(',', '.')) : null
-    if (price.trim() && (Number.isNaN(priceNum) || priceNum! < 0)) {
-      setError('Le prix doit être un nombre positif')
-      return
-    }
-
-    const notesMerged = isEdit
-      ? (notes.trim() || null)
-      : ([
-          notes.trim(),
-          `Paiement: ${payment}`,
-          visible.size > 0 ? `Visible: ${Array.from(visible).join(', ')}` : null,
-        ].filter(Boolean).join(' · ').slice(0, 500) || null)
-
-    const payload: MissionInput = {
-      type,
-      departure: departure.trim(),
-      destination: destination.trim(),
-      price_eur: priceNum,
-      patient_name: type === 'CPAM' ? patientName.trim() : null,
-      phone: phone.trim() || null,
-      notes: notesMerged,
-      scheduled_at,
-    }
-
-    const clientErrors = validateMission(payload)
-    if (clientErrors.length > 0) {
-      setError(clientErrors[0].message)
-      return
-    }
-
     setSaving(true)
     try {
-      if (isEdit && mission) {
-        await missionService.update(mission.id, payload)
-      } else {
-        await missionService.create(payload)
-      }
-      const driverId = useDriverStore.getState().driver.id
+      await submitMission({
+        mission, type, departure, destination,
+        departureCoords: route.departureCoords,
+        destinationCoords: route.destinationCoords,
+        distanceKm: route.distanceKm, durationMin: route.durationMin,
+        time, price, patientName, phone, notes, visibility, groupId,
+      })
       if (driverId) await useMissionStore.getState().load(driverId)
       onClose()
     } catch (err) {
@@ -131,17 +105,14 @@ export function usePartagerMissionModal(onClose: () => void, mission?: Mission) 
 
   return {
     isEdit,
-    type, setType,
-    payment, setPayment,
-    visible, toggleVisible,
-    departure, setDeparture,
-    destination, setDestination,
-    time, setTime,
-    price, setPrice,
-    patientName, setPatientName,
-    phone, setPhone,
-    notes, setNotes,
-    saving, error, canSubmit,
-    submit,
+    type, setType, payment, setPayment,
+    visibility, setVisibility, groupId, setGroupId, myGroups,
+    departure, setDeparture, destination, setDestination,
+    onSelectDeparture, onSelectDestination,
+    distanceKm: route.distanceKm, durationMin: route.durationMin,
+    loadingRoute: route.loadingRoute, routeError: route.routeError,
+    time, setTime, price, setPrice,
+    patientName, setPatientName, phone, setPhone, notes, setNotes,
+    saving, error, canSubmit, submit,
   }
 }
