@@ -35,7 +35,7 @@ export function MobileBottomNav({ activeTab, onTabChange, onPostCourse }: Props)
             type="button"
             onClick={onPostCourse}
             aria-label="Poster une course"
-            className="w-14 h-14 rounded-full bg-brand text-ink flex items-center justify-center shadow-fab hover:shadow-fab-hover transition-shadow"
+            className="w-14 h-14 rounded-full bg-ink text-brand flex items-center justify-center shadow-fab hover:shadow-fab-hover transition-shadow"
           >
             <Plus className="w-6 h-6" strokeWidth={2.2} />
           </button>

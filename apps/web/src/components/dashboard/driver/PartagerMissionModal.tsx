@@ -19,8 +19,8 @@ export function PartagerMissionModal({ onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/50 overflow-y-auto md:py-8">
-      <div className="bg-paper w-full min-h-screen md:min-h-0 md:max-w-2xl md:rounded-3xl md:shadow-float overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-paper overflow-y-auto">
+      <div className="bg-paper w-full min-h-screen">
         <header className="sticky top-0 bg-paper z-10 px-5 py-4 border-b border-warm-200 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 bg-ink rounded-lg flex items-center justify-center shrink-0">
@@ -41,7 +41,7 @@ export function PartagerMissionModal({ onClose }: Props) {
           </div>
         </header>
 
-        <div className="px-5 py-8">
+        <div className="px-5 md:px-8 py-8 max-w-2xl mx-auto">
           <div className="flex flex-col items-center text-center gap-3 mb-8">
             <div className="relative">
               <span className="absolute -inset-3 rounded-full border-4 border-brand/60" aria-hidden="true" />

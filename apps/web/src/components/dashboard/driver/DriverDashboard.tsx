@@ -1,5 +1,6 @@
 'use client'
 import { useDriverStore } from '@/store/driverStore'
+import { useMissionStore } from '@/store/missionStore'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileBottomNav } from '@/components/taxilink/MobileBottomNav'
 import { useDriverAuth } from './useDriverAuth'
@@ -8,12 +9,14 @@ import { DriverHome } from './DriverHome'
 import { DriverCoursesScreen } from './DriverCoursesScreen'
 import { DriverGroupesScreen } from './DriverGroupesScreen'
 import { DriverProfilScreen } from './DriverProfilScreen'
+import { CurrentCourseScreen } from './CurrentCourseScreen'
 import { PartagerMissionModal } from './PartagerMissionModal'
 
 export function DriverDashboard() {
   const { driverName, loading, handleLogout } = useDriverAuth()
   const { activeTab, setActiveTab, showCreer, setShowCreer } = useDriverDashboard()
   const { driver } = useDriverStore()
+  const currentMission = useMissionStore((s) => s.currentMission)
 
   if (loading) {
     return (
@@ -46,7 +49,7 @@ export function DriverDashboard() {
       />
 
       <main className="flex-1 min-w-0">
-        {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} />}
+        {activeTab === 'home' && (currentMission ? <CurrentCourseScreen /> : <DriverHome onPostCourse={() => setShowCreer(true)} />)}
         {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={() => setShowCreer(true)} />}
         {activeTab === 'groupes' && (
           <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">

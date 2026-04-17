@@ -1,5 +1,6 @@
 'use client'
-import { Home, List, Plus, Users, User } from 'lucide-react'
+import Link from 'next/link'
+import { Home, List, Plus, Users, User, Eye } from 'lucide-react'
 import { OnlineDot } from './OnlineDot'
 import type { DriverTab, NavBadge } from './navTypes'
 
@@ -59,6 +60,15 @@ export function SidebarNav({
           <Plus className="w-[18px] h-[18px]" strokeWidth={1.8} />
           Poster une course
         </button>
+
+        <Link
+          href="/dashboard/chauffeur/course-en-cours"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-warm-500 hover:bg-warm-50 hover:text-ink transition-colors"
+        >
+          <Eye className="w-[16px] h-[16px]" strokeWidth={1.6} />
+          <span className="flex-1 text-left">Course en cours</span>
+          <span className="text-[10px] uppercase tracking-wider text-warm-400">aperçu</span>
+        </Link>
 
         {ITEMS.slice(2).map((item) => (
           <NavItem
