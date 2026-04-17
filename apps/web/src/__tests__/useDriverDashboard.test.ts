@@ -3,9 +3,9 @@ import { renderHook, act } from '@testing-library/react'
 import { useDriverDashboard } from '@/components/dashboard/driver/useDriverDashboard'
 
 describe('useDriverDashboard — état initial', () => {
-  it('démarre sur l\'onglet "missions"', () => {
+  it('démarre sur l\'onglet "home"', () => {
     const { result } = renderHook(() => useDriverDashboard())
-    expect(result.current.activeTab).toBe('missions')
+    expect(result.current.activeTab).toBe('home')
   })
 
   it('showCreer est false au départ', () => {
@@ -15,10 +15,10 @@ describe('useDriverDashboard — état initial', () => {
 })
 
 describe('useDriverDashboard — navigation onglets', () => {
-  it('change d\'onglet vers "agenda"', () => {
+  it('change d\'onglet vers "courses"', () => {
     const { result } = renderHook(() => useDriverDashboard())
-    act(() => { result.current.setActiveTab('agenda') })
-    expect(result.current.activeTab).toBe('agenda')
+    act(() => { result.current.setActiveTab('courses') })
+    expect(result.current.activeTab).toBe('courses')
   })
 
   it('change d\'onglet vers "groupes"', () => {
