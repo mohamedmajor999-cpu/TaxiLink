@@ -19,8 +19,8 @@ export function PartagerMissionModal({ onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-paper overflow-y-auto">
-      <div className="bg-paper w-full min-h-screen">
+    <div className="fixed inset-0 z-50 bg-paper overflow-y-auto md:static md:z-auto md:overflow-visible">
+      <div className="bg-paper w-full min-h-screen md:min-h-0">
         <header className="sticky top-0 bg-paper z-10 px-5 py-4 border-b border-warm-200 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 bg-ink rounded-lg flex items-center justify-center shrink-0">

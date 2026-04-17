@@ -49,17 +49,23 @@ export function DriverDashboard() {
       />
 
       <main className="flex-1 min-w-0">
-        {activeTab === 'home' && (currentMission ? <CurrentCourseScreen /> : <DriverHome onPostCourse={() => setShowCreer(true)} />)}
-        {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={() => setShowCreer(true)} />}
-        {activeTab === 'groupes' && (
-          <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
-            <DriverGroupesScreen />
-          </div>
-        )}
-        {activeTab === 'profil' && (
-          <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
-            <DriverProfilScreen driverName={driverName} onLogout={handleLogout} />
-          </div>
+        {showCreer ? (
+          <PartagerMissionModal onClose={() => setShowCreer(false)} />
+        ) : (
+          <>
+            {activeTab === 'home' && (currentMission ? <CurrentCourseScreen /> : <DriverHome onPostCourse={() => setShowCreer(true)} />)}
+            {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={() => setShowCreer(true)} />}
+            {activeTab === 'groupes' && (
+              <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
+                <DriverGroupesScreen />
+              </div>
+            )}
+            {activeTab === 'profil' && (
+              <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
+                <DriverProfilScreen driverName={driverName} onLogout={handleLogout} />
+              </div>
+            )}
+          </>
         )}
       </main>
 
@@ -68,8 +74,6 @@ export function DriverDashboard() {
         onTabChange={setActiveTab}
         onPostCourse={() => setShowCreer(true)}
       />
-
-      {showCreer && <PartagerMissionModal onClose={() => setShowCreer(false)} />}
     </div>
   )
 }
