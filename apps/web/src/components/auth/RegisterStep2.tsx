@@ -25,34 +25,32 @@ export function RegisterStep2({
 }: Props) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Nom</label>
-          <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} required
-            placeholder="Fontaine"
-            className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Prénom</label>
-          <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} required
-            placeholder="Marc"
-            className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
-        </div>
+      <div>
+        <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Nom</label>
+        <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} required
+          placeholder="Fontaine"
+          className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Téléphone</label>
-          <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-            placeholder="0601020304"
-            className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Département</label>
-          <input type="text" value={department} onChange={e => setDepartment(e.target.value)}
-            placeholder="13" maxLength={3}
-            className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
-        </div>
+      <div>
+        <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Prénom</label>
+        <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} required
+          placeholder="Marc"
+          className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
+      </div>
+
+      <div>
+        <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Téléphone</label>
+        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+          placeholder="0601020304"
+          className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
+      </div>
+
+      <div>
+        <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Département</label>
+        <input type="text" value={department} onChange={e => setDepartment(e.target.value)}
+          placeholder="13" maxLength={3}
+          className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
       </div>
 
       <button type="submit" disabled={loading}
