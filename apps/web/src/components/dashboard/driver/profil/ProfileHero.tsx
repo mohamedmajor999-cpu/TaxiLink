@@ -1,58 +1,41 @@
 'use client'
-import { Check } from 'lucide-react'
-import { Chip } from '@/components/taxilink/Chip'
+import { Check, Star } from 'lucide-react'
 
 interface Props {
   fullName: string
   initials: string
   isVerified: boolean
-  rating: number
-  totalRides: number
-  onEdit?: () => void
+  proCardNumber?: string
 }
 
-export function ProfileHero({
-  fullName, initials, isVerified, rating, totalRides, onEdit,
-}: Props) {
+export function ProfileHero({ fullName, initials, isVerified, proCardNumber }: Props) {
   return (
-    <section className="bg-paper border border-warm-200 rounded-2xl p-6 shadow-soft mb-5">
-      <div className="flex items-center gap-5">
-        <div className="relative shrink-0">
-          <div className="w-[72px] h-[72px] rounded-full bg-warm-100 grid place-items-center font-semibold text-[22px] text-ink">
-            {initials}
-          </div>
-          {isVerified && (
-            <div
-              className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-brand border-[2.5px] border-paper grid place-items-center"
-              title="Chauffeur vérifié"
-            >
-              <Check className="w-3 h-3 text-ink" strokeWidth={3} />
-            </div>
-          )}
+    <section className="flex flex-col items-center text-center pt-1 pb-6">
+      <div className="relative mb-4">
+        <div className="w-[96px] h-[96px] rounded-full bg-ink text-brand grid place-items-center text-[28px] font-semibold tracking-tight">
+          {initials}
         </div>
-
-        <div className="flex-1 min-w-0">
-          <h1 className="font-serif text-[30px] leading-none text-ink mb-1 truncate">
-            {fullName}
-          </h1>
-          <p className="text-[13px] text-warm-600 mb-3">
-            Chauffeur indépendant · Marseille
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            <Chip>Taxi13</Chip>
-            <Chip>Allo Taxi Marseille</Chip>
-            <Chip variant="accent">★ {rating.toFixed(1)} · {totalRides} course{totalRides > 1 ? 's' : ''}</Chip>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={onEdit}
-          className="shrink-0 h-9 px-4 rounded-lg border border-warm-300 text-sm font-semibold text-ink hover:bg-warm-50 transition-colors"
-        >
-          Modifier
-        </button>
+        {isVerified && (
+          <span
+            className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full bg-brand border-[3px] border-paper grid place-items-center"
+            title="Chauffeur vérifié"
+          >
+            <Check className="w-3.5 h-3.5 text-ink" strokeWidth={3} />
+          </span>
+        )}
       </div>
+      <h1 className="text-[22px] font-bold text-ink leading-tight tracking-tight">
+        {fullName}
+      </h1>
+      <p className="text-[13px] text-warm-500 mt-1">
+        Chauffeur professionnel · Marseille
+      </p>
+      {isVerified && (
+        <span className="mt-3 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-brand-soft border border-brand/40 text-[12px] font-medium text-ink">
+          <Star className="w-3.5 h-3.5" strokeWidth={2} />
+          Carte pro vérifiée{proCardNumber ? ` · #${proCardNumber}` : ''}
+        </span>
+      )}
     </section>
   )
 }
