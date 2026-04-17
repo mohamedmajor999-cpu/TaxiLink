@@ -3,6 +3,7 @@ import { Navigation2, ChevronRight } from 'lucide-react'
 import { RideBadge } from '@/components/taxilink/RideBadge'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { useUpcomingTab, type DayGroup } from './useUpcomingTab'
+import { MissionDetailsModal } from './MissionDetailsModal'
 import type { Mission } from '@/lib/supabase/types'
 
 export function UpcomingTab() {
@@ -55,12 +56,20 @@ export function UpcomingTab() {
         </div>
       )}
 
-      {t.groups.map((g) => <DaySection key={g.key} group={g} />)}
+      {t.groups.map((g) => (
+        <DaySection key={g.key} group={g} onShowDetails={t.openDetails} />
+      ))}
+
+      {t.detailsMission && (
+        <MissionDetailsModal mission={t.detailsMission} onClose={t.closeDetails} />
+      )}
     </div>
   )
 }
 
-function DaySection({ group }: { group: DayGroup }) {
+function DaySection({
+  group, onShowDetails,
+}: { group: DayGroup; onShowDetails: (m: Mission) => void }) {
   return (
     <section className="mb-8">
       <header className="flex items-end justify-between mb-3">
@@ -74,7 +83,7 @@ function DaySection({ group }: { group: DayGroup }) {
       <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {group.missions.map((m) => (
           <li key={m.id}>
-            <AssignedMissionCard mission={m} />
+            <AssignedMissionCard mission={m} onShowDetails={onShowDetails} />
           </li>
         ))}
       </ul>
@@ -82,7 +91,9 @@ function DaySection({ group }: { group: DayGroup }) {
   )
 }
 
-function AssignedMissionCard({ mission }: { mission: Mission }) {
+function AssignedMissionCard({
+  mission, onShowDetails,
+}: { mission: Mission; onShowDetails: (m: Mission) => void }) {
   const d = new Date(mission.scheduled_at)
   const timeLabel = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
   const badge = mission.type === 'CPAM'
@@ -91,6 +102,7 @@ function AssignedMissionCard({ mission }: { mission: Mission }) {
       ? { variant: 'private' as const, label: 'Privé' }
       : { variant: 'fleet' as const, label: 'TaxiLink' }
   const isUrgent = mission.type === 'CPAM'
+  const wazeHref = `https://waze.com/ul?q=${encodeURIComponent(mission.destination)}&navigate=yes`
 
   return (
     <article className="bg-paper border border-warm-200 rounded-2xl overflow-hidden shadow-soft">
@@ -118,12 +130,21 @@ function AssignedMissionCard({ mission }: { mission: Mission }) {
           {(mission.distance_km ?? 0).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km
         </span>
         {isUrgent ? (
-          <button type="button" className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-ink text-paper text-[12px] font-semibold hover:bg-warm-800 transition-colors">
+          <a
+            href={wazeHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-ink text-paper text-[12px] font-semibold hover:bg-warm-800 transition-colors"
+          >
             <Navigation2 className="w-3.5 h-3.5" strokeWidth={1.8} />
             Naviguer
-          </button>
+          </a>
         ) : (
-          <button type="button" className="inline-flex items-center gap-1 h-9 px-4 rounded-lg border border-warm-300 text-ink text-[12px] font-semibold hover:bg-warm-50 transition-colors">
+          <button
+            type="button"
+            onClick={() => onShowDetails(mission)}
+            className="inline-flex items-center gap-1 h-9 px-4 rounded-lg border border-warm-300 text-ink text-[12px] font-semibold hover:bg-warm-50 transition-colors"
+          >
             Voir détails
             <ChevronRight className="w-3.5 h-3.5" strokeWidth={1.8} />
           </button>

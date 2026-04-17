@@ -1,12 +1,9 @@
 'use client'
 import { Filter, Eye } from 'lucide-react'
 import { CourseCard } from '@/components/taxilink/CourseCard'
-import {
-  useDriverHome,
-  HOME_TYPE_FILTERS,
-  HOME_GROUP_FILTERS,
-} from './useDriverHome'
+import { useDriverHome, HOME_TYPE_FILTERS } from './useDriverHome'
 import { HomeMobileHeader } from './home/HomeMobileHeader'
+import { HomeGroupFilterBar } from './home/HomeGroupFilterBar'
 
 interface Props {
   onPostCourse: () => void
@@ -37,11 +34,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
       </button>
 
       <section className="grid grid-cols-3 gap-3 mb-6 md:max-w-2xl" aria-label="Statistiques du jour">
-        <StatCard
-          active
-          label="Aujourd'hui"
-          value={`${h.driver.todayEarnings ?? 0}€`}
-        />
+        <StatCard active label="Aujourd'hui" value={`${h.driver.todayEarnings ?? 0}€`} />
         <StatCard label="Courses" value={String(h.driver.todayRides ?? 0)} />
         <StatCard label="Km" value={String(h.driver.todayKm ?? 0)} />
       </section>
@@ -57,8 +50,11 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
         </div>
         <button
           type="button"
-          aria-label="Filtres"
-          className="w-10 h-10 rounded-full border border-warm-200 bg-paper flex items-center justify-center text-ink hover:bg-warm-50 transition-colors"
+          disabled
+          aria-label="Filtres — bientôt disponible"
+          aria-disabled="true"
+          title="Bientôt disponible"
+          className="w-10 h-10 rounded-full border border-warm-200 bg-paper flex items-center justify-center text-warm-400 cursor-not-allowed opacity-60"
         >
           <Filter className="w-4 h-4" strokeWidth={1.8} />
         </button>
@@ -75,16 +71,11 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
         ))}
       </div>
 
-      <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
-        {HOME_GROUP_FILTERS.map((g) => (
-          <GroupPill
-            key={g.key}
-            active={h.group === g.key}
-            label={g.label}
-            onClick={() => h.setGroup(g.key)}
-          />
-        ))}
-      </div>
+      <HomeGroupFilterBar
+        groups={h.groups}
+        selected={h.selectedGroupId}
+        onSelect={h.setSelectedGroupId}
+      />
 
       {h.loading && <ListSkeleton />}
       {h.error && <ErrorState message={h.error} />}
@@ -93,10 +84,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
       )}
 
       {!h.loading && !h.error && h.cards.length > 0 && (
-        <ul
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-          aria-label="Courses disponibles"
-        >
+        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="Courses disponibles">
           {h.cards.map((c) => (
             <li key={c.id}>
               <CourseCard course={c} onAccept={h.acceptMission} />
@@ -110,9 +98,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
 
 function StatCard({ label, value, active = false }: { label: string; value: string; active?: boolean }) {
   return (
-    <div
-      className={`bg-paper rounded-2xl px-3 py-3 ${active ? 'border-2 border-ink' : 'border border-warm-200'}`}
-    >
+    <div className={`bg-paper rounded-2xl px-3 py-3 ${active ? 'border-2 border-ink' : 'border border-warm-200'}`}>
       <div className="flex items-center gap-1.5 mb-1.5">
         {active && <span className="w-1.5 h-1.5 rounded-full bg-brand" />}
         <span className="text-[12px] text-warm-500">{label}</span>
@@ -130,28 +116,9 @@ function TypePill({ active, label, onClick }: { active: boolean; label: string; 
       type="button"
       onClick={onClick}
       className={`shrink-0 inline-flex items-center h-10 px-5 rounded-full text-[14px] font-semibold transition-colors ${
-        active
-          ? 'bg-ink text-paper'
-          : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
+        active ? 'bg-ink text-paper' : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
       }`}
     >
-      {label}
-    </button>
-  )
-}
-
-function GroupPill({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`shrink-0 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12px] font-semibold transition-colors ${
-        active
-          ? 'bg-ink text-paper'
-          : 'bg-paper text-warm-600 border border-warm-200 hover:bg-warm-50'
-      }`}
-    >
-      {active && <span className="w-1.5 h-1.5 rounded-full bg-brand" />}
       {label}
     </button>
   )

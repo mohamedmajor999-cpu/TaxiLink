@@ -1,6 +1,7 @@
 'use client'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
+import { useMissionEditStore } from '@/store/missionEditStore'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileBottomNav } from '@/components/taxilink/MobileBottomNav'
 import { useDriverAuth } from './useDriverAuth'
@@ -13,7 +14,7 @@ import { CurrentCourseScreen } from './CurrentCourseScreen'
 import { PartagerMissionModal } from './PartagerMissionModal'
 
 export function DriverDashboard() {
-  const { driverName, loading, handleLogout } = useDriverAuth()
+  const { driverName, loading } = useDriverAuth()
   const {
     activeTab,
     setActiveTab,
@@ -24,6 +25,13 @@ export function DriverDashboard() {
   } = useDriverDashboard()
   const { driver } = useDriverStore()
   const currentMission = useMissionStore((s) => s.currentMission)
+  const editingMission = useMissionEditStore((s) => s.editing)
+  const clearEdit = useMissionEditStore((s) => s.clearEdit)
+  const showModal = showCreer || Boolean(editingMission)
+  const closeModal = () => {
+    setShowCreer(false)
+    clearEdit()
+  }
 
   if (loading) {
     return (
@@ -57,8 +65,8 @@ export function DriverDashboard() {
       />
 
       <main className="flex-1 min-w-0">
-        {showCreer ? (
-          <PartagerMissionModal onClose={() => setShowCreer(false)} />
+        {showModal ? (
+          <PartagerMissionModal onClose={closeModal} mission={editingMission ?? undefined} />
         ) : showCurrentCourse ? (
           <CurrentCourseScreen />
         ) : (
@@ -72,7 +80,7 @@ export function DriverDashboard() {
             )}
             {activeTab === 'profil' && (
               <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
-                <DriverProfilScreen driverName={driverName} onLogout={handleLogout} />
+                <DriverProfilScreen driverName={driverName} />
               </div>
             )}
           </>

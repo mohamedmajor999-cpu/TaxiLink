@@ -1,13 +1,31 @@
 'use client'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDriverStore } from '@/store/driverStore'
+import { useAuth } from '@/hooks/useAuth'
+import { driverService } from '@/services/driverService'
 import { useDriverStats } from '../useDriverStats'
 
 const MONTHS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
 
 export function useDriverProfilScreen(driverName: string) {
   const { driver } = useDriverStore()
+  const { user } = useAuth()
   const { missions, loading } = useDriverStats()
+  const [proNumber, setProNumber] = useState<string | null>(null)
+  const [isVerified, setIsVerified] = useState(false)
+
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    driverService.getDriver(user.id)
+      .then((d) => {
+        if (cancelled || !d) return
+        setProNumber(d.pro_number)
+        setIsVerified(d.is_verified)
+      })
+      .catch(() => { /* silencieux : hero retombe sur valeurs par défaut */ })
+    return () => { cancelled = true }
+  }, [user])
 
   const initials = useMemo(() => {
     return driverName.split(' ').map((p) => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'YB'
@@ -47,5 +65,7 @@ export function useDriverProfilScreen(driverName: string) {
     initials,
     fullName: driverName || 'Chauffeur',
     monthlyStats,
+    proNumber,
+    isVerified,
   }
 }

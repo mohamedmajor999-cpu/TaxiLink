@@ -39,7 +39,9 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
           </button>
           <button
             type="button"
-            className="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-semibold text-warm-600 hover:bg-warm-50 transition-colors"
+            disabled
+            title="Bientôt disponible"
+            className="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-semibold text-warm-400 cursor-not-allowed"
           >
             <Download className="w-3.5 h-3.5" strokeWidth={1.8} />
             Exporter

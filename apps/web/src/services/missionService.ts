@@ -91,6 +91,17 @@ export const missionService = {
     return mission
   },
 
+  /** Mettre à jour une mission existante (statut AVAILABLE uniquement, ownership vérifié côté serveur) */
+  async update(id: string, patch: MissionInput): Promise<Mission> {
+    const { mission } = await api.patch<{ mission: Mission }>(`/api/missions/${id}`, patch)
+    return mission
+  },
+
+  /** Supprimer une mission postée (statut AVAILABLE uniquement, ownership vérifié côté serveur) */
+  async remove(id: string): Promise<void> {
+    await api.delete<{ ok: true }>(`/api/missions/${id}`)
+  },
+
   /** Agenda d'un chauffeur : ses missions assignées non terminées, triées par date croissante */
   async getAgenda(driverId: string): Promise<Mission[]> {
     const supabase = createClient()

@@ -1,11 +1,13 @@
 'use client'
-import { Clock, CheckCircle2 } from 'lucide-react'
+import { Clock, CheckCircle2, Loader2 } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { RideBadge } from '@/components/taxilink/RideBadge'
+import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedTab, type PostedMissionView } from './usePostedTab'
 
 export function PostedTab() {
   const p = usePostedTab()
+  const startEdit = useMissionEditStore((s) => s.startEdit)
 
   if (p.loading) {
     return (
@@ -41,14 +43,26 @@ export function PostedTab() {
     <ul className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
       {p.items.map((item) => (
         <li key={item.mission.id}>
-          <PostedCard item={item} />
+          <PostedCard
+            item={item}
+            deleting={p.deletingId === item.mission.id}
+            onEdit={() => startEdit(item.mission)}
+            onDelete={() => p.remove(item.mission.id)}
+          />
         </li>
       ))}
     </ul>
   )
 }
 
-function PostedCard({ item }: { item: PostedMissionView }) {
+function PostedCard({
+  item, deleting, onEdit, onDelete,
+}: {
+  item: PostedMissionView
+  deleting: boolean
+  onEdit: () => void
+  onDelete: () => void
+}) {
   const { mission, status } = item
   const isWaiting = status === 'waiting'
   const cardStyle = isWaiting
@@ -92,10 +106,21 @@ function PostedCard({ item }: { item: PostedMissionView }) {
         <span className="text-[11px] text-warm-500">Postée par vous</span>
         {isWaiting ? (
           <div className="flex gap-2">
-            <button type="button" className="h-8 px-3 rounded-lg text-[12px] font-semibold text-warm-600 hover:bg-warm-50 transition-colors">
+            <button
+              type="button"
+              onClick={onEdit}
+              disabled={deleting}
+              className="h-8 px-3 rounded-lg text-[12px] font-semibold text-warm-600 hover:bg-warm-50 transition-colors disabled:opacity-50"
+            >
               Modifier
             </button>
-            <button type="button" className="h-8 px-3 rounded-lg text-[12px] font-semibold text-danger hover:bg-danger-soft transition-colors">
+            <button
+              type="button"
+              onClick={onDelete}
+              disabled={deleting}
+              className="h-8 px-3 rounded-lg text-[12px] font-semibold text-danger hover:bg-danger-soft transition-colors inline-flex items-center gap-1 disabled:opacity-50"
+            >
+              {deleting && <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />}
               Supprimer
             </button>
           </div>

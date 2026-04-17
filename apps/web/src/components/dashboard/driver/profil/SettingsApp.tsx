@@ -1,12 +1,11 @@
 'use client'
-import { HelpCircle, UserPlus, LogOut } from 'lucide-react'
+import { HelpCircle, UserPlus, LogOut, Loader2 } from 'lucide-react'
 import { SettingItem } from '@/components/taxilink/SettingItem'
+import { useSettingsApp } from './useSettingsApp'
 
-interface Props {
-  onLogout: () => void
-}
+export function SettingsApp() {
+  const s = useSettingsApp()
 
-export function SettingsApp({ onLogout }: Props) {
   return (
     <section className="mb-6">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-warm-500 px-1 mb-2">
@@ -25,10 +24,19 @@ export function SettingsApp({ onLogout }: Props) {
         />
         <SettingItem
           tone="danger"
-          icon={<LogOut className="w-full h-full" strokeWidth={1.8} />}
-          label="Se déconnecter"
-          onClick={onLogout}
+          icon={
+            s.loggingOut
+              ? <Loader2 className="w-full h-full animate-spin" strokeWidth={1.8} />
+              : <LogOut className="w-full h-full" strokeWidth={1.8} />
+          }
+          label={s.loggingOut ? 'Déconnexion…' : 'Se déconnecter'}
+          onClick={s.logout}
         />
+        {s.error && (
+          <div className="bg-danger-soft text-danger text-[12px] px-3 py-2 rounded-xl">
+            {s.error}
+          </div>
+        )}
       </div>
     </section>
   )

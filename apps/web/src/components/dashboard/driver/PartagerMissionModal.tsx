@@ -1,13 +1,16 @@
 'use client'
 import { Mic, X, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react'
+import type { Mission } from '@/lib/supabase/types'
 import { usePartagerMissionModal } from './usePartagerMissionModal'
 
 interface Props {
   onClose: () => void
+  mission?: Mission
 }
 
-export function PartagerMissionModal({ onClose }: Props) {
+export function PartagerMissionModal({ onClose, mission }: Props) {
   const {
+    isEdit,
     type, setType,
     payment, setPayment,
     visible, toggleVisible,
@@ -18,7 +21,7 @@ export function PartagerMissionModal({ onClose }: Props) {
     patientName, setPatientName,
     saving, error, canSubmit,
     submit,
-  } = usePartagerMissionModal(onClose)
+  } = usePartagerMissionModal(onClose, mission)
 
   return (
     <div className="fixed inset-0 z-50 bg-paper overflow-y-auto md:static md:z-auto md:overflow-visible">
@@ -29,8 +32,12 @@ export function PartagerMissionModal({ onClose }: Props) {
               <div className="w-3 h-3 bg-brand rounded-sm" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-[18px] font-bold text-ink leading-tight tracking-tight">Nouvelle course</h2>
-              <p className="text-[12px] text-warm-500 mt-0.5 truncate">Remplissez les informations ci-dessous</p>
+              <h2 className="text-[18px] font-bold text-ink leading-tight tracking-tight">
+                {isEdit ? 'Modifier la course' : 'Nouvelle course'}
+              </h2>
+              <p className="text-[12px] text-warm-500 mt-0.5 truncate">
+                {isEdit ? 'Mettez à jour les informations de la course' : 'Remplissez les informations ci-dessous'}
+              </p>
             </div>
           </div>
           <button type="button" onClick={onClose} aria-label="Fermer" className="w-9 h-9 rounded-lg bg-warm-100 flex items-center justify-center text-ink hover:bg-warm-200 transition-colors shrink-0">
@@ -138,11 +145,11 @@ export function PartagerMissionModal({ onClose }: Props) {
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />
-                Publication…
+                {isEdit ? 'Enregistrement…' : 'Publication…'}
               </>
             ) : (
               <>
-                Publier la course
+                {isEdit ? 'Enregistrer' : 'Publier la course'}
                 <ArrowRight className="w-4 h-4" strokeWidth={2} />
               </>
             )}

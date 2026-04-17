@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
 import type { Mission } from '@/lib/supabase/types'
@@ -26,6 +26,9 @@ export function useUpcomingTab() {
   const [missions, setMissions] = useState<Mission[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [detailsMission, setDetailsMission] = useState<Mission | null>(null)
+  const openDetails = useCallback((m: Mission) => setDetailsMission(m), [])
+  const closeDetails = useCallback(() => setDetailsMission(null), [])
 
   useEffect(() => {
     if (!user) return
@@ -81,5 +84,6 @@ export function useUpcomingTab() {
     next, nextInMinutes,
     todayTotal, todayCount,
     tomorrowTotal, tomorrowCount,
+    detailsMission, openDetails, closeDetails,
   }
 }
