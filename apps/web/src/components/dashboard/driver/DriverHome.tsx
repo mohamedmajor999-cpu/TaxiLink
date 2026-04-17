@@ -1,89 +1,89 @@
 'use client'
-import { OnlineDot } from '@/components/taxilink/OnlineDot'
+import { Filter } from 'lucide-react'
 import { CourseCard } from '@/components/taxilink/CourseCard'
-import { useDriverHome, HOME_FILTERS, type HomeFilter } from './useDriverHome'
+import {
+  useDriverHome,
+  HOME_TYPE_FILTERS,
+  HOME_GROUP_FILTERS,
+} from './useDriverHome'
+import { HomeMobileHeader } from './home/HomeMobileHeader'
 
 interface Props {
   onPostCourse: () => void
 }
 
 export function DriverHome({ onPostCourse }: Props) {
-  const {
-    driver, firstName, cards, counts, filter, setFilter,
-    loading, error, acceptMission,
-  } = useDriverHome()
+  const h = useDriverHome()
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
-      <header className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 className="font-serif text-display-md text-ink leading-tight">
-            Bonjour {firstName} <span className="not-italic">👋</span>
-          </h1>
-          <p className="text-sm text-warm-600 mt-1">
-            {counts.ALL} course{counts.ALL > 1 ? 's' : ''} disponible{counts.ALL > 1 ? 's' : ''} autour de vous
-          </p>
-        </div>
-        <div className="hidden md:flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-warm-200 text-xs font-semibold text-ink">
-            <OnlineDot online={driver.isOnline} size="sm" />
-            {driver.isOnline ? 'En ligne' : 'Hors ligne'}
-          </span>
-          <button
-            type="button"
-            onClick={onPostCourse}
-            className="inline-flex items-center gap-1 h-9 px-4 rounded-lg bg-ink text-paper text-sm font-semibold hover:bg-warm-800 transition-colors"
-          >
-            + Poster
-          </button>
-        </div>
-      </header>
+    <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl mx-auto pb-24 md:pb-6">
+      <HomeMobileHeader
+        city={h.city}
+        postalCode={h.postalCode}
+        isOnline={h.driver.isOnline}
+        onToggleOnline={() => h.setOnline(!h.driver.isOnline)}
+        initials={h.initials}
+      />
 
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" aria-label="Statistiques du jour">
+      <section className="grid grid-cols-3 gap-3 mb-6" aria-label="Statistiques du jour">
         <StatCard
+          active
           label="Aujourd'hui"
-          value={`${driver.todayEarnings ?? 0}€`}
-          hint="Revenus du jour"
+          value={`${h.driver.todayEarnings ?? 0}€`}
         />
-        <StatCard
-          label="Courses faites"
-          value={String(driver.todayRides ?? 0)}
-          hint="Sur la journée"
-        />
-        <StatCard
-          label="Km parcourus"
-          value={String(driver.todayKm ?? 0)}
-          hint="Aujourd'hui"
-        />
-        <StatCard
-          label="Cette semaine"
-          value={`${(driver.todayEarnings ?? 0) * 7}€`}
-          hint="Estimation"
-        />
+        <StatCard label="Courses" value={String(h.driver.todayRides ?? 0)} />
+        <StatCard label="Km" value={String(h.driver.todayKm ?? 0)} />
       </section>
 
-      <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
-        {HOME_FILTERS.map((f) => (
-          <FilterPill
+      <header className="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h2 className="font-serif text-display-sm text-ink leading-tight">Courses dispo</h2>
+          <p className="text-xs text-warm-500 mt-1">
+            {h.counts.ALL} à proximité · {h.nearbyZone}
+          </p>
+        </div>
+        <button
+          type="button"
+          aria-label="Filtres"
+          className="w-10 h-10 rounded-full border border-warm-200 bg-paper flex items-center justify-center text-ink hover:bg-warm-50 transition-colors"
+        >
+          <Filter className="w-4 h-4" strokeWidth={1.8} />
+        </button>
+      </header>
+
+      <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
+        {HOME_TYPE_FILTERS.map((f) => (
+          <TypePill
             key={f.key}
-            active={filter === f.key}
-            count={counts[f.key]}
-            onClick={() => setFilter(f.key)}
-          >
-            {f.label}
-          </FilterPill>
+            active={h.filter === f.key}
+            label={`${f.label} (${h.counts[f.key]})`}
+            onClick={() => h.setFilter(f.key)}
+          />
         ))}
       </div>
 
-      {loading && <ListSkeleton />}
-      {error && <ErrorState message={error} />}
-      {!loading && !error && cards.length === 0 && <EmptyState onPostCourse={onPostCourse} />}
+      <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
+        {HOME_GROUP_FILTERS.map((g) => (
+          <GroupPill
+            key={g.key}
+            active={h.group === g.key}
+            label={g.label}
+            onClick={() => h.setGroup(g.key)}
+          />
+        ))}
+      </div>
 
-      {!loading && !error && cards.length > 0 && (
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="Courses disponibles">
-          {cards.map((c) => (
+      {h.loading && <ListSkeleton />}
+      {h.error && <ErrorState message={h.error} />}
+      {!h.loading && !h.error && h.cards.length === 0 && (
+        <EmptyState onPostCourse={onPostCourse} />
+      )}
+
+      {!h.loading && !h.error && h.cards.length > 0 && (
+        <ul className="flex flex-col gap-4" aria-label="Courses disponibles">
+          {h.cards.map((c) => (
             <li key={c.id}>
-              <CourseCard course={c} onAccept={acceptMission} />
+              <CourseCard course={c} onAccept={h.acceptMission} />
             </li>
           ))}
         </ul>
@@ -92,43 +92,58 @@ export function DriverHome({ onPostCourse }: Props) {
   )
 }
 
-function StatCard({ label, value, hint }: { label: string; value: string; hint: string }) {
+function StatCard({ label, value, active = false }: { label: string; value: string; active?: boolean }) {
   return (
-    <div className="bg-paper border border-warm-200 rounded-2xl p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-warm-500 mb-1.5">
-        {label}
-      </p>
-      <p className="font-serif text-[28px] leading-none text-ink mb-1">{value}</p>
-      <p className="text-[11px] text-warm-500">{hint}</p>
+    <div
+      className={`bg-paper rounded-2xl px-3 py-3 ${active ? 'border-2 border-ink' : 'border border-warm-200'}`}
+    >
+      <div className="flex items-center gap-1.5 mb-1.5">
+        {active && <span className="w-1.5 h-1.5 rounded-full bg-brand" />}
+        <span className="text-[11px] text-warm-500">{label}</span>
+      </div>
+      <p className="font-serif text-[22px] leading-none text-ink">{value}</p>
     </div>
   )
 }
 
-function FilterPill({
-  active, count, onClick, children,
-}: {
-  active: boolean
-  count: number
-  onClick: () => void
-  children: React.ReactNode
-}) {
+function TypePill({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-semibold transition-colors ${active ? 'bg-ink text-paper' : 'bg-warm-100 text-ink hover:bg-warm-200'}`}
+      className={`shrink-0 inline-flex items-center h-9 px-4 rounded-full text-[13px] font-semibold transition-colors ${
+        active
+          ? 'bg-ink text-paper'
+          : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
+      }`}
     >
-      {children}
-      <span className={active ? 'text-paper/70' : 'text-warm-500'}>{count}</span>
+      {label}
+    </button>
+  )
+}
+
+function GroupPill({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`shrink-0 inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-[11px] font-semibold transition-colors ${
+        active
+          ? 'bg-ink text-paper'
+          : 'bg-paper text-warm-600 border border-warm-200 hover:bg-warm-50'
+      }`}
+    >
+      {active && <span className="w-1.5 h-1.5 rounded-full bg-brand" />}
+      {label}
     </button>
   )
 }
 
 function ListSkeleton() {
   return (
-    <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {[0, 1, 2, 3].map((i) => (
-        <li key={i} className="h-64 rounded-2xl bg-warm-100 motion-safe:animate-pulse" />
+    <ul className="flex flex-col gap-4">
+      {[0, 1, 2].map((i) => (
+        <li key={i} className="h-56 rounded-2xl bg-warm-100 motion-safe:animate-pulse" />
       ))}
     </ul>
   )

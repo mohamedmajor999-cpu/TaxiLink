@@ -7,8 +7,9 @@ import { RouteTimeline } from './RouteTimeline'
 export interface CourseCardData {
   id: string
   urgent?: { etaMin: number }
+  scheduledInMin?: number
+  clientName?: string
   badges: { variant: RideBadgeVariant; label: string }[]
-  postedBy: { initials: string; name: string; whenLabel?: string }
   from: { name: string; address?: string }
   to: { name: string; address?: string }
   distanceKm: number
@@ -26,16 +27,10 @@ export function CourseCard({ course, onAccept }: Props) {
   const isUrgent = !!course.urgent
   const cardStyle = isUrgent
     ? 'bg-paper border-2 border-ink rounded-2xl overflow-hidden shadow-soft'
-    : 'bg-paper border border-warm-200 rounded-2xl overflow-hidden shadow-soft hover:shadow-card transition-shadow'
+    : 'bg-paper border border-warm-200 rounded-2xl overflow-hidden hover:shadow-soft transition-shadow'
 
   return (
     <article className={cardStyle}>
-      {isUrgent && (
-        <div className="bg-brand text-ink px-3 py-1 text-[11px] font-bold uppercase tracking-wider">
-          Urgent · dans {course.urgent!.etaMin} min
-        </div>
-      )}
-
       <div className="px-5 pt-4 flex items-start justify-between gap-3">
         <div className="flex flex-wrap gap-1.5">
           {course.badges.map((b) => (
@@ -44,18 +39,27 @@ export function CourseCard({ course, onAccept }: Props) {
             </RideBadge>
           ))}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="w-5 h-5 rounded-full bg-warm-100 flex items-center justify-center text-[10px] font-semibold text-ink">
-            {course.postedBy.initials}
+
+        {isUrgent ? (
+          <div className="text-right shrink-0">
+            <span className="inline-block bg-brand text-ink px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+              Urgent · {course.urgent!.etaMin} min
+            </span>
+            {course.clientName && (
+              <div className="text-[11px] text-warm-600 mt-1">{course.clientName}</div>
+            )}
           </div>
-          <span className="text-xs text-warm-600">
-            De {course.postedBy.name}
-            {course.postedBy.whenLabel && ` · ${course.postedBy.whenLabel}`}
-          </span>
-        </div>
+        ) : (
+          <div className="text-right shrink-0 text-[11px] text-warm-500">
+            {typeof course.scheduledInMin === 'number' && course.scheduledInMin > 0
+              ? `dans ${course.scheduledInMin} min`
+              : 'maintenant'}
+            {course.clientName && <> · {course.clientName}</>}
+          </div>
+        )}
       </div>
 
-      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-start">
+      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end">
         <RouteTimeline from={course.from} to={course.to} />
         <div className="text-right">
           <div className="font-serif text-[34px] leading-none text-ink">
