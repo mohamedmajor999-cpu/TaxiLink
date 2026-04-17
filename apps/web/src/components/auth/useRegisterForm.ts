@@ -11,20 +11,27 @@ export interface PasswordCriteria {
   hasSpecial: boolean
 }
 
+export interface CriterionDisplay {
+  text:  string
+  color: string
+  icon:  string
+}
+
 export interface PasswordStrengthInfo {
   level:      StrengthLevel
   label:      string
   segColor:   string
   labelColor: string
   criteria:   PasswordCriteria
+  criteriaList: CriterionDisplay[]
 }
 
 const STRENGTH_LEVELS = [
   null,
-  { label: 'Trop court', segColor: 'bg-red-500',    labelColor: 'text-red-500'    },
-  { label: 'Faible',     segColor: 'bg-orange-400', labelColor: 'text-orange-400' },
-  { label: 'Moyen',      segColor: 'bg-amber-400',  labelColor: 'text-amber-500'  },
-  { label: 'Fort',       segColor: 'bg-emerald-500',labelColor: 'text-emerald-600'},
+  { label: 'Trop court', segColor: 'bg-rose-400',   labelColor: 'text-rose-400'   },
+  { label: 'Faible',     segColor: 'bg-orange-300', labelColor: 'text-orange-400' },
+  { label: 'Moyen',      segColor: 'bg-amber-300',  labelColor: 'text-amber-400'  },
+  { label: 'Fort',       segColor: 'bg-teal-400',   labelColor: 'text-teal-500'   },
 ] as const
 
 function computeStrengthInfo(pw: string): PasswordStrengthInfo {
@@ -35,13 +42,20 @@ function computeStrengthInfo(pw: string): PasswordStrengthInfo {
     hasSpecial: /[^a-zA-Z0-9]/.test(pw),
   }
 
-  if (!pw) return { level: 0, label: '', segColor: '', labelColor: '', criteria }
-  if (!criteria.minLength) return { level: 1, ...STRENGTH_LEVELS[1]!, criteria }
+  const criteriaList: CriterionDisplay[] = [
+    { text: '8 caractères min.', color: criteria.minLength  ? 'text-teal-500' : 'text-muted', icon: criteria.minLength  ? '✓' : '·' },
+    { text: 'Majuscule',         color: criteria.hasUpper   ? 'text-teal-500' : 'text-muted', icon: criteria.hasUpper   ? '✓' : '·' },
+    { text: 'Chiffre',           color: criteria.hasNumber  ? 'text-teal-500' : 'text-muted', icon: criteria.hasNumber  ? '✓' : '·' },
+    { text: 'Caractère spécial', color: criteria.hasSpecial ? 'text-teal-500' : 'text-muted', icon: criteria.hasSpecial ? '✓' : '·' },
+  ]
+
+  if (!pw) return { level: 0, label: '', segColor: '', labelColor: '', criteria, criteriaList }
+  if (!criteria.minLength) return { level: 1, ...STRENGTH_LEVELS[1]!, criteria, criteriaList }
 
   const typeScore = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^a-zA-Z0-9]/].filter(r => r.test(pw)).length
-  if (typeScore <= 1) return { level: 2, ...STRENGTH_LEVELS[2]!, criteria }
-  if (typeScore === 2) return { level: 3, ...STRENGTH_LEVELS[3]!, criteria }
-  return                     { level: 4, ...STRENGTH_LEVELS[4]!, criteria }
+  if (typeScore <= 1) return { level: 2, ...STRENGTH_LEVELS[2]!, criteria, criteriaList }
+  if (typeScore === 2) return { level: 3, ...STRENGTH_LEVELS[3]!, criteria, criteriaList }
+  return                     { level: 4, ...STRENGTH_LEVELS[4]!, criteria, criteriaList }
 }
 
 export function useRegisterForm() {

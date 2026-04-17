@@ -30,7 +30,7 @@ export function RegisterStep1({
   showConfirmPw, toggleConfirmPw,
   googleLoading, step1Loading, passwordStrengthInfo, onSubmit, onGoogle,
 }: Props) {
-  const { level, label, segColor, labelColor, criteria } = passwordStrengthInfo
+  const { level, label, segColor, labelColor, criteriaList } = passwordStrengthInfo
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -64,15 +64,10 @@ export function RegisterStep1({
               <span className={`text-xs font-bold ml-1 w-16 text-right ${labelColor}`}>{label}</span>
             </div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-              {([
-                { ok: criteria.minLength, text: '8 caractères min.' },
-                { ok: criteria.hasUpper,  text: 'Majuscule' },
-                { ok: criteria.hasNumber, text: 'Chiffre' },
-                { ok: criteria.hasSpecial, text: 'Caractère spécial' },
-              ] as const).map(({ ok, text }) => (
+              {criteriaList.map(({ text, color, icon }) => (
                 <div key={text} className="flex items-center gap-1">
-                  <span className={`text-xs font-semibold transition-colors ${ok ? 'text-emerald-500' : 'text-muted'}`}>
-                    {ok ? '✓' : '·'} {text}
+                  <span className={`text-xs font-semibold transition-colors ${color}`}>
+                    {icon} {text}
                   </span>
                 </div>
               ))}

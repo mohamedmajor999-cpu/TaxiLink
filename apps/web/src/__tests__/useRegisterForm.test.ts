@@ -197,4 +197,15 @@ describe('useRegisterForm — passwordStrengthInfo', () => {
     expect(criteria.hasNumber).toBe(true)
     expect(criteria.hasSpecial).toBe(true)
   })
+
+  it('criteriaList expose text/color/icon pré-calculés', () => {
+    const { result } = renderHook(() => useRegisterForm())
+    act(() => { result.current.setPassword('Abcdef1!') })
+    const { criteriaList } = result.current.passwordStrengthInfo
+    expect(criteriaList).toHaveLength(4)
+    criteriaList.forEach(c => {
+      expect(c.icon).toBe('✓')
+      expect(c.color).toContain('teal')
+    })
+  })
 })
