@@ -14,7 +14,14 @@ import { PartagerMissionModal } from './PartagerMissionModal'
 
 export function DriverDashboard() {
   const { driverName, loading, handleLogout } = useDriverAuth()
-  const { activeTab, setActiveTab, showCreer, setShowCreer } = useDriverDashboard()
+  const {
+    activeTab,
+    setActiveTab,
+    showCreer,
+    setShowCreer,
+    showCurrentCourse,
+    setShowCurrentCourse,
+  } = useDriverDashboard()
   const { driver } = useDriverStore()
   const currentMission = useMissionStore((s) => s.currentMission)
 
@@ -42,6 +49,7 @@ export function DriverDashboard() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onPostCourse={() => setShowCreer(true)}
+        onShowCurrentCourse={() => setShowCurrentCourse(true)}
         driverName={driverName || 'Chauffeur'}
         driverInitials={initials}
         groupName="Taxi13"
@@ -51,9 +59,11 @@ export function DriverDashboard() {
       <main className="flex-1 min-w-0">
         {showCreer ? (
           <PartagerMissionModal onClose={() => setShowCreer(false)} />
+        ) : showCurrentCourse ? (
+          <CurrentCourseScreen />
         ) : (
           <>
-            {activeTab === 'home' && (currentMission ? <CurrentCourseScreen /> : <DriverHome onPostCourse={() => setShowCreer(true)} />)}
+            {activeTab === 'home' && (currentMission ? <CurrentCourseScreen /> : <DriverHome onPostCourse={() => setShowCreer(true)} onShowCurrentCourse={() => setShowCurrentCourse(true)} />)}
             {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={() => setShowCreer(true)} />}
             {activeTab === 'groupes' && (
               <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">

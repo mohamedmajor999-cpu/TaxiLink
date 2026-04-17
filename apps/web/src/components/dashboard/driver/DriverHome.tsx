@@ -1,5 +1,4 @@
 'use client'
-import Link from 'next/link'
 import { Filter, Eye } from 'lucide-react'
 import { CourseCard } from '@/components/taxilink/CourseCard'
 import {
@@ -11,9 +10,10 @@ import { HomeMobileHeader } from './home/HomeMobileHeader'
 
 interface Props {
   onPostCourse: () => void
+  onShowCurrentCourse: () => void
 }
 
-export function DriverHome({ onPostCourse }: Props) {
+export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
   const h = useDriverHome()
 
   return (
@@ -26,14 +26,15 @@ export function DriverHome({ onPostCourse }: Props) {
         initials={h.initials}
       />
 
-      <Link
-        href="/dashboard/chauffeur/course-en-cours"
+      <button
+        type="button"
+        onClick={onShowCurrentCourse}
         className="md:hidden inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full border border-warm-200 bg-paper text-[12px] font-medium text-warm-600 hover:bg-warm-50 transition-colors"
       >
         <Eye className="w-3.5 h-3.5" strokeWidth={1.8} />
         Course en cours
         <span className="text-[10px] uppercase tracking-wider text-warm-400">aperçu</span>
-      </Link>
+      </button>
 
       <section className="grid grid-cols-3 gap-3 mb-6 md:max-w-2xl" aria-label="Statistiques du jour">
         <StatCard

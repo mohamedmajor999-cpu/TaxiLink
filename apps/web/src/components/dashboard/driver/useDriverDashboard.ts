@@ -5,8 +5,21 @@ import type { DriverTab } from '@/components/taxilink/navTypes'
 export type Tab = DriverTab
 
 export function useDriverDashboard() {
-  const [activeTab, setActiveTab] = useState<Tab>('home')
+  const [activeTab, setActiveTabRaw] = useState<Tab>('home')
   const [showCreer, setShowCreer] = useState(false)
+  const [showCurrentCourse, setShowCurrentCourse] = useState(false)
 
-  return { activeTab, setActiveTab, showCreer, setShowCreer }
+  const setActiveTab = (tab: Tab) => {
+    setActiveTabRaw(tab)
+    setShowCurrentCourse(false)
+  }
+
+  return {
+    activeTab,
+    setActiveTab,
+    showCreer,
+    setShowCreer,
+    showCurrentCourse,
+    setShowCurrentCourse,
+  }
 }
