@@ -42,19 +42,19 @@ export function CourseCard({ course, onAccept }: Props) {
 
         {isUrgent ? (
           <div className="text-right shrink-0">
-            <span className="inline-block bg-brand text-ink px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+            <span className="inline-block bg-brand text-ink px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-[0.1em]">
               Urgent · {course.urgent!.etaMin} min
             </span>
             {course.clientName && (
-              <div className="text-[11px] text-warm-600 mt-1">{course.clientName}</div>
+              <div className="text-[11px] text-warm-600 mt-1 tracking-wide">{course.clientName}</div>
             )}
           </div>
         ) : (
-          <div className="text-right shrink-0 text-[11px] text-warm-500">
+          <div className="text-right shrink-0 text-[11px] text-warm-500 tracking-wide">
             {typeof course.scheduledInMin === 'number' && course.scheduledInMin > 0
               ? `dans ${course.scheduledInMin} min`
               : 'maintenant'}
-            {course.clientName && <> · {course.clientName}</>}
+            {course.clientName && <> · <span className="text-warm-600">{course.clientName}</span></>}
           </div>
         )}
       </div>
@@ -62,25 +62,25 @@ export function CourseCard({ course, onAccept }: Props) {
       <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end">
         <RouteTimeline from={course.from} to={course.to} />
         <div className="text-right">
-          <div className="font-serif text-[34px] leading-none text-ink">
+          <div className="font-serif text-[36px] leading-none text-ink tabular-nums tracking-tight">
             {course.priceEur}
-            <span className="text-base align-top font-sans">€</span>
+            <span className="font-serif italic text-[18px] align-top ml-0.5">€</span>
           </div>
         </div>
       </div>
 
-      <div className="px-5 pt-3 pb-4 flex items-center gap-3 text-[12px] text-warm-500">
-        <span className="inline-flex items-center gap-1">
+      <div className="px-5 pt-3 pb-4 flex items-center gap-2.5 text-[12px] text-warm-500 tracking-wide">
+        <span className="inline-flex items-center gap-1 tabular-nums">
           <ArrowLeftRight className="w-3.5 h-3.5" strokeWidth={1.6} />
           {course.distanceKm.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km
         </span>
-        <span aria-hidden="true">·</span>
-        <span className="inline-flex items-center gap-1">
+        <span aria-hidden="true" className="text-warm-300">·</span>
+        <span className="inline-flex items-center gap-1 tabular-nums">
           <Clock className="w-3.5 h-3.5" strokeWidth={1.6} />
           {course.durationMin} min
         </span>
-        <span aria-hidden="true">·</span>
-        <span className="font-semibold text-ink">{course.payment}</span>
+        <span aria-hidden="true" className="text-warm-300">·</span>
+        <span className="font-medium text-ink tracking-wide">{course.payment}</span>
       </div>
 
       <div className="px-5 pb-5">

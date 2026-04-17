@@ -15,9 +15,9 @@ export function RouteTimeline({ from, to, className = '' }: Props) {
       <div className="flex items-start gap-3 relative">
         <div className="w-2.5 h-2.5 rounded-full bg-ink mt-1 flex-shrink-0 relative z-10" />
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-sm text-ink truncate">{from.name}</div>
+          <div className="font-medium text-[14px] text-ink truncate tracking-tight">{from.name}</div>
           {from.address && (
-            <div className="text-xs text-warm-500 truncate">{from.address}</div>
+            <div className="text-[11px] text-warm-500 truncate mt-0.5 tracking-wide">{from.address}</div>
           )}
         </div>
       </div>
@@ -34,9 +34,9 @@ export function RouteTimeline({ from, to, className = '' }: Props) {
       <div className="flex items-start gap-3 relative mt-3.5">
         <div className="w-2.5 h-2.5 rounded-full bg-brand border-2 border-ink mt-1 flex-shrink-0 relative z-10" />
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-sm text-ink truncate">{to.name}</div>
+          <div className="font-medium text-[14px] text-ink truncate tracking-tight">{to.name}</div>
           {to.address && (
-            <div className="text-xs text-warm-500 truncate">{to.address}</div>
+            <div className="text-[11px] text-warm-500 truncate mt-0.5 tracking-wide">{to.address}</div>
           )}
         </div>
       </div>

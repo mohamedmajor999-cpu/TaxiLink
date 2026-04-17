@@ -37,9 +37,11 @@ export function DriverHome({ onPostCourse }: Props) {
 
       <header className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h2 className="font-serif text-display-sm text-ink leading-tight">Courses dispo</h2>
-          <p className="text-xs text-warm-500 mt-1">
-            {h.counts.ALL} à proximité · {h.nearbyZone}
+          <h2 className="font-serif text-[28px] text-ink leading-[1.05] tracking-tight">
+            Courses <span className="italic">dispo</span>
+          </h2>
+          <p className="text-[12px] text-warm-500 mt-1.5 tracking-wide">
+            <span className="font-semibold text-ink">{h.counts.ALL}</span> à proximité · {h.nearbyZone}
           </p>
         </div>
         <button
@@ -97,11 +99,15 @@ function StatCard({ label, value, active = false }: { label: string; value: stri
     <div
       className={`bg-paper rounded-2xl px-3 py-3 ${active ? 'border-2 border-ink' : 'border border-warm-200'}`}
     >
-      <div className="flex items-center gap-1.5 mb-1.5">
+      <div className="flex items-center gap-1.5 mb-2">
         {active && <span className="w-1.5 h-1.5 rounded-full bg-brand" />}
-        <span className="text-[11px] text-warm-500">{label}</span>
+        <span className="text-[10px] text-warm-500 uppercase tracking-[0.08em] font-medium">
+          {label}
+        </span>
       </div>
-      <p className="font-serif text-[22px] leading-none text-ink">{value}</p>
+      <p className="font-serif text-[26px] leading-none text-ink tabular-nums tracking-tight">
+        {value}
+      </p>
     </div>
   )
 }
@@ -111,7 +117,7 @@ function TypePill({ active, label, onClick }: { active: boolean; label: string; 
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 inline-flex items-center h-9 px-4 rounded-full text-[13px] font-semibold transition-colors ${
+      className={`shrink-0 inline-flex items-center h-9 px-4 rounded-full text-[13px] font-medium tracking-wide transition-colors ${
         active
           ? 'bg-ink text-paper'
           : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
@@ -127,7 +133,7 @@ function GroupPill({ active, label, onClick }: { active: boolean; label: string;
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-[11px] font-semibold transition-colors ${
+      className={`shrink-0 inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-[11px] font-medium tracking-wide transition-colors ${
         active
           ? 'bg-ink text-paper'
           : 'bg-paper text-warm-600 border border-warm-200 hover:bg-warm-50'
@@ -160,14 +166,16 @@ function ErrorState({ message }: { message: string }) {
 function EmptyState({ onPostCourse }: { onPostCourse: () => void }) {
   return (
     <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
-      <p className="font-serif text-display-sm text-ink mb-2">Aucune course disponible</p>
-      <p className="text-sm text-warm-600 mb-5">
+      <p className="font-serif text-[26px] leading-tight text-ink mb-2 tracking-tight">
+        Aucune course <span className="italic">disponible</span>
+      </p>
+      <p className="text-sm text-warm-600 mb-5 leading-relaxed">
         Aucune course dans vos groupes pour l&apos;instant.
       </p>
       <button
         type="button"
         onClick={onPostCourse}
-        className="inline-flex items-center h-10 px-5 rounded-lg bg-ink text-paper text-sm font-semibold"
+        className="inline-flex items-center h-10 px-5 rounded-lg bg-ink text-paper text-sm font-medium tracking-wide"
       >
         Poster une course
       </button>
