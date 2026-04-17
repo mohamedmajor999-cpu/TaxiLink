@@ -1,30 +1,32 @@
 import type { Metadata } from 'next'
-import { Navbar } from '@/components/site/Navbar'
+import { LandingNav }          from '@/components/site/LandingNav'
+import { HeroSection }         from '@/components/site/HeroSection'
+import { FeaturesSection }     from '@/components/site/FeaturesSection'
+import { HowItWorksSection }   from '@/components/site/HowItWorksSection'
+import { TestimonialSection }  from '@/components/site/TestimonialSection'
+import { PricingSection }      from '@/components/site/PricingSection'
+import { CtaSection }          from '@/components/site/CtaSection'
+import { LandingFooter }       from '@/components/site/LandingFooter'
+import { JsonLd }              from '@/components/JsonLd'
 
 export const metadata: Metadata = {
-  title: 'TaxiLink Pro — La plateforme des chauffeurs professionnels',
-  description: 'Gérez vos missions, votre agenda et vos revenus en un seul endroit. Rejoignez +2 400 chauffeurs de taxi et VTC sur TaxiLink Pro.',
+  title: 'TaxiLink — Échangez vos courses entre chauffeurs pros',
+  description: 'Postez une course médicale ou privée à la voix en 30 secondes. Un collègue la récupère, vous êtes notifié. Sans appel. Sans WhatsApp.',
   robots: { index: true, follow: true },
 }
-import { Hero } from '@/components/site/Hero'
-import { ProblemeSection } from '@/components/site/ProblemeSection'
-import { Features } from '@/components/site/Features'
-import { PatronSection } from '@/components/site/PatronSection'
-import { GratuitSection } from '@/components/site/GratuitSection'
-import { Footer } from '@/components/site/Footer'
-import { JsonLd } from '@/components/JsonLd'
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main>
       <JsonLd />
-      <Navbar />
-      <Hero />
-      <ProblemeSection />
-      <Features />
-      <PatronSection />
-      <GratuitSection />
-      <Footer />
+      <LandingNav />
+      <HeroSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <TestimonialSection />
+      <PricingSection />
+      <CtaSection />
+      <LandingFooter />
     </main>
   )
 }

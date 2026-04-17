@@ -9,15 +9,37 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // — Tokens existants (dashboard) —
         primary: '#FFD23F',
         secondary: '#1A1A1A',
         accent: '#3B82F6',
         bgsoft: '#F8F9FA',
         line: '#E5E7EB',
         muted: '#9CA3AF',
+        // — Nouveau design system (landing refonte) —
+        ink: '#000000',
+        paper: '#FFFFFF',
+        brand: { DEFAULT: '#FFD11A', soft: '#FFF7CC' },
+        warm: {
+          50: '#F7F5EF',
+          100: '#F1EFE8',
+          200: '#E8E6DF',
+          300: '#D3D1C7',
+          500: '#888780',
+          600: '#5F5E5A',
+          800: '#2C2C2A',
+        },
+        danger: { DEFAULT: '#A32D2D', soft: '#FCEBEB' },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['var(--font-inter)', 'Inter', 'sans-serif'],
+        serif: ['var(--font-serif)', "'Instrument Serif'", 'Georgia', 'serif'],
+      },
+      fontSize: {
+        'display-xl': ['56px', { lineHeight: '1.05', letterSpacing: '-0.02em' }],
+        'display-lg': ['42px', { lineHeight: '1.1', letterSpacing: '-0.015em' }],
+        'display-md': ['32px', { lineHeight: '1.15' }],
+        'display-sm': ['26px', { lineHeight: '1.2' }],
       },
       boxShadow: {
         soft: '0 2px 16px rgba(0,0,0,.04)',
@@ -25,6 +47,9 @@ const config: Config = {
         button: '0 2px 8px rgba(0,0,0,.08)',
         fab: '0 8px 24px rgba(255, 210, 63, 0.4)',
         'fab-hover': '0 12px 32px rgba(255, 210, 63, 0.5)',
+        subtle: '0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04)',
+        float: '0 8px 24px rgba(0,0,0,.08)',
+        toast: '0 12px 32px rgba(0,0,0,.12)',
       },
       borderRadius: {
         '2xl': '16px',

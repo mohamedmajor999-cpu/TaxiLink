@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Instrument_Serif } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 
@@ -8,6 +8,14 @@ const inter = Inter({
   display: 'swap',
   variable: '--font-inter',
   weight: ['400', '500', '600', '700', '800', '900'],
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-serif',
+  weight: '400',
+  style: ['normal', 'italic'],
 })
 
 const BASE_URL = 'https://taxilink.fr'
@@ -63,7 +71,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`scroll-smooth ${inter.variable}`}>
+    <html lang="fr" className={`scroll-smooth ${inter.variable} ${instrumentSerif.variable}`}>
       <body className="font-sans antialiased bg-white text-secondary">
         {children}
         <Script id="sw-register" strategy="afterInteractive">{`
