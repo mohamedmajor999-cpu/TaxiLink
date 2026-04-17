@@ -64,6 +64,7 @@ export function RegisterForm() {
               googleLoading={form.googleLoading}
               step1Loading={form.step1Loading}
               passwordStrengthInfo={form.passwordStrengthInfo}
+              confirmBorderClass={form.confirmBorderClass}
               onSubmit={form.handleNextStep}
               onGoogle={form.handleGoogle}
             />

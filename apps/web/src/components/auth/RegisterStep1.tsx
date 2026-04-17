@@ -18,6 +18,7 @@ interface Props {
   googleLoading:    boolean
   step1Loading:     boolean
   passwordStrengthInfo: PasswordStrengthInfo
+  confirmBorderClass: string
   onSubmit:         (e: React.FormEvent) => void
   onGoogle:         () => void
 }
@@ -28,7 +29,7 @@ export function RegisterStep1({
   confirmPassword, setConfirmPassword,
   showPw, togglePw,
   showConfirmPw, toggleConfirmPw,
-  googleLoading, step1Loading, passwordStrengthInfo, onSubmit, onGoogle,
+  googleLoading, step1Loading, passwordStrengthInfo, confirmBorderClass, onSubmit, onGoogle,
 }: Props) {
   const { level, label, segColor, labelColor, criteriaList } = passwordStrengthInfo
 
@@ -81,13 +82,7 @@ export function RegisterStep1({
         <div className="relative">
           <input type={showConfirmPw ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required
             placeholder="Retapez votre mot de passe"
-            className={`w-full h-12 px-4 pr-12 rounded-xl border-2 focus:outline-none text-sm font-semibold transition-colors ${
-              confirmPassword && password !== confirmPassword
-                ? 'border-red-300 focus:border-red-400'
-                : confirmPassword && password === confirmPassword
-                ? 'border-emerald-300 focus:border-emerald-400'
-                : 'border-line focus:border-accent'
-            }`} />
+            className={`w-full h-12 px-4 pr-12 rounded-xl border-2 focus:outline-none text-sm font-semibold transition-colors ${confirmBorderClass}`} />
           <button type="button" onClick={toggleConfirmPw} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted" aria-label="Afficher">
             <Icon name={showConfirmPw ? 'visibility_off' : 'visibility'} size={18} />
           </button>

@@ -80,6 +80,12 @@ export function useRegisterForm() {
 
   const passwordStrengthInfo = useMemo(() => computeStrengthInfo(password), [password])
 
+  const confirmBorderClass = !confirmPassword
+    ? 'border-line focus:border-accent'
+    : password !== confirmPassword
+    ? 'border-rose-300 focus:border-rose-400'
+    : 'border-teal-300 focus:border-teal-400'
+
   const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -143,7 +149,7 @@ export function useRegisterForm() {
     phone,     setPhone,
     department, setDepartment,
     step1Loading, loading, googleLoading, error, success,
-    passwordStrengthInfo,
+    passwordStrengthInfo, confirmBorderClass,
     handleNextStep, handleSubmit, handleGoogle,
   }
 }
