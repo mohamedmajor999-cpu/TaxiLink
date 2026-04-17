@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       patient_name: body.patient_name?.trim() || null,
       phone: body.phone?.replace(/\s/g, '') || null,
       notes: body.notes?.trim() || null,
-      scheduled_at: new Date().toISOString(),
+      scheduled_at: body.scheduled_at ?? new Date().toISOString(),
     }).select().single()
 
     if (insertError) {

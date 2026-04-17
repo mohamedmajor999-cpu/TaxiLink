@@ -1,22 +1,24 @@
 'use client'
-import { useState } from 'react'
-import { Mic, X, Check, ArrowRight } from 'lucide-react'
-import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
+import { Mic, X, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react'
+import { usePartagerMissionModal } from './usePartagerMissionModal'
 
 interface Props {
   onClose: () => void
 }
 
 export function PartagerMissionModal({ onClose }: Props) {
-  const [type, setType] = useState<'CPAM' | 'PRIVE'>('CPAM')
-  const [payment, setPayment] = useState<'CPAM' | 'CASH' | 'CB'>('CPAM')
-  const [visible, setVisible] = useState<Set<string>>(new Set(['taxi13']))
-
-  const toggleVisible = (k: string) => {
-    const next = new Set(visible)
-    if (next.has(k)) next.delete(k); else next.add(k)
-    setVisible(next)
-  }
+  const {
+    type, setType,
+    payment, setPayment,
+    visible, toggleVisible,
+    departure, setDeparture,
+    destination, setDestination,
+    time, setTime,
+    price, setPrice,
+    patientName, setPatientName,
+    saving, error, canSubmit,
+    submit,
+  } = usePartagerMissionModal(onClose)
 
   return (
     <div className="fixed inset-0 z-50 bg-paper overflow-y-auto md:static md:z-auto md:overflow-visible">
@@ -28,68 +30,79 @@ export function PartagerMissionModal({ onClose }: Props) {
             </div>
             <div className="min-w-0">
               <h2 className="text-[18px] font-bold text-ink leading-tight tracking-tight">Nouvelle course</h2>
-              <p className="text-[12px] text-warm-500 mt-0.5 truncate">Dictez ou saisissez manuellement</p>
+              <p className="text-[12px] text-warm-500 mt-0.5 truncate">Remplissez les informations ci-dessous</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button type="button" className="h-9 px-3 rounded-lg border border-warm-200 text-ink text-[12px] font-semibold hover:bg-warm-50 transition-colors">
-              Brouillon
-            </button>
-            <button type="button" onClick={onClose} aria-label="Fermer" className="w-9 h-9 rounded-lg bg-warm-100 flex items-center justify-center text-ink hover:bg-warm-200 transition-colors">
-              <X className="w-4 h-4" strokeWidth={1.8} />
-            </button>
-          </div>
+          <button type="button" onClick={onClose} aria-label="Fermer" className="w-9 h-9 rounded-lg bg-warm-100 flex items-center justify-center text-ink hover:bg-warm-200 transition-colors shrink-0">
+            <X className="w-4 h-4" strokeWidth={1.8} />
+          </button>
         </header>
 
         <div className="px-5 md:px-8 py-8 max-w-2xl mx-auto">
-          <div className="flex flex-col items-center text-center gap-3 mb-8">
-            <div className="relative">
-              <span className="absolute -inset-3 rounded-full border-4 border-brand/60" aria-hidden="true" />
-              <span className="absolute -inset-1 rounded-full bg-brand/20 blur-sm" aria-hidden="true" />
-              <button type="button" aria-label="Dicter" className="relative w-24 h-24 rounded-full bg-ink flex items-center justify-center text-brand hover:bg-warm-800 transition-colors">
-                <Mic className="w-9 h-9" strokeWidth={2} />
-              </button>
-            </div>
-            <p className="text-[18px] font-bold text-ink tracking-tight">Parlez, l&apos;IA remplit tout</p>
-            <p className="text-[13px] text-warm-500 max-w-xs leading-snug">
-              Ex : «&nbsp;Course médicale hôpital Nord depuis La Rose pour 15h30, 38 euros, CPAM&nbsp;»
-            </p>
-            <div className="flex items-end gap-1 h-6 mt-1" aria-hidden="true">
-              {[0.4, 0.7, 0.5, 1, 0.8, 0.3, 0.6].map((h, i) => (
-                <span key={i} className={`w-1 rounded-full ${i === 2 || i === 4 ? 'bg-brand' : 'bg-ink'}`} style={{ height: `${h * 100}%` }} />
-              ))}
-            </div>
+          <div className="flex flex-col items-center text-center gap-2 mb-8">
+            <button type="button" disabled aria-label="Dicter (bientôt disponible)" className="relative w-20 h-20 rounded-full bg-warm-100 flex items-center justify-center text-warm-500 cursor-not-allowed">
+              <Mic className="w-8 h-8" strokeWidth={1.8} />
+            </button>
+            <p className="text-[13px] text-warm-500">Dictée vocale bientôt disponible</p>
           </div>
 
-          <section className="mb-6">
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-warm-500 mb-2">Transcription</h3>
-            <div className="rounded-2xl border border-warm-200 bg-warm-50 p-4 text-[14px] text-ink leading-relaxed">
-              «&nbsp;Course <HL>médicale</HL> hôpital <HL>Nord</HL> depuis <HL>La Rose</HL> pour <HL>15h30</HL>, <HL>38 euros</HL>, <HL>CPAM</HL>&nbsp;»
-            </div>
-          </section>
-
-          <h3 className="text-[11px] font-bold uppercase tracking-wider text-warm-500 mb-3">Détails détectés</h3>
-
-          <FieldCard label="Type" filled>
+          <h3 className="text-[11px] font-bold uppercase tracking-wider text-warm-500 mb-3">Type de course</h3>
+          <FieldCard filled={true}>
             <div className="flex gap-2">
               <Chip active={type === 'CPAM'} onClick={() => setType('CPAM')}>Médical</Chip>
               <Chip active={type === 'PRIVE'} onClick={() => setType('PRIVE')}>Privé</Chip>
             </div>
           </FieldCard>
 
-          <FieldCard label="Trajet" filled>
-            <RouteTimeline
-              from={{ name: 'La Rose', address: 'Bd de la Rose, 13013' }}
-              to={{ name: 'Hôpital Nord', address: 'Ch. des Bourrely, 13015' }}
+          {type === 'CPAM' && (
+            <FieldCard label="Nom du patient" filled={patientName.trim().length > 0}>
+              <input
+                value={patientName}
+                onChange={(e) => setPatientName(e.target.value)}
+                placeholder="Ex : Jean Dupont"
+                className="w-full h-10 px-3 rounded-xl border border-warm-200 focus:border-ink focus:outline-none text-[14px] text-ink transition-colors"
+              />
+            </FieldCard>
+          )}
+
+          <FieldCard label="Départ" filled={departure.trim().length >= 5}>
+            <input
+              value={departure}
+              onChange={(e) => setDeparture(e.target.value)}
+              placeholder="Ex : 12 rue de la République, Marseille"
+              className="w-full h-10 px-3 rounded-xl border border-warm-200 focus:border-ink focus:outline-none text-[14px] text-ink transition-colors"
+            />
+          </FieldCard>
+
+          <FieldCard label="Arrivée" filled={destination.trim().length >= 5}>
+            <input
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+              placeholder="Ex : Hôpital Nord, Marseille"
+              className="w-full h-10 px-3 rounded-xl border border-warm-200 focus:border-ink focus:outline-none text-[14px] text-ink transition-colors"
             />
           </FieldCard>
 
           <div className="grid grid-cols-2 gap-3 mb-3">
-            <FieldCard label="Heure" filled compact>
-              <p className="text-[22px] font-bold text-ink tabular-nums tracking-tight leading-none">15h30</p>
+            <FieldCard label="Heure" filled={/^\d{1,2}:\d{2}$/.test(time.trim())} compact>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="w-full h-10 px-3 rounded-xl border border-warm-200 focus:border-ink focus:outline-none text-[18px] font-bold text-ink tabular-nums tracking-tight transition-colors"
+              />
             </FieldCard>
-            <FieldCard label="Prix" filled compact>
-              <p className="text-[22px] font-bold text-ink tabular-nums tracking-tight leading-none">38€</p>
+            <FieldCard label="Prix (€)" filled={price.trim().length > 0} compact>
+              <input
+                type="number"
+                inputMode="decimal"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="38"
+                min={0}
+                max={500}
+                className="w-full h-10 px-3 rounded-xl border border-warm-200 focus:border-ink focus:outline-none text-[18px] font-bold text-ink tabular-nums tracking-tight transition-colors"
+              />
             </FieldCard>
           </div>
 
@@ -109,9 +122,30 @@ export function PartagerMissionModal({ onClose }: Props) {
             </div>
           </FieldCard>
 
-          <button type="button" className="mt-6 w-full h-14 rounded-2xl bg-ink text-paper text-[15px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-warm-800 transition-colors">
-            Publier la course
-            <ArrowRight className="w-4 h-4" strokeWidth={2} />
+          {error && (
+            <div className="mt-3 flex items-start gap-2 rounded-2xl border border-danger/30 bg-danger-soft p-3 text-[13px] text-danger">
+              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!canSubmit}
+            className="mt-6 w-full h-14 rounded-2xl bg-ink text-paper text-[15px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-warm-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />
+                Publication…
+              </>
+            ) : (
+              <>
+                Publier la course
+                <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -119,23 +153,21 @@ export function PartagerMissionModal({ onClose }: Props) {
   )
 }
 
-function HL({ children }: { children: React.ReactNode }) {
-  return <span className="bg-brand text-ink px-1.5 py-0.5 rounded font-semibold mx-0.5">{children}</span>
-}
-
 function FieldCard({
   label, children, filled = false, compact = false,
-}: { label: string; children: React.ReactNode; filled?: boolean; compact?: boolean }) {
+}: { label?: string; children: React.ReactNode; filled?: boolean; compact?: boolean }) {
   return (
     <div className={`rounded-2xl border border-warm-200 bg-paper mb-3 ${compact ? 'p-3' : 'p-4'}`}>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-warm-500">{label}</span>
-        {filled && (
-          <span className="w-5 h-5 rounded-full bg-brand flex items-center justify-center">
-            <Check className="w-3 h-3 text-ink" strokeWidth={2.5} />
-          </span>
-        )}
-      </div>
+      {label && (
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-warm-500">{label}</span>
+          {filled && (
+            <span className="w-5 h-5 rounded-full bg-brand flex items-center justify-center">
+              <Check className="w-3 h-3 text-ink" strokeWidth={2.5} />
+            </span>
+          )}
+        </div>
+      )}
       {children}
     </div>
   )

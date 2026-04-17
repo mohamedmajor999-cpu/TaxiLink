@@ -18,6 +18,7 @@ export interface MissionInput {
   phone?: string | null
   notes?: string | null
   type: 'CPAM' | 'PRIVE' | 'TAXILINK'
+  scheduled_at?: string | null
 }
 
 export function validateMission(data: MissionInput): ValidationError[] {
@@ -68,6 +69,13 @@ export function validateMission(data: MissionInput): ValidationError[] {
 
   if (data.notes && data.notes.length > 500) {
     errors.push({ field: 'notes', message: 'Les notes ne peuvent pas dépasser 500 caractères' })
+  }
+
+  if (data.scheduled_at) {
+    const ts = Date.parse(data.scheduled_at)
+    if (Number.isNaN(ts)) {
+      errors.push({ field: 'scheduled_at', message: 'La date planifiée est invalide' })
+    }
   }
 
   return errors
