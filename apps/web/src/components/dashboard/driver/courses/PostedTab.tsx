@@ -27,7 +27,9 @@ export function PostedTab() {
   if (p.items.length === 0) {
     return (
       <div className="mt-6 rounded-2xl border border-warm-200 bg-paper p-10 text-center">
-        <p className="font-serif text-display-sm text-ink mb-2">Aucune course postée</p>
+        <p className="text-[20px] font-bold leading-tight text-ink mb-2 tracking-tight">
+          Aucune course postée
+        </p>
         <p className="text-sm text-warm-600">
           Quand vous partagerez une course avec le réseau, elle apparaîtra ici.
         </p>
@@ -77,11 +79,12 @@ function PostedCard({ item }: { item: PostedMissionView }) {
         </span>
       </div>
 
-      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-start">
+      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end">
         <RouteTimeline from={{ name: mission.departure }} to={{ name: mission.destination }} />
-        <div className="font-serif text-[28px] leading-none text-ink text-right">
-          {Number(mission.price_eur ?? 0)}
-          <span className="text-sm align-top font-sans">€</span>
+        <div className="text-right">
+          <div className="text-[32px] font-bold leading-none text-ink tabular-nums tracking-tight">
+            {Number(mission.price_eur ?? 0)}<span className="text-[24px]">€</span>
+          </div>
         </div>
       </div>
 

@@ -101,7 +101,7 @@ function EventCard({ event }: { event: AgendaEvent }) {
           {isNow && <span className="ml-2 text-[10px] uppercase tracking-wider">En cours</span>}
           {isCompleted && <span className="ml-2 text-[10px] uppercase tracking-wider text-warm-500">Terminée</span>}
         </span>
-        <span className="font-serif text-[14px]">{event.priceEur}€</span>
+        <span className="text-[13px] font-bold tabular-nums tracking-tight">{event.priceEur}€</span>
       </div>
       <div className="truncate text-ink/90">{event.from} → {event.to}</div>
       <div className="text-[11px] text-warm-500 truncate">

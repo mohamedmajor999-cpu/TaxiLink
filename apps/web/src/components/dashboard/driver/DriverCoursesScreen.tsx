@@ -1,5 +1,5 @@
 'use client'
-import { Download, Plus } from 'lucide-react'
+import { Calendar, Download, Plus } from 'lucide-react'
 import { useDriverCoursesScreen, type CoursesTab } from './courses/useDriverCoursesScreen'
 import { UpcomingTab } from './courses/UpcomingTab'
 import { AgendaTab } from './courses/AgendaTab'
@@ -14,16 +14,32 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
   const { active, setActive, subTabs, dateLabel } = useDriverCoursesScreen()
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
-      <header className="flex items-start justify-between gap-4 mb-5">
-        <div>
-          <h1 className="font-serif text-display-md text-ink leading-tight">Mes courses</h1>
-          <p className="text-sm text-warm-600 mt-1 capitalize">{dateLabel}</p>
+    <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-5xl mx-auto pb-24 md:pb-6">
+      <header className="flex items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 md:w-10 md:h-10 bg-ink rounded-lg flex items-center justify-center shrink-0">
+            <div className="w-3 h-3 md:w-3.5 md:h-3.5 bg-brand rounded-sm" />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-[18px] md:text-[22px] font-bold text-ink leading-tight tracking-tight">
+              Mes courses
+            </h1>
+            <p className="text-[12px] md:text-[13px] text-warm-500 mt-0.5 truncate capitalize">
+              {dateLabel}
+            </p>
+          </div>
         </div>
-        <div className="hidden md:flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-semibold text-warm-600 hover:bg-warm-50 transition-colors"
+            aria-label="Agenda"
+            className="w-9 h-9 md:hidden rounded-lg border border-warm-200 bg-paper flex items-center justify-center text-ink hover:bg-warm-50 transition-colors"
+          >
+            <Calendar className="w-4 h-4" strokeWidth={1.8} />
+          </button>
+          <button
+            type="button"
+            className="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-semibold text-warm-600 hover:bg-warm-50 transition-colors"
           >
             <Download className="w-3.5 h-3.5" strokeWidth={1.8} />
             Exporter
@@ -31,7 +47,7 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
           <button
             type="button"
             onClick={onPostCourse}
-            className="inline-flex items-center gap-1 h-9 px-4 rounded-lg bg-ink text-paper text-sm font-semibold hover:bg-warm-800 transition-colors"
+            className="hidden md:inline-flex items-center gap-1 h-9 px-4 rounded-lg bg-ink text-paper text-sm font-semibold hover:bg-warm-800 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" strokeWidth={2.2} />
             Nouvelle course
@@ -39,8 +55,8 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
         </div>
       </header>
 
-      <nav className="flex items-center gap-6 border-b border-warm-200 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-        {subTabs.map((t) => <TabButton key={t.id} tab={t} active={active} onClick={setActive} />)}
+      <nav className="grid grid-cols-4 gap-2 mb-5 md:max-w-2xl">
+        {subTabs.map((t) => <TabPill key={t.id} tab={t} active={active} onClick={setActive} />)}
       </nav>
 
       <div className="transition-opacity">
@@ -53,7 +69,7 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
   )
 }
 
-function TabButton({
+function TabPill({
   tab, active, onClick,
 }: {
   tab: { id: CoursesTab; label: string; icon?: string }
@@ -65,9 +81,12 @@ function TabButton({
     <button
       type="button"
       onClick={() => onClick(tab.id)}
-      className={`shrink-0 inline-flex items-center gap-1.5 px-1 py-3 -mb-px border-b-2 text-sm font-semibold transition-colors ${isActive ? 'border-ink text-ink' : 'border-transparent text-warm-500 hover:text-ink'}`}
+      className={`inline-flex items-center justify-center h-11 px-3 rounded-full text-[13px] font-semibold transition-colors ${
+        isActive
+          ? 'bg-ink text-paper'
+          : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
+      }`}
     >
-      {tab.icon && <span>{tab.icon}</span>}
       {tab.label}
     </button>
   )

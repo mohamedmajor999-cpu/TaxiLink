@@ -48,7 +48,9 @@ export function UpcomingTab() {
 
       {t.groups.length === 0 && (
         <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
-          <p className="font-serif text-display-sm text-ink mb-2">Aucune course prévue</p>
+          <p className="text-[20px] font-bold leading-tight text-ink mb-2 tracking-tight">
+            Aucune course prévue
+          </p>
           <p className="text-sm text-warm-600">Vos courses à venir s&apos;afficheront ici.</p>
         </div>
       )}
@@ -102,16 +104,17 @@ function AssignedMissionCard({ mission }: { mission: Mission }) {
         </span>
       </div>
 
-      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-start">
+      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end">
         <RouteTimeline from={{ name: mission.departure }} to={{ name: mission.destination }} />
-        <div className="font-serif text-[28px] leading-none text-ink text-right">
-          {Number(mission.price_eur ?? 0)}
-          <span className="text-sm align-top font-sans">€</span>
+        <div className="text-right">
+          <div className="text-[32px] font-bold leading-none text-ink tabular-nums tracking-tight">
+            {Number(mission.price_eur ?? 0)}<span className="text-[24px]">€</span>
+          </div>
         </div>
       </div>
 
       <div className="px-5 pt-3 pb-4 flex items-center justify-between gap-3 text-[12px] text-warm-500">
-        <span>
+        <span className="tabular-nums">
           {(mission.distance_km ?? 0).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km
         </span>
         {isUrgent ? (
@@ -135,10 +138,11 @@ function MiniStat({
 }: { label: string; value: string; hint: string; dark?: boolean }) {
   return (
     <div className={`rounded-2xl p-4 border ${dark ? 'bg-ink text-paper border-ink' : 'bg-paper border-warm-200 text-ink'}`}>
-      <p className={`text-[11px] font-semibold uppercase tracking-wider mb-1.5 ${dark ? 'text-paper/60' : 'text-warm-500'}`}>
-        {label}
-      </p>
-      <p className={`font-serif text-[28px] leading-none mb-1 ${dark ? 'text-paper' : 'text-ink'}`}>
+      <div className="flex items-center gap-1.5 mb-1.5">
+        {dark && <span className="w-1.5 h-1.5 rounded-full bg-brand" />}
+        <p className={`text-[12px] ${dark ? 'text-paper/70' : 'text-warm-500'}`}>{label}</p>
+      </div>
+      <p className={`text-[24px] font-bold leading-none mb-1 tabular-nums tracking-tight ${dark ? 'text-paper' : 'text-ink'}`}>
         {value}
       </p>
       <p className={`text-[11px] ${dark ? 'text-paper/60' : 'text-warm-500'} truncate`}>{hint}</p>

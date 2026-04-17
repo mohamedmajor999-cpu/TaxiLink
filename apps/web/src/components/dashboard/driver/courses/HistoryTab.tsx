@@ -26,7 +26,9 @@ export function HistoryTab() {
   if (h.groups.length === 0) {
     return (
       <div className="mt-6 rounded-2xl border border-warm-200 bg-paper p-10 text-center">
-        <p className="font-serif text-display-sm text-ink mb-2">Aucune course terminée</p>
+        <p className="text-[20px] font-bold leading-tight text-ink mb-2 tracking-tight">
+          Aucune course terminée
+        </p>
         <p className="text-sm text-warm-600">
           Vos courses terminées s&apos;afficheront ici, regroupées par mois.
         </p>
@@ -88,7 +90,7 @@ function HistoryRow({ mission }: { mission: Mission }) {
       <span className="flex-1 text-[13px] text-ink truncate">
         {mission.departure} → {mission.destination}
       </span>
-      <span className="font-serif text-[18px] text-ink">
+      <span className="text-[16px] font-bold text-ink tabular-nums tracking-tight">
         {Number(mission.price_eur ?? 0)}€
       </span>
       <ChevronRight className="w-4 h-4 text-warm-400 shrink-0" strokeWidth={1.6} />
