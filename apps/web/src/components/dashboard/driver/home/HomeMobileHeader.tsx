@@ -18,8 +18,8 @@ export function HomeMobileHeader({
           <div className="w-3 h-3 bg-brand rounded-sm" />
         </div>
         <div className="min-w-0">
-          <div className="font-serif text-[17px] text-ink leading-none tracking-tight">TaxiLink</div>
-          <div className="text-[11px] text-warm-500 truncate mt-0.5 tracking-wide">
+          <div className="text-[15px] font-semibold text-ink leading-tight">TaxiLink</div>
+          <div className="text-[12px] text-warm-500 truncate">
             {city} · {postalCode}
           </div>
         </div>
@@ -30,7 +30,7 @@ export function HomeMobileHeader({
           type="button"
           onClick={onToggleOnline}
           aria-pressed={isOnline}
-          className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-medium tracking-wide transition-colors ${
+          className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-colors ${
             isOnline ? 'bg-ink text-paper' : 'bg-warm-100 text-warm-600'
           }`}
         >
@@ -39,7 +39,7 @@ export function HomeMobileHeader({
           />
           {isOnline ? 'En ligne' : 'Hors ligne'}
         </button>
-        <div className="w-9 h-9 rounded-full border border-warm-300 bg-paper flex items-center justify-center text-[11px] font-semibold text-ink tracking-wide">
+        <div className="w-9 h-9 rounded-full border border-warm-300 bg-paper flex items-center justify-center text-[12px] font-semibold text-ink">
           {initials}
         </div>
       </div>
