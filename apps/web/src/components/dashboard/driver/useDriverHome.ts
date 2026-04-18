@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Group } from '@taxilink/core'
 import { useDriverStore } from '@/store/driverStore'
 import { useAuth } from '@/hooks/useAuth'
+import { useNextMissionNotification } from '@/hooks/useNextMissionNotification'
 import { groupService } from '@/services/groupService'
 import { useDriverMissions } from './useDriverMissions'
 import type { CourseCardData } from '@/components/taxilink/CourseCard'
@@ -41,6 +42,7 @@ export function useDriverHome() {
   const setOnline = useDriverStore((s) => s.setOnline)
   const { user } = useAuth()
   const m = useDriverMissions()
+  const notif = useNextMissionNotification(m.currentMission)
 
   const [filter, setFilter] = useState<HomeTypeFilter>('ALL')
   const [sort, setSort] = useState<HomeSort>('soonest')
@@ -149,5 +151,7 @@ export function useDriverHome() {
     error: m.error,
     acceptMission: m.acceptMission,
     currentMission: m.currentMission,
+    notificationPermission: notif.permission,
+    requestNotificationPermission: notif.requestPermission,
   }
 }

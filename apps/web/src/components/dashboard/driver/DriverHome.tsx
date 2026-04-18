@@ -1,6 +1,7 @@
 'use client'
 import { Filter } from 'lucide-react'
 import { CourseCard } from '@/components/taxilink/CourseCard'
+import { NotificationPermissionBanner } from '@/components/taxilink/NotificationPermissionBanner'
 import { useDriverHome, HOME_TYPE_FILTERS, HOME_SORT_OPTIONS, type HomeSort } from './useDriverHome'
 import { HomeMobileHeader } from './home/HomeMobileHeader'
 import { HomeGroupFilterBar } from './home/HomeGroupFilterBar'
@@ -29,6 +30,10 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
         rides={h.driver.todayRides ?? 0}
         km={h.driver.todayKm ?? 0}
       />
+
+      {h.currentMission && h.notificationPermission === 'default' && (
+        <NotificationPermissionBanner onActivate={() => { void h.requestNotificationPermission() }} />
+      )}
 
       {h.currentMission && (
         <NextMissionBanner mission={h.currentMission} onShowDetail={onShowCurrentCourse} />
