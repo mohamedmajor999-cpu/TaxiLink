@@ -34,6 +34,12 @@ export function useDriverHome() {
   const [filter, setFilter] = useState<HomeTypeFilter>('ALL')
   const [selectedGroupId, setSelectedGroupId] = useState<HomeGroupSelection>(null)
   const [groups, setGroups] = useState<Group[]>([])
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30_000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     if (!user?.id) return
@@ -51,7 +57,7 @@ export function useDriverHome() {
   }, [groups])
 
   const filtered = useMemo(() => {
-    let list = m.missions
+    let list = m.missions.filter((x) => new Date(x.scheduled_at).getTime() > now)
     if (filter !== 'ALL') list = list.filter((x) => x.type === filter)
     if (selectedGroupId === HOME_GROUP_PUBLIC) {
       list = list.filter(isPublicMission)
@@ -59,7 +65,7 @@ export function useDriverHome() {
       list = list.filter((x) => extractMissionGroupIds(x).includes(selectedGroupId))
     }
     return list
-  }, [m.missions, filter, selectedGroupId])
+  }, [m.missions, filter, selectedGroupId, now])
 
   const cards = useMemo<CourseCardData[]>(
     () => filtered.map((x) => toCourseCard(x, groupsById)),
@@ -67,13 +73,14 @@ export function useDriverHome() {
   )
 
   const counts = useMemo(() => {
-    const c: Record<HomeTypeFilter, number> = { ALL: m.missions.length, CPAM: 0, PRIVE: 0 }
-    for (const x of m.missions) {
+    const live = m.missions.filter((x) => new Date(x.scheduled_at).getTime() > now)
+    const c: Record<HomeTypeFilter, number> = { ALL: live.length, CPAM: 0, PRIVE: 0 }
+    for (const x of live) {
       if (x.type === 'CPAM') c.CPAM++
       else if (x.type === 'PRIVE') c.PRIVE++
     }
     return c
-  }, [m.missions])
+  }, [m.missions, now])
 
   const initials =
     (driver.name || '')

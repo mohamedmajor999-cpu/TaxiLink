@@ -5,6 +5,7 @@ import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { useUpcomingTab, type DayGroup } from './useUpcomingTab'
 import { MissionDetailsModal } from './MissionDetailsModal'
 import type { Mission } from '@/lib/supabase/types'
+import { addressAsPoint } from '@/lib/splitFrenchAddress'
 
 export function UpcomingTab() {
   const t = useUpcomingTab()
@@ -117,7 +118,7 @@ function AssignedMissionCard({
       </div>
 
       <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end">
-        <RouteTimeline from={{ name: mission.departure }} to={{ name: mission.destination }} />
+        <RouteTimeline from={addressAsPoint(mission.departure)} to={addressAsPoint(mission.destination)} compact />
         <div className="text-right">
           <div className="text-[32px] font-bold leading-none text-ink tabular-nums tracking-tight">
             {Number(mission.price_eur ?? 0)}<span className="text-[24px]">€</span>

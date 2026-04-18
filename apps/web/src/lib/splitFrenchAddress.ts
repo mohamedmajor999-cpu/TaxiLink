@@ -13,3 +13,9 @@ export function splitFrenchAddress(raw: string): { street: string; cityLine: str
   const cityLine = trimmed.slice(match.index).trim()
   return { street: street || trimmed, cityLine: cityLine || null }
 }
+
+/** Forme « point » attendue par RouteTimeline : rue sur la ligne principale, CP+ville en sous-ligne. */
+export function addressAsPoint(raw: string): { name: string; address?: string } {
+  const { street, cityLine } = splitFrenchAddress(raw)
+  return cityLine ? { name: street, address: cityLine } : { name: street }
+}

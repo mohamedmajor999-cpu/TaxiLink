@@ -4,6 +4,7 @@ import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { RideBadge } from '@/components/taxilink/RideBadge'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedTab, type PostedMissionView } from './usePostedTab'
+import { addressAsPoint } from '@/lib/splitFrenchAddress'
 
 export function PostedTab() {
   const p = usePostedTab()
@@ -94,7 +95,7 @@ function PostedCard({
       </div>
 
       <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end">
-        <RouteTimeline from={{ name: mission.departure }} to={{ name: mission.destination }} />
+        <RouteTimeline from={addressAsPoint(mission.departure)} to={addressAsPoint(mission.destination)} compact />
         <div className="text-right">
           <div className="text-[32px] font-bold leading-none text-ink tabular-nums tracking-tight">
             {Number(mission.price_eur ?? 0)}<span className="text-[24px]">€</span>

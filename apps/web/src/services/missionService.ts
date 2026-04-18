@@ -10,6 +10,7 @@ export const missionService = {
       .from('missions')
       .select('*')
       .eq('status', 'AVAILABLE')
+      .gt('scheduled_at', new Date().toISOString())
       .order('scheduled_at', { ascending: true })
     if (error) throw new Error(error.message)
     return data ?? []

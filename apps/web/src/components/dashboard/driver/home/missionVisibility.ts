@@ -2,7 +2,7 @@ import type { Mission } from '@/lib/supabase/types'
 import type { Group } from '@taxilink/core'
 import type { CourseCardData } from '@/components/taxilink/CourseCard'
 import type { RideBadgeVariant } from '@/components/taxilink/RideBadge'
-import { splitFrenchAddress } from '@/lib/splitFrenchAddress'
+import { addressAsPoint } from '@/lib/splitFrenchAddress'
 
 const TYPE_BADGE: Record<string, { variant: RideBadgeVariant; label: string }> = {
   CPAM: { variant: 'medical', label: 'Médical' },
@@ -70,8 +70,8 @@ export function toCourseCard(m: Mission, groupsById: Map<string, Group>): Course
     scheduledInMin: minutesAhead,
     clientName: fmtClient(m),
     badges,
-    from: toPoint(m.departure),
-    to: toPoint(m.destination),
+    from: addressAsPoint(m.departure),
+    to: addressAsPoint(m.destination),
     distanceKm: m.distance_km ?? 0,
     durationMin: Math.max(Math.round((m.distance_km ?? 0) * 2.2), 5),
     payment: PAYMENT_FROM_TYPE[m.type] ?? 'Espèces',
@@ -85,7 +85,3 @@ function normalizeMotif(raw: string | null | undefined): 'HDJ' | 'CONSULTATION' 
   return null
 }
 
-function toPoint(raw: string): { name: string; address?: string } {
-  const { street, cityLine } = splitFrenchAddress(raw)
-  return cityLine ? { name: street, address: cityLine } : { name: street }
-}

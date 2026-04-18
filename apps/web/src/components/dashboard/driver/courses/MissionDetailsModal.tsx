@@ -3,6 +3,7 @@ import { X, Phone, Navigation2 } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { RideBadge } from '@/components/taxilink/RideBadge'
 import type { Mission } from '@/lib/supabase/types'
+import { addressAsPoint } from '@/lib/splitFrenchAddress'
 
 interface Props {
   mission: Mission
@@ -42,7 +43,7 @@ export function MissionDetailsModal({ mission, onClose }: Props) {
 
         <div className="px-5 py-5 space-y-5">
           <div className="grid grid-cols-[1fr_auto] gap-4 items-end">
-            <RouteTimeline from={{ name: mission.departure }} to={{ name: mission.destination }} />
+            <RouteTimeline from={addressAsPoint(mission.departure)} to={addressAsPoint(mission.destination)} compact />
             <div className="text-right">
               <div className="text-[32px] font-bold leading-none text-ink tabular-nums tracking-tight">
                 {Number(mission.price_eur ?? 0)}<span className="text-[24px]">€</span>

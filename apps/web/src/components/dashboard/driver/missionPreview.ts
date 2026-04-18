@@ -2,7 +2,7 @@ import type { CourseCardData } from '@/components/taxilink/CourseCard'
 import type { RideBadgeVariant } from '@/components/taxilink/RideBadge'
 import type { Group } from '@taxilink/core'
 import type { MissionFormType } from './missionFormHelpers'
-import { splitFrenchAddress } from '@/lib/splitFrenchAddress'
+import { addressAsPoint } from '@/lib/splitFrenchAddress'
 
 const TYPE_BADGE: Record<MissionFormType, { variant: RideBadgeVariant; label: string }> = {
   CPAM: { variant: 'medical', label: 'Médical' },
@@ -50,19 +50,14 @@ export function buildPreviewCard(args: BuildPreviewArgs): CourseCardData {
     scheduledInMin: minutesAhead,
     clientName: fmtClient(args.patientName),
     badges,
-    from: toPoint(args.departure),
-    to: toPoint(args.destination),
+    from: addressAsPoint(args.departure),
+    to: addressAsPoint(args.destination),
     distanceKm: args.distanceKm ?? 0,
     durationMin: args.durationMin ?? Math.max(Math.round((args.distanceKm ?? 0) * 2.2), 0),
     payment: PAYMENT_FROM_TYPE[args.type],
     medicalMotif: args.medicalMotif ?? null,
     priceEur: args.priceEur,
   }
-}
-
-function toPoint(raw: string): { name: string; address?: string } {
-  const { street, cityLine } = splitFrenchAddress(raw)
-  return cityLine ? { name: street, address: cityLine } : { name: street }
 }
 
 export function findGroupName(groups: Group[], groupId: string | null): string | null {
