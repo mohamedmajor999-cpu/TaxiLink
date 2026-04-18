@@ -2,8 +2,10 @@
 import { Clock, CheckCircle2, Loader2 } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { RideBadge } from '@/components/taxilink/RideBadge'
+import { ToastContainer } from '@/components/ui/Toast'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedTab, type PostedMissionView } from './usePostedTab'
+import { AcceptedBanner } from './AcceptedBanner'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
 
@@ -30,30 +32,36 @@ export function PostedTab() {
 
   if (p.items.length === 0) {
     return (
-      <div className="mt-6 rounded-2xl border border-warm-200 bg-paper p-10 text-center">
-        <p className="text-[20px] font-bold leading-tight text-ink mb-2 tracking-tight">
-          Aucune course postée
-        </p>
-        <p className="text-sm text-warm-600">
-          Quand vous partagerez une course avec le réseau, elle apparaîtra ici.
-        </p>
-      </div>
+      <>
+        <ToastContainer toasts={p.toasts} onDismiss={p.dismissToast} />
+        <div className="mt-6 rounded-2xl border border-warm-200 bg-paper p-10 text-center">
+          <p className="text-[20px] font-bold leading-tight text-ink mb-2 tracking-tight">
+            Aucune course postée
+          </p>
+          <p className="text-sm text-warm-600">
+            Quand vous partagerez une course avec le réseau, elle apparaîtra ici.
+          </p>
+        </div>
+      </>
     )
   }
 
   return (
-    <ul className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {p.items.map((item) => (
-        <li key={item.mission.id}>
-          <PostedCard
-            item={item}
-            deleting={p.deletingId === item.mission.id}
-            onEdit={() => startEdit(item.mission)}
-            onDelete={() => p.remove(item.mission.id)}
-          />
-        </li>
-      ))}
-    </ul>
+    <>
+      <ToastContainer toasts={p.toasts} onDismiss={p.dismissToast} />
+      <ul className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+        {p.items.map((item) => (
+          <li key={item.mission.id} className="h-full">
+            <PostedCard
+              item={item}
+              deleting={p.deletingId === item.mission.id}
+              onEdit={() => startEdit(item.mission)}
+              onDelete={() => p.remove(item.mission.id)}
+            />
+          </li>
+        ))}
+      </ul>
+    </>
   )
 }
 
@@ -65,12 +73,12 @@ function PostedCard({
   onEdit: () => void
   onDelete: () => void
 }) {
-  const { mission, status } = item
+  const { mission, status, driverProfile } = item
   const isWaiting = status === 'waiting'
   const fare = computeDisplayFare(mission)
   const cardStyle = isWaiting
-    ? 'bg-paper border-2 border-dashed border-warm-300 rounded-2xl overflow-hidden'
-    : 'bg-paper border border-warm-200 rounded-2xl overflow-hidden shadow-soft'
+    ? 'h-full flex flex-col bg-paper border-2 border-dashed border-warm-300 rounded-2xl overflow-hidden'
+    : 'h-full flex flex-col bg-paper border border-warm-200 rounded-2xl overflow-hidden shadow-soft'
 
   return (
     <article className={cardStyle}>
@@ -96,7 +104,7 @@ function PostedCard({
         </span>
       </div>
 
-      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end">
+      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end flex-1">
         <RouteTimeline from={addressAsPoint(mission.departure)} to={addressAsPoint(mission.destination)} compact />
         <div className="text-right">
           {fare.isEstimated && (
@@ -110,9 +118,13 @@ function PostedCard({
         </div>
       </div>
 
+      {!isWaiting && (
+        <AcceptedBanner profile={driverProfile} acceptedAt={mission.accepted_at} />
+      )}
+
       <div className="px-5 pt-3 pb-4 flex items-center justify-between gap-2">
         <span className="text-[11px] text-warm-500">Postée par vous</span>
-        {isWaiting ? (
+        {isWaiting && (
           <div className="flex gap-2">
             <button
               type="button"
@@ -132,10 +144,9 @@ function PostedCard({
               Supprimer
             </button>
           </div>
-        ) : (
-          <span className="text-[11px] font-semibold text-ink">Chauffeur confirmé</span>
         )}
       </div>
     </article>
   )
 }
+
