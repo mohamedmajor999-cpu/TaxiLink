@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taxilink-v3'
+const CACHE_NAME = 'taxilink-v4'
 const OFFLINE_URL = '/offline'
 
 const STATIC_ASSETS = [
@@ -44,7 +44,9 @@ self.addEventListener('fetch', (event) => {
     url.hostname.includes('supabase.io') ||
     url.hostname === 'api-adresse.data.gouv.fr' ||
     url.hostname === 'router.project-osrm.org' ||
-    url.hostname === 'photon.komoot.io'
+    url.hostname === 'photon.komoot.io' ||
+    url.hostname === 'api.mapbox.com' ||
+    url.hostname.endsWith('.tile.openstreetmap.org')
   ) return
 
   // Pages de navigation → Network First avec fallback offline

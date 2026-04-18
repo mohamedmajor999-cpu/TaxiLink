@@ -62,6 +62,33 @@ export const missionService = {
     if (error) throw new Error(error.message)
   },
 
+  /**
+   * Annuler une mission côté chauffeur : la remet dans le pool AVAILABLE,
+   * libère le driver_id, et trace le motif dans `notes`. La course redevient
+   * donc visible par les autres chauffeurs.
+   */
+  async cancel(missionId: string, reason: string): Promise<void> {
+    const supabase = createClient()
+    const { data: current } = await supabase
+      .from('missions')
+      .select('notes')
+      .eq('id', missionId)
+      .single()
+    const existingNotes = current?.notes ?? ''
+    const marker = `[Annulation chauffeur ${new Date().toISOString()}: ${reason}]`
+    const merged = existingNotes ? `${marker}\n${existingNotes}` : marker
+    const { error } = await supabase
+      .from('missions')
+      .update({
+        driver_id: null,
+        status: 'AVAILABLE',
+        accepted_at: null,
+        notes: merged,
+      })
+      .eq('id', missionId)
+    if (error) throw new Error(error.message)
+  },
+
   /** Historique des missions terminées d'un chauffeur */
   async getDoneByDriver(driverId: string): Promise<Mission[]> {
     const supabase = createClient()
