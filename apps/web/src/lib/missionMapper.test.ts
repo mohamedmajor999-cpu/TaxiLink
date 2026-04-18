@@ -29,6 +29,7 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     shared_by: null,
     group_id: null,
     visibility: 'assigned',
+    medical_motif: null,
     ...overrides,
   }
 }

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Instrument_Serif } from 'next/font/google'
-import Script from 'next/script'
 import './globals.css'
 
 const inter = Inter({
@@ -74,11 +73,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`scroll-smooth ${inter.variable} ${instrumentSerif.variable}`}>
       <body className="font-sans antialiased bg-white text-secondary">
         {children}
-        <Script id="sw-register" strategy="afterInteractive">{`
-          if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
-          }
-        `}</Script>
       </body>
     </html>
   )

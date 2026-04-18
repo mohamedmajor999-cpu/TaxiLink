@@ -1,8 +1,7 @@
-// Service d'autocomplétion d'adresses (API BAN — Base Adresse Nationale)
-// et de calcul d'itinéraire (OSRM — Open Source Routing Machine).
-// Aucune clé API requise. Limite de courtoisie ~50 req/s côté BAN.
+// Adresses : BAN (rues FR) + Photon (POI/OSM). Itinéraire : OSRM. Sans clé API.
 
 const BAN_ENDPOINT = 'https://api-adresse.data.gouv.fr/search/'
+const PHOTON_ENDPOINT = 'https://photon.komoot.io/api/'
 const OSRM_ENDPOINT = 'https://router.project-osrm.org/route/v1/driving/'
 
 export interface AddressSuggestion {
@@ -22,10 +21,7 @@ interface OsrmResponse {
   code?: string
 }
 
-/**
- * Recherche d'adresses via l'API BAN. Retourne max 5 suggestions.
- * Si query < 3 caractères, retourne [] sans appel réseau.
- */
+/** Recherche adresses via BAN. Max 5 résultats. < 3 chars → []. */
 export async function searchAddresses(
   query: string,
   signal?: AbortSignal,
@@ -67,11 +63,58 @@ export async function searchAddresses(
   return suggestions
 }
 
-/**
- * Calcule un itinéraire routier via OSRM.
- * Retourne distance en km (1 décimale) et durée en minutes (entier).
- * Lève "Itinéraire introuvable" si OSRM ne retourne aucune route.
- */
+interface PhotonFeature {
+  properties?: {
+    name?: string
+    street?: string
+    housenumber?: string
+    city?: string
+    postcode?: string
+    osm_key?: string
+  }
+  geometry?: { coordinates?: [number, number] }
+}
+
+function formatPhotonLabel(p: PhotonFeature['properties']): string {
+  if (!p) return ''
+  const isPOI = !!p.name && p.osm_key !== 'place' && p.osm_key !== 'highway'
+  if (isPOI) return [p.name, p.city].filter(Boolean).join(', ')
+  const street = [p.housenumber, p.street].filter(Boolean).join(' ')
+  return [street, p.postcode, p.city].filter(Boolean).join(' ').trim()
+}
+
+/** Recherche POI/lieux via Photon (OSM). poiOnly exclut routes/lieux génériques. */
+export async function searchPlaces(
+  query: string,
+  signal?: AbortSignal,
+  poiOnly = false,
+): Promise<AddressSuggestion[]> {
+  const trimmed = query.trim()
+  if (trimmed.length < 3) return []
+  const filter = poiOnly ? '&osm_tag=!highway&osm_tag=!place' : ''
+  const url = `${PHOTON_ENDPOINT}?q=${encodeURIComponent(trimmed)}&limit=5&lang=fr${filter}`
+  let res: Response
+  try {
+    res = await fetch(url, { signal })
+  } catch (err) {
+    if ((err as Error).name === 'AbortError') throw err
+    throw new Error('Impossible de joindre le service de lieux')
+  }
+  if (!res.ok) throw new Error(`Erreur Photon ${res.status}`)
+  const json = (await res.json()) as { features?: PhotonFeature[] }
+  const suggestions: AddressSuggestion[] = []
+  for (const f of json.features ?? []) {
+    const label = formatPhotonLabel(f.properties)
+    const coords = f.geometry?.coordinates
+    if (!label || !coords || coords.length !== 2) continue
+    const [lng, lat] = coords
+    if (typeof lat !== 'number' || typeof lng !== 'number') continue
+    suggestions.push({ label, lat, lng, score: 0 })
+  }
+  return suggestions
+}
+
+/** Itinéraire OSRM. Renvoie km (1 déc.) et min (entier). Lève si introuvable. */
 export async function computeRoute(
   from: { lat: number; lng: number },
   to: { lat: number; lng: number },

@@ -1,6 +1,5 @@
 'use client'
 import { useDriverStore } from '@/store/driverStore'
-import { useMissionStore } from '@/store/missionStore'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileBottomNav } from '@/components/taxilink/MobileBottomNav'
@@ -24,13 +23,21 @@ export function DriverDashboard() {
     setShowCurrentCourse,
   } = useDriverDashboard()
   const { driver } = useDriverStore()
-  const currentMission = useMissionStore((s) => s.currentMission)
   const editingMission = useMissionEditStore((s) => s.editing)
   const clearEdit = useMissionEditStore((s) => s.clearEdit)
   const showModal = showCreer || Boolean(editingMission)
   const closeModal = () => {
     setShowCreer(false)
     clearEdit()
+  }
+  const handleTabChange = (tab: typeof activeTab) => {
+    closeModal()
+    setShowCurrentCourse(false)
+    setActiveTab(tab)
+  }
+  const handleShowCurrentCourse = () => {
+    closeModal()
+    setShowCurrentCourse(true)
   }
 
   if (loading) {
@@ -55,9 +62,9 @@ export function DriverDashboard() {
     <div className="min-h-screen bg-paper flex">
       <SidebarNav
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         onPostCourse={() => setShowCreer(true)}
-        onShowCurrentCourse={() => setShowCurrentCourse(true)}
+        onShowCurrentCourse={handleShowCurrentCourse}
         driverName={driverName || 'Chauffeur'}
         driverInitials={initials}
         groupName="Taxi13"
@@ -71,7 +78,7 @@ export function DriverDashboard() {
           <CurrentCourseScreen />
         ) : (
           <>
-            {activeTab === 'home' && (currentMission ? <CurrentCourseScreen /> : <DriverHome onPostCourse={() => setShowCreer(true)} onShowCurrentCourse={() => setShowCurrentCourse(true)} />)}
+            {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowCurrentCourse={() => setShowCurrentCourse(true)} />}
             {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={() => setShowCreer(true)} />}
             {activeTab === 'groupes' && (
               <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
@@ -89,7 +96,7 @@ export function DriverDashboard() {
 
       <MobileBottomNav
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         onPostCourse={() => setShowCreer(true)}
       />
     </div>

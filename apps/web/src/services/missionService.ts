@@ -22,9 +22,10 @@ export const missionService = {
       .select('*')
       .eq('driver_id', driverId)
       .eq('status', 'IN_PROGRESS')
-      .maybeSingle()
+      .order('accepted_at', { ascending: false })
+      .limit(1)
     if (error) throw new Error(error.message)
-    return data ?? null
+    return data?.[0] ?? null
   },
 
   /**

@@ -1,9 +1,10 @@
 'use client'
-import { Filter, Eye } from 'lucide-react'
+import { Filter } from 'lucide-react'
 import { CourseCard } from '@/components/taxilink/CourseCard'
 import { useDriverHome, HOME_TYPE_FILTERS } from './useDriverHome'
 import { HomeMobileHeader } from './home/HomeMobileHeader'
 import { HomeGroupFilterBar } from './home/HomeGroupFilterBar'
+import { CurrentMissionCard } from './CurrentMissionCard'
 
 interface Props {
   onPostCourse: () => void
@@ -23,15 +24,9 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
         initials={h.initials}
       />
 
-      <button
-        type="button"
-        onClick={onShowCurrentCourse}
-        className="md:hidden inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full border border-warm-200 bg-paper text-[12px] font-medium text-warm-600 hover:bg-warm-50 transition-colors"
-      >
-        <Eye className="w-3.5 h-3.5" strokeWidth={1.8} />
-        Course en cours
-        <span className="text-[10px] uppercase tracking-wider text-warm-400">aperçu</span>
-      </button>
+      {h.currentMission && (
+        <CurrentMissionCard mission={h.currentMission} onShowDetail={onShowCurrentCourse} />
+      )}
 
       <section className="grid grid-cols-3 gap-3 mb-6 md:max-w-2xl" aria-label="Statistiques du jour">
         <StatCard active label="Aujourd'hui" value={`${h.driver.todayEarnings ?? 0}€`} />

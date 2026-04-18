@@ -199,6 +199,7 @@ export type Database = {
           driver_id: string | null
           duration_min: number | null
           id: string
+          medical_motif: string | null
           notes: string | null
           patient_name: string | null
           phone: string | null
@@ -226,6 +227,7 @@ export type Database = {
           driver_id?: string | null
           duration_min?: number | null
           id?: string
+          medical_motif?: string | null
           notes?: string | null
           patient_name?: string | null
           phone?: string | null
@@ -253,6 +255,7 @@ export type Database = {
           driver_id?: string | null
           duration_min?: number | null
           id?: string
+          medical_motif?: string | null
           notes?: string | null
           patient_name?: string | null
           phone?: string | null

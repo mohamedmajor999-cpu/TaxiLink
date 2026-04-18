@@ -1,8 +1,13 @@
 'use client'
 import { Phone, Mail, Navigation2, Crosshair } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
+import { useMissionStore } from '@/store/missionStore'
 
 export function CurrentCourseScreen() {
+  const currentMission = useMissionStore((s) => s.currentMission)
+  const gmapsDestination = currentMission?.destination ?? 'Chemin des Bourrely, 13015'
+  const gmapsHref = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(gmapsDestination)}&travelmode=driving`
+
   return (
     <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-3xl mx-auto pb-24 md:pb-6">
       <header className="flex items-center justify-between gap-3 mb-4">
@@ -78,15 +83,17 @@ export function CurrentCourseScreen() {
         </div>
       </div>
 
-      <button
-        type="button"
+      <a
+        href={gmapsHref}
+        target="_blank"
+        rel="noopener noreferrer"
         className="w-full h-14 rounded-2xl bg-ink text-paper text-[15px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-warm-800 transition-colors mb-3"
       >
         <span className="w-5 h-5 rotate-45 bg-brand flex items-center justify-center rounded-sm">
           <Navigation2 className="w-3 h-3 text-ink -rotate-45" strokeWidth={2.2} />
         </span>
-        Ouvrir dans Waze
-      </button>
+        Ouvrir dans Google Maps
+      </a>
 
       <div className="grid grid-cols-2 gap-3">
         <button

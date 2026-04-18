@@ -10,6 +10,8 @@ export interface ValidationError {
 
 export type MissionVisibility = 'GROUP' | 'PUBLIC'
 
+export type MedicalMotif = 'HDJ' | 'CONSULTATION'
+
 export interface MissionInput {
   departure: string
   destination: string
@@ -24,6 +26,7 @@ export interface MissionInput {
   phone?: string | null
   notes?: string | null
   type: 'CPAM' | 'PRIVE' | 'TAXILINK'
+  medical_motif?: MedicalMotif | null
   scheduled_at?: string | null
   visibility?: MissionVisibility
   group_id?: string | null
@@ -88,6 +91,13 @@ export function validateMission(data: MissionInput): ValidationError[] {
 
   if (data.type === 'CPAM' && !data.patient_name?.trim()) {
     errors.push({ field: 'patient_name', message: 'Le nom du patient est requis pour une mission CPAM' })
+  }
+
+  if (data.medical_motif != null && data.medical_motif !== 'HDJ' && data.medical_motif !== 'CONSULTATION') {
+    errors.push({ field: 'medical_motif', message: 'Le motif médical doit être HDJ ou CONSULTATION' })
+  }
+  if (data.type !== 'CPAM' && data.medical_motif) {
+    errors.push({ field: 'medical_motif', message: 'Le motif médical ne s\u2019applique qu\u2019aux missions CPAM' })
   }
 
   if (data.notes && data.notes.length > 500) {

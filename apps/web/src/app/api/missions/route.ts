@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
     const { data, error: insertError } = await supabase.from('missions').insert({
       client_id: user.id,
       type: body.type,
+      medical_motif: body.type === 'CPAM' ? (body.medical_motif ?? null) : null,
       status: 'AVAILABLE',
       departure: body.departure.trim(),
       destination: body.destination.trim(),

@@ -1,5 +1,5 @@
 import { missionService } from '@/services/missionService'
-import { validateMission, type MissionInput, type MissionVisibility } from '@/lib/validators'
+import { validateMission, type MedicalMotif, type MissionInput, type MissionVisibility } from '@/lib/validators'
 import type { Mission } from '@/lib/supabase/types'
 import { buildScheduledAt, type MissionFormType } from './missionFormHelpers'
 
@@ -8,12 +8,14 @@ interface Coords { lat: number; lng: number }
 export interface SubmitMissionArgs {
   mission?: Mission
   type: MissionFormType
+  medicalMotif: MedicalMotif | null
   departure: string
   destination: string
   departureCoords: Coords | null
   destinationCoords: Coords | null
   distanceKm: number | null
   durationMin: number | null
+  date: string
   time: string
   price: string
   patientName: string
@@ -28,9 +30,9 @@ export interface SubmitMissionArgs {
  * Lève une Error avec un message lisible si la validation ou l'appel échoue.
  */
 export async function submitMission(args: SubmitMissionArgs): Promise<void> {
-  const scheduled_at = buildScheduledAt(args.time, args.mission?.scheduled_at)
+  const scheduled_at = buildScheduledAt(args.date, args.time)
   if (!scheduled_at) {
-    throw new Error("L'heure doit être au format HH:MM (ex : 15h30 → 15:30)")
+    throw new Error("Date ou heure invalide (format attendu : aaaa-mm-jj et HH:MM)")
   }
 
   const priceNum = args.price.trim() ? Number(args.price.replace(',', '.')) : null
@@ -40,6 +42,7 @@ export async function submitMission(args: SubmitMissionArgs): Promise<void> {
 
   const payload: MissionInput = {
     type: args.type,
+    medical_motif: args.type === 'CPAM' ? args.medicalMotif : null,
     departure: args.departure.trim(),
     destination: args.destination.trim(),
     departure_lat: args.departureCoords?.lat ?? null,

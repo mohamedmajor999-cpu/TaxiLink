@@ -20,10 +20,11 @@ export interface CourseCardData {
 
 interface Props {
   course: CourseCardData
-  onAccept: (id: string) => void | Promise<void>
+  onAccept?: (id: string) => void | Promise<void>
+  footer?: React.ReactNode
 }
 
-export function CourseCard({ course, onAccept }: Props) {
+export function CourseCard({ course, onAccept, footer }: Props) {
   const isUrgent = !!course.urgent
   const cardStyle = isUrgent
     ? 'bg-paper border-2 border-ink rounded-2xl overflow-hidden shadow-soft'
@@ -83,10 +84,12 @@ export function CourseCard({ course, onAccept }: Props) {
       </div>
 
       <div className="px-5 pb-5">
-        <HoldAcceptButton
-          variant={isUrgent ? 'accent' : 'default'}
-          onConfirm={() => onAccept(course.id)}
-        />
+        {footer ?? (
+          <HoldAcceptButton
+            variant={isUrgent ? 'accent' : 'default'}
+            onConfirm={() => onAccept?.(course.id)}
+          />
+        )}
       </div>
     </article>
   )

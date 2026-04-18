@@ -88,6 +88,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       .from('missions')
       .update({
         type: body.type,
+        medical_motif: body.type === 'CPAM' ? (body.medical_motif ?? null) : null,
         departure: body.departure.trim(),
         destination: body.destination.trim(),
         departure_lat: body.departure_lat ?? null,

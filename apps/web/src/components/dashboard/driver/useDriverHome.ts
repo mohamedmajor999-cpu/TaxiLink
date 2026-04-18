@@ -101,5 +101,6 @@ export function useDriverHome() {
     loading: m.loading,
     error: m.error,
     acceptMission: m.acceptMission,
+    currentMission: m.currentMission,
   }
 }
