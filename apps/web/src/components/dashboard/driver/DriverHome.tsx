@@ -1,7 +1,7 @@
 'use client'
 import { Filter } from 'lucide-react'
 import { CourseCard } from '@/components/taxilink/CourseCard'
-import { useDriverHome, HOME_TYPE_FILTERS } from './useDriverHome'
+import { useDriverHome, HOME_TYPE_FILTERS, HOME_SORT_OPTIONS, type HomeSort } from './useDriverHome'
 import { HomeMobileHeader } from './home/HomeMobileHeader'
 import { HomeGroupFilterBar } from './home/HomeGroupFilterBar'
 import { CurrentMissionCard } from './CurrentMissionCard'
@@ -24,18 +24,18 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
         initials={h.initials}
       />
 
+      <TodaySummary
+        earnings={h.driver.todayEarnings ?? 0}
+        rides={h.driver.todayRides ?? 0}
+        km={h.driver.todayKm ?? 0}
+      />
+
       {h.currentMission && (
         <CurrentMissionCard mission={h.currentMission} onShowDetail={onShowCurrentCourse} />
       )}
 
-      <section className="grid grid-cols-3 gap-3 mb-6 md:max-w-2xl" aria-label="Statistiques du jour">
-        <StatCard active label="Aujourd'hui" value={`${h.driver.todayEarnings ?? 0}€`} />
-        <StatCard label="Courses" value={String(h.driver.todayRides ?? 0)} />
-        <StatCard label="Km" value={String(h.driver.todayKm ?? 0)} />
-      </section>
-
       <header className="flex items-start justify-between gap-3 mb-4">
-        <div>
+        <div className="min-w-0">
           <h2 className="text-[22px] font-bold text-ink leading-tight tracking-tight">
             Courses dispo
           </h2>
@@ -43,16 +43,19 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
             {h.counts.ALL} à proximité · {h.nearbyZone}
           </p>
         </div>
-        <button
-          type="button"
-          disabled
-          aria-label="Filtres — bientôt disponible"
-          aria-disabled="true"
-          title="Bientôt disponible"
-          className="w-10 h-10 rounded-full border border-warm-200 bg-paper flex items-center justify-center text-warm-400 cursor-not-allowed opacity-60"
-        >
-          <Filter className="w-4 h-4" strokeWidth={1.8} />
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <SortSelect value={h.sort} onChange={h.setSort} />
+          <button
+            type="button"
+            disabled
+            aria-label="Filtres — bientôt disponible"
+            aria-disabled="true"
+            title="Bientôt disponible"
+            className="w-10 h-10 rounded-full border border-warm-200 bg-paper flex items-center justify-center text-warm-400 cursor-not-allowed opacity-60"
+          >
+            <Filter className="w-4 h-4" strokeWidth={1.8} />
+          </button>
+        </div>
       </header>
 
       <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
@@ -91,17 +94,41 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
   )
 }
 
-function StatCard({ label, value, active = false }: { label: string; value: string; active?: boolean }) {
+function TodaySummary({ earnings, rides, km }: { earnings: number; rides: number; km: number }) {
   return (
-    <div className={`bg-paper rounded-2xl px-3 py-3 ${active ? 'border-2 border-ink' : 'border border-warm-200'}`}>
-      <div className="flex items-center gap-1.5 mb-1.5">
-        {active && <span className="w-1.5 h-1.5 rounded-full bg-brand" />}
-        <span className="text-[12px] text-warm-500">{label}</span>
-      </div>
-      <p className="text-[22px] font-bold leading-none text-ink tabular-nums tracking-tight">
-        {value}
-      </p>
+    <div className="mb-5 text-[13px] text-warm-600 tabular-nums">
+      <span className="font-semibold text-ink">{earnings}€</span>
+      <span className="mx-1.5 text-warm-400">·</span>
+      <span>{rides} {rides > 1 ? 'courses' : 'course'}</span>
+      <span className="mx-1.5 text-warm-400">·</span>
+      <span>{km} km</span>
+      <span className="mx-1.5 text-warm-400">·</span>
+      <span className="text-warm-500">aujourd&apos;hui</span>
     </div>
+  )
+}
+
+function SortSelect({ value, onChange }: { value: HomeSort; onChange: (v: HomeSort) => void }) {
+  return (
+    <label className="relative inline-flex items-center">
+      <span className="sr-only">Trier les courses</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value as HomeSort)}
+        className="h-10 pl-3 pr-8 rounded-full border border-warm-200 bg-paper text-[13px] font-semibold text-ink appearance-none cursor-pointer hover:bg-warm-50"
+      >
+        {HOME_SORT_OPTIONS.map((o) => (
+          <option key={o.key} value={o.key}>{o.label}</option>
+        ))}
+      </select>
+      <svg
+        aria-hidden="true"
+        className="absolute right-2.5 w-3 h-3 text-warm-500 pointer-events-none"
+        viewBox="0 0 12 12" fill="none"
+      >
+        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </label>
   )
 }
 
