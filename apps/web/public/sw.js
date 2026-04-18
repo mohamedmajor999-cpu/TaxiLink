@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taxilink-v2'
+const CACHE_NAME = 'taxilink-v3'
 const OFFLINE_URL = '/offline'
 
 const STATIC_ASSETS = [
@@ -36,12 +36,15 @@ self.addEventListener('fetch', (event) => {
   // Ignorer les requêtes non-GET
   if (event.request.method !== 'GET') return
 
-  // Ignorer les API Supabase et les routes API Next.js
+  // Ignorer les API Supabase, les routes API Next.js et les APIs externes (BAN, OSRM)
   const url = new URL(event.request.url)
   if (
     url.pathname.startsWith('/api/') ||
     url.hostname.includes('supabase.co') ||
-    url.hostname.includes('supabase.io')
+    url.hostname.includes('supabase.io') ||
+    url.hostname === 'api-adresse.data.gouv.fr' ||
+    url.hostname === 'router.project-osrm.org' ||
+    url.hostname === 'photon.komoot.io'
   ) return
 
   // Pages de navigation → Network First avec fallback offline
