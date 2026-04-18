@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 import { missionService } from '@/services/missionService'
 import type { Mission } from '@/lib/supabase/types'
 
@@ -39,6 +40,15 @@ export function usePostedTab() {
     if (!user) return
     void load(user.id)
   }, [user, load])
+
+  useMissionRealtime({
+    onInsert: (m) => {
+      if (user && m.shared_by === user.id) void load(user.id)
+    },
+    onUpdate: (m) => {
+      if (user && m.shared_by === user.id) void load(user.id)
+    },
+  })
 
   const remove = useCallback(async (id: string) => {
     if (!user) return
