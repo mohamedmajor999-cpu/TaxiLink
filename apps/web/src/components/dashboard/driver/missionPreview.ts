@@ -30,6 +30,7 @@ export interface BuildPreviewArgs {
   distanceKm: number | null
   durationMin: number | null
   priceEur: number
+  priceIsEstimated?: boolean
   scheduledAtIso: string | null
   groupName?: string | null
   medicalMotif?: 'HDJ' | 'CONSULTATION' | null
@@ -57,6 +58,7 @@ export function buildPreviewCard(args: BuildPreviewArgs): CourseCardData {
     payment: PAYMENT_FROM_TYPE[args.type],
     medicalMotif: args.medicalMotif ?? null,
     priceEur: args.priceEur,
+    priceIsEstimated: args.priceIsEstimated ?? false,
   }
 }
 

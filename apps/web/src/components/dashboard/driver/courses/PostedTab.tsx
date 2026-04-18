@@ -5,6 +5,7 @@ import { RideBadge } from '@/components/taxilink/RideBadge'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedTab, type PostedMissionView } from './usePostedTab'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
+import { computeDisplayFare } from '@/lib/missionFare'
 
 export function PostedTab() {
   const p = usePostedTab()
@@ -66,6 +67,7 @@ function PostedCard({
 }) {
   const { mission, status } = item
   const isWaiting = status === 'waiting'
+  const fare = computeDisplayFare(mission)
   const cardStyle = isWaiting
     ? 'bg-paper border-2 border-dashed border-warm-300 rounded-2xl overflow-hidden'
     : 'bg-paper border border-warm-200 rounded-2xl overflow-hidden shadow-soft'
@@ -97,8 +99,13 @@ function PostedCard({
       <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end">
         <RouteTimeline from={addressAsPoint(mission.departure)} to={addressAsPoint(mission.destination)} compact />
         <div className="text-right">
+          {fare.isEstimated && (
+            <div className="text-[10px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">
+              Prix estimé
+            </div>
+          )}
           <div className="text-[32px] font-bold leading-none text-ink tabular-nums tracking-tight">
-            {Number(mission.price_eur ?? 0)}<span className="text-[24px]">€</span>
+            {fare.value}<span className="text-[24px]">€</span>
           </div>
         </div>
       </div>

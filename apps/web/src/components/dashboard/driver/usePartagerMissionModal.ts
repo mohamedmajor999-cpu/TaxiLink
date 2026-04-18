@@ -88,6 +88,13 @@ export function usePartagerMissionModal(onClose: () => void, mission?: Mission) 
     [price, type, medicalMotif, route.distanceKm, date, time, departure, destination],
   )
 
+  const previewFare = useMemo(() => {
+    const typed = price.trim() ? Number(price.replace(',', '.')) : null
+    const hasTyped = typed != null && Number.isFinite(typed) && typed > 0
+    const value = hasTyped ? typed : (effectivePrice ?? 0)
+    return { value, isEstimated: !hasTyped && value > 0 }
+  }, [price, effectivePrice])
+
   const canSubmit = useMemo(() => {
     if (saving) return false
     if (departure.trim().length < 5) return false
@@ -108,15 +115,15 @@ export function usePartagerMissionModal(onClose: () => void, mission?: Mission) 
     setError(null)
     setSaving(true)
     try {
-      const priceToSubmit = price.trim()
-        ? price
-        : effectivePrice != null ? String(effectivePrice) : ''
+      // N'envoie QUE le prix saisi manuellement. Si l'utilisateur laisse vide,
+      // `price_eur` est stocké `null` et l'estimation sera calculée à l'affichage
+      // (avec le label « Prix estimé »).
       await submitMission({
         mission, type, medicalMotif, departure, destination,
         departureCoords: route.departureCoords,
         destinationCoords: route.destinationCoords,
         distanceKm: route.distanceKm, durationMin: route.durationMin,
-        date, time, price: priceToSubmit, patientName, phone, notes, visibility, groupId,
+        date, time, price, patientName, phone, notes, visibility, groupId,
       })
       if (driverId) await useMissionStore.getState().load(driverId)
       setPreview(false)
@@ -138,7 +145,7 @@ export function usePartagerMissionModal(onClose: () => void, mission?: Mission) 
     setDepartureCoords, setDestinationCoords,
     distanceKm: route.distanceKm, durationMin: route.durationMin,
     loadingRoute: route.loadingRoute, routeError: route.routeError,
-    date, setDate, time, setTime, price, setPrice, effectivePrice,
+    date, setDate, time, setTime, price, setPrice, effectivePrice, previewFare,
     patientName, setPatientName, phone, setPhone, notes, setNotes,
     preview, showPreview, hidePreview,
     published,

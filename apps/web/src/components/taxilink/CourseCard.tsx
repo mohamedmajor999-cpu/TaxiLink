@@ -17,6 +17,8 @@ export interface CourseCardData {
   payment: 'CPAM' | 'CB' | 'Espèces'
   medicalMotif?: 'HDJ' | 'CONSULTATION' | null
   priceEur: number
+  /** Si true, affiche le label "Prix estimé" au-dessus du montant. */
+  priceIsEstimated?: boolean
 }
 
 const MOTIF_LABEL: Record<'HDJ' | 'CONSULTATION', string> = {
@@ -69,9 +71,11 @@ export function CourseCard({ course, onAccept, footer }: Props) {
       <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-3 items-end">
         <RouteTimeline from={course.from} to={course.to} compact />
         <div className="text-right shrink-0 whitespace-nowrap">
-          <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">
-            Prix estimé
-          </div>
+          {course.priceIsEstimated && (
+            <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">
+              Prix estimé
+            </div>
+          )}
           <div className="text-[28px] font-bold leading-none text-ink tabular-nums tracking-tight">
             {course.priceEur}<span className="text-[20px]">€</span>
           </div>

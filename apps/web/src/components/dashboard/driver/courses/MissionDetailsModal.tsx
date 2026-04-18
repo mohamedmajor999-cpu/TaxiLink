@@ -4,6 +4,7 @@ import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { RideBadge } from '@/components/taxilink/RideBadge'
 import type { Mission } from '@/lib/supabase/types'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
+import { computeDisplayFare } from '@/lib/missionFare'
 
 interface Props {
   mission: Mission
@@ -22,6 +23,7 @@ export function MissionDetailsModal({ mission, onClose }: Props) {
       ? { variant: 'private' as const, label: 'Privé' }
       : { variant: 'fleet' as const, label: 'TaxiLink' }
   const wazeHref = `https://waze.com/ul?q=${encodeURIComponent(mission.destination)}&navigate=yes`
+  const fare = computeDisplayFare(mission)
 
   return (
     <div className="fixed inset-0 z-50 bg-ink/40 flex items-end md:items-center justify-center p-0 md:p-4" onClick={onClose}>
@@ -45,8 +47,13 @@ export function MissionDetailsModal({ mission, onClose }: Props) {
           <div className="grid grid-cols-[1fr_auto] gap-4 items-end">
             <RouteTimeline from={addressAsPoint(mission.departure)} to={addressAsPoint(mission.destination)} compact />
             <div className="text-right">
+              {fare.isEstimated && (
+                <div className="text-[10px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">
+                  Prix estimé
+                </div>
+              )}
               <div className="text-[32px] font-bold leading-none text-ink tabular-nums tracking-tight">
-                {Number(mission.price_eur ?? 0)}<span className="text-[24px]">€</span>
+                {fare.value}<span className="text-[24px]">€</span>
               </div>
               <div className="text-[11px] text-warm-500 mt-1 tabular-nums">
                 {(mission.distance_km ?? 0).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km

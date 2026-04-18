@@ -27,7 +27,7 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
     onSelectDeparture, onSelectDestination,
     setDepartureCoords, setDestinationCoords,
     distanceKm, durationMin, loadingRoute,
-    date, setDate, time, setTime, price, setPrice, effectivePrice, patientName, setPatientName,
+    date, setDate, time, setTime, price, setPrice, previewFare, patientName, setPatientName,
     preview, showPreview, hidePreview,
     published,
     saving, error, canSubmit, submit,
@@ -44,9 +44,8 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
 
   if (preview) {
     const card = buildPreviewCard({
-      type, patientName, departure, destination,
-      distanceKm, durationMin,
-      priceEur: effectivePrice ?? 0,
+      type, patientName, departure, destination, distanceKm, durationMin,
+      priceEur: previewFare.value, priceIsEstimated: previewFare.isEstimated,
       scheduledAtIso: buildScheduledAt(date, time),
       groupName: visibility === 'GROUP' ? findGroupName(myGroups, groupId) : null,
       medicalMotif: type === 'CPAM' ? medicalMotif : null,

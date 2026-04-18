@@ -3,6 +3,7 @@ import type { Group } from '@taxilink/core'
 import type { CourseCardData } from '@/components/taxilink/CourseCard'
 import type { RideBadgeVariant } from '@/components/taxilink/RideBadge'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
+import { computeDisplayFare } from '@/lib/missionFare'
 
 const TYPE_BADGE: Record<string, { variant: RideBadgeVariant; label: string }> = {
   CPAM: { variant: 'medical', label: 'Médical' },
@@ -64,6 +65,8 @@ export function toCourseCard(m: Mission, groupsById: Map<string, Group>): Course
   const badges: { variant: RideBadgeVariant; label: string }[] = [typeBadge]
   if (groupBadge) badges.push({ variant: 'fleet', label: groupBadge.name })
 
+  const fare = computeDisplayFare(m)
+
   return {
     id: m.id,
     urgent: isUrgent ? { etaMin: Math.max(minutesAhead, 1) } : undefined,
@@ -76,7 +79,8 @@ export function toCourseCard(m: Mission, groupsById: Map<string, Group>): Course
     durationMin: Math.max(Math.round((m.distance_km ?? 0) * 2.2), 5),
     payment: PAYMENT_FROM_TYPE[m.type] ?? 'Espèces',
     medicalMotif: normalizeMotif(m.medical_motif),
-    priceEur: Number(m.price_eur ?? 0),
+    priceEur: fare.value,
+    priceIsEstimated: fare.isEstimated,
   }
 }
 
