@@ -1,5 +1,6 @@
 'use client'
 import { useDriverStore } from '@/store/driverStore'
+import { useMissionStore } from '@/store/missionStore'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileBottomNav } from '@/components/taxilink/MobileBottomNav'
@@ -23,6 +24,7 @@ export function DriverDashboard() {
     setShowCurrentCourse,
   } = useDriverDashboard()
   const { driver } = useDriverStore()
+  const availableCount = useMissionStore((s) => s.missions.length)
   const editingMission = useMissionEditStore((s) => s.editing)
   const clearEdit = useMissionEditStore((s) => s.clearEdit)
   const showModal = showCreer || Boolean(editingMission)
@@ -98,6 +100,7 @@ export function DriverDashboard() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onPostCourse={() => setShowCreer(true)}
+        coursesBadge={availableCount}
       />
     </div>
   )
