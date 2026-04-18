@@ -11,18 +11,28 @@ interface Props {
   routeGeometry?: GeoJSON.LineString | null
 }
 
+const MAPBOX_STYLE = 'navigation-day-v1'
+const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+const OSM_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+const MAPBOX_ATTR = '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+
 const startIcon = L.divIcon({
   className: 'course-map-icon',
-  html: '<div style="width:16px;height:16px;border-radius:50%;background:#FFD11A;border:3px solid #0A0A0A;box-shadow:0 2px 4px rgba(0,0,0,0.3);"></div>',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
+  html: '<div style="width:14px;height:14px;border-radius:50%;background:#FFD11A;border:3px solid #0A0A0A;box-shadow:0 2px 6px rgba(0,0,0,0.35);"></div>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
 })
 
 const endIcon = L.divIcon({
   className: 'course-map-icon',
-  html: '<div style="width:18px;height:18px;border-radius:50%;background:#0A0A0A;border:3px solid #FFD11A;box-shadow:0 2px 4px rgba(0,0,0,0.3);"></div>',
-  iconSize: [18, 18],
-  iconAnchor: [9, 9],
+  html: `<div style="position:relative;width:28px;height:36px;">
+    <div style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:#0A0A0A;border:3px solid #FFD11A;box-shadow:0 3px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;">
+      <div style="width:8px;height:8px;border-radius:50%;background:#FFD11A;"></div>
+    </div>
+    <div style="position:absolute;left:50%;top:24px;transform:translateX(-50%);width:2px;height:10px;background:#0A0A0A;"></div>
+  </div>`,
+  iconSize: [28, 36],
+  iconAnchor: [14, 34],
 })
 
 export function CourseMap({ from, to, routeGeometry }: Props) {
@@ -32,20 +42,25 @@ export function CourseMap({ from, to, routeGeometry }: Props) {
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
     const map = L.map(containerRef.current, {
       zoomControl: true,
       attributionControl: true,
+      scrollWheelZoom: true,
     })
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map)
+    if (token) {
+      L.tileLayer(
+        `https://api.mapbox.com/styles/v1/mapbox/${MAPBOX_STYLE}/tiles/{z}/{x}/{y}@2x?access_token=${token}`,
+        { maxZoom: 19, tileSize: 512, zoomOffset: -1, attribution: MAPBOX_ATTR },
+      ).addTo(map)
+    } else {
+      L.tileLayer(OSM_URL, { maxZoom: 19, attribution: OSM_ATTR }).addTo(map)
+    }
     L.marker([from.lat, from.lng], { icon: startIcon, title: 'Départ' }).addTo(map)
     L.marker([to.lat, to.lng], { icon: endIcon, title: 'Arrivée' }).addTo(map)
     map.fitBounds(L.latLngBounds([[from.lat, from.lng], [to.lat, to.lng]]).pad(0.3))
     mapRef.current = map
     return () => { map.remove(); mapRef.current = null }
-    // Mission stable sur la durée de la vue : init unique au montage
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -57,11 +72,16 @@ export function CourseMap({ from, to, routeGeometry }: Props) {
       routeLayerRef.current = null
     }
     if (routeGeometry) {
-      const layer = L.geoJSON(routeGeometry as GeoJSON.GeoJsonObject, {
-        style: { color: '#0A0A0A', weight: 5, opacity: 0.9 },
+      // Halo blanc pour le contraste sur la carte modernisée
+      const halo = L.geoJSON(routeGeometry as GeoJSON.GeoJsonObject, {
+        style: { color: '#FFFFFF', weight: 8, opacity: 0.9 },
       }).addTo(map)
-      routeLayerRef.current = layer
-      const bounds = layer.getBounds()
+      const line = L.geoJSON(routeGeometry as GeoJSON.GeoJsonObject, {
+        style: { color: '#0A0A0A', weight: 5, opacity: 1 },
+      }).addTo(map)
+      const group = L.featureGroup([halo, line])
+      routeLayerRef.current = line
+      const bounds = group.getBounds()
       if (bounds.isValid()) map.fitBounds(bounds.pad(0.15))
     }
   }, [routeGeometry])

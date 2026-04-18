@@ -62,7 +62,7 @@ const nextConfig = {
                 : "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://*.supabase.co https://*.tile.openstreetmap.org",
+              "img-src 'self' data: blob: https://*.supabase.co https://*.tile.openstreetmap.org https://api.mapbox.com",
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o*.ingest.sentry.io https://o*.ingest.de.sentry.io https://api-adresse.data.gouv.fr https://router.project-osrm.org https://api.mapbox.com",
               "frame-ancestors 'none'",
             ].join('; '),

@@ -22,15 +22,22 @@ export async function fetchMapboxTrafficDuration(params: FetchParams): Promise<T
   const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${coords}?access_token=${token}&overview=false`
   try {
     const res = await fetch(url, { signal })
-    if (!res.ok) return null
+    if (!res.ok) {
+      console.warn(`[mapbox] Directions API error: ${res.status} ${res.statusText}`)
+      return null
+    }
     const json = await res.json()
     const route = json.routes?.[0]
-    if (!route) return null
+    if (!route) {
+      console.warn('[mapbox] Directions API: aucune route trouvée')
+      return null
+    }
     return {
       durationSec: Math.round(route.duration),
       distanceM: Math.round(route.distance),
     }
-  } catch {
+  } catch (err) {
+    if ((err as Error)?.name !== 'AbortError') console.warn('[mapbox] Directions fetch failed', err)
     return null
   }
 }
