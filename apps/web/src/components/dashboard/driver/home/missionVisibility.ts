@@ -74,6 +74,12 @@ export function toCourseCard(m: Mission, groupsById: Map<string, Group>): Course
     distanceKm: m.distance_km ?? 0,
     durationMin: Math.max(Math.round((m.distance_km ?? 0) * 2.2), 5),
     payment: PAYMENT_FROM_TYPE[m.type] ?? 'Espèces',
+    medicalMotif: normalizeMotif(m.medical_motif),
     priceEur: Number(m.price_eur ?? 0),
   }
+}
+
+function normalizeMotif(raw: string | null | undefined): 'HDJ' | 'CONSULTATION' | null {
+  if (raw === 'HDJ' || raw === 'CONSULTATION') return raw
+  return null
 }

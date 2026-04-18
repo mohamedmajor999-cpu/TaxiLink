@@ -15,7 +15,13 @@ export interface CourseCardData {
   distanceKm: number
   durationMin: number
   payment: 'CPAM' | 'CB' | 'Espèces'
+  medicalMotif?: 'HDJ' | 'CONSULTATION' | null
   priceEur: number
+}
+
+const MOTIF_LABEL: Record<'HDJ' | 'CONSULTATION', string> = {
+  HDJ: 'HDJ',
+  CONSULTATION: 'Consult.',
 }
 
 interface Props {
@@ -60,27 +66,35 @@ export function CourseCard({ course, onAccept, footer }: Props) {
         )}
       </div>
 
-      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end">
-        <RouteTimeline from={course.from} to={course.to} />
-        <div className="text-right">
-          <div className="text-[36px] font-bold leading-none text-ink tabular-nums tracking-tight">
-            {course.priceEur}<span className="text-[28px]">€</span>
+      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-3 items-end">
+        <RouteTimeline from={course.from} to={course.to} compact />
+        <div className="text-right shrink-0 whitespace-nowrap">
+          <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">
+            Prix estimé
+          </div>
+          <div className="text-[28px] font-bold leading-none text-ink tabular-nums tracking-tight">
+            {course.priceEur}<span className="text-[20px]">€</span>
           </div>
         </div>
       </div>
 
-      <div className="px-5 pt-3 pb-4 flex items-center gap-3 text-[12px] text-warm-500">
-        <span className="inline-flex items-center gap-1 tabular-nums">
-          <ArrowLeftRight className="w-3.5 h-3.5" strokeWidth={1.6} />
+      <div className="px-5 pt-3 pb-4 flex items-center gap-3 text-[14px] text-ink">
+        <span className="inline-flex items-center gap-1.5 tabular-nums font-semibold">
+          <ArrowLeftRight className="w-4 h-4" strokeWidth={1.8} />
           {course.distanceKm.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km
         </span>
         <span aria-hidden="true" className="text-warm-300">·</span>
-        <span className="inline-flex items-center gap-1 tabular-nums">
-          <Clock className="w-3.5 h-3.5" strokeWidth={1.6} />
+        <span className="inline-flex items-center gap-1.5 tabular-nums font-semibold">
+          <Clock className="w-4 h-4" strokeWidth={1.8} />
           {course.durationMin} min
         </span>
         <span aria-hidden="true" className="text-warm-300">·</span>
-        <span className="font-semibold text-ink">{course.payment}</span>
+        <span className="font-semibold text-ink">
+          {course.payment}
+          {course.medicalMotif && course.payment === 'CPAM' && (
+            <span className="text-warm-500 font-medium"> · {MOTIF_LABEL[course.medicalMotif]}</span>
+          )}
+        </span>
       </div>
 
       <div className="px-5 pb-5">

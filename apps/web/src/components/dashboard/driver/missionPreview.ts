@@ -31,6 +31,7 @@ export interface BuildPreviewArgs {
   priceEur: number
   scheduledAtIso: string | null
   groupName?: string | null
+  medicalMotif?: 'HDJ' | 'CONSULTATION' | null
 }
 
 export function buildPreviewCard(args: BuildPreviewArgs): CourseCardData {
@@ -53,6 +54,7 @@ export function buildPreviewCard(args: BuildPreviewArgs): CourseCardData {
     distanceKm: args.distanceKm ?? 0,
     durationMin: args.durationMin ?? Math.max(Math.round((args.distanceKm ?? 0) * 2.2), 0),
     payment: PAYMENT_FROM_TYPE[args.type],
+    medicalMotif: args.medicalMotif ?? null,
     priceEur: args.priceEur,
   }
 }

@@ -49,6 +49,7 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
       priceEur: effectivePrice ?? 0,
       scheduledAtIso: buildScheduledAt(date, time),
       groupName: visibility === 'GROUP' ? findGroupName(myGroups, groupId) : null,
+      medicalMotif: type === 'CPAM' ? medicalMotif : null,
     })
     return (
       <MissionPreviewStep
