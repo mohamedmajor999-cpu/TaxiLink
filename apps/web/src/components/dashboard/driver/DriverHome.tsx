@@ -4,7 +4,7 @@ import { CourseCard } from '@/components/taxilink/CourseCard'
 import { useDriverHome, HOME_TYPE_FILTERS, HOME_SORT_OPTIONS, type HomeSort } from './useDriverHome'
 import { HomeMobileHeader } from './home/HomeMobileHeader'
 import { HomeGroupFilterBar } from './home/HomeGroupFilterBar'
-import { CurrentMissionCard } from './CurrentMissionCard'
+import { NextMissionBanner } from './NextMissionBanner'
 
 interface Props {
   onPostCourse: () => void
@@ -31,7 +31,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
       />
 
       {h.currentMission && (
-        <CurrentMissionCard mission={h.currentMission} onShowDetail={onShowCurrentCourse} />
+        <NextMissionBanner mission={h.currentMission} onShowDetail={onShowCurrentCourse} />
       )}
 
       <header className="flex items-start justify-between gap-3 mb-4">
