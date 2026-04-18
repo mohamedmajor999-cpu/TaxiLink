@@ -13,8 +13,8 @@ export function useDriverCoursesScreen() {
 
   const subTabs: { id: CoursesTab; label: string; icon?: string }[] = [
     { id: 'upcoming', label: 'À venir' },
-    { id: 'agenda', label: 'Agenda', icon: '📅' },
     { id: 'posted', label: 'Postées' },
+    { id: 'agenda', label: 'Agenda', icon: '📅' },
     { id: 'history', label: 'Historique' },
   ]
 
