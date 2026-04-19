@@ -30,7 +30,7 @@ async function requireOwnEditable(req: NextRequest, params: RouteParams['params'
   if (!mission) {
     return { err: NextResponse.json({ error: 'Mission introuvable' }, { status: 404 }) }
   }
-  if (mission.client_id !== user.id) {
+  if (mission.client_id !== user.id && mission.shared_by !== user.id) {
     return { err: NextResponse.json({ error: 'Accès refusé' }, { status: 403 }) }
   }
   if (mission.status !== 'AVAILABLE') {
@@ -45,16 +45,23 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     const ctx = await requireOwnEditable(req, params)
     if ('err' in ctx) return ctx.err
 
-    const { error: deleteError } = await ctx.supabase
+    const { data: deleted, error: deleteError } = await ctx.supabase
       .from('missions')
       .delete()
       .eq('id', ctx.id)
-      .eq('client_id', ctx.user.id)
       .eq('status', 'AVAILABLE')
+      .or(`client_id.eq.${ctx.user.id},shared_by.eq.${ctx.user.id}`)
+      .select('id')
 
     if (deleteError) {
       console.error('[DELETE /api/missions/[id]]', deleteError)
       return NextResponse.json({ error: 'Erreur lors de la suppression' }, { status: 500 })
+    }
+    if (!deleted || deleted.length === 0) {
+      return NextResponse.json(
+        { error: 'Suppression refusée (policy ou mission déjà prise)' },
+        { status: 403 }
+      )
     }
 
     return NextResponse.json({ ok: true })

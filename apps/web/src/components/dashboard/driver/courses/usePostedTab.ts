@@ -97,12 +97,17 @@ export function usePostedTab() {
     try {
       await missionService.remove(id)
       await load(user.id)
+      addToast({ message: 'Course supprimée', type: 'success' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la suppression')
+      addToast({
+        message: 'Suppression impossible',
+        sub: err instanceof Error ? err.message : undefined,
+        type: 'warning',
+      })
     } finally {
       setDeletingId(null)
     }
-  }, [user, load])
+  }, [user, load, addToast])
 
   const items = useMemo<PostedMissionView[]>(
     () => missions.map((m) => ({
