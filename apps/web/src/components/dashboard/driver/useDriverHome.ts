@@ -121,6 +121,22 @@ export function useDriverHome() {
     return c
   }, [m.missions, now])
 
+  const scopeLabel = useMemo(() => {
+    if (!selectedGroupId) return 'tous mes groupes'
+    if (selectedGroupId === HOME_GROUP_PUBLIC) return 'missions publiques'
+    return groupsById.get(selectedGroupId)?.name ?? ''
+  }, [selectedGroupId, groupsById])
+
+  const scopeCount = useMemo(() => {
+    let list = m.missions.filter((x) => new Date(x.scheduled_at).getTime() > now)
+    if (selectedGroupId === HOME_GROUP_PUBLIC) {
+      list = list.filter(isPublicMission)
+    } else if (selectedGroupId) {
+      list = list.filter((x) => extractMissionGroupIds(x).includes(selectedGroupId))
+    }
+    return list.length
+  }, [m.missions, selectedGroupId, now])
+
   const initials =
     (driver.name || '')
       .split(' ')
@@ -136,9 +152,10 @@ export function useDriverHome() {
     initials,
     city: 'Marseille',
     postalCode: '13008',
-    nearbyZone: 'Vieux-Port',
     cards,
     counts,
+    scopeLabel,
+    scopeCount,
     filter,
     setFilter,
     sort,

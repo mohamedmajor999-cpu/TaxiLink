@@ -19,9 +19,9 @@ export function RouteTimeline({ from, to, className = '', compact = false }: Pro
         <div className="w-2.5 h-2.5 rounded-full bg-ink mt-1 flex-shrink-0 relative z-10" />
         <div className="flex-1 min-w-0">
           <div className={`font-semibold ${nameSize} text-ink truncate leading-tight`}>{from.name}</div>
-          {from.address && (
-            <div className={`${addrSize} text-warm-500 truncate mt-0.5`}>{from.address}</div>
-          )}
+          <div className={`${addrSize} text-warm-500 truncate mt-0.5 leading-tight`}>
+            {from.address || '\u00A0'}
+          </div>
         </div>
       </div>
 
@@ -38,9 +38,9 @@ export function RouteTimeline({ from, to, className = '', compact = false }: Pro
         <div className="w-2.5 h-2.5 rounded-full bg-brand border-2 border-ink mt-1 flex-shrink-0 relative z-10" />
         <div className="flex-1 min-w-0">
           <div className={`font-semibold ${nameSize} text-ink truncate leading-tight`}>{to.name}</div>
-          {to.address && (
-            <div className={`${addrSize} text-warm-500 truncate mt-0.5`}>{to.address}</div>
-          )}
+          <div className={`${addrSize} text-warm-500 truncate mt-0.5 leading-tight`}>
+            {to.address || '\u00A0'}
+          </div>
         </div>
       </div>
     </div>

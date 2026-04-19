@@ -45,7 +45,8 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
             Courses dispo
           </h2>
           <p className="text-[13px] text-warm-500 mt-1">
-            {h.counts.ALL} à proximité · {h.nearbyZone}
+            {h.scopeCount} disponible{h.scopeCount > 1 ? 's' : ''}
+            {h.scopeLabel && <> · <span className="text-ink/70">{h.scopeLabel}</span></>}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -89,7 +90,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
       {!h.loading && !h.error && h.cards.length > 0 && (
         <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="Courses disponibles">
           {h.cards.map((c) => (
-            <li key={c.id}>
+            <li key={c.id} className="h-full">
               <CourseCard course={c} onAccept={h.acceptMission} />
             </li>
           ))}

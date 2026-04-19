@@ -3,6 +3,7 @@ import { ArrowLeftRight, Clock } from 'lucide-react'
 import { HoldAcceptButton } from './HoldAcceptButton'
 import { RideBadge, type RideBadgeVariant } from './RideBadge'
 import { RouteTimeline } from './RouteTimeline'
+import { formatDuration } from '@/lib/formatDuration'
 
 export interface CourseCardData {
   id: string
@@ -34,9 +35,8 @@ interface Props {
 
 export function CourseCard({ course, onAccept, footer }: Props) {
   const isUrgent = !!course.urgent
-  const cardStyle = isUrgent
-    ? 'bg-paper border-2 border-ink rounded-2xl overflow-hidden shadow-soft'
-    : 'bg-paper border border-warm-200 rounded-2xl overflow-hidden hover:shadow-soft transition-shadow'
+  const urgencyBorder = getUrgencyBorder(course.scheduledInMin)
+  const cardStyle = `bg-paper border ${urgencyBorder} rounded-2xl overflow-hidden hover:shadow-soft transition-shadow h-full flex flex-col ${isUrgent ? 'shadow-soft' : ''}`
 
   return (
     <article className={cardStyle}>
@@ -52,7 +52,7 @@ export function CourseCard({ course, onAccept, footer }: Props) {
         {isUrgent ? (
           <div className="text-right shrink-0">
             <span className="inline-block bg-brand text-ink px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
-              Urgent · {course.urgent!.etaMin} min
+              Urgent · {formatDuration(course.urgent!.etaMin)}
             </span>
             {course.clientName && (
               <div className="text-[12px] text-warm-600 mt-1">{course.clientName}</div>
@@ -61,18 +61,18 @@ export function CourseCard({ course, onAccept, footer }: Props) {
         ) : (
           <div className="text-right shrink-0 text-[12px] text-warm-500">
             {typeof course.scheduledInMin === 'number' && course.scheduledInMin > 0
-              ? `dans ${course.scheduledInMin} min`
+              ? `dans ${formatDuration(course.scheduledInMin)}`
               : 'maintenant'}
             {course.clientName && <> · <span className="text-warm-600">{course.clientName}</span></>}
           </div>
         )}
       </div>
 
-      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-3 items-end">
+      <div className="px-5 pt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-4 items-start">
         <RouteTimeline from={course.from} to={course.to} compact />
-        <div className="text-right shrink-0 whitespace-nowrap">
+        <div className="text-right shrink-0 whitespace-nowrap min-w-[72px]">
           {course.priceIsEstimated && (
-            <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">
+            <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5 leading-none">
               Prix estimé
             </div>
           )}
@@ -90,7 +90,7 @@ export function CourseCard({ course, onAccept, footer }: Props) {
         <span aria-hidden="true" className="text-warm-300">·</span>
         <span className="inline-flex items-center gap-1.5 tabular-nums font-semibold">
           <Clock className="w-4 h-4" strokeWidth={1.8} />
-          {course.durationMin} min
+          {formatDuration(course.durationMin)}
         </span>
         <span aria-hidden="true" className="text-warm-300">·</span>
         <span className="font-semibold text-ink">
@@ -101,7 +101,7 @@ export function CourseCard({ course, onAccept, footer }: Props) {
         </span>
       </div>
 
-      <div className="px-5 pb-5">
+      <div className="px-5 pb-5 mt-auto">
         {footer ?? (
           <HoldAcceptButton
             variant={isUrgent ? 'accent' : 'default'}
@@ -111,4 +111,15 @@ export function CourseCard({ course, onAccept, footer }: Props) {
       </div>
     </article>
   )
+}
+
+/**
+ * Couleur de bordure selon l'imminence du départ :
+ * - >3h → vert, 1h–3h → orange, <1h → rouge.
+ */
+function getUrgencyBorder(scheduledInMin: number | undefined): string {
+  if (typeof scheduledInMin !== 'number') return 'border-warm-200'
+  if (scheduledInMin < 60) return 'border-danger'
+  if (scheduledInMin <= 180) return 'border-amber-500'
+  return 'border-emerald-500'
 }
