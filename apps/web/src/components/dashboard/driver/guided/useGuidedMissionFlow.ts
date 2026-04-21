@@ -38,29 +38,33 @@ export function useGuidedMissionFlow({ state, apply, onComplete }: Options) {
     ? (currentIndex + 1) / visibleQuestions.length
     : 0
 
-  const advance = useCallback(() => {
-    const idx = currentId ? visibleQuestions.findIndex((q) => q.id === currentId) : -1
-    const nextList = getVisibleQuestions(state)
+  // `nextState` (optionnel) permet à `answer` de passer l'état post-réponse,
+  // afin de calculer la bonne liste visible sans attendre le prochain render
+  // (sinon le useEffect plus bas rembobine vers la question 0 quand la réponse
+  // a masqué la question suivante).
+  const advance = useCallback((nextState?: GuidedVisibilityState) => {
+    const list = nextState ? getVisibleQuestions(nextState) : visibleQuestions
+    const idx = currentId ? list.findIndex((q) => q.id === currentId) : -1
     if (idx < 0) {
-      setCurrentId(nextList[0]?.id ?? null)
+      setCurrentId(list[0]?.id ?? null)
       return
     }
-    const nextIdx = nextList.findIndex((q) => q.id === currentId) + 1
-    if (nextIdx >= nextList.length) {
+    const nextIdx = idx + 1
+    if (nextIdx >= list.length) {
       setIsComplete(true)
       onCompleteRef.current()
     } else {
-      setCurrentId(nextList[nextIdx]!.id)
+      setCurrentId(list[nextIdx]!.id)
     }
-  }, [currentId, state, visibleQuestions])
+  }, [currentId, visibleQuestions])
 
   const answer = useCallback(
     async (value: unknown) => {
       if (!currentQuestion) return
       await apply(currentQuestion.id, value)
-      advance()
+      advance(computeNextVisibility(state, currentQuestion.id, value))
     },
-    [apply, advance, currentQuestion],
+    [apply, advance, currentQuestion, state],
   )
 
   const skip = useCallback(() => {
@@ -106,5 +110,34 @@ export function useGuidedMissionFlow({ state, apply, onComplete }: Options) {
     isComplete,
     answer, skip, back, goTo,
     handleVoiceResult,
+  }
+}
+
+/**
+ * Projette la réponse courante sur l'état de visibilité, sans attendre le
+ * re-render de MissionFormState. Seules les 3 clés qui gouvernent la visibilité
+ * (type, returnTrip, visibility) sont mises à jour ; les autres réponses
+ * n'affectent pas la liste des questions visibles.
+ */
+function computeNextVisibility(
+  state: GuidedVisibilityState,
+  id: string,
+  value: unknown,
+): GuidedVisibilityState {
+  switch (id) {
+    case 'type':
+      if (value === 'CPAM' || value === 'PRIVE' || value === 'TAXILINK') {
+        const next: GuidedVisibilityState = { ...state, type: value }
+        if (value !== 'CPAM') next.returnTrip = false
+        return next
+      }
+      return state
+    case 'returnTrip':
+      return { ...state, returnTrip: !!value }
+    case 'visibility':
+      if (value === 'PUBLIC' || value === 'GROUP') return { ...state, visibility: value }
+      return state
+    default:
+      return state
   }
 }
