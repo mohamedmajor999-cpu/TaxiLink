@@ -2,6 +2,7 @@
 
 import { TYPE_COLORS } from '@/constants/missionTypes'
 import { formatDateShort } from '@/lib/dateUtils'
+import { formatMissionPrice } from '@/lib/formatMissionPrice'
 import type { Mission } from '@/lib/supabase/types'
 
 export function StatsRecentList({ missions }: { missions: Mission[] }) {
@@ -19,7 +20,7 @@ export function StatsRecentList({ missions }: { missions: Mission[] }) {
                 <p className="text-xs text-muted">{formatDateShort(m.scheduled_at)}</p>
               </div>
             </div>
-            <span className="font-black text-secondary">{m.price_eur?.toFixed(2)}€</span>
+            <span className="font-black text-secondary">{formatMissionPrice(m, { decimals: true })}</span>
           </div>
         ))}
       </div>

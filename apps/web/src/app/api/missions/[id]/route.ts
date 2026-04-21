@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient as createClient } from '@/lib/supabase/server'
 import { validateMission, type MissionInput } from '@/lib/validators'
 import { rateLimit } from '@/lib/rateLimiter'
+import { replaceMissionGroups } from '@/services/missionGroupsService'
 
 type RouteParams = { params: Promise<{ id: string }> }
 
@@ -89,13 +90,18 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     }
 
     const visibility = body.visibility ?? 'GROUP'
-    const groupId = visibility === 'PUBLIC' ? null : (body.group_id ?? null)
+    const groupIds = visibility === 'PUBLIC' ? [] : (body.group_ids ?? [])
 
     const { data, error: updateError } = await ctx.supabase
       .from('missions')
       .update({
         type: body.type,
         medical_motif: body.type === 'CPAM' ? (body.medical_motif ?? null) : null,
+        transport_type: body.type === 'CPAM' ? (body.transport_type ?? null) : null,
+        return_trip: body.type === 'CPAM' ? (body.return_trip ?? false) : false,
+        return_time: body.type === 'CPAM' && body.return_trip ? (body.return_time ?? null) : null,
+        companion: body.companion ?? false,
+        passengers: body.type !== 'CPAM' ? (body.passengers ?? null) : null,
         departure: body.departure.trim(),
         destination: body.destination.trim(),
         departure_lat: body.departure_lat ?? null,
@@ -105,12 +111,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         distance_km: body.distance_km ?? null,
         duration_min: body.duration_min ?? null,
         price_eur: body.price_eur ?? null,
+        price_min_eur: body.price_min_eur ?? null,
+        price_max_eur: body.price_max_eur ?? null,
         patient_name: body.patient_name?.trim() || null,
         phone: body.phone?.replace(/\s/g, '') || null,
         notes: body.notes?.trim() || null,
         scheduled_at: body.scheduled_at ?? ctx.mission.scheduled_at,
         visibility,
-        group_id: groupId,
       })
       .eq('id', ctx.id)
       .eq('client_id', ctx.user.id)
@@ -118,12 +125,19 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       .select()
       .single()
 
-    if (updateError) {
+    if (updateError || !data) {
       console.error('[PATCH /api/missions/[id]]', updateError)
       return NextResponse.json({ error: 'Erreur lors de la mise à jour' }, { status: 500 })
     }
 
-    return NextResponse.json({ mission: data })
+    try {
+      await replaceMissionGroups(ctx.supabase, data.id, groupIds)
+    } catch (err) {
+      console.error('[PATCH /api/missions/[id]] mission_groups', err)
+      return NextResponse.json({ error: 'Erreur lors de l\u2019affectation aux groupes' }, { status: 500 })
+    }
+
+    return NextResponse.json({ mission: { ...data, group_ids: groupIds } })
   } catch (err) {
     console.error('[PATCH /api/missions/[id]] unexpected error', err)
     return NextResponse.json({ error: 'Erreur serveur inattendue' }, { status: 500 })

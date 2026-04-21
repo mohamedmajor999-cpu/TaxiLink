@@ -11,17 +11,23 @@ export function RegisterForm() {
 
   if (form.success) {
     return (
-      <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4">
+      <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md text-center">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
             <Icon name="check_circle" size={40} className="text-green-500" />
           </div>
           <h2 className="text-3xl font-black text-secondary mb-3">Compte créé !</h2>
-          <p className="text-muted mb-8">Vérifiez votre email pour confirmer votre inscription puis connectez-vous.</p>
-          <Link href="/auth/login"
-            className="inline-flex h-12 px-8 rounded-xl bg-primary font-bold text-secondary text-sm items-center gap-2 hover:bg-yellow-400 transition-colors">
-            <Icon name="login" size={18} />Se connecter
-          </Link>
+          <p className="text-muted mb-8">Vérifiez votre email pour confirmer votre inscription. En attendant, découvrez comment TaxiLink fonctionne.</p>
+          <div className="flex flex-col gap-3">
+            <Link href="/onboarding"
+              className="inline-flex h-12 px-8 rounded-xl bg-primary font-bold text-secondary text-sm items-center justify-center gap-2 hover:bg-yellow-400 transition-colors">
+              <Icon name="play_circle" size={18} />Découvrir TaxiLink
+            </Link>
+            <Link href="/auth/login"
+              className="inline-flex h-12 px-8 rounded-xl border-2 border-line font-bold text-secondary text-sm items-center justify-center gap-2 hover:bg-white transition-colors">
+              <Icon name="login" size={18} />J&apos;ai confirmé, me connecter
+            </Link>
+          </div>
         </div>
       </div>
     )

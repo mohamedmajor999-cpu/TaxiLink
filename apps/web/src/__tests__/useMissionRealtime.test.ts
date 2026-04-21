@@ -38,9 +38,9 @@ describe('useMissionRealtime — souscription', () => {
     expect(mockSubscribe).toHaveBeenCalled()
   })
 
-  it('configure 2 listeners (INSERT + UPDATE)', () => {
+  it('configure 3 listeners (INSERT + UPDATE + DELETE)', () => {
     renderHook(() => useMissionRealtime({}))
-    expect(onCalls).toHaveLength(2)
+    expect(onCalls).toHaveLength(3)
   })
 
   it('le premier listener cible les INSERT AVAILABLE', () => {
@@ -53,6 +53,12 @@ describe('useMissionRealtime — souscription', () => {
     renderHook(() => useMissionRealtime({}))
     const [, filter] = onCalls[1]
     expect(filter.event).toBe('UPDATE')
+  })
+
+  it('le troisième listener cible les DELETE', () => {
+    renderHook(() => useMissionRealtime({}))
+    const [, filter] = onCalls[2]
+    expect(filter.event).toBe('DELETE')
   })
 
   it('appelle removeChannel au démontage', () => {

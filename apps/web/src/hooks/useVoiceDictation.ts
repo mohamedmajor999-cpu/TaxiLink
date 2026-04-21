@@ -1,44 +1,15 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  getSpeechRecognitionCtor,
+  type SpeechRecognitionInstance,
+} from '@/lib/speechRecognition'
 
 /**
  * Hook générique de dictée vocale via Web Speech API.
- * Aucune dépendance externe : types SpeechRecognition déclarés localement.
  * Compatibilité : Chrome, Edge, Safari récents (préfixe webkit). Firefox = non supporté.
  */
-
-interface SpeechRecognitionAlternative {
-  transcript: string
-}
-interface SpeechRecognitionResult {
-  0: SpeechRecognitionAlternative
-  isFinal: boolean
-}
-interface SpeechRecognitionResultList {
-  length: number
-  [index: number]: SpeechRecognitionResult
-}
-interface SpeechRecognitionEvent {
-  results: SpeechRecognitionResultList
-  resultIndex: number
-}
-interface SpeechRecognitionErrorEvent {
-  error: string
-}
-interface SpeechRecognitionInstance {
-  lang: string
-  continuous: boolean
-  interimResults: boolean
-  onresult: ((e: SpeechRecognitionEvent) => void) | null
-  onerror: ((e: SpeechRecognitionErrorEvent) => void) | null
-  onend: (() => void) | null
-  onstart: (() => void) | null
-  start: () => void
-  stop: () => void
-  abort: () => void
-}
-type SpeechRecognitionCtor = new () => SpeechRecognitionInstance
 
 interface Options {
   lang?: string
@@ -55,28 +26,23 @@ interface UseVoiceDictation {
   error: string | null
 }
 
-function getCtor(): SpeechRecognitionCtor | null {
-  if (typeof window === 'undefined') return null
-  const w = window as unknown as {
-    SpeechRecognition?: SpeechRecognitionCtor
-    webkitSpeechRecognition?: SpeechRecognitionCtor
-  }
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null
-}
-
 export function useVoiceDictation(options: Options): UseVoiceDictation {
   const { lang = 'fr-FR', onFinalTranscript, continuous = false } = options
   const onFinalRef = useRef(onFinalTranscript)
   onFinalRef.current = onFinalTranscript
 
-  const [isSupported] = useState<boolean>(() => getCtor() !== null)
+  const [isSupported] = useState<boolean>(() => getSpeechRecognitionCtor() !== null)
   const [isListening, setIsListening] = useState(false)
   const [interimTranscript, setInterimTranscript] = useState('')
   const [error, setError] = useState<string | null>(null)
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
+  // Chrome coupe la reconnaissance après ~5-10s de silence même avec continuous=true.
+  // On auto-restart tant que l'utilisateur n'a pas explicitement appelé stop().
+  const wantListeningRef = useRef(false)
+  const restartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    const Ctor = getCtor()
+    const Ctor = getSpeechRecognitionCtor()
     if (!Ctor) return
     const instance = new Ctor()
     instance.lang = lang
@@ -98,13 +64,27 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
       setInterimTranscript(interim)
     }
     instance.onerror = (e) => {
+      // 'no-speech' pendant une session voulue : silence passager, on laisse onend relancer.
+      if (e.error === 'no-speech' && wantListeningRef.current) return
+      wantListeningRef.current = false
       setError(e.error || 'unknown')
       setIsListening(false)
       setInterimTranscript('')
     }
     instance.onend = () => {
-      setIsListening(false)
       setInterimTranscript('')
+      // Auto-restart uniquement en mode continu (session longue). En mode ponctuel,
+      // on laisse la reconnaissance s'arrêter naturellement après la phrase.
+      if (continuous && wantListeningRef.current) {
+        if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current)
+        restartTimeoutRef.current = setTimeout(() => {
+          if (!wantListeningRef.current) return
+          try { instance.start() } catch { /* déjà relancé ou invalid state : ignore */ }
+        }, 150)
+        return
+      }
+      wantListeningRef.current = false
+      setIsListening(false)
     }
     instance.onstart = () => {
       setError(null)
@@ -113,6 +93,8 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
 
     recognitionRef.current = instance
     return () => {
+      wantListeningRef.current = false
+      if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current)
       try { instance.abort() } catch { /* noop */ }
       recognitionRef.current = null
     }
@@ -121,14 +103,17 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
   const start = useCallback(() => {
     const r = recognitionRef.current
     if (!r || isListening) return
+    wantListeningRef.current = true
     try { r.start() } catch { /* déjà démarré : ignore */ }
   }, [isListening])
 
   const stop = useCallback(() => {
     const r = recognitionRef.current
-    if (!r || !isListening) return
+    if (!r) return
+    wantListeningRef.current = false
+    if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current)
     try { r.stop() } catch { /* noop */ }
-  }, [isListening])
+  }, [])
 
   return { isSupported, isListening, interimTranscript, start, stop, error }
 }

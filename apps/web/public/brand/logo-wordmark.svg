@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 60" width="320" height="60" role="img" aria-label="TaxiLink Pro">
+  <text x="0" y="44" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="40" font-weight="700" fill="#0A0A0A" letter-spacing="-1.5">TaxiLink</text>
+  <rect x="218" y="18" width="50" height="30" rx="6" fill="#FACC15"/>
+  <text x="243" y="39" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="700" fill="#0A0A0A" letter-spacing="0.5">Pro</text>
+</svg>

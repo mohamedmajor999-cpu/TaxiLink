@@ -1,5 +1,4 @@
 'use client'
-import { Filter } from 'lucide-react'
 import { CourseCard } from '@/components/taxilink/CourseCard'
 import { NotificationPermissionBanner } from '@/components/taxilink/NotificationPermissionBanner'
 import { useDriverHome, HOME_TYPE_FILTERS, HOME_SORT_OPTIONS, type HomeSort } from './useDriverHome'
@@ -36,7 +35,12 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
       )}
 
       {h.currentMission && (
-        <NextMissionBanner mission={h.currentMission} onShowDetail={onShowCurrentCourse} />
+        <NextMissionBanner
+          mission={h.currentMission}
+          onShowDetail={onShowCurrentCourse}
+          onComplete={h.completeMission}
+          userCoords={h.userCoords}
+        />
       )}
 
       <header className="flex items-start justify-between gap-3 mb-4">
@@ -51,16 +55,6 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <SortSelect value={h.sort} onChange={h.setSort} />
-          <button
-            type="button"
-            disabled
-            aria-label="Filtres — bientôt disponible"
-            aria-disabled="true"
-            title="Bientôt disponible"
-            className="w-10 h-10 rounded-full border border-warm-200 bg-paper flex items-center justify-center text-warm-400 cursor-not-allowed opacity-60"
-          >
-            <Filter className="w-4 h-4" strokeWidth={1.8} />
-          </button>
         </div>
       </header>
 

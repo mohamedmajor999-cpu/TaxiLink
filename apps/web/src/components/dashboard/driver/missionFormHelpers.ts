@@ -3,6 +3,11 @@ import type { MedicalMotif } from '@/lib/validators'
 
 export type MissionFormType = 'CPAM' | 'PRIVE'
 
+export function initialCoords(lat: number | null | undefined, lng: number | null | undefined) {
+  if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng }
+  return null
+}
+
 export function initialMedicalMotif(m: Mission | undefined): MedicalMotif | null {
   if (m?.medical_motif === 'HDJ' || m?.medical_motif === 'CONSULTATION') return m.medical_motif
   return null

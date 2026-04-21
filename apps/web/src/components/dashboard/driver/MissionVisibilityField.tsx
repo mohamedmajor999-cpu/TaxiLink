@@ -5,16 +5,16 @@ import type { MissionVisibility } from '@/lib/validators'
 
 interface Props {
   visibility: MissionVisibility
-  groupId: string | null
+  groupIds: string[]
   myGroups: Group[]
   onSelectPublic: () => void
-  onSelectGroup: (groupId: string) => void
+  onToggleGroup: (groupId: string) => void
 }
 
 export function MissionVisibilityField({
-  visibility, groupId, myGroups, onSelectPublic, onSelectGroup,
+  visibility, groupIds, myGroups, onSelectPublic, onToggleGroup,
 }: Props) {
-  const filled = visibility === 'PUBLIC' || (visibility === 'GROUP' && !!groupId)
+  const filled = visibility === 'PUBLIC' || (visibility === 'GROUP' && groupIds.length > 0)
 
   return (
     <div className="rounded-2xl border border-warm-200 bg-paper mb-3 p-4">
@@ -32,14 +32,22 @@ export function MissionVisibilityField({
           Public
         </Chip>
         {myGroups.map((g) => {
-          const isActive = visibility === 'GROUP' && groupId === g.id
+          const isActive = visibility === 'GROUP' && groupIds.includes(g.id)
           return (
-            <Chip key={g.id} dot active={isActive} onClick={() => onSelectGroup(g.id)}>
+            <Chip key={g.id} dot active={isActive} onClick={() => onToggleGroup(g.id)}>
               {g.name}
             </Chip>
           )
         })}
       </div>
+
+      {visibility === 'GROUP' && myGroups.length > 0 && (
+        <p className="mt-2 text-[11px] text-warm-500">
+          {groupIds.length === 0
+            ? 'Sélectionnez au moins un groupe.'
+            : `Partagé avec ${groupIds.length} groupe${groupIds.length > 1 ? 's' : ''}.`}
+        </p>
+      )}
 
       {myGroups.length === 0 && (
         <p className="mt-2 text-[12px] text-warm-500">

@@ -74,7 +74,7 @@ describe('groupStatsService.getMemberStats', () => {
       }
       return { gte: mockGte }
     })
-    mockGte.mockResolvedValue({ data: [{ shared_by: 'drv-1', driver_id: null }, { shared_by: 'drv-1', driver_id: 'drv-2' }], error: null })
+    mockGte.mockResolvedValue({ data: [{ missions: { shared_by: 'drv-1', driver_id: null } }, { missions: { shared_by: 'drv-1', driver_id: 'drv-2' } }], error: null })
 
     const result = await groupStatsService.getMemberStats('g1', since)
     expect(result[0].driverId).toBe('drv-1')

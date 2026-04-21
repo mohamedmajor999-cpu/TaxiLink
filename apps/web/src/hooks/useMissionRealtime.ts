@@ -9,13 +9,15 @@ interface UseMissionRealtimeOptions {
   onInsert?: (mission: Mission) => void
   /** Appelé à chaque mise à jour d'une mission */
   onUpdate?: (mission: Mission) => void
+  /** Appelé à chaque suppression d'une mission (payload partiel : id uniquement) */
+  onDelete?: (mission: { id: string }) => void
 }
 
 /**
  * Hook qui souscrit aux changements temps réel de la table missions via Supabase Realtime.
  * Isole toute la logique de subscription hors des composants UI.
  */
-export function useMissionRealtime({ onInsert, onUpdate }: UseMissionRealtimeOptions) {
+export function useMissionRealtime({ onInsert, onUpdate, onDelete }: UseMissionRealtimeOptions) {
   const stableOnInsert = useCallback(
     (mission: Mission) => onInsert?.(mission),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -23,6 +25,11 @@ export function useMissionRealtime({ onInsert, onUpdate }: UseMissionRealtimeOpt
   )
   const stableOnUpdate = useCallback(
     (mission: Mission) => onUpdate?.(mission),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
+  const stableOnDelete = useCallback(
+    (mission: { id: string }) => onDelete?.(mission),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
@@ -42,10 +49,18 @@ export function useMissionRealtime({ onInsert, onUpdate }: UseMissionRealtimeOpt
         { event: 'UPDATE', schema: 'public', table: 'missions' },
         (payload) => stableOnUpdate(payload.new as Mission)
       )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'missions' },
+        (payload) => {
+          const id = (payload.old as { id?: string } | null)?.id
+          if (id) stableOnDelete({ id })
+        }
+      )
       .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [stableOnInsert, stableOnUpdate])
+  }, [stableOnInsert, stableOnUpdate, stableOnDelete])
 }

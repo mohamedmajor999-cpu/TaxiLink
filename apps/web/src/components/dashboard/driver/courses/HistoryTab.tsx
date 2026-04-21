@@ -3,6 +3,7 @@ import { ChevronRight } from 'lucide-react'
 import { RideBadge } from '@/components/taxilink/RideBadge'
 import { useHistoryTab, type MonthGroup } from './useHistoryTab'
 import type { Mission } from '@/lib/supabase/types'
+import { formatMissionPrice } from '@/lib/formatMissionPrice'
 
 export function HistoryTab() {
   const h = useHistoryTab()
@@ -91,7 +92,7 @@ function HistoryRow({ mission }: { mission: Mission }) {
         {mission.departure} → {mission.destination}
       </span>
       <span className="text-[16px] font-bold text-ink tabular-nums tracking-tight">
-        {Number(mission.price_eur ?? 0)}€
+        {formatMissionPrice(mission)}
       </span>
       <ChevronRight className="w-4 h-4 text-warm-400 shrink-0" strokeWidth={1.6} />
     </button>

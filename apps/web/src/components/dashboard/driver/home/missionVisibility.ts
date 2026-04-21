@@ -27,13 +27,17 @@ function fmtClient(m: Mission): string {
 
 /**
  * Extrait la liste des groupes ciblés par une mission.
- * Source 1 : colonne `group_id` (quand renseignée).
+ * Source 1 : relation `mission_groups` (embarquée par les queries enrichies).
  * Source 2 (fallback historique) : mention « Visible: id1, id2 » dans `notes`
- *   — pattern actuellement écrit par `usePartagerMissionModal`.
+ *   — pattern laissé pour les missions antérieures à la migration.
  */
 export function extractMissionGroupIds(m: Mission): string[] {
   const ids = new Set<string>()
-  if (m.group_id) ids.add(m.group_id)
+  if (Array.isArray(m.mission_groups)) {
+    for (const r of m.mission_groups) {
+      if (r?.group_id) ids.add(r.group_id)
+    }
+  }
   if (m.notes) {
     const match = /Visible\s*:\s*([^·\n]+)/i.exec(m.notes)
     if (match) {
@@ -81,6 +85,8 @@ export function toCourseCard(m: Mission, groupsById: Map<string, Group>): Course
     medicalMotif: normalizeMotif(m.medical_motif),
     priceEur: fare.value,
     priceIsEstimated: fare.isEstimated,
+    priceMinEur: m.price_min_eur ?? null,
+    priceMaxEur: m.price_max_eur ?? null,
   }
 }
 

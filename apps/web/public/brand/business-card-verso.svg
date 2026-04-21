@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="85mm" height="55mm" viewBox="0 0 850 550" role="img" aria-label="TaxiLink Pro — carte de visite verso">
+  <rect width="850" height="550" fill="#0A0A0A"/>
+  <text x="60" y="95" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="500" fill="#FACC15" letter-spacing="3">TAXILINK.PRO</text>
+  <g transform="translate(720, 60)">
+    <rect width="70" height="70" rx="16" fill="#FACC15"/>
+    <rect x="12" y="17" width="46" height="12" rx="6" fill="#0A0A0A"/>
+    <circle cx="18.5" cy="23" r="2.8" fill="#FACC15"/>
+    <circle cx="51.5" cy="23" r="2.8" fill="#FACC15"/>
+    <rect x="29" y="30" width="12" height="25" rx="3" fill="#0A0A0A"/>
+  </g>
+  <text x="60" y="320" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF" letter-spacing="-1.5">Partagez vos courses.</text>
+  <text x="60" y="380" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="48" font-weight="700" fill="#FACC15" letter-spacing="-1.5">Gagnez plus.</text>
+  <text x="60" y="445" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="400" fill="#A0A0A0">Entre taxis, à Marseille et partout</text>
+</svg>

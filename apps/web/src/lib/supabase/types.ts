@@ -187,6 +187,7 @@ export type Database = {
         Row: {
           accepted_at: string | null
           client_id: string | null
+          companion: boolean
           completed_at: string | null
           created_at: string
           departure: string
@@ -201,20 +202,26 @@ export type Database = {
           id: string
           medical_motif: string | null
           notes: string | null
+          passengers: number | null
           patient_name: string | null
           phone: string | null
           price_eur: number | null
+          price_min_eur: number | null
+          price_max_eur: number | null
+          return_time: string | null
+          return_trip: boolean
           scheduled_at: string
+          shared_by: string | null
           status: string
+          transport_type: string | null
           type: string
           updated_at: string
-          shared_by:  string | null
-          group_id:   string | null
           visibility: string
         }
         Insert: {
           accepted_at?: string | null
           client_id?: string | null
+          companion?: boolean
           completed_at?: string | null
           created_at?: string
           departure: string
@@ -229,20 +236,26 @@ export type Database = {
           id?: string
           medical_motif?: string | null
           notes?: string | null
+          passengers?: number | null
           patient_name?: string | null
           phone?: string | null
           price_eur?: number | null
+          price_min_eur?: number | null
+          price_max_eur?: number | null
+          return_time?: string | null
+          return_trip?: boolean
           scheduled_at?: string
+          shared_by?: string | null
           status?: string
+          transport_type?: string | null
           type?: string
           updated_at?: string
-          shared_by?:  string | null
-          group_id?:   string | null
           visibility?: string
         }
         Update: {
           accepted_at?: string | null
           client_id?: string | null
+          companion?: boolean
           completed_at?: string | null
           created_at?: string
           departure?: string
@@ -257,15 +270,20 @@ export type Database = {
           id?: string
           medical_motif?: string | null
           notes?: string | null
+          passengers?: number | null
           patient_name?: string | null
           phone?: string | null
           price_eur?: number | null
+          price_min_eur?: number | null
+          price_max_eur?: number | null
+          return_time?: string | null
+          return_trip?: boolean
           scheduled_at?: string
+          shared_by?: string | null
           status?: string
+          transport_type?: string | null
           type?: string
           updated_at?: string
-          shared_by?:  string | null
-          group_id?:   string | null
           visibility?: string
         }
         Relationships: [
@@ -281,6 +299,39 @@ export type Database = {
             columns: ["driver_id"]
             isOneToOne: false
             referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_groups: {
+        Row: {
+          mission_id: string
+          group_id:   string
+          created_at: string
+        }
+        Insert: {
+          mission_id: string
+          group_id:   string
+          created_at?: string
+        }
+        Update: {
+          mission_id?: string
+          group_id?:   string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_groups_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_groups_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
         ]
@@ -462,7 +513,11 @@ export type TablesUpdate<
     : never
 
 // ─── Types de table partagés ─────────────────────────────────────────────────
-export type Mission  = Database['public']['Tables']['missions']['Row']
+export type Mission  = Database['public']['Tables']['missions']['Row'] & {
+  // Groupes ciblés (relation many-to-many) : embarqué par les queries qui
+  // font `.select('*, mission_groups(group_id)')`.
+  mission_groups?: { group_id: string }[] | null
+}
 export type Profile  = Database['public']['Tables']['profiles']['Row']
 export type Document = Database['public']['Tables']['driver_documents']['Row']
 export type Payment  = Database['public']['Tables']['payments']['Row']

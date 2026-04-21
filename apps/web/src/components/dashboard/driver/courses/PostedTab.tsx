@@ -106,7 +106,7 @@ function PostedCard({
 
       <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end flex-1">
         <RouteTimeline from={addressAsPoint(mission.departure)} to={addressAsPoint(mission.destination)} compact />
-        <div className="text-right">
+        <div className="text-right translate-x-[-5px] translate-y-[-27px]">
           {fare.isEstimated && (
             <div className="text-[10px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">
               Prix estimé

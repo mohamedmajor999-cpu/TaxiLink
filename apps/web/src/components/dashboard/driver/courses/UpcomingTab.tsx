@@ -6,6 +6,7 @@ import { useUpcomingTab, type DayGroup } from './useUpcomingTab'
 import { MissionDetailsModal } from './MissionDetailsModal'
 import type { Mission } from '@/lib/supabase/types'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
+import { formatMissionPrice } from '@/lib/formatMissionPrice'
 
 export function UpcomingTab() {
   const t = useUpcomingTab()
@@ -121,7 +122,7 @@ function AssignedMissionCard({
         <RouteTimeline from={addressAsPoint(mission.departure)} to={addressAsPoint(mission.destination)} compact />
         <div className="text-right">
           <div className="text-[32px] font-bold leading-none text-ink tabular-nums tracking-tight">
-            {Number(mission.price_eur ?? 0)}<span className="text-[24px]">€</span>
+            {formatMissionPrice(mission)}
           </div>
         </div>
       </div>

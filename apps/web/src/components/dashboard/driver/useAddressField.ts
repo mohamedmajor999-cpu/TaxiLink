@@ -1,10 +1,23 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { searchAddresses, type AddressSuggestion } from '@/services/addressService'
+import {
+  primeGoogleAutocompleteCache,
+  resolveGooglePlace,
+  searchGoogle,
+  type AddressSuggestion,
+} from '@/services/addressService'
 
-const DEBOUNCE_MS = 250
+const DEBOUNCE_MS = 1000
 const BLUR_CLOSE_MS = 150
+const MIN_CHARS = 5
+
+function newSessionToken(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
 
 interface UseAddressFieldArgs {
   value: string
@@ -22,6 +35,9 @@ export function useAddressField({ value, onChange, onSelectSuggestion }: UseAddr
   const blurRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Évite de relancer une recherche après une sélection (qui setValue à label exact).
   const skipNextSearchRef = useRef(false)
+  // Session Google Places : partagée entre tous les Autocomplete d'une saisie
+  // et le Place Details final. Facturation groupée. Réinitialisée après sélection.
+  const sessionTokenRef = useRef<string | null>(null)
 
   // Cleanup global
   useEffect(() => () => {
@@ -37,7 +53,7 @@ export function useAddressField({ value, onChange, onSelectSuggestion }: UseAddr
       return
     }
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (value.trim().length < 3) {
+    if (value.trim().length < MIN_CHARS) {
       setSuggestions([])
       setLoading(false)
       return
@@ -47,7 +63,8 @@ export function useAddressField({ value, onChange, onSelectSuggestion }: UseAddr
       const ctrl = new AbortController()
       abortRef.current = ctrl
       setLoading(true)
-      searchAddresses(value, ctrl.signal)
+      if (!sessionTokenRef.current) sessionTokenRef.current = newSessionToken()
+      searchGoogle(value, ctrl.signal, null, sessionTokenRef.current)
         .then((res) => {
           if (ctrl.signal.aborted) return
           setSuggestions(res)
@@ -70,12 +87,31 @@ export function useAddressField({ value, onChange, onSelectSuggestion }: UseAddr
     setOpen(true)
   }, [onChange])
 
-  const handleSelect = useCallback((s: AddressSuggestion) => {
+  const handleSelect = useCallback(async (s: AddressSuggestion) => {
     skipNextSearchRef.current = true
     onChange(s.label)
-    onSelectSuggestion(s)
     setSuggestions([])
     setOpen(false)
+    const token = sessionTokenRef.current ?? undefined
+    if (s.placeId && (!s.lat || !s.lng)) {
+      const details = await resolveGooglePlace(s.placeId, undefined, token).catch(() => null)
+      // Fin de session Google : prochain typing = nouvelle session facturée à part.
+      sessionTokenRef.current = null
+      if (details) {
+        const enrichedLabel = details.formattedAddress && s.mainText
+          ? `${s.mainText}, ${details.formattedAddress}`
+          : details.formattedAddress ?? s.label
+        const enriched = { ...s, label: enrichedLabel, lat: details.lat, lng: details.lng }
+        primeGoogleAutocompleteCache(enrichedLabel, enriched)
+        skipNextSearchRef.current = true
+        onChange(enrichedLabel)
+        onSelectSuggestion(enriched)
+        return
+      }
+    } else {
+      sessionTokenRef.current = null
+    }
+    onSelectSuggestion(s)
   }, [onChange, onSelectSuggestion])
 
   const handleFocus = useCallback(() => {

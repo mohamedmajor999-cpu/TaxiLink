@@ -37,10 +37,6 @@ export function DriverDashboard() {
     setShowCurrentCourse(false)
     setActiveTab(tab)
   }
-  const handleShowCurrentCourse = () => {
-    closeModal()
-    setShowCurrentCourse(true)
-  }
 
   if (loading) {
     return (
@@ -66,7 +62,6 @@ export function DriverDashboard() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onPostCourse={() => setShowCreer(true)}
-        onShowCurrentCourse={handleShowCurrentCourse}
         driverName={driverName || 'Chauffeur'}
         driverInitials={initials}
         groupName="Taxi13"
@@ -77,7 +72,7 @@ export function DriverDashboard() {
         {showModal ? (
           <PartagerMissionModal onClose={closeModal} mission={editingMission ?? undefined} />
         ) : showCurrentCourse ? (
-          <CurrentCourseScreen />
+          <CurrentCourseScreen onBack={() => setShowCurrentCourse(false)} />
         ) : (
           <>
             {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowCurrentCourse={() => setShowCurrentCourse(true)} />}

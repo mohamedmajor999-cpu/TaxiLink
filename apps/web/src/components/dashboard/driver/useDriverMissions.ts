@@ -45,6 +45,10 @@ export function useDriverMissions() {
       loadMissions()
     },
     onUpdate: () => loadMissions(),
+    onDelete: ({ id }) => {
+      setMissions((prev) => prev.filter((x) => x.id !== id))
+      setCurrentMission((prev) => (prev?.id === id ? null : prev))
+    },
   })
 
   const acceptMission = async (id: string) => {

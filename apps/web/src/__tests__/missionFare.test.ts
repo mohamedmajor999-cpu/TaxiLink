@@ -15,6 +15,8 @@ function mkMission(overrides: Partial<Mission> = {}): Mission {
     distance_km: 10,
     duration_min: 20,
     price_eur: null,
+    price_min_eur: null,
+    price_max_eur: null,
     patient_name: null,
     phone: null,
     notes: null,
@@ -26,8 +28,12 @@ function mkMission(overrides: Partial<Mission> = {}): Mission {
     created_at: '2026-06-10T00:00:00Z',
     updated_at: '2026-06-10T00:00:00Z',
     shared_by: null,
-    group_id: null,
     visibility: 'PUBLIC',
+    return_trip: false,
+    return_time: null,
+    transport_type: null,
+    companion: false,
+    passengers: null,
     ...overrides,
   }
 }

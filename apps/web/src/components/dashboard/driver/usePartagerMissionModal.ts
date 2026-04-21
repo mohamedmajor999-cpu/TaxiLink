@@ -2,128 +2,120 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { groupService } from '@/services/groupService'
-import { type MedicalMotif, type MissionVisibility } from '@/lib/validators'
+import { missionGroupsService } from '@/services/missionGroupsService'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
 import type { Mission } from '@/lib/supabase/types'
 import type { Group } from '@taxilink/core'
 import type { AddressSuggestion } from '@/services/addressService'
-import { dateFromMission, initialMedicalMotif, initialType, timeFromMission, type MissionFormType } from './missionFormHelpers'
+import { buildScheduledAt, initialCoords } from './missionFormHelpers'
 import { useMissionRoute } from './useMissionRoute'
+import { useMissionFormState } from './useMissionFormState'
 import { submitMission } from './submitMission'
-import { computeEffectivePrice } from './computeEffectivePrice'
+import { useMissionPricing } from './useMissionPricing'
 
-function initialVisibility(m: Mission | undefined): MissionVisibility {
-  if (m?.visibility === 'PUBLIC') return 'PUBLIC'
-  return 'GROUP'
-}
-
-function initialCoords(lat: number | null | undefined, lng: number | null | undefined) {
-  if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng }
-  return null
-}
-
-export function usePartagerMissionModal(onClose: () => void, mission?: Mission) {
+export function usePartagerMissionModal(_onClose: () => void, mission?: Mission) {
   const isEdit = Boolean(mission)
   const driverId = useDriverStore((s) => s.driver.id)
+  const form = useMissionFormState(mission)
 
-  const [type, setType] = useState<MissionFormType>(initialType(mission))
-  const [medicalMotif, setMedicalMotif] = useState<MedicalMotif | null>(initialMedicalMotif(mission))
-  const [visibility, setVisibility] = useState<MissionVisibility>(initialVisibility(mission))
-  const [groupId, setGroupId] = useState<string | null>(mission?.group_id ?? null)
   const [myGroups, setMyGroups] = useState<Group[]>([])
-  const [departure, setDeparture] = useState(mission?.departure ?? '')
-  const [destination, setDestination] = useState(mission?.destination ?? '')
-  const [date, setDate] = useState(dateFromMission(mission))
-  const [time, setTime] = useState(timeFromMission(mission))
-  const [price, setPrice] = useState(mission?.price_eur != null ? String(mission.price_eur) : '')
-  const [patientName, setPatientName] = useState(mission?.patient_name ?? '')
-  const [phone, setPhone] = useState(mission?.phone ?? '')
-  const [notes, setNotes] = useState(mission?.notes ?? '')
   const [preview, setPreview] = useState(false)
   const [published, setPublished] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const scheduledAt = useMemo(() => buildScheduledAt(form.date, form.time), [form.date, form.time])
 
   const route = useMissionRoute({
     initialDeparture: initialCoords(mission?.departure_lat, mission?.departure_lng),
     initialDestination: initialCoords(mission?.destination_lat, mission?.destination_lng),
     initialDistanceKm: mission?.distance_km ?? null,
     initialDurationMin: mission?.duration_min ?? null,
+    scheduledAt,
   })
 
   useEffect(() => {
     if (!driverId) return
     let cancelled = false
-    groupService.getMyGroups(driverId).then((groups) => {
+    const missionId = mission?.id
+    Promise.all([
+      groupService.getMyGroups(driverId),
+      missionId ? missionGroupsService.getGroupIds(missionId) : Promise.resolve<string[]>([]),
+    ]).then(([groups, existingGroupIds]) => {
       if (cancelled) return
       setMyGroups(groups)
-      setGroupId((current) => current ?? mission?.group_id ?? groups[0]?.id ?? null)
-      setVisibility((current) => {
-        if (mission) return current
-        return groups.length === 0 ? 'PUBLIC' : current
+      form.setGroupIds((cur) => {
+        if (cur.length > 0) return cur
+        if (existingGroupIds.length > 0) return existingGroupIds
+        return groups[0] ? [groups[0].id] : []
       })
+      if (!mission && groups.length === 0) form.setVisibility('PUBLIC')
     }).catch(() => { /* silencieux */ })
     return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverId, mission])
 
   const onSelectDeparture = (s: AddressSuggestion) => {
-    setDeparture(s.label)
+    form.setDeparture(s.label)
     route.setDepartureCoords({ lat: s.lat, lng: s.lng })
   }
   const onSelectDestination = (s: AddressSuggestion) => {
-    setDestination(s.label)
+    form.setDestination(s.label)
     route.setDestinationCoords({ lat: s.lat, lng: s.lng })
   }
 
-  const setDepartureCoords = route.setDepartureCoords
-  const setDestinationCoords = route.setDestinationCoords
+  const onSelectPublic = () => {
+    form.setVisibility('PUBLIC')
+    form.setGroupIds([])
+  }
+  const onToggleGroup = (id: string) => {
+    form.setVisibility('GROUP')
+    form.setGroupIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]))
+  }
 
-  const effectivePrice = useMemo(
-    () => computeEffectivePrice({
-      price, type, medicalMotif,
-      distanceKm: route.distanceKm,
-      date, time, departure, destination,
-    }),
-    [price, type, medicalMotif, route.distanceKm, date, time, departure, destination],
-  )
-
-  const previewFare = useMemo(() => {
-    const typed = price.trim() ? Number(price.replace(',', '.')) : null
-    const hasTyped = typed != null && Number.isFinite(typed) && typed > 0
-    const value = hasTyped ? typed : (effectivePrice ?? 0)
-    return { value, isEstimated: !hasTyped && value > 0 }
-  }, [price, effectivePrice])
+  const { effectivePrice, previewFare } = useMissionPricing({
+    price: form.price, priceMin: form.priceMin, priceMax: form.priceMax,
+    type: form.type, medicalMotif: form.medicalMotif,
+    distanceKm: route.distanceKm, durationMin: route.durationMin,
+    date: form.date, time: form.time,
+    departure: form.departure, destination: form.destination,
+  })
 
   const canSubmit = useMemo(() => {
     if (saving) return false
-    if (departure.trim().length < 5) return false
-    if (destination.trim().length < 5) return false
-    if (type === 'CPAM' && !patientName.trim()) return false
-    if (type === 'CPAM' && !medicalMotif) return false
-    if (visibility === 'GROUP' && !groupId) return false
+    if (form.departure.trim().length < 5) return false
+    if (form.destination.trim().length < 5) return false
+    if (form.type === 'CPAM' && !form.patientName.trim()) return false
+    if (form.type === 'CPAM' && !form.medicalMotif) return false
+    if (form.visibility === 'GROUP' && form.groupIds.length === 0) return false
     return true
-  }, [saving, departure, destination, type, patientName, medicalMotif, visibility, groupId])
+  }, [saving, form.departure, form.destination, form.type, form.patientName,
+    form.medicalMotif, form.visibility, form.groupIds])
 
-  const showPreview = () => {
-    setError(null)
-    setPreview(true)
-  }
+  const showPreview = () => { setError(null); setPreview(true) }
   const hidePreview = () => setPreview(false)
 
   const submit = async () => {
     setError(null)
     setSaving(true)
     try {
-      // N'envoie QUE le prix saisi manuellement. Si l'utilisateur laisse vide,
-      // `price_eur` est stocké `null` et l'estimation sera calculée à l'affichage
-      // (avec le label « Prix estimé »).
       await submitMission({
-        mission, type, medicalMotif, departure, destination,
+        mission,
+        type: form.type, medicalMotif: form.medicalMotif,
+        transportType: form.transportType,
+        returnTrip: form.returnTrip, returnTime: form.returnTime,
+        companion: form.companion, passengers: form.passengers,
+        departure: form.departure, destination: form.destination,
         departureCoords: route.departureCoords,
         destinationCoords: route.destinationCoords,
         distanceKm: route.distanceKm, durationMin: route.durationMin,
-        date, time, price, patientName, phone, notes, visibility, groupId,
+        date: form.date, time: form.time,
+        price: form.price,
+        priceMin: form.priceMin, priceMax: form.priceMax,
+        patientName: form.patientName, phone: form.phone, notes: form.notes,
+        visibility: form.visibility,
+        groupIds: form.groupIds,
       })
       if (driverId) await useMissionStore.getState().load(driverId)
       setPreview(false)
@@ -138,17 +130,16 @@ export function usePartagerMissionModal(onClose: () => void, mission?: Mission) 
 
   return {
     isEdit,
-    type, setType, medicalMotif, setMedicalMotif,
-    visibility, setVisibility, groupId, setGroupId, myGroups,
-    departure, setDeparture, destination, setDestination,
+    ...form,
+    myGroups,
     onSelectDeparture, onSelectDestination,
-    setDepartureCoords, setDestinationCoords,
+    setDepartureCoords: route.setDepartureCoords,
+    setDestinationCoords: route.setDestinationCoords,
+    onSelectPublic, onToggleGroup,
     distanceKm: route.distanceKm, durationMin: route.durationMin,
     loadingRoute: route.loadingRoute, routeError: route.routeError,
-    date, setDate, time, setTime, price, setPrice, effectivePrice, previewFare,
-    patientName, setPatientName, phone, setPhone, notes, setNotes,
+    effectivePrice, previewFare,
     preview, showPreview, hidePreview,
-    published,
-    saving, error, canSubmit, submit,
+    published, saving, error, canSubmit, submit,
   }
 }

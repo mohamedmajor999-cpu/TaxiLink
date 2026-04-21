@@ -18,11 +18,25 @@ export interface SubmitMissionArgs {
   date: string
   time: string
   price: string
+  priceMin?: string
+  priceMax?: string
   patientName: string
   phone: string
   notes: string
   visibility: MissionVisibility
-  groupId: string | null
+  groupIds: string[]
+  returnTrip?: boolean
+  returnTime?: string | null
+  transportType?: 'SEATED' | 'WHEELCHAIR' | 'STRETCHER' | null
+  companion?: boolean
+  passengers?: number | null
+}
+
+function parsePrice(s: string): number | null {
+  const t = s.trim()
+  if (!t) return null
+  const n = Number(t.replace(',', '.'))
+  return Number.isFinite(n) && n >= 0 ? n : null
 }
 
 /**
@@ -35,14 +49,35 @@ export async function submitMission(args: SubmitMissionArgs): Promise<void> {
     throw new Error("Date ou heure invalide (format attendu : aaaa-mm-jj et HH:MM)")
   }
 
-  const priceNum = args.price.trim() ? Number(args.price.replace(',', '.')) : null
-  if (args.price.trim() && (Number.isNaN(priceNum) || priceNum! < 0)) {
+  const priceNum = parsePrice(args.price)
+  if (args.price.trim() && priceNum == null) {
     throw new Error('Le prix doit être un nombre positif')
   }
+
+  // Fourchette : uniquement privé, les deux bornes doivent être renseignées.
+  const minNum = args.type === 'PRIVE' ? parsePrice(args.priceMin ?? '') : null
+  const maxNum = args.type === 'PRIVE' ? parsePrice(args.priceMax ?? '') : null
+  const hasRange = minNum != null && maxNum != null
+  if (hasRange && minNum! > maxNum!) {
+    throw new Error('Le prix maximum doit être supérieur ou égal au minimum')
+  }
+  if ((minNum != null) !== (maxNum != null)) {
+    throw new Error('Renseigne un prix minimum et un prix maximum, ou laisse les deux vides')
+  }
+
+  // price_eur canonique : midpoint si fourchette, valeur unique sinon.
+  const canonicalPrice = hasRange
+    ? Math.round((minNum! + maxNum!) / 2)
+    : priceNum
 
   const payload: MissionInput = {
     type: args.type,
     medical_motif: args.type === 'CPAM' ? args.medicalMotif : null,
+    transport_type: args.type === 'CPAM' ? (args.transportType ?? null) : null,
+    return_trip: args.type === 'CPAM' ? (args.returnTrip ?? false) : false,
+    return_time: args.type === 'CPAM' && args.returnTrip ? (args.returnTime ?? null) : null,
+    companion: args.companion ?? false,
+    passengers: args.type !== 'CPAM' ? (args.passengers ?? null) : null,
     departure: args.departure.trim(),
     destination: args.destination.trim(),
     departure_lat: args.departureCoords?.lat ?? null,
@@ -51,13 +86,15 @@ export async function submitMission(args: SubmitMissionArgs): Promise<void> {
     destination_lng: args.destinationCoords?.lng ?? null,
     distance_km: args.distanceKm,
     duration_min: args.durationMin,
-    price_eur: priceNum,
+    price_eur: canonicalPrice,
+    price_min_eur: hasRange ? minNum : null,
+    price_max_eur: hasRange ? maxNum : null,
     patient_name: args.type === 'CPAM' ? args.patientName.trim() : null,
     phone: args.phone.trim() || null,
     notes: args.notes.trim() || null,
     scheduled_at,
     visibility: args.visibility,
-    group_id: args.visibility === 'GROUP' ? args.groupId : null,
+    group_ids: args.visibility === 'GROUP' ? args.groupIds : [],
   }
 
   const clientErrors = validateMission(payload)

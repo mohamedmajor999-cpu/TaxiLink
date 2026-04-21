@@ -9,6 +9,10 @@ export interface Mission {
   destination: string
   distanceKm: number
   priceEur: number
+  /** Borne basse de la tranche de prix (privé uniquement). Absent si prix fixe. */
+  priceMinEur?: number
+  /** Borne haute de la tranche de prix (privé uniquement). Absent si prix fixe. */
+  priceMaxEur?: number
   scheduledAt: string // ISO string
   patientName?: string
   phone?: string

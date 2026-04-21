@@ -11,10 +11,8 @@ interface Props {
   routeGeometry?: GeoJSON.LineString | null
 }
 
-const MAPBOX_STYLE = 'navigation-day-v1'
+const MAPBOX_STYLE = 'streets-v12'
 const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const OSM_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-const MAPBOX_ATTR = '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
 
 const startIcon = L.divIcon({
   className: 'course-map-icon',
@@ -45,16 +43,16 @@ export function CourseMap({ from, to, routeGeometry }: Props) {
     const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
     const map = L.map(containerRef.current, {
       zoomControl: true,
-      attributionControl: true,
+      attributionControl: false,
       scrollWheelZoom: true,
     })
     if (token) {
       L.tileLayer(
         `https://api.mapbox.com/styles/v1/mapbox/${MAPBOX_STYLE}/tiles/{z}/{x}/{y}@2x?access_token=${token}`,
-        { maxZoom: 19, tileSize: 512, zoomOffset: -1, attribution: MAPBOX_ATTR },
+        { maxZoom: 19, tileSize: 512, zoomOffset: -1 },
       ).addTo(map)
     } else {
-      L.tileLayer(OSM_URL, { maxZoom: 19, attribution: OSM_ATTR }).addTo(map)
+      L.tileLayer(OSM_URL, { maxZoom: 19 }).addTo(map)
     }
     L.marker([from.lat, from.lng], { icon: startIcon, title: 'Départ' }).addTo(map)
     L.marker([to.lat, to.lng], { icon: endIcon, title: 'Arrivée' }).addTo(map)
@@ -86,5 +84,12 @@ export function CourseMap({ from, to, routeGeometry }: Props) {
     }
   }, [routeGeometry])
 
-  return <div ref={containerRef} className="absolute inset-0" aria-label="Carte de l'itinéraire" />
+  return (
+    <>
+      <div ref={containerRef} className="absolute inset-0" aria-label="Carte de l'itinéraire" />
+      <div className="pointer-events-none absolute right-1 bottom-1 z-[400] text-[9px] leading-none text-warm-600/80 bg-paper/70 px-1 py-0.5 rounded">
+        © OSM{process.env.NEXT_PUBLIC_MAPBOX_TOKEN ? ' · Mapbox' : ''}
+      </div>
+    </>
+  )
 }

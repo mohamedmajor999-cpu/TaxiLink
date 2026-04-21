@@ -1,81 +1,62 @@
 import Link from 'next/link'
-import { Check } from 'lucide-react'
+import { ArrowRight, Check } from 'lucide-react'
 
-const FREE_FEATURES = [
-  "Groupe privé jusqu'à 10 membres",
-  'Dictée vocale IA illimitée',
-  'Agenda, stats, PWA',
-  'Support email',
-]
-
-const PRO_FEATURES = [
-  'Groupe illimité (11+ chauffeurs)',
-  'Géolocalisation en temps réel',
-  'Dashboard patron (assignation, stats flotte)',
-  'Export comptable automatique',
-  'Support prioritaire',
+const FEATURES = [
+  { title: 'Dictée vocale illimitée',   desc: 'Créez vos courses en 3 secondes, mains libres.' },
+  { title: 'Groupes privés illimités',  desc: 'Vos collègues de confiance, rien qu\'eux.' },
+  { title: 'Agenda synchronisé',        desc: 'Google & Apple. Tout au même endroit.' },
+  { title: 'Historique complet',        desc: 'Toutes vos courses, exportables à tout moment.' },
 ]
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="py-20 md:py-28 bg-paper">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="tarifs" className="max-w-7xl mx-auto px-8 py-14">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[1.5px] px-3 py-1.5 rounded-md bg-brand/10 text-[#D97706] mb-4">
+          Tarifs
+        </div>
+        <h2 className="font-extrabold tracking-[-1.8px] leading-[1.05] text-[clamp(32px,5vw,56px)] max-w-[16ch] mx-auto">
+          Une seule ligne. <span className="text-warm-300">Zéro complication.</span>
+        </h2>
+        <p className="text-[16.5px] text-warm-500 max-w-[520px] mx-auto mt-4 leading-relaxed">
+          Pas d&apos;abonnement. Pas de commission. Pas de carte bancaire.
+        </p>
+      </div>
 
-        <div className="text-center mb-14">
-          <p className="text-xs font-semibold uppercase tracking-wider text-warm-500 mb-3">Tarifs</p>
-          <h2 className="font-serif text-display-md text-ink mb-3">Gratuit jusqu&apos;à 10 chauffeurs.</h2>
-          <p className="text-base text-warm-600">Aucune carte bleue. Aucun engagement.</p>
+      <div className="bg-ink text-white rounded-[18px] p-10 md:p-20 grid md:grid-cols-[1.1fr_1fr] gap-10 md:gap-20 items-center relative overflow-hidden">
+        <div className="absolute -top-[120px] -right-[120px] w-[420px] h-[420px] rounded-full bg-brand opacity-[0.12] blur-xl pointer-events-none" />
+        <div className="absolute -bottom-20 left-[30%] w-[300px] h-[300px] rounded-full bg-teal-500 opacity-[0.08] blur-2xl pointer-events-none" />
+
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 text-[10.5px] font-semibold tracking-[0.12em] uppercase text-brand border border-brand/30 bg-brand/[0.06] px-3 py-1.5 rounded-full mb-7">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand shadow-[0_0_8px_var(--tw-shadow-color)] shadow-brand" />
+            Pour les chauffeurs
+          </div>
+          <h3 className="font-extrabold tracking-[-3px] leading-[0.95] text-[clamp(56px,7vw,96px)] mb-6">
+            <span className="text-brand block">Gratuit.</span>
+          </h3>
+          <p className="text-[17px] text-warm-300 max-w-[42ch] leading-relaxed mb-9">
+            TaxiLink est et restera gratuit pour tous les chauffeurs de taxi.
+          </p>
+          <div className="flex items-center gap-3.5 flex-wrap">
+            <Link href="/auth/register" className="inline-flex items-center gap-2.5 bg-brand text-ink font-bold text-[15px] px-6 py-4 rounded-lg hover:-translate-y-px transition-all">
+              Créer mon compte
+              <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+            </Link>
+            <span className="text-[11.5px] text-warm-300 tracking-wider font-medium">2 MIN · SANS CB</span>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-
-          {/* Card gratuite */}
-          <div className="border border-warm-200 rounded-2xl p-8">
-            <p className="text-sm font-semibold text-ink mb-2">Indépendant</p>
-            <div className="flex items-baseline gap-1 mb-6">
-              <span className="font-serif text-[48px] leading-none text-ink">0</span>
-              <span className="text-lg text-warm-500 font-medium">€</span>
-              <span className="text-sm text-warm-500 ml-1">/mois</span>
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-10 md:pl-12 md:border-l border-white/[0.08]">
+          {FEATURES.map((f) => (
+            <div key={f.title} className="flex flex-col gap-2">
+              <div className="w-9 h-9 rounded-full bg-brand/[0.14] text-brand flex items-center justify-center mb-1">
+                <Check className="w-[18px] h-[18px]" strokeWidth={2.2} />
+              </div>
+              <h5 className="font-extrabold tracking-[-0.6px] text-[22px] leading-tight">{f.title}</h5>
+              <p className="text-[14.5px] text-warm-300 leading-relaxed">{f.desc}</p>
             </div>
-            <ul className="space-y-3 mb-8">
-              {FREE_FEATURES.map(f => (
-                <li key={f} className="flex items-center gap-3 text-sm text-warm-600">
-                  <Check size={16} strokeWidth={2} className="text-ink shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link href="/auth/register"
-              className="flex items-center justify-center h-11 rounded-xl border border-warm-200 text-ink text-sm font-semibold hover:bg-warm-50 transition-colors duration-150">
-              Commencer gratuitement →
-            </Link>
-          </div>
-
-          {/* Card flotte */}
-          <div className="bg-ink rounded-2xl p-8 relative">
-            <div className="absolute top-6 right-6 bg-brand px-2.5 py-0.5 rounded-full">
-              <span className="text-[10px] font-bold text-ink uppercase tracking-wider">Flottes</span>
-            </div>
-            <p className="text-sm font-semibold text-paper mb-2">Flotte</p>
-            <div className="flex items-baseline gap-1 mb-6">
-              <span className="font-serif text-[48px] leading-none text-paper">19</span>
-              <span className="text-lg text-paper/60 font-medium">€</span>
-              <span className="text-sm text-paper/60 ml-1">/mois par groupe</span>
-            </div>
-            <ul className="space-y-3 mb-8">
-              {PRO_FEATURES.map(f => (
-                <li key={f} className="flex items-center gap-3 text-sm text-paper/70">
-                  <Check size={16} strokeWidth={2} className="text-brand shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link href="/auth/register?flotte=true"
-              className="flex items-center justify-center h-11 rounded-xl bg-brand text-ink text-sm font-semibold hover:bg-brand/90 transition-colors duration-150">
-              Je gère une flotte
-            </Link>
-          </div>
-
+          ))}
         </div>
       </div>
     </section>

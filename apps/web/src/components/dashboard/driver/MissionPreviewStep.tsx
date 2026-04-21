@@ -33,21 +33,21 @@ export function MissionPreviewStep({ card, isEdit, saving, error, onBack, onConf
           </div>
         )}
 
-        <div className="mt-6 flex flex-col-reverse md:flex-row gap-3">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-3">
           <button
             type="button"
             onClick={onBack}
             disabled={saving}
-            className="flex-1 h-12 rounded-2xl border border-warm-200 bg-paper text-ink text-[14px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-warm-50 transition-colors disabled:opacity-50"
+            className="order-2 md:order-1 h-14 px-6 rounded-2xl border-2 border-warm-200 bg-paper text-ink text-[15px] font-semibold inline-flex items-center justify-center gap-2 hover:border-ink hover:bg-warm-50 transition-all disabled:opacity-50"
           >
-            <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+            <ArrowLeft className="w-4 h-4" strokeWidth={2.2} />
             Modifier
           </button>
           <button
             type="button"
             onClick={onConfirm}
             disabled={saving}
-            className="flex-1 h-14 rounded-2xl bg-ink text-paper text-[15px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-warm-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="order-1 md:order-2 h-14 rounded-2xl bg-ink text-paper text-[15px] font-semibold inline-flex items-center justify-center gap-2 shadow-[0_8px_24px_-8px_rgba(10,10,10,0.35)] hover:bg-warm-800 hover:shadow-[0_10px_28px_-6px_rgba(10,10,10,0.45)] active:translate-y-px transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
           >
             {saving ? (
               <>
@@ -56,7 +56,7 @@ export function MissionPreviewStep({ card, isEdit, saving, error, onBack, onConf
               </>
             ) : (
               <>
-                <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
+                <CheckCircle2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                 {isEdit ? 'Confirmer les modifications' : 'Confirmer et publier'}
               </>
             )}

@@ -1,19 +1,24 @@
 'use client'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ArrowLeft, MessageSquare, Navigation2, Phone, XCircle } from 'lucide-react'
+import { ArrowLeft, MapPin, MessageSquare, Phone, XCircle } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { useCurrentCourse } from './course/useCurrentCourse'
 import { CancelMissionDialog } from './course/CancelMissionDialog'
+import { NavigationButtons } from './course/NavigationButtons'
 
 const CourseMap = dynamic(() => import('./course/CourseMap').then((m) => m.CourseMap), { ssr: false })
 
-export function CurrentCourseScreen() {
+interface Props {
+  onBack?: () => void
+}
+
+export function CurrentCourseScreen({ onBack }: Props = {}) {
   const c = useCurrentCourse()
 
-  if (c.loading) return <LoadingSkeleton />
-  if (!c.mission) return <NoCurrentMission />
+  if (c.loading) return <LoadingSkeleton onBack={onBack} />
+  if (!c.mission) return <NoCurrentMission onBack={onBack} />
 
   const mission = c.mission
   const trafficMin = c.traffic ? Math.round(c.traffic.durationSec / 60) : null
@@ -25,13 +30,7 @@ export function CurrentCourseScreen() {
   return (
     <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-3xl mx-auto pb-24 md:pb-6">
       <header className="flex items-center justify-between gap-3 mb-4">
-        <Link
-          href="/dashboard/chauffeur"
-          className="inline-flex items-center gap-2 text-[13px] font-semibold text-warm-600 hover:text-ink transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-          Retour
-        </Link>
+        <BackButton onBack={onBack} />
         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink text-paper text-[12px] font-semibold">
           <span className="w-1.5 h-1.5 rounded-full bg-brand motion-safe:animate-pulse" />
           Course en cours
@@ -71,30 +70,7 @@ export function CurrentCourseScreen() {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        {c.gmapsHref && (
-          <a
-            href={c.gmapsHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="h-14 rounded-2xl bg-ink text-paper text-[14px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-warm-800 transition-colors"
-          >
-            <Navigation2 className="w-4 h-4" strokeWidth={2} />
-            Google Maps
-          </a>
-        )}
-        {c.wazeHref && (
-          <a
-            href={c.wazeHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="h-14 rounded-2xl bg-[#33CCFF] text-ink text-[14px] font-semibold inline-flex items-center justify-center gap-2 hover:brightness-95 transition-colors"
-          >
-            <Navigation2 className="w-4 h-4" strokeWidth={2} />
-            Waze
-          </a>
-        )}
-      </div>
+      <NavigationButtons gmapsHref={c.gmapsHref} wazeHref={c.wazeHref} />
 
       <div className="grid grid-cols-2 gap-3 mb-3">
         {mission.phone && (
@@ -154,23 +130,38 @@ function Stat({
   )
 }
 
-function LoadingSkeleton() {
+function BackButton({ onBack }: { onBack?: () => void }) {
+  const className = 'inline-flex items-center gap-2 text-[13px] font-semibold text-warm-600 hover:text-ink transition-colors'
+  if (onBack) {
+    return (
+      <button type="button" onClick={onBack} className={className}>
+        <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+        Retour
+      </button>
+    )
+  }
+  return (
+    <Link href="/dashboard/chauffeur" className={className}>
+      <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+      Retour
+    </Link>
+  )
+}
+
+function LoadingSkeleton({ onBack }: { onBack?: () => void }) {
   return (
     <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-3xl mx-auto pb-24 md:pb-6">
-      <div className="h-8 w-24 rounded-lg bg-warm-100 motion-safe:animate-pulse mb-4" />
+      <div className="mb-4"><BackButton onBack={onBack} /></div>
       <div className="h-80 rounded-3xl bg-warm-100 motion-safe:animate-pulse mb-4" />
       <div className="h-24 rounded-2xl bg-warm-100 motion-safe:animate-pulse" />
     </div>
   )
 }
 
-function NoCurrentMission() {
+function NoCurrentMission({ onBack }: { onBack?: () => void }) {
   return (
     <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-3xl mx-auto pb-24 md:pb-6">
-      <Link href="/dashboard/chauffeur" className="inline-flex items-center gap-2 text-[13px] font-semibold text-warm-600 hover:text-ink mb-4">
-        <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-        Retour
-      </Link>
+      <div className="mb-4"><BackButton onBack={onBack} /></div>
       <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
         <p className="text-[20px] font-bold text-ink mb-2 tracking-tight">Aucune course en cours</p>
         <p className="text-sm text-warm-600">Vous n&apos;avez pas de course active pour l&apos;instant.</p>

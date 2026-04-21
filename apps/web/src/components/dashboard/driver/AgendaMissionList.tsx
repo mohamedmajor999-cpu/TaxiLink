@@ -1,6 +1,7 @@
 'use client'
 
 import { Icon } from '@/components/ui/Icon'
+import { formatMissionPrice } from '@/lib/formatMissionPrice'
 import type { Mission } from '@/lib/supabase/types'
 
 const TYPE_COLORS: Record<string, string> = {
@@ -65,7 +66,7 @@ export function AgendaMissionList({ missions, loading }: AgendaMissionListProps)
             <div className="flex items-center gap-3 text-sm text-muted">
               <span>{m.distance_km} km</span>
               <span>·</span>
-              <span className="font-black text-secondary">{m.price_eur?.toFixed(2)}€</span>
+              <span className="font-black text-secondary">{formatMissionPrice(m, { decimals: true })}</span>
             </div>
             {m.phone && (
               <div className="flex gap-2">

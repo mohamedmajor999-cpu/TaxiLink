@@ -24,16 +24,18 @@ export const groupStatsService = {
       supabase.from('group_members')
         .select('driver_id, role, drivers(profiles(full_name, first_name, last_name, department), is_online)')
         .eq('group_id', groupId),
-      supabase.from('missions')
-        .select('shared_by, driver_id')
+      supabase.from('mission_groups')
+        .select('missions!inner(shared_by, driver_id, created_at)')
         .eq('group_id', groupId)
-        .gte('created_at', since),
+        .gte('missions.created_at', since),
     ])
     if (membersRes.error) throw membersRes.error
 
     const shared:   Record<string, number> = {}
     const accepted: Record<string, number> = {}
-    for (const m of missionsRes.data ?? []) {
+    for (const row of (missionsRes.data ?? []) as Array<{ missions: { shared_by: string | null; driver_id: string | null } | null }>) {
+      const m = row.missions
+      if (!m) continue
       if (m.shared_by) shared[m.shared_by]   = (shared[m.shared_by]   ?? 0) + 1
       if (m.driver_id) accepted[m.driver_id] = (accepted[m.driver_id] ?? 0) + 1
     }

@@ -1,66 +1,59 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
-const PLATFORM_LINKS = ['Fonctionnalités', 'Comment ça marche', 'Télécharger la PWA', 'Pour les flottes']
-const LEGAL_LINKS    = ['Mentions légales', 'CGU', 'Confidentialité', 'RGPD']
-const CONTACT_LINKS  = ['contact@taxilink.fr', 'Support chauffeurs', 'Presse']
+const PRODUCT = [
+  { label: 'Fonctionnalités', href: '#produit' },
+  { label: 'Démo',            href: '#etapes' },
+  { label: 'Tarifs',          href: '#tarifs' },
+]
+const RESOURCES = [
+  { label: "Centre d'aide", href: '#' },
+  { label: 'Blog',          href: '#' },
+  { label: 'Statut',        href: '#' },
+]
+const COMPANY = [
+  { label: 'Contact',         href: '#' },
+  { label: 'Confidentialité', href: '#' },
+  { label: 'RGPD',            href: '#' },
+]
 
 export function LandingFooter() {
   return (
-    <footer className="bg-warm-50 border-t border-warm-200">
-      <div className="max-w-7xl mx-auto px-6 py-14">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-
-          {/* Col 1 — Marque */}
-          <div>
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 bg-ink rounded-lg flex items-center justify-center">
-                <div className="w-2.5 h-2.5 bg-brand rounded-sm" />
-              </div>
-              <span className="font-semibold text-ink text-sm">TaxiLink</span>
-            </Link>
-            <p className="text-xs text-warm-500 leading-relaxed">
-              La plateforme d&apos;échange de courses entre chauffeurs professionnels.
-              Marseille — France.
-            </p>
-          </div>
-
-          {/* Col 2 — Plateforme */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-warm-500 mb-4">Plateforme</p>
-            <ul className="space-y-2.5">
-              {PLATFORM_LINKS.map(l => (
-                <li key={l}><a href="#" className="text-sm text-warm-600 hover:text-ink transition-colors duration-150">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Col 3 — Légal */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-warm-500 mb-4">Légal</p>
-            <ul className="space-y-2.5">
-              {LEGAL_LINKS.map(l => (
-                <li key={l}><a href="#" className="text-sm text-warm-600 hover:text-ink transition-colors duration-150">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Col 4 — Contact */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-warm-500 mb-4">Contact</p>
-            <ul className="space-y-2.5">
-              {CONTACT_LINKS.map(l => (
-                <li key={l}><a href="#" className="text-sm text-warm-600 hover:text-ink transition-colors duration-150">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
+    <footer className="max-w-7xl mx-auto px-8 py-16 border-t border-warm-100">
+      <div className="grid sm:grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr] gap-12 pb-10">
+        <div>
+          <Link href="/" className="flex items-center" aria-label="TaxiLink Pro">
+            <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={360} height={80} className="h-20 w-auto" />
+          </Link>
+          <p className="text-[14px] text-warm-500 mt-4 max-w-[28ch] leading-relaxed">
+            L&apos;outil métier des chauffeurs de taxi français. Fabriqué à Marseille.
+          </p>
         </div>
 
-        <div className="border-t border-warm-200 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-warm-500">© 2026 TaxiLink. Tous droits réservés.</p>
-          <p className="text-xs text-warm-500">🔒 100% gratuit · Données sécurisées · Marseille, France 🌊</p>
-        </div>
+        <FooterCol title="Produit" links={PRODUCT} />
+        <FooterCol title="Ressources" links={RESOURCES} />
+        <FooterCol title="Entreprise" links={COMPANY} />
+      </div>
+
+      <div className="border-t border-warm-100 pt-5 flex justify-between flex-wrap gap-3.5 text-[12.5px] text-warm-500">
+        <span>© 2026 TaxiLink. Hébergé en France.</span>
+        <span>v. 2.4.1</span>
       </div>
     </footer>
+  )
+}
+
+function FooterCol({ title, links }: { title: string; links: Array<{ label: string; href: string }> }) {
+  return (
+    <div>
+      <h5 className="text-[11.5px] font-bold uppercase tracking-[1.5px] text-warm-500 mb-3.5">{title}</h5>
+      <ul className="flex flex-col gap-2.5">
+        {links.map(({ label, href }) => (
+          <li key={label}>
+            <a href={href} className="text-[14px] text-warm-600 hover:text-ink transition-colors">{label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }

@@ -8,7 +8,7 @@ export const missionService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('status', 'AVAILABLE')
       .gt('scheduled_at', new Date().toISOString())
       .order('scheduled_at', { ascending: true })
@@ -20,7 +20,7 @@ export const missionService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('driver_id', driverId)
       .eq('status', 'IN_PROGRESS')
       .order('accepted_at', { ascending: false })
@@ -94,7 +94,7 @@ export const missionService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('driver_id', driverId)
       .eq('status', 'DONE')
       .order('completed_at', { ascending: false })
@@ -107,7 +107,7 @@ export const missionService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('client_id', clientId)
       .order('scheduled_at', { ascending: false })
     if (error) throw new Error(error.message)
@@ -136,7 +136,7 @@ export const missionService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('driver_id', driverId)
       .neq('status', 'DONE')
       .order('scheduled_at', { ascending: true })

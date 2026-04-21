@@ -1,7 +1,8 @@
 'use client'
-import { Check, Loader2, MapPin } from 'lucide-react'
+import { Check, Loader2, MapPin, Mic } from 'lucide-react'
 import type { AddressSuggestion } from '@/services/addressService'
 import { useAddressField } from './useAddressField'
+import { useAddressFieldVoice } from './useAddressFieldVoice'
 
 interface Props {
   label: string
@@ -19,6 +20,30 @@ export function AddressField({
     suggestions, loading, open,
     handleInput, handleSelect, handleFocus, handleBlur, handleKeyDown,
   } = useAddressField({ value, onChange, onSelectSuggestion })
+
+  const voice = useAddressFieldVoice({
+    onResolved: (s) => {
+      onChange(s.label)
+      onSelectSuggestion(s)
+    },
+    onFallbackText: (text) => onChange(text),
+  })
+
+  const handleMicClick = () => {
+    if (voice.isListening) {
+      voice.stop()
+    } else {
+      onChange('')
+      voice.start()
+    }
+  }
+
+  const busy = loading || voice.isProcessing
+  const micTitle = !voice.isSupported
+    ? 'Dictée non supportée par ce navigateur'
+    : voice.isListening
+      ? 'Arrêter la dictée'
+      : `Dicter l'adresse de ${label.toLowerCase()}`
 
   return (
     <div className="rounded-2xl border border-warm-200 bg-paper mb-3 p-4">
@@ -40,14 +65,34 @@ export function AddressField({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoComplete="off"
-          className="w-full h-10 px-3 pr-9 rounded-xl border border-warm-200 focus:border-ink focus:outline-none text-[14px] text-ink transition-colors"
+          className="w-full h-10 pl-3 pr-20 rounded-xl border border-warm-200 focus:border-ink focus:outline-none text-[14px] text-ink transition-colors"
         />
-        {loading && (
-          <Loader2
-            className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-warm-500 animate-spin"
-            strokeWidth={2}
-          />
-        )}
+
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {busy && (
+            <Loader2 className="w-4 h-4 text-warm-500 animate-spin" strokeWidth={2} />
+          )}
+          {voice.isSupported && (
+            <button
+              type="button"
+              onClick={handleMicClick}
+              disabled={voice.isProcessing}
+              aria-label={micTitle}
+              title={micTitle}
+              onMouseDown={(e) => e.preventDefault()}
+              className={`relative w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                voice.isListening
+                  ? 'bg-brand text-ink'
+                  : 'text-warm-500 hover:bg-warm-100 disabled:opacity-50'
+              }`}
+            >
+              {voice.isListening && (
+                <span className="absolute inset-0 rounded-full bg-brand/40 animate-ping" />
+              )}
+              <Mic className="relative w-3.5 h-3.5" strokeWidth={2} />
+            </button>
+          )}
+        </div>
 
         {open && (
           <ul
@@ -70,6 +115,10 @@ export function AddressField({
           </ul>
         )}
       </div>
+
+      {voice.error && (
+        <p className="mt-1.5 text-[12px] text-danger">{voice.error}</p>
+      )}
     </div>
   )
 }

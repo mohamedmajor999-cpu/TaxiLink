@@ -20,6 +20,9 @@ export interface CourseCardData {
   priceEur: number
   /** Si true, affiche le label "Prix estimé" au-dessus du montant. */
   priceIsEstimated?: boolean
+  /** Fourchette optionnelle (privé) : si min != max, affichée à la place du prix unique. */
+  priceMinEur?: number | null
+  priceMaxEur?: number | null
 }
 
 const MOTIF_LABEL: Record<'HDJ' | 'CONSULTATION', string> = {
@@ -70,15 +73,21 @@ export function CourseCard({ course, onAccept, footer }: Props) {
 
       <div className="px-5 pt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-4 items-start">
         <RouteTimeline from={course.from} to={course.to} compact />
-        <div className="text-right shrink-0 whitespace-nowrap min-w-[72px]">
+        <div className="text-right shrink-0 whitespace-nowrap min-w-[72px] translate-x-[-20px] translate-y-[20px]">
           {course.priceIsEstimated && (
             <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5 leading-none">
               Prix estimé
             </div>
           )}
-          <div className="text-[28px] font-bold leading-none text-ink tabular-nums tracking-tight">
-            {course.priceEur}<span className="text-[20px]">€</span>
-          </div>
+          {hasRange(course) ? (
+            <div className="text-[20px] font-bold leading-none text-ink tabular-nums tracking-tight">
+              {course.priceMinEur}<span className="text-[15px] text-warm-500">–</span>{course.priceMaxEur}<span className="text-[15px]">€</span>
+            </div>
+          ) : (
+            <div className="text-[28px] font-bold leading-none text-ink tabular-nums tracking-tight">
+              {course.priceEur}<span className="text-[20px]">€</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -111,6 +120,10 @@ export function CourseCard({ course, onAccept, footer }: Props) {
       </div>
     </article>
   )
+}
+
+function hasRange(c: CourseCardData): c is CourseCardData & { priceMinEur: number; priceMaxEur: number } {
+  return c.priceMinEur != null && c.priceMaxEur != null && c.priceMinEur !== c.priceMaxEur
 }
 
 /**

@@ -7,6 +7,8 @@ export interface AgendaRide {
   destination: string
   distanceKm: number
   priceEur: number
+  priceMinEur?: number
+  priceMaxEur?: number
   scheduledAt: string // ISO string
   driverId: string
 }

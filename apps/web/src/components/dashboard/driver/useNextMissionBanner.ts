@@ -1,0 +1,107 @@
+'use client'
+import { useEffect, useState } from 'react'
+import type { Mission } from '@/lib/supabase/types'
+import { computeDisplayFare } from '@/lib/missionFare'
+import { computeRoute } from '@/services/addressService'
+
+interface Params {
+  mission: Mission
+  onComplete?: (id: string) => void | Promise<void>
+  userCoords?: { lat: number; lng: number } | null
+}
+
+const IMMINENT_MS = 15 * 60_000
+const FAST_TICK_MS = 1_000
+const SLOW_TICK_MS = 30_000
+
+type BadgeVariant = 'medical' | 'private' | 'fleet'
+
+export function useNextMissionBanner({ mission, onComplete, userCoords }: Params) {
+  const [now, setNow] = useState(() => Date.now())
+  const [etaMin, setEtaMin] = useState<number | null>(null)
+  const [completing, setCompleting] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    const tick = () => {
+      if (cancelled) return
+      const deltaMs = new Date(mission.scheduled_at).getTime() - Date.now()
+      setNow(Date.now())
+      const nextDelay = Math.abs(deltaMs) < 60_000 ? FAST_TICK_MS : SLOW_TICK_MS
+      timeoutId = window.setTimeout(tick, nextDelay)
+    }
+    let timeoutId = window.setTimeout(tick, FAST_TICK_MS)
+    return () => { cancelled = true; window.clearTimeout(timeoutId) }
+  }, [mission.scheduled_at])
+
+  useEffect(() => {
+    if (!userCoords) { setEtaMin(null); return }
+    if (mission.departure_lat == null || mission.departure_lng == null) { setEtaMin(null); return }
+    const controller = new AbortController()
+    computeRoute(
+      userCoords,
+      { lat: mission.departure_lat, lng: mission.departure_lng },
+      controller.signal,
+    )
+      .then((r) => setEtaMin(r.duration_min))
+      .catch(() => { /* silencieux : on retombe sur le compte à rebours seul */ })
+    return () => controller.abort()
+  }, [userCoords, mission.departure_lat, mission.departure_lng])
+
+  const deltaMs = new Date(mission.scheduled_at).getTime() - now
+  const isStarted = deltaMs <= 0
+  const isImminent = !isStarted && deltaMs <= IMMINENT_MS
+  const fare = computeDisplayFare(mission)
+  const badge = typeBadge(mission.type)
+  const showComplete = isStarted && !!onComplete
+
+  const statusDotClass = isStarted
+    ? 'bg-emerald-400 motion-safe:animate-pulse'
+    : isImminent
+      ? 'bg-brand motion-safe:animate-pulse'
+      : 'bg-paper/50'
+
+  const countdown = isStarted ? 'Départ maintenant' : formatCountdown(deltaMs)
+  const etaText = etaMin != null && !isStarted ? `${formatDuration(etaMin)} depuis votre position` : null
+
+  const handleComplete = async () => {
+    if (!onComplete || completing) return
+    setCompleting(true)
+    try { await onComplete(mission.id) } finally { setCompleting(false) }
+  }
+
+  return {
+    isStarted,
+    fare,
+    badge,
+    statusDotClass,
+    countdown,
+    etaText,
+    showComplete,
+    completing,
+    handleComplete,
+  }
+}
+
+function typeBadge(type: string): { variant: BadgeVariant; label: string } {
+  if (type === 'CPAM') return { variant: 'medical', label: 'Médical' }
+  if (type === 'PRIVE') return { variant: 'private', label: 'Privé' }
+  return { variant: 'fleet', label: 'TaxiLink' }
+}
+
+function formatDuration(min: number): string {
+  if (min < 60) return `${min} min`
+  const hrs = Math.floor(min / 60)
+  const mins = min % 60
+  return `${hrs}h ${String(mins).padStart(2, '0')}`
+}
+
+function formatCountdown(ms: number): string {
+  const totalSec = Math.max(0, Math.floor(ms / 1000))
+  const hrs = Math.floor(totalSec / 3600)
+  const min = Math.floor((totalSec % 3600) / 60)
+  if (hrs >= 1) return `Dans ${hrs}h ${String(min).padStart(2, '0')}`
+  if (min >= 1) return `Dans ${min} min`
+  const sec = totalSec % 60
+  return `Dans ${sec}s`
+}

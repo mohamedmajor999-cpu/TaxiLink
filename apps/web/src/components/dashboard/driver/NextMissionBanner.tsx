@@ -1,76 +1,84 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { ArrowRight, Clock } from 'lucide-react'
+import { ArrowRight, Clock, Loader2, MapPin } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
+import { RideBadge } from '@/components/taxilink/RideBadge'
+import { useNextMissionBanner } from './useNextMissionBanner'
 
 interface Props {
   mission: Mission
   onShowDetail: () => void
+  onComplete?: (id: string) => void | Promise<void>
+  userCoords?: { lat: number; lng: number } | null
 }
 
-const IMMINENT_MS = 15 * 60_000
-
-export function NextMissionBanner({ mission, onShowDetail }: Props) {
-  const [now, setNow] = useState(() => Date.now())
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  const target = new Date(mission.scheduled_at).getTime()
-  const deltaMs = target - now
-  const isStarted = deltaMs <= 0
-  const isImminent = !isStarted && deltaMs <= IMMINENT_MS
+export function NextMissionBanner({ mission, onShowDetail, onComplete, userCoords }: Props) {
+  const v = useNextMissionBanner({ mission, onComplete, userCoords })
 
   return (
     <section
-      aria-label={isStarted ? 'Course en cours' : 'Prochaine course'}
-      className="mb-5 rounded-2xl bg-ink text-paper p-4 md:p-5 shadow-soft"
+      aria-label={v.isStarted ? 'Course en cours' : 'Prochaine course'}
+      className="mb-5 relative rounded-2xl bg-paper border border-warm-200 overflow-hidden"
     >
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 shrink-0">
-          <span
-            className={`w-2 h-2 rounded-full ${
-              isStarted ? 'bg-emerald-400 motion-safe:animate-pulse'
-                : isImminent ? 'bg-brand motion-safe:animate-pulse'
-                : 'bg-brand'
-            }`}
-          />
-          <span className="text-[11px] font-bold uppercase tracking-wider text-paper/70">
-            {isStarted ? 'Course en cours' : 'Prochaine course'}
-          </span>
-        </div>
-        <div className="ml-auto inline-flex items-center gap-1.5 text-[22px] font-bold tabular-nums tracking-tight leading-none">
-          <Clock className="w-4 h-4 text-brand" strokeWidth={2.2} />
-          {isStarted ? 'Départ maintenant' : formatCountdown(deltaMs)}
-        </div>
-      </div>
+      <span aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-1 bg-ink" />
 
-      <div className="mt-3 flex items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-[13px] text-paper/70 truncate">{mission.departure}</p>
-          <p className="text-[14px] font-semibold truncate">→ {mission.destination}</p>
+      <div className="p-4 md:p-5 pl-5 md:pl-6">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-ink text-paper text-[10px] font-bold uppercase tracking-wider">
+            <span className={`w-1.5 h-1.5 rounded-full ${v.statusDotClass}`} />
+            {v.isStarted ? 'Course en cours' : 'Prochaine course'}
+          </span>
+          <RideBadge variant={v.badge.variant}>{v.badge.label}</RideBadge>
+          <div className="ml-auto inline-flex items-center gap-1.5 text-[14px] font-semibold tabular-nums tracking-tight text-ink">
+            <Clock className="w-3.5 h-3.5 text-brand" strokeWidth={2.2} />
+            {v.countdown}
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={onShowDetail}
-          className="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-brand text-ink text-[13px] font-bold hover:brightness-95 transition-all"
-        >
-          Détails
-          <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
-        </button>
+
+        <div className="mt-4 flex items-start gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] text-warm-500 truncate">{mission.departure}</p>
+            <p className="text-[15px] font-semibold text-ink truncate mt-0.5">→ {mission.destination}</p>
+            {v.etaText && (
+              <p className="mt-2 inline-flex items-center gap-1 text-[12px] text-warm-600 tabular-nums">
+                <MapPin className="w-3 h-3" strokeWidth={2} />
+                {v.etaText}
+              </p>
+            )}
+          </div>
+          <div className="shrink-0 text-right">
+            {v.fare.isEstimated && (
+              <div className="text-[10px] font-bold uppercase tracking-wider text-warm-500 leading-none mb-1.5">
+                Estimé
+              </div>
+            )}
+            <div className="text-[32px] md:text-[36px] font-bold leading-none text-ink tabular-nums tracking-tight">
+              {v.fare.value}<span className="text-[20px] md:text-[22px]">€</span>
+            </div>
+          </div>
+        </div>
+
+        <div className={`mt-4 flex gap-2 ${v.showComplete ? 'flex-col sm:flex-row' : ''}`}>
+          <button
+            type="button"
+            onClick={onShowDetail}
+            className={`inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-lg bg-brand text-ink text-[14px] font-semibold hover:brightness-95 active:brightness-90 transition-all ${v.showComplete ? 'w-full sm:flex-1' : 'w-full'}`}
+          >
+            Voir les détails
+            <ArrowRight className="w-4 h-4" strokeWidth={2.2} />
+          </button>
+          {v.showComplete && (
+            <button
+              type="button"
+              onClick={v.handleComplete}
+              disabled={v.completing}
+              className="w-full sm:flex-1 inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-lg bg-ink text-paper text-[14px] font-semibold hover:brightness-110 active:brightness-125 transition-all disabled:opacity-60"
+            >
+              {v.completing && <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />}
+              Terminer la course
+            </button>
+          )}
+        </div>
       </div>
     </section>
   )
-}
-
-function formatCountdown(ms: number): string {
-  const totalSec = Math.max(0, Math.floor(ms / 1000))
-  const hrs = Math.floor(totalSec / 3600)
-  const min = Math.floor((totalSec % 3600) / 60)
-  if (hrs >= 1) return `Dans ${hrs}h ${String(min).padStart(2, '0')}`
-  if (min >= 1) return `Dans ${min} min`
-  const sec = totalSec % 60
-  return `Dans ${sec}s`
 }
