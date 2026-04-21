@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
+  isGoogleMapsKeyConfigured,
   primeGoogleAutocompleteCache,
   resolveGooglePlace,
   searchGoogle,
@@ -25,21 +26,22 @@ interface UseAddressFieldArgs {
   onSelectSuggestion: (suggestion: AddressSuggestion) => void
 }
 
+const MISSING_KEY_MSG = 'Recherche d\'adresse indisponible : clé Google non configurée.'
+
 export function useAddressField({ value, onChange, onSelectSuggestion }: UseAddressFieldArgs) {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
+  const [apiError, setApiError] = useState<string | null>(isGoogleMapsKeyConfigured() ? null : MISSING_KEY_MSG)
 
   const abortRef = useRef<AbortController | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const blurRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  // Évite de relancer une recherche après une sélection (qui setValue à label exact).
+  // Évite de relancer une recherche après sélection (value = label exact).
   const skipNextSearchRef = useRef(false)
-  // Session Google Places : partagée entre tous les Autocomplete d'une saisie
-  // et le Place Details final. Facturation groupée. Réinitialisée après sélection.
+  // Session Google Places : Autocomplete + Details groupés = facturation unique.
   const sessionTokenRef = useRef<string | null>(null)
 
-  // Cleanup global
   useEffect(() => () => {
     abortRef.current?.abort()
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -68,10 +70,12 @@ export function useAddressField({ value, onChange, onSelectSuggestion }: UseAddr
         .then((res) => {
           if (ctrl.signal.aborted) return
           setSuggestions(res)
+          setApiError(null)
         })
         .catch((err) => {
           if ((err as Error).name === 'AbortError') return
           setSuggestions([])
+          setApiError((err as Error).message || 'Erreur réseau lors de la recherche.')
         })
         .finally(() => {
           if (!ctrl.signal.aborted) setLoading(false)
@@ -95,7 +99,6 @@ export function useAddressField({ value, onChange, onSelectSuggestion }: UseAddr
     const token = sessionTokenRef.current ?? undefined
     if (s.placeId && (!s.lat || !s.lng)) {
       const details = await resolveGooglePlace(s.placeId, undefined, token).catch(() => null)
-      // Fin de session Google : prochain typing = nouvelle session facturée à part.
       sessionTokenRef.current = null
       if (details) {
         const enrichedLabel = details.formattedAddress && s.mainText
@@ -120,7 +123,6 @@ export function useAddressField({ value, onChange, onSelectSuggestion }: UseAddr
   }, [suggestions.length])
 
   const handleBlur = useCallback(() => {
-    // Délai pour laisser passer le clic sur une suggestion
     if (blurRef.current) clearTimeout(blurRef.current)
     blurRef.current = setTimeout(() => setOpen(false), BLUR_CLOSE_MS)
   }, [])
@@ -137,6 +139,7 @@ export function useAddressField({ value, onChange, onSelectSuggestion }: UseAddr
   return {
     suggestions,
     loading,
+    apiError,
     open: open && suggestions.length > 0,
     handleInput,
     handleSelect,

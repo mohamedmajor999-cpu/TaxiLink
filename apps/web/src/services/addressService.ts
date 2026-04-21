@@ -4,6 +4,7 @@
 export {
   searchGoogle,
   primeGoogleAutocompleteCache,
+  isGoogleMapsKeyConfigured,
   type AddressSuggestion,
 } from './googlePlacesSearchService'
 

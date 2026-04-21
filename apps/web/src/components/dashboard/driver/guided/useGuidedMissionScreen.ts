@@ -8,6 +8,7 @@ import { initialValueForQuestion } from './guidedInitialValue'
 import { playBeep } from './playBeep'
 import { useGuidedAnswerApplier, type GuidedSetters } from './useGuidedAnswerApplier'
 import { useGuidedMissionFlow } from './useGuidedMissionFlow'
+import { useGuidedTtsAnnouncer } from './useGuidedTtsAnnouncer'
 import { useGuidedVoiceAnswer } from './useGuidedVoiceAnswer'
 import { useGuidedVoicePrompt } from './useGuidedVoicePrompt'
 
@@ -45,11 +46,6 @@ export function useGuidedMissionScreen(opts: Options) {
   }, [flow.currentQuestion, form])
 
   const prompt = useGuidedVoicePrompt()
-  const spokenIdRef = useRef<string | null>(null)
-  // `announcedId` = id de la question dont l'annonce TTS est terminée.
-  // Le bip d'écoute + ouverture micro attendent ce marqueur pour ne pas
-  // bipper AVANT que la voix ait fini de parler.
-  const [announcedId, setAnnouncedId] = useState<string | null>(null)
 
   const voice = useGuidedVoiceAnswer({
     question: flow.currentQuestion ?? FALLBACK_QUESTION,
@@ -61,29 +57,18 @@ export function useGuidedMissionScreen(opts: Options) {
   // le micro après chaque TTS jusqu'à la fin du flux ou arrêt manuel.
   const [voiceSession, setVoiceSession] = useState(false)
 
-  // Le TTS ne se déclenche qu'une fois la session démarrée par l'utilisateur,
-  // pour éviter la lecture automatique dès l'arrivée sur la page. On attend
-  // la fin de la promesse `speak()` avant de marquer la question "annoncée".
-  useEffect(() => {
-    if (!voiceSession) {
-      spokenIdRef.current = null
-      setAnnouncedId(null)
-      return
-    }
-    const q = flow.currentQuestion
-    if (!q || spokenIdRef.current === q.id) return
-    spokenIdRef.current = q.id
-    if (!voiceAutoSpeak || !prompt.isSupported) {
-      setAnnouncedId(q.id)
-      return
-    }
-    setAnnouncedId(null)
-    let cancelled = false
-    prompt.speak(q.prompt).then(() => {
-      if (!cancelled) setAnnouncedId(q.id)
-    })
-    return () => { cancelled = true }
-  }, [flow.currentQuestion, prompt, voiceAutoSpeak, voiceSession])
+  // `announcedId` = id de la question dont l'annonce TTS est terminée.
+  // Le bip + ouverture micro attendent ce marqueur pour ne pas bipper AVANT
+  // que la voix ait fini de parler.
+  const announcedId = useGuidedTtsAnnouncer({
+    qId: flow.currentQuestion?.id ?? null,
+    promptText: flow.currentQuestion?.prompt ?? '',
+    active: voiceSession,
+    autoSpeak: voiceAutoSpeak,
+    speak: prompt.speak,
+    isSupported: prompt.isSupported,
+  })
+
   const voiceStartRef = useRef(voice.start)
   voiceStartRef.current = voice.start
   const voiceStopRef = useRef(voice.stop)

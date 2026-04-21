@@ -17,7 +17,7 @@ export function AddressField({
   label, placeholder, value, onChange, onSelectSuggestion, filled,
 }: Props) {
   const {
-    suggestions, loading, open,
+    suggestions, loading, open, apiError,
     handleInput, handleSelect, handleFocus, handleBlur, handleKeyDown,
   } = useAddressField({ value, onChange, onSelectSuggestion })
 
@@ -118,6 +118,9 @@ export function AddressField({
 
       {voice.error && (
         <p className="mt-1.5 text-[12px] text-danger">{voice.error}</p>
+      )}
+      {apiError && !voice.error && (
+        <p className="mt-1.5 text-[12px] text-danger">{apiError}</p>
       )}
     </div>
   )

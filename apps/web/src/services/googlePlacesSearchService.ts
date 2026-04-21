@@ -6,6 +6,12 @@ import { detectCityProximity } from '@/lib/cityProximity'
 const ENDPOINT = 'https://places.googleapis.com/v1/places:autocomplete'
 const TTL_MS = 30 * 24 * 60 * 60 * 1000
 
+// `true` si la clé Google Maps est configurée côté client ; sinon l'UI peut
+// afficher un message explicite plutôt que de laisser un champ silencieux.
+export function isGoogleMapsKeyConfigured(): boolean {
+  return !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY
+}
+
 export interface AddressSuggestion {
   label: string
   lat: number
@@ -26,8 +32,7 @@ interface RawSuggestion {
   }
 }
 
-// Persisté en localStorage : hit au retour de l'utilisateur, même PWA installée.
-// Clé = `${query}|${lat?}|${lng?}` pour isoler par biais géo.
+// Persisté en localStorage : clé = query|bias_geo pour isoler par zone.
 const cache = createPersistedLru<AddressSuggestion[]>({
   storageKey: 'taxilink.placesCache.v1',
   maxSize: 200,
@@ -48,21 +53,17 @@ function cacheKey(query: string, bias: { lat: number; lng: number } | null): str
   return `${normalizeQuery(query)}|${b}`
 }
 
-/**
- * Pré-peuple le cache avec un label déjà résolu. Évite un aller-retour
- * API quand l'input reprend exactement ce label enrichi.
- */
+// Pré-peuple le cache avec un label déjà résolu → hit direct quand l'input
+// reprend ce label enrichi (évite un Autocomplete facturé inutilement).
 export function primeGoogleAutocompleteCache(query: string, suggestion: AddressSuggestion): void {
   const trimmed = query.trim()
   if (trimmed.length < 3) return
   cache.set(cacheKey(trimmed, detectCityProximity(trimmed)), [suggestion])
 }
 
-/**
- * Autocomplete Google Places. Prédictions sans coordonnées (résolues via resolveGooglePlace).
- * `sessionToken` (UUID v4) groupe Autocomplete + Details dans la même session facturée.
- * Nécessite NEXT_PUBLIC_GOOGLE_MAPS_KEY.
- */
+// Autocomplete Google Places. Retourne prédictions sans coordonnées (à
+// résoudre via resolveGooglePlace). `sessionToken` groupe Autocomplete +
+// Details dans la même session facturée. Requiert NEXT_PUBLIC_GOOGLE_MAPS_KEY.
 export async function searchGoogle(
   query: string,
   signal?: AbortSignal,
@@ -111,7 +112,12 @@ export async function searchGoogle(
   if (!res.ok) {
     const errBody = await res.text().catch(() => '')
     console.warn(`[searchGoogle] ${res.status} ${res.statusText}`, errBody.slice(0, 500))
-    return []
+    const msg = res.status === 403
+      ? 'Clé Google refusée (domaine ou API non autorisés).'
+      : res.status === 429
+        ? 'Quota Google dépassé.'
+        : `Erreur Google (${res.status}).`
+    throw new Error(msg)
   }
 
   const json = (await res.json()) as { suggestions?: RawSuggestion[] }
