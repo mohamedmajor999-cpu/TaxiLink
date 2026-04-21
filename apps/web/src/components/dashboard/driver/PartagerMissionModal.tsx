@@ -120,6 +120,7 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
           onBack={f.hidePreview} onConfirm={f.submit}
           departureCoords={f.departureCoords}
           destinationCoords={f.destinationCoords}
+          routeGeometry={f.routeGeometry}
           form={isGuided ? f : undefined}
           myGroups={isGuided ? f.myGroups : undefined}
           visibleQuestions={isGuided ? visibleQuestions : undefined}

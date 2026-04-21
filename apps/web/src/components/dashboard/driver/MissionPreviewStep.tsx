@@ -21,6 +21,8 @@ interface Props {
   /** Coords pour la carte de prévisualisation ; absent = pas de carte. */
   departureCoords?: Coords | null
   destinationCoords?: Coords | null
+  /** Tracé de l'itinéraire calculé (Google Routes / OSRM) ; absent = ligne droite. */
+  routeGeometry?: GeoJSON.LineString | null
   /** Récap éditable : chaque champ a un bouton « modifier » qui rappelle onEditField. */
   form?: MissionFormState
   myGroups?: Group[]
@@ -30,7 +32,7 @@ interface Props {
 
 export function MissionPreviewStep({
   card, isEdit, saving, error, onBack, onConfirm,
-  departureCoords, destinationCoords,
+  departureCoords, destinationCoords, routeGeometry,
   form, myGroups, visibleQuestions, onEditField,
 }: Props) {
   const hasMap = !!departureCoords && !!destinationCoords
@@ -50,7 +52,7 @@ export function MissionPreviewStep({
       <div className="px-4 md:px-8 py-4 max-w-2xl mx-auto">
         {hasMap && (
           <div className="relative h-48 md:h-56 rounded-2xl overflow-hidden border border-warm-200 mb-4">
-            <CourseMap from={departureCoords!} to={destinationCoords!} />
+            <CourseMap from={departureCoords!} to={destinationCoords!} routeGeometry={routeGeometry ?? null} />
           </div>
         )}
 

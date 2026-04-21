@@ -13,6 +13,7 @@ interface AnswerRequest {
   kind?: string
   prompt?: string
   options?: { value: string; label: string; aliases?: string[] }[]
+  availableGroups?: { id: string; name: string }[]
   allQuestionIds?: string[]
   transcript?: string
 }
@@ -20,6 +21,9 @@ interface AnswerRequest {
 function buildPrompt(req: AnswerRequest, todayIso: string): string {
   const optionsList = (req.options ?? [])
     .map((o) => `- ${o.value} (libellé: ${o.label}${o.aliases?.length ? `, synonymes: ${o.aliases.join(', ')}` : ''})`)
+    .join('\n')
+  const groupsList = (req.availableGroups ?? [])
+    .map((g) => `- id="${g.id}" nom="${g.name}"`)
     .join('\n')
   const idsList = (req.allQuestionIds ?? []).join(', ')
 
@@ -30,6 +34,7 @@ Question courante :
 - kind: ${req.kind}
 - texte posé: "${req.prompt}"
 ${optionsList ? `Options possibles :\n${optionsList}` : ''}
+${groupsList ? `Groupes disponibles (match tolérant aux espaces/casse/accents) :\n${groupsList}` : ''}
 
 Ids de toutes les questions existantes: ${idsList}
 Date d'aujourd'hui : ${todayIso}
@@ -60,7 +65,7 @@ Règles value selon kind :
 - time         → string "HH:MM" (24h)
 - boolean      → true/false (oui/non, "aller-retour" → true, "simple" → false)
 - address      → string brute d'adresse/POI (sera résolue côté client)
-- groups       → array de noms de groupes prononcés`
+- groups       → array d'IDs de groupes choisis parmi la liste ci-dessus. Match tolérant: ignore la casse, les accents, les espaces, les tirets. Exemple: "taxi 13" → id du groupe "taxi13". Si aucun match certain, renvoie un array vide.`
 }
 
 export async function POST(request: Request) {

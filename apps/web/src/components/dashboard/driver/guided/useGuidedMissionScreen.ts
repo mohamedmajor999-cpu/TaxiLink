@@ -50,6 +50,7 @@ export function useGuidedMissionScreen(opts: Options) {
   const voice = useGuidedVoiceAnswer({
     question: flow.currentQuestion ?? FALLBACK_QUESTION,
     allQuestionIds,
+    myGroups,
     onResult: flow.handleVoiceResult,
   })
 

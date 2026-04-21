@@ -3,6 +3,7 @@
 // évite un appel Google facturé (trafic stable à l'heure).
 
 import { createPersistedLru } from '@/lib/persistedLru'
+import { decodePolyline } from '@/lib/decodePolyline'
 
 const GOOGLE_ROUTES_ENDPOINT = 'https://routes.googleapis.com/directions/v2:computeRoutes'
 const OSRM_ENDPOINT = 'https://router.project-osrm.org/route/v1/driving/'
@@ -11,10 +12,11 @@ const TTL_MS = 7 * 24 * 60 * 60 * 1000
 interface RouteResult {
   distance_km: number
   duration_min: number
+  geometry: GeoJSON.LineString | null
 }
 
 const cache = createPersistedLru<RouteResult>({
-  storageKey: 'taxilink.routesCache.v1',
+  storageKey: 'taxilink.routesCache.v2',
   maxSize: 100,
   ttlMs: TTL_MS,
 })
@@ -74,7 +76,7 @@ export async function computeRouteGoogle(
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': key,
-        'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters',
+        'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline',
       },
       body: JSON.stringify(body),
     })
@@ -85,7 +87,7 @@ export async function computeRouteGoogle(
   if (!res.ok) return null
 
   const json = (await res.json()) as {
-    routes?: { distanceMeters?: number; duration?: string }[]
+    routes?: { distanceMeters?: number; duration?: string; polyline?: { encodedPolyline?: string } }[]
   }
   const route = json.routes?.[0]
   const meters = route?.distanceMeters
@@ -93,27 +95,32 @@ export async function computeRouteGoogle(
   if (typeof meters !== 'number' || !durationStr) return null
   const seconds = Number(durationStr.replace(/s$/, ''))
   if (Number.isNaN(seconds)) return null
+  const encoded = route?.polyline?.encodedPolyline
+  const geometry: GeoJSON.LineString | null = encoded
+    ? { type: 'LineString', coordinates: decodePolyline(encoded) }
+    : null
   const result: RouteResult = {
     distance_km: Math.round(meters / 100) / 10,
     duration_min: Math.round(seconds / 60),
+    geometry,
   }
   cache.set(rKey, result)
   return result
 }
 
 interface OsrmResponse {
-  routes?: { distance?: number; duration?: number }[]
+  routes?: { distance?: number; duration?: number; geometry?: GeoJSON.LineString }[]
   code?: string
 }
 
-/** Itinéraire OSRM (sans trafic). Lève si introuvable. */
+/** Itinéraire OSRM (sans trafic), géométrie GeoJSON incluse. Lève si introuvable. */
 export async function computeRoute(
   from: { lat: number; lng: number },
   to: { lat: number; lng: number },
   signal?: AbortSignal,
 ): Promise<RouteResult> {
   const coords = `${from.lng},${from.lat};${to.lng},${to.lat}`
-  const url = `${OSRM_ENDPOINT}${coords}?overview=false`
+  const url = `${OSRM_ENDPOINT}${coords}?overview=full&geometries=geojson`
 
   let res: Response
   try {
@@ -134,5 +141,6 @@ export async function computeRoute(
   return {
     distance_km: Math.round(route.distance / 100) / 10,
     duration_min: Math.round(route.duration / 60),
+    geometry: route.geometry ?? null,
   }
 }

@@ -138,6 +138,7 @@ export function usePartagerMissionModal(_onClose: () => void, mission?: Mission)
     setDestinationCoords: route.setDestinationCoords,
     onSelectPublic, onToggleGroup,
     distanceKm: route.distanceKm, durationMin: route.durationMin,
+    routeGeometry: route.routeGeometry,
     loadingRoute: route.loadingRoute, routeError: route.routeError,
     effectivePrice, previewFare,
     preview, showPreview, hidePreview,

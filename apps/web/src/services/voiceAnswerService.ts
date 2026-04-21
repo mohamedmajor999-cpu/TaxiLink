@@ -14,6 +14,8 @@ export interface VoiceAnswerRequest {
   kind: GuidedInputKind
   prompt: string
   options?: ChoiceOption[]
+  /** Pour kind='groups' : liste des groupes dispo (id + nom) pour que l'IA matche. */
+  availableGroups?: { id: string; name: string }[]
   allQuestionIds: string[]
   transcript: string
 }

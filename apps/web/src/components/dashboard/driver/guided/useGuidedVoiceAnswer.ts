@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Group } from '@taxilink/core'
 import { useVoiceDictation } from '@/hooks/useVoiceDictation'
 import { parseVoiceAnswer, type VoiceAnswerResult } from '@/services/voiceAnswerService'
 import type { GuidedQuestion } from './guidedTypes'
@@ -17,6 +18,7 @@ const MIC_ERRORS: Record<string, string> = {
 interface Options {
   question: GuidedQuestion
   allQuestionIds: string[]
+  myGroups: Group[]
   onResult: (result: VoiceAnswerResult) => void
 }
 
@@ -24,7 +26,7 @@ interface Options {
  * Capture une réponse vocale à la question courante, puis délègue le parsing
  * (intent + valeur) à Claude Haiku via /api/missions/parse-voice-answer.
  */
-export function useGuidedVoiceAnswer({ question, allQuestionIds, onResult }: Options) {
+export function useGuidedVoiceAnswer({ question, allQuestionIds, myGroups, onResult }: Options) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [parseError, setParseError] = useState<string | null>(null)
   const transcriptRef = useRef('')
@@ -51,13 +53,16 @@ export function useGuidedVoiceAnswer({ question, allQuestionIds, onResult }: Opt
       kind: question.kind,
       prompt: question.prompt,
       options: question.options,
+      availableGroups: question.kind === 'groups'
+        ? myGroups.map((g) => ({ id: g.id, name: g.name }))
+        : undefined,
       allQuestionIds,
       transcript: full,
     })
       .then((r) => onResultRef.current(r))
       .catch((err) => setParseError(err instanceof Error ? err.message : 'Erreur IA'))
       .finally(() => setIsProcessing(false))
-  }, [voice.isListening, question, allQuestionIds])
+  }, [voice.isListening, question, allQuestionIds, myGroups])
 
   const start = useCallback(() => {
     transcriptRef.current = ''
