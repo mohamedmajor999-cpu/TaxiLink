@@ -6,6 +6,7 @@ import { FeaturesSection }       from '@/components/site/FeaturesSection'
 import { PricingSection }        from '@/components/site/PricingSection'
 import { FaqSection }            from '@/components/site/FaqSection'
 import { LandingFooter }         from '@/components/site/LandingFooter'
+import { MobileStickyCta }       from '@/components/site/MobileStickyCta'
 import { JsonLd }                from '@/components/JsonLd'
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function Home() {
       <PricingSection />
       <FaqSection />
       <LandingFooter />
+      <MobileStickyCta />
     </main>
   )
 }

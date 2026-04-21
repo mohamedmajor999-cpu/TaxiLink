@@ -10,7 +10,7 @@ const FEATURES = [
 
 export function PricingSection() {
   return (
-    <section id="tarifs" className="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-14">
+    <section id="tarifs" className="max-w-7xl mx-auto px-5 md:px-8 py-10 md:py-14">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[1.5px] px-3 py-1.5 rounded-md bg-brand/10 text-[#D97706] mb-4">
           Tarifs
@@ -23,7 +23,7 @@ export function PricingSection() {
         </p>
       </div>
 
-      <div className="bg-ink text-white rounded-[18px] p-6 md:p-20 grid md:grid-cols-[1.1fr_1fr] gap-8 md:gap-20 items-center relative overflow-hidden">
+      <div className="bg-ink text-white rounded-[22px] md:rounded-[18px] p-7 md:p-20 grid md:grid-cols-[1.1fr_1fr] gap-10 md:gap-20 items-center relative overflow-hidden">
         <div className="absolute -top-[120px] -right-[120px] w-[420px] h-[420px] rounded-full bg-brand opacity-[0.12] blur-xl pointer-events-none" />
         <div className="absolute -bottom-20 left-[30%] w-[300px] h-[300px] rounded-full bg-teal-500 opacity-[0.08] blur-2xl pointer-events-none" />
 
@@ -32,18 +32,18 @@ export function PricingSection() {
             <span className="w-1.5 h-1.5 rounded-full bg-brand shadow-[0_0_8px_var(--tw-shadow-color)] shadow-brand" />
             Pour les chauffeurs
           </div>
-          <h3 className="font-extrabold tracking-[-3px] leading-[0.95] text-[clamp(56px,7vw,96px)] mb-6">
+          <h3 className="font-extrabold tracking-[-2px] md:tracking-[-3px] leading-[0.95] text-[clamp(64px,18vw,96px)] mb-6">
             <span className="text-brand block">Gratuit.</span>
           </h3>
-          <p className="text-[17px] text-warm-300 max-w-[42ch] leading-relaxed mb-9">
+          <p className="text-[16.5px] md:text-[17px] text-warm-300 max-w-[42ch] leading-relaxed mb-8 md:mb-9">
             TaxiLink est et restera gratuit pour tous les chauffeurs de taxi.
           </p>
-          <div className="flex items-center gap-3.5 flex-wrap">
-            <Link href="/auth/register" className="inline-flex items-center gap-2.5 bg-brand text-ink font-bold text-[15px] px-6 py-4 rounded-lg hover:-translate-y-px transition-all">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 sm:flex-wrap">
+            <Link href="/auth/register" className="group inline-flex items-center justify-center gap-2.5 bg-brand text-ink font-bold text-[15px] px-6 py-[18px] md:py-4 rounded-2xl md:rounded-lg active:scale-[0.98] md:hover:-translate-y-px transition-all">
               Créer mon compte
-              <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+              <ArrowRight className="w-4 h-4 transition-transform group-active:translate-x-0.5" strokeWidth={2.2} />
             </Link>
-            <span className="text-[11.5px] text-warm-300 tracking-wider font-medium">2 MIN · SANS CB</span>
+            <span className="text-[11.5px] text-warm-300 tracking-wider font-medium text-center sm:text-left">2 MIN · SANS CB</span>
           </div>
         </div>
 
@@ -53,7 +53,7 @@ export function PricingSection() {
               <div className="w-9 h-9 rounded-full bg-brand/[0.14] text-brand flex items-center justify-center mb-1">
                 <Check className="w-[18px] h-[18px]" strokeWidth={2.2} />
               </div>
-              <h5 className="font-extrabold tracking-[-0.6px] text-[22px] leading-tight">{f.title}</h5>
+              <h5 className="font-extrabold tracking-[-0.6px] text-[20px] md:text-[22px] leading-tight">{f.title}</h5>
               <p className="text-[14.5px] text-warm-300 leading-relaxed">{f.desc}</p>
             </div>
           ))}

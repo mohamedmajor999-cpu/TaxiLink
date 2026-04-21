@@ -19,7 +19,7 @@ const COMPANY = [
 
 export function LandingFooter() {
   return (
-    <footer className="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-16 border-t border-warm-100 pwa-safe-bottom">
+    <footer className="max-w-7xl mx-auto px-5 md:px-8 py-10 md:py-16 pb-28 md:pb-16 border-t border-warm-100 pwa-safe-bottom">
       <div className="grid sm:grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr] gap-8 md:gap-12 pb-8 md:pb-10">
         <div>
           <Link href="/" className="flex items-center" aria-label="TaxiLink Pro">

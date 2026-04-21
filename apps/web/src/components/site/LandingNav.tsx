@@ -40,36 +40,43 @@ export function LandingNav() {
           </Link>
         </div>
 
-        <button onClick={openMenu} className="md:hidden p-2 rounded-lg hover:bg-warm-50 transition-colors" aria-label="Ouvrir le menu">
-          <Menu size={20} />
+        <button onClick={openMenu} className="md:hidden inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-xl hover:bg-warm-50 active:bg-warm-100 transition-colors" aria-label="Ouvrir le menu">
+          <Menu size={22} strokeWidth={2.2} />
         </button>
       </div>
 
       {menuOpen && (
-        <div className="fixed inset-0 z-50 bg-ink/40" onClick={closeMenu}>
-          <div className="absolute right-0 top-0 h-full w-72 bg-white p-6 shadow-toast" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-8">
-              <span className="font-bold text-ink">Menu</span>
-              <button onClick={closeMenu} className="p-2 rounded-lg hover:bg-warm-50 transition-colors" aria-label="Fermer">
-                <X size={20} />
-              </button>
-            </div>
-            <div className="flex flex-col gap-1">
+        <div className="fixed inset-0 z-[60] md:hidden bg-white flex flex-col animate-fade-in pwa-safe-top pwa-safe-bottom">
+          <div className="h-16 flex items-center justify-between px-5 border-b border-warm-100 shrink-0">
+            <Link href="/" onClick={closeMenu} aria-label="TaxiLink Pro">
+              <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={260} height={56} className="h-11 w-auto" />
+            </Link>
+            <button onClick={closeMenu} className="inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-xl hover:bg-warm-50 active:bg-warm-100 transition-colors" aria-label="Fermer">
+              <X size={22} strokeWidth={2.2} />
+            </button>
+          </div>
+
+          <nav className="flex-1 px-5 py-4 overflow-y-auto">
+            <ul className="flex flex-col">
               {NAV_LINKS.map(({ label, href }) => (
-                <a key={href} href={href} onClick={closeMenu}
-                  className="px-3 py-2.5 rounded-lg text-sm text-warm-600 hover:bg-warm-50 hover:text-ink transition-colors">
-                  {label}
-                </a>
+                <li key={href}>
+                  <a href={href} onClick={closeMenu}
+                    className="flex items-center justify-between py-4 text-[22px] font-extrabold tracking-[-0.6px] text-ink border-b border-warm-100 active:text-warm-600">
+                    {label}
+                    <span aria-hidden className="text-warm-300 text-xl">→</span>
+                  </a>
+                </li>
               ))}
-            </div>
-            <div className="mt-6 flex flex-col gap-3">
-              <Link href="/auth/login" onClick={closeMenu} className="text-sm font-semibold text-center text-ink px-4 py-2.5 rounded-lg border border-warm-200 hover:bg-warm-50 transition-colors">
-                Se connecter
-              </Link>
-              <Link href="/auth/register" onClick={closeMenu} className="text-sm font-semibold text-center text-white px-4 py-2.5 rounded-lg bg-ink hover:bg-warm-800 transition-colors">
-                S&apos;inscrire
-              </Link>
-            </div>
+            </ul>
+          </nav>
+
+          <div className="px-5 pt-3 pb-5 border-t border-warm-100 flex flex-col gap-2.5 shrink-0">
+            <Link href="/auth/register" onClick={closeMenu} className="inline-flex items-center justify-center gap-2 text-[15px] font-semibold text-white px-5 py-4 rounded-2xl bg-ink active:scale-[0.98] transition-transform">
+              S&apos;inscrire gratuitement
+            </Link>
+            <Link href="/auth/login" onClick={closeMenu} className="inline-flex items-center justify-center text-[14px] font-semibold text-warm-600 px-5 py-3">
+              Déjà un compte ? <span className="ml-1 text-ink underline underline-offset-4 decoration-2 decoration-brand">Se connecter</span>
+            </Link>
           </div>
         </div>
       )}
