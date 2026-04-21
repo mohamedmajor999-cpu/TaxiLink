@@ -45,19 +45,53 @@ export function useGuidedMissionScreen(opts: Options) {
 
   const prompt = useGuidedVoicePrompt()
   const spokenIdRef = useRef<string | null>(null)
-  useEffect(() => {
-    if (!voiceAutoSpeak || !prompt.isSupported) return
-    const q = flow.currentQuestion
-    if (!q || spokenIdRef.current === q.id) return
-    spokenIdRef.current = q.id
-    prompt.speak(q.prompt)
-  }, [flow.currentQuestion, prompt, voiceAutoSpeak])
 
   const voice = useGuidedVoiceAnswer({
     question: flow.currentQuestion ?? FALLBACK_QUESTION,
     allQuestionIds,
     onResult: flow.handleVoiceResult,
   })
+
+  // Session vocale : un clic sur le micro active une session qui auto-relance
+  // le micro après chaque TTS jusqu'à la fin du flux ou arrêt manuel.
+  const [voiceSession, setVoiceSession] = useState(false)
+
+  // Le TTS ne se déclenche qu'une fois la session démarrée par l'utilisateur,
+  // pour éviter la lecture automatique dès l'arrivée sur la page.
+  useEffect(() => {
+    if (!voiceSession) {
+      spokenIdRef.current = null
+      return
+    }
+    if (!voiceAutoSpeak || !prompt.isSupported) return
+    const q = flow.currentQuestion
+    if (!q || spokenIdRef.current === q.id) return
+    spokenIdRef.current = q.id
+    prompt.speak(q.prompt)
+  }, [flow.currentQuestion, prompt, voiceAutoSpeak, voiceSession])
+  const voiceStartRef = useRef(voice.start)
+  voiceStartRef.current = voice.start
+
+  // Démarrer la session active voiceSession ; le TTS parle la question, puis
+  // l'effet d'auto-relance ci-dessous lance le micro une fois le TTS terminé.
+  const startVoiceSession = useCallback(() => {
+    setVoiceSession(true)
+  }, [])
+
+  const stopVoiceSession = useCallback(() => {
+    setVoiceSession(false)
+    voice.stop()
+    prompt.stop()
+  }, [voice, prompt])
+
+  useEffect(() => {
+    if (!voiceSession) return
+    if (flow.isComplete) { setVoiceSession(false); return }
+    if (!flow.currentQuestion) return
+    if (voice.isListening || voice.isProcessing || prompt.isSpeaking) return
+    const t = setTimeout(() => voiceStartRef.current(), 150)
+    return () => clearTimeout(t)
+  }, [voiceSession, flow.currentQuestion, flow.isComplete, voice.isListening, voice.isProcessing, prompt.isSpeaking])
 
   const submitDraft = useCallback(() => {
     if (!flow.currentQuestion) return
@@ -80,6 +114,7 @@ export function useGuidedMissionScreen(opts: Options) {
     flow,
     draft, setDraft, autoCommit, submitDraft, canSubmitDraft,
     prompt, voice,
+    voiceSession, startVoiceSession, stopVoiceSession,
   }
 }
 

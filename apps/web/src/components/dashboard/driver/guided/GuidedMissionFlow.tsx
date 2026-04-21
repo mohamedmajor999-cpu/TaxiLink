@@ -32,7 +32,7 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props
     ? Math.round(((s.flow.currentIndex + 1) / s.flow.totalQuestions) * 100)
     : 0
 
-  const toggleMic = () => (s.voice.isListening ? s.voice.stop() : s.voice.start())
+  const toggleMic = () => (s.voiceSession ? s.stopVoiceSession() : s.startVoiceSession())
   const toggleSpeak = () => {
     if (s.prompt.isSpeaking) s.prompt.stop()
     setVoiceAutoSpeak((v) => !v)
@@ -77,24 +77,31 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props
         </div>
 
         {s.voice.isSupported && (
-          <div className="mt-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={toggleMic}
-              disabled={s.voice.isProcessing}
-              aria-label={s.voice.isListening ? 'Arrêter la dictée' : 'Dicter la réponse'}
-              className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-colors ${
-                s.voice.isListening ? 'bg-brand text-ink' : 'bg-ink text-paper hover:bg-warm-800 disabled:opacity-50'
-              }`}
-            >
-              {s.voice.isListening && <span className="absolute inset-0 rounded-full bg-brand/40 animate-ping" />}
-              {s.voice.isListening ? <MicOff className="relative w-5 h-5" strokeWidth={2} /> : <Mic className="relative w-5 h-5" strokeWidth={2} />}
-            </button>
-            <div className="flex-1 text-[13px] text-warm-600 leading-snug">
-              {s.voice.isListening && (s.voice.interimTranscript || 'Parlez…')}
-              {s.voice.isProcessing && !s.voice.isListening && 'Analyse en cours…'}
-              {!s.voice.isListening && !s.voice.isProcessing && (s.voice.error ?? 'Réponse vocale ou clic.')}
+          <div className="mt-4">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={toggleMic}
+                aria-label={s.voiceSession ? 'Arrêter la session vocale' : 'Démarrer la session vocale'}
+                className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-colors ${
+                  s.voiceSession ? 'bg-brand text-ink' : 'bg-ink text-paper hover:bg-warm-800'
+                }`}
+              >
+                {s.voice.isListening && <span className="absolute inset-0 rounded-full bg-brand/40 animate-ping" />}
+                {s.voiceSession ? <MicOff className="relative w-5 h-5" strokeWidth={2} /> : <Mic className="relative w-5 h-5" strokeWidth={2} />}
+              </button>
+              <div className="flex-1 text-[13px] text-warm-600 leading-snug">
+                {s.voice.isListening && (s.voice.interimTranscript || 'Parlez…')}
+                {s.voice.isProcessing && !s.voice.isListening && 'Analyse en cours…'}
+                {s.voiceSession && !s.voice.isListening && !s.voice.isProcessing && (s.prompt.isSpeaking ? 'Question en cours…' : 'Prêt pour la suite…')}
+                {!s.voiceSession && (s.voice.error ?? 'Cliquez pour démarrer l’assistant vocal.')}
+              </div>
             </div>
+            {s.voiceSession && (
+              <p className="mt-2 text-[11px] text-warm-400 leading-snug">
+                Astuces : dites <span className="font-semibold">« retour »</span>, <span className="font-semibold">« passer »</span>, ou <span className="font-semibold">« corrige le nom »</span> pour naviguer.
+              </p>
+            )}
           </div>
         )}
 
