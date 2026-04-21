@@ -19,7 +19,7 @@ export function FaqSection() {
 
       <div className="grid md:grid-cols-2 gap-x-12">
         {FAQS.map((item, i) => (
-          <details key={i} className="group border-b border-warm-200 py-[22px] px-1 first:border-t md:[&:nth-child(2)]:border-t">
+          <details key={i} className="group border-b border-warm-200 py-6 md:py-[22px] px-2 md:px-1 first:border-t md:[&:nth-child(2)]:border-t">
             <summary className="list-none cursor-pointer flex items-center justify-between gap-5 font-extrabold tracking-[-0.4px] text-[17px]">
               <span>{item.q}</span>
               <span className="w-[30px] h-[30px] rounded-full border-[1.5px] border-warm-200 flex items-center justify-center text-[18px] text-warm-500 transition-all shrink-0 group-open:bg-brand group-open:border-brand group-open:text-ink group-open:rotate-45">
