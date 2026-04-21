@@ -3,6 +3,8 @@
 import { ArrowLeft, ArrowRight, Mic, MicOff, SkipForward, Volume2, VolumeX } from 'lucide-react'
 import type { Group } from '@taxilink/core'
 import type { MissionFormState } from '../useMissionFormState'
+import { GuidedCompletionScreen } from './GuidedCompletionScreen'
+import { GuidedFieldsRecap } from './GuidedFieldsRecap'
 import { GuidedQuestionRenderer } from './GuidedQuestionRenderer'
 import { CATEGORY_LABELS } from './guidedTypes'
 import { GUIDED_QUESTIONS } from './guidedQuestions'
@@ -22,8 +24,20 @@ const ALL_IDS = GUIDED_QUESTIONS.map((q) => q.id)
 export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props) {
   const [voiceAutoSpeak, setVoiceAutoSpeak] = useState(true)
   const s = useGuidedMissionScreen({
-    form, myGroups, setters, allQuestionIds: ALL_IDS, onComplete, voiceAutoSpeak,
+    form, myGroups, setters, allQuestionIds: ALL_IDS, voiceAutoSpeak,
   })
+
+  if (s.flow.isComplete) {
+    return (
+      <GuidedCompletionScreen
+        form={form}
+        myGroups={myGroups}
+        visibleQuestions={s.flow.visibleQuestions}
+        onEdit={s.flow.goTo}
+        onConfirm={onComplete}
+      />
+    )
+  }
 
   const q = s.flow.currentQuestion
   if (!q) return null
@@ -37,6 +51,16 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props
     if (s.prompt.isSpeaking) s.prompt.stop()
     setVoiceAutoSpeak((v) => !v)
   }
+
+  const listeningLabel = s.voice.isListening
+    ? (s.voice.interimTranscript || 'À vous, parlez maintenant…')
+    : s.voice.isProcessing
+      ? 'Analyse en cours…'
+      : s.prompt.isSpeaking
+        ? 'Question en cours…'
+        : s.voiceSession
+          ? 'Préparation du micro…'
+          : (s.voice.error ?? 'Cliquez pour démarrer l’assistant vocal.')
 
   return (
     <div className="bg-paper pb-24 md:pb-6">
@@ -78,7 +102,9 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props
 
         {s.voice.isSupported && (
           <div className="mt-4">
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-3 rounded-2xl px-3 py-2 transition-colors ${
+              s.voice.isListening ? 'bg-brand/10 ring-2 ring-brand' : ''
+            }`}>
               <button
                 type="button"
                 onClick={toggleMic}
@@ -90,16 +116,13 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props
                 {s.voice.isListening && <span className="absolute inset-0 rounded-full bg-brand/40 animate-ping" />}
                 {s.voiceSession ? <MicOff className="relative w-5 h-5" strokeWidth={2} /> : <Mic className="relative w-5 h-5" strokeWidth={2} />}
               </button>
-              <div className="flex-1 text-[13px] text-warm-600 leading-snug">
-                {s.voice.isListening && (s.voice.interimTranscript || 'Parlez…')}
-                {s.voice.isProcessing && !s.voice.isListening && 'Analyse en cours…'}
-                {s.voiceSession && !s.voice.isListening && !s.voice.isProcessing && (s.prompt.isSpeaking ? 'Question en cours…' : 'Prêt pour la suite…')}
-                {!s.voiceSession && (s.voice.error ?? 'Cliquez pour démarrer l’assistant vocal.')}
+              <div className={`flex-1 text-[13px] leading-snug ${s.voice.isListening ? 'text-ink font-semibold' : 'text-warm-600'}`}>
+                {listeningLabel}
               </div>
             </div>
             {s.voiceSession && (
               <p className="mt-2 text-[11px] text-warm-400 leading-snug">
-                Astuces : dites <span className="font-semibold">« retour »</span>, <span className="font-semibold">« passer »</span>, ou <span className="font-semibold">« corrige le nom »</span> pour naviguer.
+                Attendez le bip avant de parler. Dites <span className="font-semibold">« retour »</span>, <span className="font-semibold">« passer »</span>, ou <span className="font-semibold">« corrige le nom »</span> pour naviguer.
               </p>
             )}
           </div>
@@ -134,7 +157,17 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props
             Suivant <ArrowRight className="w-4 h-4" strokeWidth={2} />
           </button>
         </div>
+
+        <GuidedFieldsRecap
+          form={form}
+          myGroups={myGroups}
+          visibleQuestions={s.flow.visibleQuestions}
+          currentIndex={s.flow.currentIndex}
+          onEdit={s.flow.goTo}
+          variant="inline"
+        />
       </div>
     </div>
   )
 }
+

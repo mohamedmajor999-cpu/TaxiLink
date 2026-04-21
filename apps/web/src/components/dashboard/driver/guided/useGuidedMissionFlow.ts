@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getVisibleQuestions } from './guidedQuestions'
 import type { GuidedQuestion, GuidedVisibilityState } from './guidedTypes'
 import type { VoiceAnswerResult } from '@/services/voiceAnswerService'
@@ -8,7 +8,6 @@ import type { VoiceAnswerResult } from '@/services/voiceAnswerService'
 interface Options {
   state: GuidedVisibilityState
   apply: (id: string, value: unknown) => Promise<void>
-  onComplete: () => void
 }
 
 /**
@@ -17,13 +16,15 @@ interface Options {
  *
  * La liste visible change dynamiquement (ex: passer de CPAM à Privé retire des
  * questions) : on ancre la position sur l'id courant, pas sur l'index.
+ *
+ * À la dernière question, `advance` bascule `isComplete=true` mais ne déclenche
+ * pas la suite : c'est l'écran qui affiche un récap et laisse l'utilisateur
+ * confirmer explicitement (évite le saut automatique vers l'aperçu).
  */
-export function useGuidedMissionFlow({ state, apply, onComplete }: Options) {
+export function useGuidedMissionFlow({ state, apply }: Options) {
   const visibleQuestions = useMemo<GuidedQuestion[]>(() => getVisibleQuestions(state), [state])
   const [currentId, setCurrentId] = useState<string | null>(visibleQuestions[0]?.id ?? null)
   const [isComplete, setIsComplete] = useState(false)
-  const onCompleteRef = useRef(onComplete)
-  onCompleteRef.current = onComplete
 
   useEffect(() => {
     if (isComplete) return
@@ -52,7 +53,6 @@ export function useGuidedMissionFlow({ state, apply, onComplete }: Options) {
     const nextIdx = idx + 1
     if (nextIdx >= list.length) {
       setIsComplete(true)
-      onCompleteRef.current()
     } else {
       setCurrentId(list[nextIdx]!.id)
     }

@@ -3,19 +3,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Group } from '@taxilink/core'
 import type { MissionFormState } from '../useMissionFormState'
+import { FALLBACK_QUESTION, isDraftValid } from './guidedDraftValidation'
 import { initialValueForQuestion } from './guidedInitialValue'
+import { playBeep } from './playBeep'
 import { useGuidedAnswerApplier, type GuidedSetters } from './useGuidedAnswerApplier'
 import { useGuidedMissionFlow } from './useGuidedMissionFlow'
 import { useGuidedVoiceAnswer } from './useGuidedVoiceAnswer'
 import { useGuidedVoicePrompt } from './useGuidedVoicePrompt'
-import type { GuidedQuestion } from './guidedTypes'
 
 interface Options {
   form: MissionFormState
   myGroups: Group[]
   setters: GuidedSetters
   allQuestionIds: string[]
-  onComplete: () => void
   voiceAutoSpeak: boolean
 }
 
@@ -24,13 +24,12 @@ interface Options {
  * le brouillon de la question courante, la lecture vocale et la dictée.
  */
 export function useGuidedMissionScreen(opts: Options) {
-  const { form, myGroups, setters, allQuestionIds, onComplete, voiceAutoSpeak } = opts
+  const { form, myGroups, setters, allQuestionIds, voiceAutoSpeak } = opts
 
   const apply = useGuidedAnswerApplier(setters, myGroups)
   const flow = useGuidedMissionFlow({
     state: { type: form.type, returnTrip: form.returnTrip, visibility: form.visibility },
     apply,
-    onComplete,
   })
 
   const [draft, setDraft] = useState<unknown>(null)
@@ -71,6 +70,10 @@ export function useGuidedMissionScreen(opts: Options) {
   }, [flow.currentQuestion, prompt, voiceAutoSpeak, voiceSession])
   const voiceStartRef = useRef(voice.start)
   voiceStartRef.current = voice.start
+  const voiceStopRef = useRef(voice.stop)
+  voiceStopRef.current = voice.stop
+  const promptStopRef = useRef(prompt.stop)
+  promptStopRef.current = prompt.stop
 
   // Démarrer la session active voiceSession ; le TTS parle la question, puis
   // l'effet d'auto-relance ci-dessous lance le micro une fois le TTS terminé.
@@ -86,11 +89,21 @@ export function useGuidedMissionScreen(opts: Options) {
 
   useEffect(() => {
     if (!voiceSession) return
-    if (flow.isComplete) { setVoiceSession(false); return }
+    if (flow.isComplete) {
+      setVoiceSession(false)
+      voiceStopRef.current()
+      promptStopRef.current()
+      return
+    }
     if (!flow.currentQuestion) return
     if (voice.isListening || voice.isProcessing || prompt.isSpeaking) return
-    const t = setTimeout(() => voiceStartRef.current(), 150)
-    return () => clearTimeout(t)
+    // Bip court (≈180 ms) puis ouverture du micro : indique « à vous ».
+    let cancelled = false
+    playBeep().then(() => {
+      if (cancelled) return
+      voiceStartRef.current()
+    })
+    return () => { cancelled = true }
   }, [voiceSession, flow.currentQuestion, flow.isComplete, voice.isListening, voice.isProcessing, prompt.isSpeaking])
 
   const submitDraft = useCallback(() => {
@@ -118,21 +131,3 @@ export function useGuidedMissionScreen(opts: Options) {
   }
 }
 
-const FALLBACK_QUESTION: GuidedQuestion = {
-  id: '__none__', category: 'type', prompt: '', shortLabel: '', kind: 'text', isVisible: () => false,
-}
-
-function isDraftValid(q: GuidedQuestion, draft: unknown): boolean {
-  switch (q.kind) {
-    case 'choice':     return typeof draft === 'string' && draft.length > 0
-    case 'boolean':    return typeof draft === 'boolean'
-    case 'passengers': return typeof draft === 'number' && draft >= 1
-    case 'groups':     return Array.isArray(draft) && draft.length > 0
-    case 'address':    return (typeof draft === 'string' && draft.trim().length >= 5)
-                          || (!!draft && typeof draft === 'object' && 'label' in draft)
-    case 'text':       return typeof draft === 'string' && draft.trim().length > 0
-    case 'phone':      return typeof draft === 'string' && draft.replace(/\D/g, '').length >= 10
-    case 'date':       return typeof draft === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(draft)
-    case 'time':       return typeof draft === 'string' && /^\d{1,2}:\d{2}$/.test(draft)
-  }
-}
