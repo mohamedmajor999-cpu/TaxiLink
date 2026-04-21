@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Mission } from '@/lib/supabase/types'
 import { useMissionVoiceFiller } from './useMissionVoiceFiller'
 import { usePartagerMissionModal } from './usePartagerMissionModal'
@@ -11,6 +11,7 @@ import { MissionFormLibre } from './MissionFormLibre'
 import { MissionModeToggle, type MissionCreationMode } from './MissionModeToggle'
 import { GuidedMissionFlow } from './guided/GuidedMissionFlow'
 import type { GuidedSetters } from './guided/useGuidedAnswerApplier'
+import { getVisibleQuestions } from './guided/guidedQuestions'
 
 interface Props {
   onClose: () => void
@@ -20,6 +21,7 @@ interface Props {
 export function PartagerMissionModal({ onClose, mission }: Props) {
   const f = usePartagerMissionModal(onClose, mission)
   const [mode, setMode] = useState<MissionCreationMode>('GUIDED')
+  const [editFieldId, setEditFieldId] = useState<string | null>(null)
 
   const voice = useMissionVoiceFiller({
     setType: f.setType, setMedicalMotif: f.setMedicalMotif,
@@ -36,30 +38,27 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
     setDestinationCoords: f.setDestinationCoords,
   })
 
+  const visibleQuestions = useMemo(
+    () => getVisibleQuestions({ type: f.type, returnTrip: f.returnTrip, visibility: f.visibility }),
+    [f.type, f.returnTrip, f.visibility],
+  )
+
   if (f.published) return <MissionPublishedStep isEdit={f.isEdit} onClose={onClose} />
 
-  if (f.preview) {
-    const groupLabel =
-      f.visibility === 'GROUP' && f.groupIds.length > 0
-        ? (f.groupIds.length === 1 ? findGroupName(f.myGroups, f.groupIds[0]) : `${f.groupIds.length} groupes`)
-        : null
-    const card = buildPreviewCard({
-      type: f.type, patientName: f.patientName,
-      departure: f.departure, destination: f.destination,
-      distanceKm: f.distanceKm, durationMin: f.durationMin,
-      priceEur: f.previewFare.value, priceIsEstimated: f.previewFare.isEstimated,
-      priceMinEur: f.previewFare.min, priceMaxEur: f.previewFare.max,
-      scheduledAtIso: buildScheduledAt(f.date, f.time),
-      groupName: groupLabel,
-      medicalMotif: f.type === 'CPAM' ? f.medicalMotif : null,
-    })
-    return (
-      <MissionPreviewStep
-        card={card} isEdit={f.isEdit} saving={f.saving} error={f.error}
-        onBack={f.hidePreview} onConfirm={f.submit}
-      />
-    )
-  }
+  const groupLabel =
+    f.visibility === 'GROUP' && f.groupIds.length > 0
+      ? (f.groupIds.length === 1 ? findGroupName(f.myGroups, f.groupIds[0]) : `${f.groupIds.length} groupes`)
+      : null
+  const card = buildPreviewCard({
+    type: f.type, patientName: f.patientName,
+    departure: f.departure, destination: f.destination,
+    distanceKm: f.distanceKm, durationMin: f.durationMin,
+    priceEur: f.previewFare.value, priceIsEstimated: f.previewFare.isEstimated,
+    priceMinEur: f.previewFare.min, priceMaxEur: f.previewFare.max,
+    scheduledAtIso: buildScheduledAt(f.date, f.time),
+    groupName: groupLabel,
+    medicalMotif: f.type === 'CPAM' ? f.medicalMotif : null,
+  })
 
   const guidedSetters: GuidedSetters = {
     setType: f.setType, setMedicalMotif: f.setMedicalMotif,
@@ -74,6 +73,12 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
     setDestinationCoords: f.setDestinationCoords,
   }
 
+  const onEditField = (id: string) => {
+    setEditFieldId(id)
+    f.hidePreview()
+  }
+  const isGuided = mode === 'GUIDED' && !f.isEdit
+
   return (
     <div className="bg-paper pb-24 md:pb-6">
       <div className="px-4 md:px-8 pt-4 md:pt-6 pb-2 max-w-2xl mx-auto">
@@ -83,24 +88,43 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
               {f.isEdit ? 'Modifier la course' : 'Nouvelle course'}
             </h2>
             <p className="text-[12px] text-warm-500 mt-0.5">
-              {mode === 'GUIDED' ? 'Assistance pas à pas' : 'Formulaire libre'}
+              {f.preview ? 'Aperçu avant publication' : mode === 'GUIDED' ? 'Assistance pas à pas' : 'Formulaire libre'}
             </p>
           </div>
-          {!f.isEdit && <MissionModeToggle mode={mode} onChange={setMode} />}
+          {!f.isEdit && !f.preview && <MissionModeToggle mode={mode} onChange={setMode} />}
         </div>
       </div>
 
-      {mode === 'GUIDED' && !f.isEdit ? (
-        <GuidedMissionFlow
-          form={f}
-          myGroups={f.myGroups}
-          setters={guidedSetters}
-          onComplete={f.showPreview}
-        />
-      ) : (
+      {/* Flux guidé : monté en continu pour préserver la position quand l'aperçu se ferme. */}
+      {isGuided && (
+        <div className={f.preview ? 'hidden' : ''}>
+          <GuidedMissionFlow
+            form={f}
+            myGroups={f.myGroups}
+            setters={guidedSetters}
+            onComplete={f.showPreview}
+            editFieldId={editFieldId}
+            onEditHandled={() => setEditFieldId(null)}
+          />
+        </div>
+      )}
+      {!isGuided && !f.preview && (
         <div className="px-4 md:px-8 py-4 max-w-2xl mx-auto">
           <MissionFormLibre f={f} voice={voice} />
         </div>
+      )}
+
+      {f.preview && (
+        <MissionPreviewStep
+          card={card} isEdit={f.isEdit} saving={f.saving} error={f.error}
+          onBack={f.hidePreview} onConfirm={f.submit}
+          departureCoords={f.departureCoords}
+          destinationCoords={f.destinationCoords}
+          form={isGuided ? f : undefined}
+          myGroups={isGuided ? f.myGroups : undefined}
+          visibleQuestions={isGuided ? visibleQuestions : undefined}
+          onEditField={isGuided ? onEditField : undefined}
+        />
       )}
     </div>
   )

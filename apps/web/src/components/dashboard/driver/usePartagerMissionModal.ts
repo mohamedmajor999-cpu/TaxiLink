@@ -133,6 +133,7 @@ export function usePartagerMissionModal(_onClose: () => void, mission?: Mission)
     ...form,
     myGroups,
     onSelectDeparture, onSelectDestination,
+    departureCoords: route.departureCoords, destinationCoords: route.destinationCoords,
     setDepartureCoords: route.setDepartureCoords,
     setDestinationCoords: route.setDestinationCoords,
     onSelectPublic, onToggleGroup,

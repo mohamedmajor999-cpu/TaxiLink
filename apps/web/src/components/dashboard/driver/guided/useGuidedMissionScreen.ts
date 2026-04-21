@@ -17,6 +17,7 @@ interface Options {
   setters: GuidedSetters
   allQuestionIds: string[]
   voiceAutoSpeak: boolean
+  onComplete?: () => void
 }
 
 /**
@@ -24,12 +25,13 @@ interface Options {
  * le brouillon de la question courante, la lecture vocale et la dictée.
  */
 export function useGuidedMissionScreen(opts: Options) {
-  const { form, myGroups, setters, allQuestionIds, voiceAutoSpeak } = opts
+  const { form, myGroups, setters, allQuestionIds, voiceAutoSpeak, onComplete } = opts
 
   const apply = useGuidedAnswerApplier(setters, myGroups)
   const flow = useGuidedMissionFlow({
     state: { type: form.type, returnTrip: form.returnTrip, visibility: form.visibility },
     apply,
+    onComplete,
   })
 
   const [draft, setDraft] = useState<unknown>(null)
@@ -44,6 +46,10 @@ export function useGuidedMissionScreen(opts: Options) {
 
   const prompt = useGuidedVoicePrompt()
   const spokenIdRef = useRef<string | null>(null)
+  // `announcedId` = id de la question dont l'annonce TTS est terminée.
+  // Le bip d'écoute + ouverture micro attendent ce marqueur pour ne pas
+  // bipper AVANT que la voix ait fini de parler.
+  const [announcedId, setAnnouncedId] = useState<string | null>(null)
 
   const voice = useGuidedVoiceAnswer({
     question: flow.currentQuestion ?? FALLBACK_QUESTION,
@@ -56,17 +62,27 @@ export function useGuidedMissionScreen(opts: Options) {
   const [voiceSession, setVoiceSession] = useState(false)
 
   // Le TTS ne se déclenche qu'une fois la session démarrée par l'utilisateur,
-  // pour éviter la lecture automatique dès l'arrivée sur la page.
+  // pour éviter la lecture automatique dès l'arrivée sur la page. On attend
+  // la fin de la promesse `speak()` avant de marquer la question "annoncée".
   useEffect(() => {
     if (!voiceSession) {
       spokenIdRef.current = null
+      setAnnouncedId(null)
       return
     }
-    if (!voiceAutoSpeak || !prompt.isSupported) return
     const q = flow.currentQuestion
     if (!q || spokenIdRef.current === q.id) return
     spokenIdRef.current = q.id
-    prompt.speak(q.prompt)
+    if (!voiceAutoSpeak || !prompt.isSupported) {
+      setAnnouncedId(q.id)
+      return
+    }
+    setAnnouncedId(null)
+    let cancelled = false
+    prompt.speak(q.prompt).then(() => {
+      if (!cancelled) setAnnouncedId(q.id)
+    })
+    return () => { cancelled = true }
   }, [flow.currentQuestion, prompt, voiceAutoSpeak, voiceSession])
   const voiceStartRef = useRef(voice.start)
   voiceStartRef.current = voice.start
@@ -95,25 +111,26 @@ export function useGuidedMissionScreen(opts: Options) {
       promptStopRef.current()
       return
     }
-    if (!flow.currentQuestion) return
+    const q = flow.currentQuestion
+    if (!q || announcedId !== q.id) return
     if (voice.isListening || voice.isProcessing || prompt.isSpeaking) return
-    // Bip court (≈180 ms) puis ouverture du micro : indique « à vous ».
+    // Bip court (≈180 ms) APRÈS la fin du TTS puis ouverture du micro.
     let cancelled = false
     playBeep().then(() => {
       if (cancelled) return
       voiceStartRef.current()
     })
     return () => { cancelled = true }
-  }, [voiceSession, flow.currentQuestion, flow.isComplete, voice.isListening, voice.isProcessing, prompt.isSpeaking])
+  }, [voiceSession, announcedId, flow.currentQuestion, flow.isComplete, voice.isListening, voice.isProcessing, prompt.isSpeaking])
 
-  const submitDraft = useCallback(() => {
+  const submitDraft = useCallback(async () => {
     if (!flow.currentQuestion) return
-    flow.answer(draft)
+    await flow.answer(draft)
   }, [draft, flow])
 
-  const autoCommit = useCallback((v: unknown) => {
+  const autoCommit = useCallback(async (v: unknown) => {
     setDraft(v)
-    flow.answer(v)
+    await flow.answer(v)
   }, [flow])
 
   const canSubmitDraft = useMemo(() => {

@@ -3,44 +3,52 @@
 import { ArrowLeft, ArrowRight, Mic, MicOff, SkipForward, Volume2, VolumeX } from 'lucide-react'
 import type { Group } from '@taxilink/core'
 import type { MissionFormState } from '../useMissionFormState'
-import { GuidedCompletionScreen } from './GuidedCompletionScreen'
 import { GuidedFieldsRecap } from './GuidedFieldsRecap'
 import { GuidedQuestionRenderer } from './GuidedQuestionRenderer'
 import { CATEGORY_LABELS } from './guidedTypes'
 import { GUIDED_QUESTIONS } from './guidedQuestions'
 import type { GuidedSetters } from './useGuidedAnswerApplier'
 import { useGuidedMissionScreen } from './useGuidedMissionScreen'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Props {
   form: MissionFormState
   myGroups: Group[]
   setters: GuidedSetters
   onComplete: () => void
+  /** Id de question ciblée par le bouton "modifier" du récap (aperçu). */
+  editFieldId?: string | null
+  onEditHandled?: () => void
 }
 
 const ALL_IDS = GUIDED_QUESTIONS.map((q) => q.id)
 
-export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props) {
+export function GuidedMissionFlow({ form, myGroups, setters, onComplete, editFieldId, onEditHandled }: Props) {
   const [voiceAutoSpeak, setVoiceAutoSpeak] = useState(true)
   const s = useGuidedMissionScreen({
-    form, myGroups, setters, allQuestionIds: ALL_IDS, voiceAutoSpeak,
+    form, myGroups, setters, allQuestionIds: ALL_IDS, voiceAutoSpeak, onComplete,
   })
+  const editRef = useRef(false)
 
-  if (s.flow.isComplete) {
-    return (
-      <GuidedCompletionScreen
-        form={form}
-        myGroups={myGroups}
-        visibleQuestions={s.flow.visibleQuestions}
-        onEdit={s.flow.goTo}
-        onConfirm={onComplete}
-      />
-    )
+  // Saut vers un champ depuis le récap de l'aperçu : ouvre la question ciblée ;
+  // après la prochaine réponse, `wrapSubmit` redéclenche `onComplete` pour
+  // revenir à l'aperçu plutôt que de continuer le flux.
+  useEffect(() => {
+    if (!editFieldId) return
+    s.flow.goTo(editFieldId)
+    editRef.current = true
+    onEditHandled?.()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editFieldId])
+
+  const wrapSubmit = async (run: () => Promise<void>) => {
+    const wasEdit = editRef.current
+    await run()
+    if (wasEdit) { editRef.current = false; onComplete() }
   }
 
   const q = s.flow.currentQuestion
-  if (!q) return null
+  if (!q || s.flow.isComplete) return null
 
   const progressPct = s.flow.totalQuestions > 0
     ? Math.round(((s.flow.currentIndex + 1) / s.flow.totalQuestions) * 100)
@@ -95,8 +103,8 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props
             value={s.draft}
             myGroups={myGroups}
             onChange={s.setDraft}
-            onAutoCommit={s.autoCommit}
-            onEnterSubmit={s.submitDraft}
+            onAutoCommit={(v) => wrapSubmit(() => s.autoCommit(v))}
+            onEnterSubmit={() => wrapSubmit(s.submitDraft)}
           />
         </div>
 
@@ -150,7 +158,7 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete }: Props
 
           <button
             type="button"
-            onClick={s.submitDraft}
+            onClick={() => wrapSubmit(s.submitDraft)}
             disabled={!s.canSubmitDraft}
             className="ml-auto h-12 px-5 rounded-2xl bg-ink text-paper text-[14px] font-semibold inline-flex items-center gap-1.5 hover:bg-warm-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >

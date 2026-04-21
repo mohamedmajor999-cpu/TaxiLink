@@ -1,6 +1,13 @@
 'use client'
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
+import type { Group } from '@taxilink/core'
 import { CourseCard, type CourseCardData } from '@/components/taxilink/CourseCard'
+import { CourseMap } from './course/CourseMap'
+import { GuidedFieldsRecap } from './guided/GuidedFieldsRecap'
+import type { GuidedQuestion } from './guided/guidedTypes'
+import type { MissionFormState } from './useMissionFormState'
+
+interface Coords { lat: number; lng: number }
 
 interface Props {
   card: CourseCardData
@@ -9,9 +16,24 @@ interface Props {
   error: string | null
   onBack: () => void
   onConfirm: () => void
+  /** Coords pour la carte de prévisualisation ; absent = pas de carte. */
+  departureCoords?: Coords | null
+  destinationCoords?: Coords | null
+  /** Récap éditable : chaque champ a un bouton « modifier » qui rappelle onEditField. */
+  form?: MissionFormState
+  myGroups?: Group[]
+  visibleQuestions?: GuidedQuestion[]
+  onEditField?: (id: string) => void
 }
 
-export function MissionPreviewStep({ card, isEdit, saving, error, onBack, onConfirm }: Props) {
+export function MissionPreviewStep({
+  card, isEdit, saving, error, onBack, onConfirm,
+  departureCoords, destinationCoords,
+  form, myGroups, visibleQuestions, onEditField,
+}: Props) {
+  const hasMap = !!departureCoords && !!destinationCoords
+  const hasRecap = !!form && !!myGroups && !!visibleQuestions && !!onEditField
+
   return (
     <div className="bg-paper pb-24 md:pb-6">
       <div className="px-4 md:px-8 pt-4 md:pt-6 pb-2 max-w-2xl mx-auto">
@@ -19,12 +41,33 @@ export function MissionPreviewStep({ card, isEdit, saving, error, onBack, onConf
           Aperçu de la course
         </h2>
         <p className="text-[12px] text-warm-500 mt-0.5">
-          Voici la carte telle qu&apos;elle apparaîtra aux autres chauffeurs.
+          Vérifiez tout, puis publiez. Touchez un champ pour le corriger.
         </p>
       </div>
 
       <div className="px-4 md:px-8 py-4 max-w-2xl mx-auto">
+        {hasMap && (
+          <div className="relative h-48 md:h-56 rounded-2xl overflow-hidden border border-warm-200 mb-4">
+            <CourseMap from={departureCoords!} to={destinationCoords!} />
+          </div>
+        )}
+
         <CourseCard course={card} footer={<></>} />
+
+        {hasRecap && (
+          <div className="mt-5">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-warm-500 mb-2">
+              Détails — touchez pour corriger
+            </p>
+            <GuidedFieldsRecap
+              form={form!} myGroups={myGroups!}
+              visibleQuestions={visibleQuestions!}
+              currentIndex={-1}
+              onEdit={onEditField!}
+              variant="summary"
+            />
+          </div>
+        )}
 
         {error && (
           <div className="mt-4 flex items-start gap-2 rounded-2xl border border-danger/30 bg-danger-soft p-3 text-[13px] text-danger">
@@ -41,7 +84,7 @@ export function MissionPreviewStep({ card, isEdit, saving, error, onBack, onConf
             className="order-2 md:order-1 h-14 px-6 rounded-2xl border-2 border-warm-200 bg-paper text-ink text-[15px] font-semibold inline-flex items-center justify-center gap-2 hover:border-ink hover:bg-warm-50 transition-all disabled:opacity-50"
           >
             <ArrowLeft className="w-4 h-4" strokeWidth={2.2} />
-            Modifier
+            {hasRecap ? 'Continuer à modifier' : 'Modifier'}
           </button>
           <button
             type="button"
