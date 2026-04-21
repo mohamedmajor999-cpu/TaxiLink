@@ -1,9 +1,11 @@
 'use client'
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import type { Group } from '@taxilink/core'
 import { CourseCard, type CourseCardData } from '@/components/taxilink/CourseCard'
-import { CourseMap } from './course/CourseMap'
 import { GuidedFieldsRecap } from './guided/GuidedFieldsRecap'
+
+const CourseMap = dynamic(() => import('./course/CourseMap').then((m) => m.CourseMap), { ssr: false })
 import type { GuidedQuestion } from './guided/guidedTypes'
 import type { MissionFormState } from './useMissionFormState'
 
