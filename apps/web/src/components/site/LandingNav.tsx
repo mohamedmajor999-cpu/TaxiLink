@@ -16,11 +16,11 @@ export function LandingNav() {
   const { menuOpen, openMenu, closeMenu } = useLandingNav()
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-warm-100">
-      <div className="max-w-7xl mx-auto px-8 h-[80px] flex items-center justify-between">
+    <nav className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-warm-100 pwa-safe-top">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-[80px] flex items-center justify-between">
 
         <Link href="/" className="flex items-center" aria-label="TaxiLink Pro">
-          <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={320} height={70} priority className="h-[64px] w-auto" />
+          <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={320} height={70} priority className="h-12 md:h-[64px] w-auto" />
         </Link>
 
         <div className="hidden md:flex items-center gap-8">

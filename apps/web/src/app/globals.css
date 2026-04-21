@@ -83,3 +83,11 @@ body {
 
 /* Nav link active indicator */
 .nav-active { color: #FFD23F !important; }
+
+/* PWA standalone : safe-areas iOS (notch) + contenu au ras des bords système */
+@media (display-mode: standalone) {
+  .pwa-safe-top    { padding-top:    env(safe-area-inset-top); }
+  .pwa-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  /* En PWA la nav marketing est inutile : on la masque pour donner la priorité au contenu */
+  .pwa-hide { display: none !important; }
+}

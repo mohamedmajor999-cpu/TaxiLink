@@ -10,7 +10,7 @@ const FEATURES = [
 
 export function PricingSection() {
   return (
-    <section id="tarifs" className="max-w-7xl mx-auto px-8 py-14">
+    <section id="tarifs" className="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-14">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[1.5px] px-3 py-1.5 rounded-md bg-brand/10 text-[#D97706] mb-4">
           Tarifs
@@ -23,7 +23,7 @@ export function PricingSection() {
         </p>
       </div>
 
-      <div className="bg-ink text-white rounded-[18px] p-10 md:p-20 grid md:grid-cols-[1.1fr_1fr] gap-10 md:gap-20 items-center relative overflow-hidden">
+      <div className="bg-ink text-white rounded-[18px] p-6 md:p-20 grid md:grid-cols-[1.1fr_1fr] gap-8 md:gap-20 items-center relative overflow-hidden">
         <div className="absolute -top-[120px] -right-[120px] w-[420px] h-[420px] rounded-full bg-brand opacity-[0.12] blur-xl pointer-events-none" />
         <div className="absolute -bottom-20 left-[30%] w-[300px] h-[300px] rounded-full bg-teal-500 opacity-[0.08] blur-2xl pointer-events-none" />
 
@@ -47,7 +47,7 @@ export function PricingSection() {
           </div>
         </div>
 
-        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-10 md:pl-12 md:border-l border-white/[0.08]">
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10 md:pl-12 md:border-l border-white/[0.08]">
           {FEATURES.map((f) => (
             <div key={f.title} className="flex flex-col gap-2">
               <div className="w-9 h-9 rounded-full bg-brand/[0.14] text-brand flex items-center justify-center mb-1">

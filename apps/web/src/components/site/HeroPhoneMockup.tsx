@@ -2,7 +2,7 @@ import { Lock } from 'lucide-react'
 
 export function HeroPhoneMockup() {
   return (
-    <div className="w-[280px] bg-ink rounded-[36px] p-2.5 shadow-[0_32px_80px_-20px_rgba(0,0,0,0.25)] relative z-10">
+    <div className="w-[260px] md:w-[280px] bg-ink rounded-[36px] p-2.5 shadow-[0_32px_80px_-20px_rgba(0,0,0,0.25)] relative z-10">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[92px] h-[26px] bg-ink rounded-b-[14px] z-20" />
       <div className="bg-white rounded-[28px] overflow-hidden min-h-[560px] pb-[60px] relative">
         <div className="px-5 pt-3 pb-1.5 flex justify-between text-[11.5px] font-bold">

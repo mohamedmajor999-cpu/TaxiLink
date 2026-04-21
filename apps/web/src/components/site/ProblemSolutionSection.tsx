@@ -3,7 +3,7 @@ import { SolutionTaxilinkCard } from './SolutionTaxilinkCard'
 
 export function ProblemSolutionSection() {
   return (
-    <section className="max-w-7xl mx-auto px-8 py-14">
+    <section className="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-14">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[1.5px] px-3 py-1.5 rounded-md bg-brand/10 text-[#D97706] mb-4">
           Le changement
@@ -17,7 +17,7 @@ export function ProblemSolutionSection() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="rounded-[18px] p-7 bg-warm-50 border border-warm-200 flex flex-col">
+        <div className="rounded-[18px] p-5 md:p-7 bg-warm-50 border border-warm-200 flex flex-col">
           <div className="flex items-center gap-2 mb-5">
             <span className="text-[10.5px] font-extrabold tracking-[1px] uppercase px-2 py-1 rounded bg-[#EF4444] text-white">Avant</span>
             <span className="text-[12px] text-warm-500 font-medium">WhatsApp · 47 membres</span>
@@ -27,7 +27,7 @@ export function ProblemSolutionSection() {
           <div className="mt-auto"><ProblemWhatsappCard /></div>
         </div>
 
-        <div className="rounded-[18px] p-7 bg-gradient-to-b from-[#F9FAFB] to-white border border-warm-200 flex flex-col">
+        <div className="rounded-[18px] p-5 md:p-7 bg-gradient-to-b from-[#F9FAFB] to-white border border-warm-200 flex flex-col">
           <div className="flex items-center gap-2 mb-5">
             <span className="text-[10.5px] font-extrabold tracking-[1px] uppercase px-2 py-1 rounded bg-brand text-ink">Après</span>
             <span className="text-[12px] text-warm-500 font-medium">TaxiLink · groupe privé</span>
