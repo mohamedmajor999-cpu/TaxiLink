@@ -10,10 +10,10 @@ import { NextMissionBanner } from './NextMissionBanner'
 
 interface Props {
   onPostCourse: () => void
-  onShowCurrentCourse: () => void
+  onShowMissionDetail: (id: string) => void
 }
 
-export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
+export function DriverHome({ onPostCourse, onShowMissionDetail }: Props) {
   const h = useDriverHome()
 
   const onSortChange = (v: HomeSort) => {
@@ -46,7 +46,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
       {h.currentMission && (
         <NextMissionBanner
           mission={h.currentMission}
-          onShowDetail={onShowCurrentCourse}
+          onShowDetail={() => onShowMissionDetail(h.currentMission!.id)}
           onComplete={h.completeMission}
           userCoords={h.userCoords}
         />
@@ -94,7 +94,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
         <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3" aria-label="Courses disponibles">
           {h.cards.map((c) => (
             <li key={c.id} className="h-full">
-              <CourseCard course={c} onAccept={h.acceptMission} onShowDetail={onShowCurrentCourse} />
+              <CourseCard course={c} onAccept={h.acceptMission} onShowDetail={onShowMissionDetail} />
             </li>
           ))}
         </ul>
