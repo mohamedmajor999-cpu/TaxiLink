@@ -7,6 +7,7 @@ interface Props {
   onTabChange: (tab: DriverTab) => void
   onPostCourse: () => void
   coursesBadge?: number
+  coursesNotif?: number
 }
 
 interface NavItem {
@@ -16,10 +17,11 @@ interface NavItem {
   badge?: number
 }
 
-export function MobileBottomNav({ activeTab, onTabChange, onPostCourse, coursesBadge }: Props) {
+export function MobileBottomNav({ activeTab, onTabChange, onPostCourse, coursesBadge, coursesNotif }: Props) {
+  const coursesDisplay = (coursesNotif && coursesNotif > 0) ? coursesNotif : coursesBadge
   const left: NavItem[] = [
     { key: 'home', label: 'Accueil', icon: Home },
-    { key: 'courses', label: 'Courses', icon: Wallet, badge: coursesBadge },
+    { key: 'courses', label: 'Courses', icon: Wallet, badge: coursesDisplay },
   ]
   const right: NavItem[] = [
     { key: 'groupes', label: 'Groupes', icon: Users },

@@ -3,6 +3,7 @@ import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedMissionAcceptNotifier } from '@/hooks/usePostedMissionAcceptNotifier'
+import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileBottomNav } from '@/components/taxilink/MobileBottomNav'
 import { useDriverAuth } from './useDriverAuth'
@@ -13,6 +14,7 @@ import { DriverGroupesScreen } from './DriverGroupesScreen'
 import { DriverProfilScreen } from './DriverProfilScreen'
 import { MissionDetailScreen } from './MissionDetailScreen'
 import { PartagerMissionModal } from './PartagerMissionModal'
+import { PostedMissionAcceptPopup } from './PostedMissionAcceptPopup'
 
 export function DriverDashboard() {
   const { driverName, loading } = useDriverAuth()
@@ -29,6 +31,7 @@ export function DriverDashboard() {
   const editingMission = useMissionEditStore((s) => s.editing)
   const clearEdit = useMissionEditStore((s) => s.clearEdit)
   usePostedMissionAcceptNotifier()
+  const unseenAcceptCount = useUnseenAcceptCount()
   const showModal = showCreer || Boolean(editingMission)
   const closeModal = () => {
     setShowCreer(false)
@@ -38,6 +41,14 @@ export function DriverDashboard() {
     closeModal()
     setDetailMissionId(null)
     setActiveTab(tab)
+  }
+  const goToPostedTab = () => {
+    closeModal()
+    setDetailMissionId(null)
+    setActiveTab('courses')
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('taxilink:open-posted-tab'))
+    }
   }
 
   if (loading) {
@@ -68,6 +79,7 @@ export function DriverDashboard() {
         driverInitials={initials}
         groupName="Taxi13"
         isOnline={driver.isOnline}
+        badges={{ coursesNotif: unseenAcceptCount }}
       />
 
       <main className="flex-1 min-w-0">
@@ -98,7 +110,10 @@ export function DriverDashboard() {
         onTabChange={handleTabChange}
         onPostCourse={() => setShowCreer(true)}
         coursesBadge={availableCount}
+        coursesNotif={unseenAcceptCount}
       />
+
+      <PostedMissionAcceptPopup onViewPosted={goToPostedTab} />
     </div>
   )
 }

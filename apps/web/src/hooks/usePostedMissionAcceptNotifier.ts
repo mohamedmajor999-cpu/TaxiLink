@@ -3,47 +3,71 @@
 import { useEffect, useRef } from 'react'
 import { useAuth } from './useAuth'
 import { createClient } from '@/lib/supabase/client'
+import { usePostedAcceptStore } from '@/store/postedAcceptStore'
 import type { Mission } from '@/lib/supabase/types'
 
 /**
- * Écoute globale : prévient le chauffeur propriétaire quand une de ses annonces
- * est acceptée par un autre chauffeur. Notification navigateur uniquement (les
- * toasts tab-scope sont gérés par usePostedTab).
- *
- * Utilise un channel Supabase dédié pour ne pas entrer en conflit avec la
- * souscription principale de useDriverMissions.
+ * Écoute globale : quand une des annonces postées par l'utilisateur est acceptée,
+ * récupère le profil du chauffeur accepteur, l'ajoute au store (badge + popup)
+ * et émet une notification navigateur.
  */
 export function usePostedMissionAcceptNotifier() {
   const { user } = useAuth()
   const notifiedRef = useRef<Set<string>>(new Set())
+  const add = usePostedAcceptStore((s) => s.add)
+  const reset = usePostedAcceptStore((s) => s.reset)
 
   useEffect(() => {
     if (!user?.id) return
     notifiedRef.current = new Set()
+    reset()
 
-    let channel: ReturnType<ReturnType<typeof createClient>['channel']> | null = null
+    const supabase = createClient()
+    let channel: ReturnType<typeof supabase.channel> | null = null
+
     try {
-      const supabase = createClient()
       channel = supabase
         .channel(`posted-accept-notifier-${user.id}`)
         .on(
           'postgres_changes',
           { event: 'UPDATE', schema: 'public', table: 'missions', filter: `shared_by=eq.${user.id}` },
-          (payload) => {
+          async (payload) => {
             const m = payload.new as Mission
-            if (!m || m.status === 'AVAILABLE') return
+            if (!m || m.status === 'AVAILABLE' || !m.driver_id) return
             if (notifiedRef.current.has(m.id)) return
             notifiedRef.current.add(m.id)
 
-            if (typeof window === 'undefined' || typeof Notification === 'undefined') return
-            if (Notification.permission !== 'granted') return
+            let driverName = 'Un chauffeur'
+            let driverPhone: string | null = null
             try {
-              new Notification('Votre course a été prise !', {
-                body: `${m.departure} → ${m.destination}`,
-                tag: `taxilink-accepted-${m.id}`,
-                icon: '/brand/icon.svg',
-              })
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name, phone')
+                .eq('id', m.driver_id)
+                .maybeSingle()
+              if (profile?.full_name?.trim()) driverName = profile.full_name.trim()
+              if (profile?.phone?.trim()) driverPhone = profile.phone.trim()
             } catch { /* silencieux */ }
+
+            add({
+              missionId: m.id,
+              departure: m.departure,
+              destination: m.destination,
+              acceptedAt: m.accepted_at ?? new Date().toISOString(),
+              driverName,
+              driverPhone,
+            })
+
+            if (typeof window !== 'undefined' && typeof Notification !== 'undefined'
+              && Notification.permission === 'granted') {
+              try {
+                new Notification(`${driverName} a accepté votre annonce`, {
+                  body: `${m.departure} → ${m.destination}`,
+                  tag: `taxilink-accepted-${m.id}`,
+                  icon: '/brand/icon.svg',
+                })
+              } catch { /* silencieux */ }
+            }
           }
         )
         .subscribe()
@@ -51,8 +75,8 @@ export function usePostedMissionAcceptNotifier() {
 
     return () => {
       if (channel) {
-        try { createClient().removeChannel(channel) } catch { /* silencieux */ }
+        try { supabase.removeChannel(channel) } catch { /* silencieux */ }
       }
     }
-  }, [user?.id])
+  }, [user?.id, add, reset])
 }
