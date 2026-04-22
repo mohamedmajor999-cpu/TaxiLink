@@ -56,11 +56,11 @@ export function useNextMissionBanner({ mission, onComplete, userCoords }: Params
   const badge = typeBadge(mission.type)
   const showComplete = isStarted && !!onComplete
 
-  const statusDotClass = isStarted
-    ? 'bg-emerald-400 motion-safe:animate-pulse'
+  const barClass = isStarted
+    ? 'bg-emerald-500 motion-safe:animate-pulse'
     : isImminent
       ? 'bg-brand motion-safe:animate-pulse'
-      : 'bg-paper/50'
+      : 'bg-ink'
 
   const countdown = isStarted ? 'Départ maintenant' : formatCountdown(deltaMs)
   const etaText = etaMin != null && !isStarted ? `${formatDuration(etaMin)} depuis votre position` : null
@@ -75,7 +75,7 @@ export function useNextMissionBanner({ mission, onComplete, userCoords }: Params
     isStarted,
     fare,
     badge,
-    statusDotClass,
+    barClass,
     countdown,
     etaText,
     showComplete,

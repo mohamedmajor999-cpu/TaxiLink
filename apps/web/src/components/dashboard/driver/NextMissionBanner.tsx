@@ -20,14 +20,13 @@ export function NextMissionBanner({ mission, onShowDetail, onComplete, userCoord
       aria-label={v.isStarted ? 'Course en cours' : 'Prochaine course'}
       className="mb-5 relative rounded-2xl bg-paper border border-warm-200 overflow-hidden"
     >
-      <span aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-1 bg-ink" />
+      <span aria-hidden="true" className={`absolute left-0 top-0 bottom-0 w-1 ${v.barClass}`} />
 
       <div className="pl-5 pr-3 py-3 flex items-center gap-3">
         <Clock className="w-5 h-5 text-ink shrink-0" strokeWidth={2.2} />
 
         <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-bold text-ink leading-tight inline-flex items-center gap-1.5">
-            <span aria-hidden className={`w-1.5 h-1.5 rounded-full ${v.statusDotClass}`} />
+          <p className="text-[14px] font-bold text-ink leading-tight">
             {v.countdown}
           </p>
           <p className="text-[12.5px] text-warm-500 truncate mt-0.5">
