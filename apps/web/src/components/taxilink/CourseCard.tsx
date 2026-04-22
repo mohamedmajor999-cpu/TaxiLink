@@ -84,26 +84,26 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
           <div className="flex-1 min-w-0">
             <RouteTimeline from={course.from} to={course.to} compact />
           </div>
-          <div className="text-right shrink-0 whitespace-nowrap min-w-[64px]">
-            {course.publisher && (
-              <div className="text-[11px] font-semibold text-warm-600 mb-1 leading-tight pt-1">
-                {course.publisher}
-              </div>
-            )}
-            {course.priceIsEstimated && (
-              <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5 leading-none mt-[30px]">
-                Prix estimé
-              </div>
-            )}
-            {hasRange(course) ? (
-              <div className={`text-[18px] font-bold leading-none text-ink tabular-nums tracking-tight ${course.priceIsEstimated ? '' : 'mt-[30px]'}`}>
-                {course.priceMinEur}<span className="text-[13px] text-warm-500">–</span>{course.priceMaxEur}<span className="text-[13px]">€</span>
-              </div>
-            ) : (
-              <div className={`text-[26px] font-bold leading-none text-ink tabular-nums tracking-tight ${course.priceIsEstimated ? '' : 'mt-[30px]'}`}>
-                {course.priceEur}<span className="text-[18px]">€</span>
-              </div>
-            )}
+          <div className="text-right shrink-0 whitespace-nowrap min-w-[64px] pt-1">
+            <div className="h-[26px] text-[11px] font-semibold text-warm-600 leading-tight">
+              {course.publisher ?? ' '}
+            </div>
+            <div className="mt-3.5">
+              {course.priceIsEstimated && (
+                <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5 leading-none">
+                  Prix estimé
+                </div>
+              )}
+              {hasRange(course) ? (
+                <div className="text-[18px] font-bold leading-none text-ink tabular-nums tracking-tight">
+                  {course.priceMinEur}<span className="text-[13px] text-warm-500">–</span>{course.priceMaxEur}<span className="text-[13px]">€</span>
+                </div>
+              ) : (
+                <div className="text-[26px] font-bold leading-none text-ink tabular-nums tracking-tight">
+                  {course.priceEur}<span className="text-[18px]">€</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2 mt-0.5 pl-[26px] text-[14px] text-ink font-semibold">
