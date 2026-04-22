@@ -30,16 +30,22 @@ vi.mock('@/lib/validators', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks()
-  mockGetProfile.mockResolvedValue({ full_name: 'Jean Dupont', phone: '0601020304' })
+  mockGetProfile.mockResolvedValue({
+    first_name: 'Jean',
+    last_name: 'Dupont',
+    full_name: 'Jean Dupont',
+    phone: '0601020304',
+  })
   mockUpdateProfile.mockResolvedValue(undefined)
 })
 
 describe('useSettingsCompte', () => {
-  it('charge fullName et phone depuis profileService', async () => {
+  it('charge firstName/lastName et phone depuis profileService', async () => {
     const { useSettingsCompte } = await import('@/components/dashboard/driver/profil/useSettingsCompte')
     const { result } = renderHook(() => useSettingsCompte())
     await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.fullName).toBe('Jean Dupont')
+    expect(result.current.firstName).toBe('Jean')
+    expect(result.current.lastName).toBe('Dupont')
     expect(result.current.phone).toBe('0601020304')
   })
 
@@ -49,30 +55,33 @@ describe('useSettingsCompte', () => {
     expect(result.current.email).toBe('test@test.fr')
   })
 
-  it('dirty=true après modification de fullName', async () => {
+  it('dirty=true après modification du prénom', async () => {
     const { useSettingsCompte } = await import('@/components/dashboard/driver/profil/useSettingsCompte')
     const { result } = renderHook(() => useSettingsCompte())
     await waitFor(() => expect(result.current.loading).toBe(false))
-    act(() => { result.current.setFullName('Nouveau Nom') })
+    act(() => { result.current.setFirstName('Paul') })
     expect(result.current.dirty).toBe(true)
   })
 
-  it("save() échoue si fullName < 2 caractères", async () => {
+  it("save() échoue si prénom < 2 caractères", async () => {
     const { useSettingsCompte } = await import('@/components/dashboard/driver/profil/useSettingsCompte')
     const { result } = renderHook(() => useSettingsCompte())
     await waitFor(() => expect(result.current.loading).toBe(false))
-    act(() => { result.current.setFullName('A') })
+    act(() => { result.current.setFirstName('A') })
     await act(async () => { await result.current.save() })
     expect(result.current.error).toContain('2 caractères')
     expect(mockUpdateProfile).not.toHaveBeenCalled()
   })
 
-  it('save() réussit et appelle profileService.updateProfile', async () => {
+  it('save() réussit et transmet first_name + last_name', async () => {
     const { useSettingsCompte } = await import('@/components/dashboard/driver/profil/useSettingsCompte')
     const { result } = renderHook(() => useSettingsCompte())
     await waitFor(() => expect(result.current.loading).toBe(false))
     await act(async () => { await result.current.save() })
-    expect(mockUpdateProfile).toHaveBeenCalledWith('u1', expect.objectContaining({ full_name: 'Jean Dupont' }))
+    expect(mockUpdateProfile).toHaveBeenCalledWith('u1', expect.objectContaining({
+      first_name: 'Jean',
+      last_name: 'Dupont',
+    }))
     await waitFor(() => expect(result.current.saved).toBe(true))
   })
 

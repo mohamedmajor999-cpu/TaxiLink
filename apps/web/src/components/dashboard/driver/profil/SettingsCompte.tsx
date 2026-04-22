@@ -13,12 +13,20 @@ export function SettingsCompte() {
 
       <div className="bg-paper border border-warm-200 rounded-2xl p-4 flex flex-col gap-3">
         <Field
-          id="full_name"
-          label="Nom complet"
-          value={s.fullName}
-          onChange={s.setFullName}
+          id="first_name"
+          label="Prénom"
+          value={s.firstName}
+          onChange={s.setFirstName}
           disabled={s.loading || s.saving}
-          placeholder="Prénom Nom"
+          placeholder="Jean"
+        />
+        <Field
+          id="last_name"
+          label="Nom"
+          value={s.lastName}
+          onChange={s.setLastName}
+          disabled={s.loading || s.saving}
+          placeholder="Dupont"
         />
         <Field
           id="phone"
