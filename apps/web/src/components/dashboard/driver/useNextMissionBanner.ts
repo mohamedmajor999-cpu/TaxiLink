@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import type { Mission } from '@/lib/supabase/types'
 import { computeDisplayFare } from '@/lib/missionFare'
 import { computeRoute } from '@/services/addressService'
+import { formatDuration, formatCountdown } from '@/lib/formatDuration'
 
 interface Params {
   mission: Mission
@@ -89,19 +90,3 @@ function typeBadge(type: string): { variant: BadgeVariant; label: string } {
   return { variant: 'fleet', label: 'TaxiLink' }
 }
 
-function formatDuration(min: number): string {
-  if (min < 60) return `${min} min`
-  const hrs = Math.floor(min / 60)
-  const mins = min % 60
-  return `${hrs}h ${String(mins).padStart(2, '0')}`
-}
-
-function formatCountdown(ms: number): string {
-  const totalSec = Math.max(0, Math.floor(ms / 1000))
-  const hrs = Math.floor(totalSec / 3600)
-  const min = Math.floor((totalSec % 3600) / 60)
-  if (hrs >= 1) return `Dans ${hrs}h ${String(min).padStart(2, '0')}`
-  if (min >= 1) return `Dans ${min} min`
-  const sec = totalSec % 60
-  return `Dans ${sec}s`
-}

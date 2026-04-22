@@ -1,5 +1,6 @@
 'use client'
 import { Phone, User } from 'lucide-react'
+import { formatDuration } from '@/lib/formatDuration'
 
 export function AcceptedBanner({
   profile,
@@ -38,11 +39,6 @@ export function AcceptedBanner({
 
 function relativeTime(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime()
-  const min = Math.floor(ms / 60000)
-  if (min < 1) return "à l'instant"
-  if (min < 60) return `il y a ${min} min`
-  const h = Math.floor(min / 60)
-  if (h < 24) return `il y a ${h} h`
-  const d = Math.floor(h / 24)
-  return `il y a ${d} j`
+  if (ms < 60_000) return "à l'instant"
+  return `il y a ${formatDuration(Math.floor(ms / 60_000))}`
 }

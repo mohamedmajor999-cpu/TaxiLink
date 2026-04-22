@@ -39,7 +39,7 @@ export function NextMissionBanner({ mission, onShowDetail, onComplete, userCoord
           <button
             type="button"
             onClick={onShowDetail}
-            className="h-9 px-3 rounded-lg border border-warm-200 text-[13px] font-semibold text-warm-700 hover:bg-warm-100 transition-colors"
+            className="h-9 px-3 rounded-lg bg-brand text-ink text-[13px] font-semibold hover:brightness-105 active:brightness-95 transition-all"
           >
             Détails
           </button>
