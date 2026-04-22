@@ -1,24 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 125" width="700" height="125" role="img" aria-label="TaxiLink Pro">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 170" width="720" height="170" role="img" aria-label="TaxiLink Pro">
   <defs>
-    <clipPath id="tlPrC"><rect width="120" height="120" rx="18"/></clipPath>
-    <clipPath id="tlPrZh"><polygon points="0,0 120,0 120,45 0,75"/></clipPath>
-    <clipPath id="tlPrZb"><polygon points="0,75 120,45 120,120 0,120"/></clipPath>
+    <clipPath id="tlPrPin"><path d="M 60 4 C 30 4 8 26 8 56 C 8 88 60 156 60 156 C 60 156 112 88 112 56 C 112 26 90 4 60 4 Z"/></clipPath>
+    <clipPath id="tlPrZh"><polygon points="0,0 120,0 120,62 0,72"/></clipPath>
+    <clipPath id="tlPrZb"><polygon points="0,72 120,62 120,160 0,160"/></clipPath>
   </defs>
-  <g clip-path="url(#tlPrC)">
-    <rect width="120" height="120" fill="#09090B"/>
-    <polygon points="0,75 120,45 120,120 0,120" fill="#FBBF24"/>
+  <ellipse cx="60" cy="161" rx="22" ry="7" fill="rgba(0,0,0,0.18)"/>
+  <g clip-path="url(#tlPrPin)">
+    <rect width="120" height="160" fill="#09090B"/>
+    <polygon points="0,72 120,62 120,160 0,160" fill="#FBBF24"/>
     <g clip-path="url(#tlPrZh)" fill="#FBBF24">
-      <rect x="30" y="24" width="60" height="13" rx="2"/>
-      <rect x="53" y="24" width="14" height="72"/>
-      <rect x="53" y="83" width="37" height="13" rx="2"/>
+      <rect x="32" y="22" width="56" height="13" rx="2"/>
+      <rect x="53" y="22" width="14" height="82"/>
+      <rect x="53" y="91" width="35" height="13" rx="2"/>
     </g>
     <g clip-path="url(#tlPrZb)" fill="#09090B">
-      <rect x="30" y="24" width="60" height="13" rx="2"/>
-      <rect x="53" y="24" width="14" height="72"/>
-      <rect x="53" y="83" width="37" height="13" rx="2"/>
+      <rect x="32" y="22" width="56" height="13" rx="2"/>
+      <rect x="53" y="22" width="14" height="82"/>
+      <rect x="53" y="91" width="35" height="13" rx="2"/>
     </g>
   </g>
-  <g transform="translate(142, 0)">
+  <g transform="translate(142, 30)">
     <text x="0" y="82" font-family="'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="88" font-weight="800" fill="#09090B" letter-spacing="-3.5">Tax</text>
     <circle cx="162" cy="30" r="11" fill="#FBBF24"/>
     <rect x="156" y="52" width="12" height="38" rx="2" fill="#09090B"/>
