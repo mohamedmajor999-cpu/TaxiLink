@@ -7,11 +7,11 @@ export type Tab = DriverTab
 export function useDriverDashboard() {
   const [activeTab, setActiveTabRaw] = useState<Tab>('home')
   const [showCreer, setShowCreer] = useState(false)
-  const [showCurrentCourse, setShowCurrentCourse] = useState(false)
+  const [detailMissionId, setDetailMissionId] = useState<string | null>(null)
 
   const setActiveTab = (tab: Tab) => {
     setActiveTabRaw(tab)
-    setShowCurrentCourse(false)
+    setDetailMissionId(null)
   }
 
   return {
@@ -19,7 +19,7 @@ export function useDriverDashboard() {
     setActiveTab,
     showCreer,
     setShowCreer,
-    showCurrentCourse,
-    setShowCurrentCourse,
+    detailMissionId,
+    setDetailMissionId,
   }
 }

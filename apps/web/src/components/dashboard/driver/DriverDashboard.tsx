@@ -11,7 +11,7 @@ import { DriverHome } from './DriverHome'
 import { DriverCoursesScreen } from './DriverCoursesScreen'
 import { DriverGroupesScreen } from './DriverGroupesScreen'
 import { DriverProfilScreen } from './DriverProfilScreen'
-import { CurrentCourseScreen } from './CurrentCourseScreen'
+import { MissionDetailScreen } from './MissionDetailScreen'
 import { PartagerMissionModal } from './PartagerMissionModal'
 
 export function DriverDashboard() {
@@ -21,8 +21,8 @@ export function DriverDashboard() {
     setActiveTab,
     showCreer,
     setShowCreer,
-    showCurrentCourse,
-    setShowCurrentCourse,
+    detailMissionId,
+    setDetailMissionId,
   } = useDriverDashboard()
   const { driver } = useDriverStore()
   const availableCount = useMissionStore((s) => s.missions.length)
@@ -36,7 +36,7 @@ export function DriverDashboard() {
   }
   const handleTabChange = (tab: typeof activeTab) => {
     closeModal()
-    setShowCurrentCourse(false)
+    setDetailMissionId(null)
     setActiveTab(tab)
   }
 
@@ -73,11 +73,11 @@ export function DriverDashboard() {
       <main className="flex-1 min-w-0">
         {showModal ? (
           <PartagerMissionModal onClose={closeModal} mission={editingMission ?? undefined} />
-        ) : showCurrentCourse ? (
-          <CurrentCourseScreen onBack={() => setShowCurrentCourse(false)} />
+        ) : detailMissionId ? (
+          <MissionDetailScreen missionId={detailMissionId} onBack={() => setDetailMissionId(null)} />
         ) : (
           <>
-            {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowCurrentCourse={() => setShowCurrentCourse(true)} />}
+            {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowMissionDetail={setDetailMissionId} />}
             {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={() => setShowCreer(true)} />}
             {activeTab === 'groupes' && (
               <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">

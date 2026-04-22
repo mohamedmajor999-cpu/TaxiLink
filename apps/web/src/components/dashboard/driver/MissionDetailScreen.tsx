@@ -17,15 +17,15 @@ const TERMINAL_STATUSES = new Set(['DONE', 'CANCELLED'])
 
 interface Props {
   missionId: string
+  onBack?: () => void
 }
 
-export function MissionDetailScreen({ missionId }: Props) {
+export function MissionDetailScreen({ missionId, onBack }: Props) {
   const c = useMissionDetail(missionId)
-  const router = useRouter()
 
-  if (c.loading) return <Shell><div className="h-64 rounded-3xl bg-warm-100 motion-safe:animate-pulse mb-3" /></Shell>
+  if (c.loading) return <Shell onBack={onBack}><div className="h-64 rounded-3xl bg-warm-100 motion-safe:animate-pulse mb-3" /></Shell>
   if (!c.mission) return (
-    <Shell>
+    <Shell onBack={onBack}>
       <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
         <p className="text-[20px] font-bold text-ink mb-2">Course introuvable</p>
       </div>
@@ -56,7 +56,7 @@ export function MissionDetailScreen({ missionId }: Props) {
   const isTerminal = TERMINAL_STATUSES.has(mission.status)
 
   return (
-    <Shell>
+    <Shell onBack={onBack}>
       <article className="rounded-3xl border border-warm-200 bg-paper overflow-hidden shadow-soft mb-3">
         <CourseTopStats scheduledAt={mission.scheduled_at} />
         <div className="relative h-[268px] md:h-[364px] bg-warm-50">
@@ -115,14 +115,14 @@ export function MissionDetailScreen({ missionId }: Props) {
   )
 }
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ children, onBack }: { children: React.ReactNode; onBack?: () => void }) {
   const router = useRouter()
   return (
     <div className="px-4 md:px-8 py-3 md:py-6 max-w-2xl md:max-w-3xl mx-auto pb-24 md:pb-6">
       <header className="mb-3">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => (onBack ? onBack() : router.back())}
           className="inline-flex items-center gap-2 text-[13px] font-semibold text-warm-600 hover:text-ink transition-colors"
         >
           <ArrowLeft className="w-4 h-4" strokeWidth={2} />
