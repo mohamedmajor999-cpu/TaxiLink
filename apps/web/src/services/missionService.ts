@@ -8,7 +8,7 @@ export const missionService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*, mission_groups(group_id)')
+      .select('*, mission_groups(group_id), publisher:profiles!missions_client_id_fkey(full_name)')
       .eq('status', 'AVAILABLE')
       .gt('scheduled_at', new Date().toISOString())
       .order('scheduled_at', { ascending: true })

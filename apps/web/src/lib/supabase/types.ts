@@ -517,6 +517,8 @@ export type Mission  = Database['public']['Tables']['missions']['Row'] & {
   // Groupes ciblés (relation many-to-many) : embarqué par les queries qui
   // font `.select('*, mission_groups(group_id)')`.
   mission_groups?: { group_id: string }[] | null
+  // Profil du chauffeur qui a publié la mission (alias de la FK client_id).
+  publisher?: { full_name: string | null } | null
 }
 export type Profile  = Database['public']['Tables']['profiles']['Row']
 export type Document = Database['public']['Tables']['driver_documents']['Row']

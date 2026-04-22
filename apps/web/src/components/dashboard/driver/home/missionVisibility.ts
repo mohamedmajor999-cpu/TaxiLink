@@ -4,6 +4,7 @@ import type { CourseCardData } from '@/components/taxilink/CourseCard'
 import type { RideBadgeVariant } from '@/components/taxilink/RideBadge'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
+import { formatPublisherName } from '@/lib/formatPublisherName'
 
 const TYPE_BADGE: Record<string, { variant: RideBadgeVariant; label: string }> = {
   CPAM: { variant: 'medical', label: 'Médical' },
@@ -78,6 +79,7 @@ export function toCourseCard(m: Mission, groupsById: Map<string, Group>): Course
     priceIsEstimated: fare.isEstimated,
     priceMinEur: m.price_min_eur ?? null,
     priceMaxEur: m.price_max_eur ?? null,
+    publisher: formatPublisherName(m.publisher?.full_name),
   }
 }
 

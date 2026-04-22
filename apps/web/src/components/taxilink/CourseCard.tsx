@@ -22,6 +22,8 @@ export interface CourseCardData {
   /** Fourchette optionnelle (privé) : si min != max, affichée à la place du prix unique. */
   priceMinEur?: number | null
   priceMaxEur?: number | null
+  /** Nom abrégé du chauffeur qui a publié la mission (ex : "Jean D."). */
+  publisher?: string | null
 }
 
 const MOTIF_LABEL: Record<'HDJ' | 'CONSULTATION', string> = {
@@ -83,6 +85,11 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
             <RouteTimeline from={course.from} to={course.to} compact />
           </div>
           <div className="text-right shrink-0 whitespace-nowrap min-w-[64px]">
+            {course.publisher && (
+              <div className="text-[11px] font-semibold text-warm-600 mb-0.5 leading-none">
+                {course.publisher}
+              </div>
+            )}
             {course.priceIsEstimated && (
               <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5 leading-none">
                 Prix estimé
