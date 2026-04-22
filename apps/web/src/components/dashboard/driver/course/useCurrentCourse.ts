@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useDriverStore } from '@/store/driverStore'
 import { missionService } from '@/services/missionService'
 import { fetchOsrmRoute, type OsrmRoute } from '@/lib/osrmRoute'
-import { fetchMapboxTrafficDuration, type TrafficEstimate } from '@/lib/mapbox'
+import { fetchGoogleRoutesTraffic, type TrafficEstimate } from '@/lib/googleRoutes'
 
 interface Coords { lat: number; lng: number }
 
@@ -50,12 +50,16 @@ export function useCurrentCourse() {
   }, [from, to])
 
   useEffect(() => {
-    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-    if (!token || !from || !to) return
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY
+    if (!apiKey || !from || !to) return
     const ctrl = new AbortController()
-    fetchMapboxTrafficDuration({ from, to, token, signal: ctrl.signal }).then(setTraffic).catch(() => {})
+    fetchGoogleRoutesTraffic({
+      from, to, apiKey,
+      departureTime: mission?.scheduled_at ?? null,
+      signal: ctrl.signal,
+    }).then(setTraffic).catch(() => {})
     return () => ctrl.abort()
-  }, [from, to])
+  }, [from, to, mission?.scheduled_at])
 
   const cancel = async (reason: string) => {
     if (!mission) return
@@ -76,6 +80,7 @@ export function useCurrentCourse() {
     loading, mission, from, to, route, traffic,
     smsHref, wazeHref, gmapsHref,
     cancel, cancelling, cancelOpen, setCancelOpen,
+    currentUserId: user?.id ?? null,
   }
 }
 

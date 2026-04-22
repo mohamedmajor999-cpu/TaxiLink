@@ -1,12 +1,19 @@
 'use client'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, MessageSquare, Phone, XCircle } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { useCurrentCourse } from './course/useCurrentCourse'
 import { CancelMissionDialog } from './course/CancelMissionDialog'
 import { NavigationButtons } from './course/NavigationButtons'
+import { CourseScheduleBlock } from './course/CourseScheduleBlock'
+import { CourseInfoBlock } from './course/CourseInfoBlock'
+import { CoursePassengerBlock } from './course/CoursePassengerBlock'
+import { CourseSharedByBlock } from './course/CourseSharedByBlock'
+import { CoursePriceBlock } from './course/CoursePriceBlock'
+import { CourseActions } from './course/CourseActions'
+import { computeEta } from './course/scheduleDisplay'
 
 const CourseMap = dynamic(() => import('./course/CourseMap').then((m) => m.CourseMap), { ssr: false })
 
@@ -37,6 +44,8 @@ export function CurrentCourseScreen({ onBack }: Props = {}) {
         </span>
       </header>
 
+      <CourseScheduleBlock scheduledAt={mission.scheduled_at} returnTime={mission.return_trip ? mission.return_time : null} />
+
       <article className="rounded-3xl border border-warm-200 bg-paper overflow-hidden shadow-soft mb-4">
         <div className="relative h-64 md:h-80 bg-warm-50">
           {c.from && c.to ? (
@@ -52,12 +61,12 @@ export function CurrentCourseScreen({ onBack }: Props = {}) {
           <Stat
             label="Temps"
             value={trafficMin ? `${trafficMin} min` : routeMin ? `${routeMin} min` : '—'}
-            sub={trafficMin ? 'trafic réel' : routeMin ? 'hors trafic' : undefined}
+            sub={trafficMin ? (c.traffic?.predicted ? 'trafic prévu' : 'trafic réel') : routeMin ? 'hors trafic' : undefined}
             border
           />
           <Stat
             label="Arrivée"
-            value={computeEta(c.traffic?.durationSec ?? c.route?.durationSec ?? null)}
+            value={computeEta(mission.scheduled_at, c.traffic?.durationSec ?? c.route?.durationSec ?? null)}
             border
           />
         </div>
@@ -70,37 +79,38 @@ export function CurrentCourseScreen({ onBack }: Props = {}) {
         />
       </div>
 
+      <CourseInfoBlock
+        type={mission.type}
+        medicalMotif={mission.medical_motif}
+        transportType={mission.transport_type}
+        returnTrip={mission.return_trip}
+      />
+
+      <CoursePassengerBlock
+        type={mission.type}
+        patientName={mission.patient_name}
+        passengers={mission.passengers}
+        companion={mission.companion}
+        phone={mission.phone}
+        notes={mission.notes}
+      />
+
+      <CoursePriceBlock
+        mission={mission}
+        fallbackDistanceKm={c.route ? c.route.distanceM / 1000 : c.traffic ? c.traffic.distanceM / 1000 : null}
+        fallbackDurationMin={c.traffic ? c.traffic.durationSec / 60 : c.route ? c.route.durationSec / 60 : null}
+      />
+
+      <CourseSharedByBlock
+        sharedBy={mission.shared_by}
+        currentUserId={c.currentUserId}
+        missionId={mission.id}
+        visibility={mission.visibility}
+      />
+
       <NavigationButtons gmapsHref={c.gmapsHref} wazeHref={c.wazeHref} />
 
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        {mission.phone && (
-          <a
-            href={`tel:${mission.phone.replace(/\s/g, '')}`}
-            className="h-12 rounded-xl bg-paper border border-warm-300 text-ink text-[13px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-warm-50 transition-colors"
-          >
-            <Phone className="w-4 h-4" strokeWidth={2} />
-            Appeler
-          </a>
-        )}
-        {c.smsHref && (
-          <a
-            href={c.smsHref}
-            className="h-12 rounded-xl bg-paper border border-warm-300 text-ink text-[13px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-warm-50 transition-colors"
-          >
-            <MessageSquare className="w-4 h-4" strokeWidth={2} />
-            J&apos;arrive
-          </a>
-        )}
-      </div>
-
-      <button
-        type="button"
-        onClick={() => c.setCancelOpen(true)}
-        className="w-full h-12 rounded-xl border border-danger/40 bg-paper text-danger text-[13px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-danger-soft transition-colors"
-      >
-        <XCircle className="w-4 h-4" strokeWidth={2} />
-        Annuler la course
-      </button>
+      <CourseActions phone={mission.phone} smsHref={c.smsHref} onCancel={() => c.setCancelOpen(true)} />
 
       <CancelMissionDialog
         open={c.cancelOpen}
@@ -110,12 +120,6 @@ export function CurrentCourseScreen({ onBack }: Props = {}) {
       />
     </div>
   )
-}
-
-function computeEta(durationSec: number | null): string {
-  if (!durationSec) return '—'
-  const eta = new Date(Date.now() + durationSec * 1000)
-  return eta.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 }
 
 function Stat({
