@@ -4,6 +4,7 @@ import type { Group } from '@taxilink/core'
 import type { Mission } from '@/lib/supabase/types'
 import type { CourseCardData } from '@/components/taxilink/CourseCard'
 import { haversineKm } from '@/lib/geoDistance'
+import { computeDisplayFare } from '@/lib/missionFare'
 import { extractMissionGroupIds, isPublicMission, toCourseCard } from './missionVisibility'
 
 export type HomeTypeFilter = 'ALL' | 'CPAM' | 'PRIVE'
@@ -60,7 +61,7 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
     }
     const sorted = [...list]
     sorted.sort((a, b) => {
-      if (sort === 'highest-pay') return (b.price_eur ?? 0) - (a.price_eur ?? 0)
+      if (sort === 'highest-pay') return computeDisplayFare(b).value - computeDisplayFare(a).value
       if (sort === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       if (sort === 'nearest' && userCoords) {
         const da = a.departure_lat != null && a.departure_lng != null

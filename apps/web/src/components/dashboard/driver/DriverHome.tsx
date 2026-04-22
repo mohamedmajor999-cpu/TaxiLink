@@ -14,6 +14,11 @@ interface Props {
 export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
   const h = useDriverHome()
 
+  const onSortChange = (v: HomeSort) => {
+    h.setSort(v)
+    if (v === 'nearest' && !h.hasUserCoords) h.requestLocation()
+  }
+
   return (
     <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-5xl mx-auto pb-24 md:pb-6">
       <HomeMobileHeader
@@ -54,7 +59,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <SortSelect value={h.sort} onChange={h.setSort} />
+          <SortSelect value={h.sort} onChange={onSortChange} />
         </div>
       </header>
 

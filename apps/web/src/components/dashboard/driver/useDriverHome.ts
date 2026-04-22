@@ -27,14 +27,16 @@ export function useDriverHome() {
   const [groups, setGroups] = useState<Group[]>([])
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null)
 
-  useEffect(() => {
+  const requestLocation = () => {
     if (typeof navigator === 'undefined' || !('geolocation' in navigator)) return
     navigator.geolocation.getCurrentPosition(
       (pos) => setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
       () => { /* permission refusée : tri « plus proche » retombe sur « plus tôt » */ },
       { enableHighAccuracy: false, timeout: 5000, maximumAge: 300_000 },
     )
-  }, [])
+  }
+
+  useEffect(() => { requestLocation() }, [])
 
   useEffect(() => {
     if (!user?.id) return
@@ -80,6 +82,7 @@ export function useDriverHome() {
     completeMission: m.completeMission,
     currentMission: m.currentMission,
     userCoords,
+    requestLocation,
     notificationPermission: notif.permission,
     requestNotificationPermission: notif.requestPermission,
   }

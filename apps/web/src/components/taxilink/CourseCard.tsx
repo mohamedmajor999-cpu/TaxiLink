@@ -38,8 +38,8 @@ interface Props {
 
 export function CourseCard({ course, onAccept, footer }: Props) {
   const isUrgent = !!course.urgent
-  const urgencyBorder = getUrgencyBorder(course.scheduledInMin)
-  const cardStyle = `bg-paper border ${urgencyBorder} rounded-2xl overflow-hidden hover:shadow-soft transition-shadow h-full flex flex-col ${isUrgent ? 'shadow-soft' : ''}`
+  const tier = getTimeTier(course.scheduledInMin)
+  const cardStyle = `bg-paper border border-warm-200 rounded-2xl overflow-hidden hover:border-warm-300 hover:shadow-soft transition-all h-full flex flex-col ${isUrgent ? 'shadow-soft' : ''}`
 
   return (
     <article className={cardStyle}>
@@ -62,11 +62,14 @@ export function CourseCard({ course, onAccept, footer }: Props) {
             )}
           </div>
         ) : (
-          <div className="text-right shrink-0 text-[12px] text-warm-500">
-            {typeof course.scheduledInMin === 'number' && course.scheduledInMin > 0
-              ? `dans ${formatDuration(course.scheduledInMin)}`
-              : 'maintenant'}
-            {course.clientName && <> · <span className="text-warm-600">{course.clientName}</span></>}
+          <div className="shrink-0 inline-flex items-center gap-1.5 text-[12px] text-warm-500">
+            <span aria-hidden="true" className={`w-1.5 h-1.5 rounded-full ${TIER_DOT[tier]}`} />
+            <span>
+              {typeof course.scheduledInMin === 'number' && course.scheduledInMin > 0
+                ? `dans ${formatDuration(course.scheduledInMin)}`
+                : 'maintenant'}
+              {course.clientName && <> · <span className="text-warm-600">{course.clientName}</span></>}
+            </span>
           </div>
         )}
       </div>
@@ -101,13 +104,12 @@ export function CourseCard({ course, onAccept, footer }: Props) {
           <Clock className="w-4 h-4" strokeWidth={1.8} />
           {formatDuration(course.durationMin)}
         </span>
-        <span aria-hidden="true" className="text-warm-300">·</span>
-        <span className="font-semibold text-ink">
-          {course.payment}
-          {course.medicalMotif && course.payment === 'CPAM' && (
-            <span className="text-warm-500 font-medium"> · {MOTIF_LABEL[course.medicalMotif]}</span>
-          )}
-        </span>
+        {course.medicalMotif && course.payment === 'CPAM' && (
+          <>
+            <span aria-hidden="true" className="text-warm-300">·</span>
+            <span className="font-semibold text-ink">{MOTIF_LABEL[course.medicalMotif]}</span>
+          </>
+        )}
       </div>
 
       <div className="px-5 pb-5 mt-auto">
@@ -126,13 +128,16 @@ function hasRange(c: CourseCardData): c is CourseCardData & { priceMinEur: numbe
   return c.priceMinEur != null && c.priceMaxEur != null && c.priceMinEur !== c.priceMaxEur
 }
 
-/**
- * Couleur de bordure selon l'imminence du départ :
- * - >3h → vert, 1h–3h → orange, <1h → rouge.
- */
-function getUrgencyBorder(scheduledInMin: number | undefined): string {
-  if (typeof scheduledInMin !== 'number') return 'border-warm-200'
-  if (scheduledInMin < 60) return 'border-danger'
-  if (scheduledInMin <= 180) return 'border-amber-500'
-  return 'border-emerald-500'
+type TimeTier = 'imminent' | 'soon' | 'far'
+
+const TIER_DOT: Record<TimeTier, string> = {
+  imminent: 'bg-danger motion-safe:animate-pulse',
+  soon: 'bg-amber-500',
+  far: 'bg-emerald-500',
+}
+
+function getTimeTier(scheduledInMin: number | undefined): TimeTier {
+  if (typeof scheduledInMin !== 'number' || scheduledInMin < 60) return 'imminent'
+  if (scheduledInMin <= 180) return 'soon'
+  return 'far'
 }
