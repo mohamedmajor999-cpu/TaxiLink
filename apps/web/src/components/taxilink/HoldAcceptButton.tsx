@@ -35,9 +35,11 @@ export function HoldAcceptButton({
     <button
       type="button"
       disabled={disabled}
-      onPointerDown={start}
+      onPointerDown={(e) => {
+        try { e.currentTarget.setPointerCapture(e.pointerId) } catch {}
+        start()
+      }}
       onPointerUp={cancel}
-      onPointerLeave={cancel}
       onPointerCancel={cancel}
       onKeyDown={(e) => {
         if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) start()
