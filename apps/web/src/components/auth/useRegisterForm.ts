@@ -37,15 +37,7 @@ export function useRegisterForm() {
     if (!isValidEmail(email))        { setError('Adresse email invalide'); return }
     if (!isValidPassword(password))  { setError('Le mot de passe doit contenir au moins 8 caractères'); return }
     if (password !== confirmPassword) { setError('Les mots de passe ne correspondent pas'); return }
-    setStep1Loading(true)
-    try {
-      await authService.beginSignUp(email, password)
-      setStep(2)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inconnue')
-    } finally {
-      setStep1Loading(false)
-    }
+    setStep(2)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,6 +49,8 @@ export function useRegisterForm() {
     setLoading(true)
     try {
       await authService.finalizeSignUp({
+        email,
+        password,
         first_name: firstName.trim(),
         last_name:  lastName.trim(),
         phone:      phone || undefined,
@@ -65,6 +59,8 @@ export function useRegisterForm() {
       setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue')
+      // Si l'email est deja pris, on revient sur l'etape 1 pour permettre d'en corriger la valeur
+      if (err instanceof Error && err.message.includes('déjà inscrite')) setStep(1)
     } finally {
       setLoading(false)
     }
