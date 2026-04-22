@@ -39,15 +39,20 @@ export function SidebarNav({
       </div>
 
       <nav className="flex-1 px-3 space-y-1">
-        {ITEMS.slice(0, 2).map((item) => (
-          <NavItem
-            key={item.key}
-            item={item}
-            active={activeTab === item.key}
-            badge={item.key === 'courses' ? badges?.courses : undefined}
-            onClick={() => onTabChange(item.key)}
-          />
-        ))}
+        {ITEMS.slice(0, 2).map((item) => {
+          const coursesCount = (badges?.coursesNotif && badges.coursesNotif > 0)
+            ? badges.coursesNotif
+            : badges?.courses
+          return (
+            <NavItem
+              key={item.key}
+              item={item}
+              active={activeTab === item.key}
+              badge={item.key === 'courses' ? coursesCount : undefined}
+              onClick={() => onTabChange(item.key)}
+            />
+          )
+        })}
 
         <button
           type="button"
@@ -97,6 +102,7 @@ function NavItem({
   onClick: () => void
 }) {
   const Icon = item.icon
+  const hasBadge = badge !== undefined && badge > 0
   return (
     <button
       type="button"
@@ -109,8 +115,8 @@ function NavItem({
       )}
       <Icon className="w-[18px] h-[18px]" strokeWidth={active ? 2 : 1.6} />
       <span className="flex-1 text-left">{item.label}</span>
-      {badge !== undefined && badge > 0 && (
-        <span className="text-[10px] font-semibold text-paper bg-ink rounded-full px-1.5 py-0.5">
+      {hasBadge && (
+        <span className="text-[10px] font-bold text-ink bg-brand rounded-full px-1.5 py-0.5">
           {badge}
         </span>
       )}

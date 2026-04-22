@@ -73,22 +73,31 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
 function TabPill({
   tab, active, onClick,
 }: {
-  tab: { id: CoursesTab; label: string; icon?: string }
+  tab: { id: CoursesTab; label: string; icon?: string; badge?: number }
   active: CoursesTab
   onClick: (id: CoursesTab) => void
 }) {
   const isActive = active === tab.id
+  const hasBadge = tab.badge !== undefined && tab.badge > 0
   return (
     <button
       type="button"
       onClick={() => onClick(tab.id)}
-      className={`inline-flex items-center justify-center h-11 px-3 rounded-full text-[13px] font-semibold transition-colors ${
+      className={`relative inline-flex items-center justify-center gap-2 h-11 px-3 rounded-full text-[13px] font-semibold transition-colors ${
         isActive
           ? 'bg-ink text-paper'
           : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
       }`}
     >
-      {tab.label}
+      <span>{tab.label}</span>
+      {hasBadge && (
+        <span
+          aria-label={`${tab.badge} nouvelle${tab.badge! > 1 ? 's' : ''} notification${tab.badge! > 1 ? 's' : ''}`}
+          className="min-w-[20px] h-[20px] px-1.5 rounded-full bg-brand text-ink text-[11px] font-bold inline-flex items-center justify-center"
+        >
+          {tab.badge! > 99 ? '99+' : tab.badge}
+        </span>
+      )}
     </button>
   )
 }

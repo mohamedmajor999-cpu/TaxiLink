@@ -20,7 +20,15 @@ export function useGroupCard(group: Group) {
     return () => document.removeEventListener('mousedown', close)
   }, [menuOpen])
 
-  const inviteText = `Rejoins mon groupe "${group.name}" sur TaxiLink Pro 🚖\nOuvre l'app → Groupes → Rejoindre → colle cet ID :\n${group.id}`
+  const buildInviteText = useCallback(() => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://taxilink.fr'
+    const link = `${origin}/rejoindre/${group.id}`
+    return (
+      `🚖 TaxiLink Pro — la plateforme de partage de courses entre taxis.\n\n` +
+      `Tu es invité(e) à rejoindre le groupe « ${group.name} ».\n\n` +
+      `Rejoindre le groupe :\n${link}`
+    )
+  }, [group.id, group.name])
 
   const copyId = useCallback(async () => {
     await navigator.clipboard.writeText(group.id)
@@ -30,14 +38,14 @@ export function useGroupCard(group: Group) {
   }, [group.id])
 
   const shareViaSms = useCallback(() => {
-    window.open(`sms:?body=${encodeURIComponent(inviteText)}`, '_self')
+    window.open(`sms:?body=${encodeURIComponent(buildInviteText())}`, '_self')
     setMenuOpen(false)
-  }, [inviteText])
+  }, [buildInviteText])
 
   const shareViaWhatsApp = useCallback(() => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(inviteText)}`, '_blank')
+    window.open(`https://wa.me/?text=${encodeURIComponent(buildInviteText())}`, '_blank')
     setMenuOpen(false)
-  }, [inviteText])
+  }, [buildInviteText])
 
   const triggerDelete = () => { setMenuOpen(false); setPendingAction('delete') }
   const triggerLeave  = () => { setMenuOpen(false); setPendingAction('leave')  }
