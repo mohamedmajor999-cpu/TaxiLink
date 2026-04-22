@@ -7,7 +7,7 @@ import { useLandingNav } from './useLandingNav'
 
 const NAV_LINKS = [
   { label: 'Produit', href: '#produit' },
-  { label: 'Comment ça marche', href: '#etapes' },
+  { label: 'Installer', href: '#installer' },
   { label: 'Tarifs', href: '#tarifs' },
   { label: 'FAQ', href: '#faq' },
 ]
@@ -20,8 +20,14 @@ export function LandingNav() {
       <nav className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-warm-100/80 pwa-safe-top">
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-[72px] flex items-center justify-between gap-6">
 
-          <Link href="/" className="flex items-center shrink-0" aria-label="TaxiLink Pro">
-            <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={320} height={70} priority className="h-12 md:h-14 w-auto" />
+          <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label="TaxiLink Pro — La plateforme de partage de course entre taxis">
+            <Image src="/brand/icon.svg" alt="" width={56} height={56} priority className="h-12 md:h-14 w-12 md:w-14 shrink-0" />
+            <div className="flex flex-col justify-center">
+              <Image src="/brand/logo-wordmark.svg" alt="" width={220} height={43} priority className="h-8 md:h-9 w-auto" />
+              <span className="text-[11px] md:text-[12px] font-medium text-warm-500 leading-tight mt-1 tracking-tight">
+                La plateforme de partage de course entre taxis
+              </span>
+            </div>
           </Link>
 
           <div className="hidden md:flex items-center gap-7">
@@ -52,7 +58,7 @@ export function LandingNav() {
         <div className="fixed inset-0 z-[100] md:hidden bg-[#ffffff] flex flex-col animate-fade-in pwa-safe-top pwa-safe-bottom">
           <div className="h-16 flex items-center justify-between px-5 border-b border-warm-100 shrink-0">
             <Link href="/" onClick={closeMenu} aria-label="TaxiLink Pro">
-              <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={260} height={56} className="h-11 w-auto" />
+              <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={245} height={56} className="h-11 w-auto" />
             </Link>
             <button onClick={closeMenu} className="inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-xl hover:bg-warm-50 active:bg-warm-100 transition-colors" aria-label="Fermer">
               <X size={22} strokeWidth={2.2} />

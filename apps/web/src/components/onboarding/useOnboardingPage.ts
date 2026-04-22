@@ -1,19 +1,47 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+
+export type OnboardingStep = 'splash' | 'slide1' | 'slide2' | 'slide3' | 'welcome'
+
+const STORAGE_KEY = 'taxilink.onboarding.seen'
+const SLIDES: OnboardingStep[] = ['slide1', 'slide2', 'slide3']
 
 export function useOnboardingPage() {
-  const lastSectionRef = useRef<HTMLDivElement>(null)
-  const [showCta, setShowCta] = useState(false)
+  const [step, setStep] = useState<OnboardingStep>('splash')
 
   useEffect(() => {
-    const el = lastSectionRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setShowCta(true) },
-      { threshold: 0.2 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
+    const t = setTimeout(() => setStep('slide1'), 1600)
+    return () => clearTimeout(t)
   }, [])
 
-  return { showCta, lastSectionRef }
+  const next = useCallback(() => {
+    setStep((s) => {
+      if (s === 'splash') return 'slide1'
+      const idx = SLIDES.indexOf(s as OnboardingStep)
+      if (idx >= 0 && idx < SLIDES.length - 1) return SLIDES[idx + 1]
+      return 'welcome'
+    })
+  }, [])
+
+  const prev = useCallback(() => {
+    setStep((s) => {
+      const idx = SLIDES.indexOf(s as OnboardingStep)
+      if (idx > 0) return SLIDES[idx - 1]
+      if (s === 'welcome') return 'slide3'
+      return s
+    })
+  }, [])
+
+  const skip = useCallback(() => setStep('welcome'), [])
+
+  const markSeen = useCallback(() => {
+    try { localStorage.setItem(STORAGE_KEY, '1') } catch {}
+  }, [])
+
+  const slideIndex = SLIDES.indexOf(step as OnboardingStep)
+
+  return { step, slideIndex, totalSlides: SLIDES.length, next, prev, skip, markSeen }
+}
+
+export function hasSeenOnboarding() {
+  try { return localStorage.getItem(STORAGE_KEY) === '1' } catch { return false }
 }

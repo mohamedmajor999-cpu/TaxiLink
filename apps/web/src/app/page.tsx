@@ -3,10 +3,12 @@ import { LandingNav }            from '@/components/site/LandingNav'
 import { HeroSection }           from '@/components/site/HeroSection'
 import { ProblemSolutionSection } from '@/components/site/ProblemSolutionSection'
 import { FeaturesSection }       from '@/components/site/FeaturesSection'
+import { InstallSection }        from '@/components/site/InstallSection'
 import { PricingSection }        from '@/components/site/PricingSection'
 import { FaqSection }            from '@/components/site/FaqSection'
 import { LandingFooter }         from '@/components/site/LandingFooter'
 import { MobileStickyCta }       from '@/components/site/MobileStickyCta'
+import { PwaFirstLaunchGate }    from '@/components/site/PwaFirstLaunchGate'
 import { JsonLd }                from '@/components/JsonLd'
 
 export const metadata: Metadata = {
@@ -18,11 +20,13 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main>
+      <PwaFirstLaunchGate />
       <JsonLd />
       <LandingNav />
       <HeroSection />
       <ProblemSolutionSection />
       <FeaturesSection />
+      <InstallSection />
       <PricingSection />
       <FaqSection />
       <LandingFooter />
