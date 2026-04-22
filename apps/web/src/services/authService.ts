@@ -8,38 +8,34 @@ export const authService = {
     return data
   },
 
-  async beginSignUp(email: string, password: string) {
-    const supabase = createClient()
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { role: 'driver' } },
-    })
-    if (error) throw new Error(error.message)
-    // Supabase renvoie identities vides si l'email est déjà utilisé
-    if (data.user && (data.user.identities?.length ?? 0) === 0) {
-      throw new Error('Cette adresse email est déjà inscrite. Connectez-vous ou réinitialisez votre mot de passe.')
-    }
-  },
-
   async finalizeSignUp(params: {
+    email:      string
+    password:   string
     first_name: string
     last_name:  string
     phone?:     string
     department?: string
   }) {
     const supabase = createClient()
-    const { error } = await supabase.auth.updateUser({
-      data: {
-        full_name:  `${params.first_name} ${params.last_name}`,
-        first_name: params.first_name,
-        last_name:  params.last_name,
-        role:       'driver',
-        phone:      params.phone,
-        department: params.department,
+    const { data, error } = await supabase.auth.signUp({
+      email:    params.email,
+      password: params.password,
+      options: {
+        data: {
+          full_name:  `${params.first_name} ${params.last_name}`,
+          first_name: params.first_name,
+          last_name:  params.last_name,
+          role:       'driver',
+          phone:      params.phone,
+          department: params.department,
+        },
       },
     })
     if (error) throw new Error(error.message)
+    // Supabase renvoie identities vides si l'email est deja utilise
+    if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      throw new Error('Cette adresse email est déjà inscrite. Connectez-vous ou réinitialisez votre mot de passe.')
+    }
   },
 
   async signInWithGoogle(redirectTo: string) {

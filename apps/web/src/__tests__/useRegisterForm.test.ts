@@ -2,13 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useRegisterForm } from '@/components/auth/useRegisterForm'
 
-const mockBeginSignUp    = vi.fn()
 const mockFinalizeSignUp = vi.fn()
 const mockSignInWithGoogle = vi.fn()
 
 vi.mock('@/services/authService', () => ({
   authService: {
-    beginSignUp:      (...a: unknown[]) => mockBeginSignUp(...a),
     finalizeSignUp:   (...a: unknown[]) => mockFinalizeSignUp(...a),
     signInWithGoogle: (...a: unknown[]) => mockSignInWithGoogle(...a),
   },
@@ -43,7 +41,6 @@ describe('useRegisterForm — étape 1 (validation locale)', () => {
     act(() => { result.current.setEmail('pasunemail') })
     await act(async () => { await result.current.handleNextStep(fakeEvent) })
     expect(result.current.error).toBe('Adresse email invalide')
-    expect(mockBeginSignUp).not.toHaveBeenCalled()
     expect(result.current.step).toBe(1)
   })
 
@@ -52,7 +49,6 @@ describe('useRegisterForm — étape 1 (validation locale)', () => {
     act(() => { result.current.setEmail('test@test.com'); result.current.setPassword('abc') })
     await act(async () => { await result.current.handleNextStep(fakeEvent) })
     expect(result.current.error).toContain('8 caractères')
-    expect(mockBeginSignUp).not.toHaveBeenCalled()
   })
 
   it('refuse si les mots de passe ne correspondent pas', async () => {
@@ -64,43 +60,24 @@ describe('useRegisterForm — étape 1 (validation locale)', () => {
     })
     await act(async () => { await result.current.handleNextStep(fakeEvent) })
     expect(result.current.error).toContain('correspondent pas')
-    expect(mockBeginSignUp).not.toHaveBeenCalled()
   })
-})
 
-// ─── Étape 1 : appel Supabase ─────────────────────────────────────────────────
-describe('useRegisterForm — étape 1 (appel Supabase)', () => {
-  const fillStep1 = (result: { current: ReturnType<typeof useRegisterForm> }) => {
+  it('passe a l etape 2 si validation ok (aucun appel Supabase)', async () => {
+    const { result } = renderHook(() => useRegisterForm())
     act(() => {
       result.current.setEmail('test@test.com')
       result.current.setPassword('password123')
       result.current.setConfirmPassword('password123')
     })
-  }
-
-  it('passe à l étape 2 si beginSignUp réussit', async () => {
-    mockBeginSignUp.mockResolvedValue(undefined)
-    const { result } = renderHook(() => useRegisterForm())
-    fillStep1(result)
     await act(async () => { await result.current.handleNextStep(fakeEvent) })
-    expect(mockBeginSignUp).toHaveBeenCalledWith('test@test.com', 'password123')
     expect(result.current.step).toBe(2)
-  })
-
-  it('affiche l erreur email déjà inscrit à l étape 1', async () => {
-    mockBeginSignUp.mockRejectedValue(new Error('Cette adresse email est déjà inscrite. Connectez-vous ou réinitialisez votre mot de passe.'))
-    const { result } = renderHook(() => useRegisterForm())
-    fillStep1(result)
-    await act(async () => { await result.current.handleNextStep(fakeEvent) })
-    expect(result.current.error).toContain('déjà inscrite')
-    expect(result.current.step).toBe(1)
+    expect(mockFinalizeSignUp).not.toHaveBeenCalled()
   })
 })
 
 // ─── Étape 2 : soumission du profil ──────────────────────────────────────────
 describe('useRegisterForm — étape 2', () => {
   const goToStep2 = async (result: { current: ReturnType<typeof useRegisterForm> }) => {
-    mockBeginSignUp.mockResolvedValue(undefined)
     act(() => {
       result.current.setEmail('test@test.com')
       result.current.setPassword('password123')
@@ -137,6 +114,7 @@ describe('useRegisterForm — étape 2', () => {
     })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })
     expect(mockFinalizeSignUp).toHaveBeenCalledWith(expect.objectContaining({
+      email: 'test@test.com', password: 'password123',
       first_name: 'Marc', last_name: 'Dupont', department: '13',
     }))
     expect(result.current.success).toBe(true)
