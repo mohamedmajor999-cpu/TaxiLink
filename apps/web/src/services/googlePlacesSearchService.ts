@@ -87,7 +87,7 @@ export async function searchGoogle(
   }
   if (bias) {
     body.locationBias = {
-      circle: { center: { latitude: bias.lat, longitude: bias.lng }, radius: 30000 },
+      circle: { center: { latitude: bias.lat, longitude: bias.lng }, radius: 50000 },
     }
   }
   if (sessionToken) body.sessionToken = sessionToken

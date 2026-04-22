@@ -1,8 +1,11 @@
 // Biais géographique : détecte une grande ville française dans une requête
-// pour centrer la recherche Google Places autour (rayon 30km).
+// pour centrer la recherche Google Places autour (rayon 50km). Par défaut
+// (aucune ville explicite), priorise la métropole Aix-Marseille-Provence.
+
+const MARSEILLE: { lat: number; lng: number } = { lat: 43.2965, lng: 5.3698 }
 
 const FR_CITY_PROXIMITY: Record<string, { lat: number; lng: number }> = {
-  marseille: { lat: 43.2965, lng: 5.3698 },
+  marseille: MARSEILLE,
   paris: { lat: 48.8566, lng: 2.3522 },
   lyon: { lat: 45.764, lng: 4.8357 },
   toulouse: { lat: 43.6047, lng: 1.4442 },
@@ -20,10 +23,10 @@ const FR_CITY_PROXIMITY: Record<string, { lat: number; lng: number }> = {
 
 const DIACRITICS_RE = /[̀-ͯ]/g
 
-export function detectCityProximity(q: string): { lat: number; lng: number } | null {
+export function detectCityProximity(q: string): { lat: number; lng: number } {
   const norm = q.toLowerCase().normalize('NFD').replace(DIACRITICS_RE, '')
   for (const [key, coords] of Object.entries(FR_CITY_PROXIMITY)) {
     if (new RegExp(`\\b${key}\\b`).test(norm)) return coords
   }
-  return null
+  return MARSEILLE
 }
