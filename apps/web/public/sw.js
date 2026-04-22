@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taxilink-v5'
+const CACHE_NAME = 'taxilink-v6'
 const OFFLINE_URL = '/offline'
 
 const STATIC_ASSETS = [
