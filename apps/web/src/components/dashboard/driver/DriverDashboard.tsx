@@ -2,7 +2,6 @@
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
 import { useMissionEditStore } from '@/store/missionEditStore'
-import { usePostedMissionAcceptNotifier } from '@/hooks/usePostedMissionAcceptNotifier'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileBottomNav } from '@/components/taxilink/MobileBottomNav'
 import { useDriverAuth } from './useDriverAuth'
@@ -28,7 +27,6 @@ export function DriverDashboard() {
   const availableCount = useMissionStore((s) => s.missions.length)
   const editingMission = useMissionEditStore((s) => s.editing)
   const clearEdit = useMissionEditStore((s) => s.clearEdit)
-  usePostedMissionAcceptNotifier()
   const showModal = showCreer || Boolean(editingMission)
   const closeModal = () => {
     setShowCreer(false)
