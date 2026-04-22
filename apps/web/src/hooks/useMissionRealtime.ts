@@ -27,7 +27,7 @@ export function useMissionRealtime({ onInsert, onUpdate, onDelete }: UseMissionR
   useEffect(() => {
     const supabase = createClient()
 
-    const channel = supabase
+    const pgChannel = supabase
       .channel('missions-realtime')
       .on(
         'postgres_changes',
@@ -49,8 +49,21 @@ export function useMissionRealtime({ onInsert, onUpdate, onDelete }: UseMissionR
       )
       .subscribe()
 
+    // Broadcast: l'event UPDATE natif est filtre par RLS quand la mission
+    // passe a IN_PROGRESS (la policy SELECT ne retourne plus la ligne pour
+    // les autres chauffeurs). missionService.accept() broadcast sur ce
+    // canal pour leur dire de retirer la mission de leur liste locale.
+    const broadcastChannel = supabase
+      .channel('mission-events')
+      .on('broadcast', { event: 'accepted' }, ({ payload }) => {
+        const id = (payload as { id?: string } | null)?.id
+        if (id) callbacksRef.current.onDelete?.({ id })
+      })
+      .subscribe()
+
     return () => {
-      supabase.removeChannel(channel)
+      supabase.removeChannel(pgChannel)
+      supabase.removeChannel(broadcastChannel)
     }
   }, [])
 }

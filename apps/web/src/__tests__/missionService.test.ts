@@ -20,8 +20,26 @@ const mockUpdate       = vi.fn()
 
 const mockFrom = vi.fn()
 
+// Mock du canal broadcast utilise par missionService.accept pour notifier
+// les autres chauffeurs (contournement RLS). Best-effort, ne doit jamais
+// bloquer ou faire planter les tests.
+const mockChannelSend = vi.fn().mockResolvedValue({ status: 'ok' })
+const mockChannelSubscribe = vi.fn((cb: (status: string) => void) => {
+  cb('SUBSCRIBED')
+  return { unsubscribe: vi.fn() }
+})
+const mockChannel = vi.fn(() => ({
+  subscribe: mockChannelSubscribe,
+  send: mockChannelSend,
+}))
+const mockRemoveChannel = vi.fn()
+
 vi.mock('@/lib/supabase/client', () => ({
-  createClient: () => ({ from: mockFrom }),
+  createClient: () => ({
+    from: mockFrom,
+    channel: mockChannel,
+    removeChannel: mockRemoveChannel,
+  }),
 }))
 
 vi.mock('@/lib/api', () => ({ api: { post: vi.fn() } }))

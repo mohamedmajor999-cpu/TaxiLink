@@ -85,10 +85,18 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
             <RouteTimeline from={course.from} to={course.to} compact />
           </div>
           <div className="text-right shrink-0 whitespace-nowrap min-w-[64px] pt-1">
-            <div className="h-[26px] text-[11px] font-semibold text-warm-600 leading-tight">
+            <div className="h-[32px] text-[11px] font-semibold text-warm-600 leading-tight">
               {course.publisher ?? ' '}
             </div>
             <div className="mt-3.5">
+              {course.priceIsEstimated && (
+                <>
+                  <div className="h-4" aria-hidden="true" />
+                  <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mt-0.5 mb-1 leading-none">
+                    Prix estimé
+                  </div>
+                </>
+              )}
               {hasRange(course) ? (
                 <div className="text-[18px] font-bold leading-none text-ink tabular-nums tracking-tight">
                   {course.priceMinEur}<span className="text-[13px] text-warm-500">–</span>{course.priceMaxEur}<span className="text-[13px]">€</span>
@@ -96,11 +104,6 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
               ) : (
                 <div className="text-[26px] font-bold leading-none text-ink tabular-nums tracking-tight">
                   {course.priceEur}<span className="text-[18px]">€</span>
-                </div>
-              )}
-              {course.priceIsEstimated && (
-                <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mt-0.5 leading-none">
-                  Prix estimé
                 </div>
               )}
             </div>

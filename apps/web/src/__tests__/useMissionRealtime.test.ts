@@ -38,9 +38,9 @@ describe('useMissionRealtime — souscription', () => {
     expect(mockSubscribe).toHaveBeenCalled()
   })
 
-  it('configure 3 listeners (INSERT + UPDATE + DELETE)', () => {
+  it('configure 4 listeners (INSERT + UPDATE + DELETE + broadcast accepted)', () => {
     renderHook(() => useMissionRealtime({}))
-    expect(onCalls).toHaveLength(3)
+    expect(onCalls).toHaveLength(4)
   })
 
   it('le premier listener cible les INSERT AVAILABLE', () => {
@@ -61,10 +61,17 @@ describe('useMissionRealtime — souscription', () => {
     expect(filter.event).toBe('DELETE')
   })
 
-  it('appelle removeChannel au démontage', () => {
+  it('le quatrième listener écoute le broadcast "accepted"', () => {
+    renderHook(() => useMissionRealtime({}))
+    const [type, filter] = onCalls[3]
+    expect(type).toBe('broadcast')
+    expect(filter.event).toBe('accepted')
+  })
+
+  it('appelle removeChannel au démontage (2 channels : postgres_changes + broadcast)', () => {
     const { unmount } = renderHook(() => useMissionRealtime({}))
     unmount()
-    expect(mockRemoveChannel).toHaveBeenCalled()
+    expect(mockRemoveChannel).toHaveBeenCalledTimes(2)
   })
 })
 
@@ -91,5 +98,13 @@ describe('useMissionRealtime — callbacks', () => {
     renderHook(() => useMissionRealtime({ onUpdate: vi.fn() }))
     const insertCb = onCalls.find(([, f]) => f.event === 'INSERT')?.[2]
     expect(() => insertCb?.({ new: { id: 'm3' } })).not.toThrow()
+  })
+
+  it('appelle onDelete avec l\'id reçu sur le broadcast "accepted"', () => {
+    const onDelete = vi.fn()
+    renderHook(() => useMissionRealtime({ onDelete }))
+    const broadcastCb = onCalls.find(([type, f]) => type === 'broadcast' && f.event === 'accepted')?.[2]
+    broadcastCb?.({ payload: { id: 'm42' } } as unknown as { new: unknown })
+    expect(onDelete).toHaveBeenCalledWith({ id: 'm42' })
   })
 })
