@@ -1,6 +1,7 @@
 'use client'
 import { CourseCard } from '@/components/taxilink/CourseCard'
 import { NotificationPermissionBanner } from '@/components/taxilink/NotificationPermissionBanner'
+import { MissionAcceptedCelebration } from '@/components/ui/MissionAcceptedCelebration'
 import { useDriverHome, HOME_TYPE_FILTERS, HOME_SORT_OPTIONS, type HomeSort } from './useDriverHome'
 import { HomeMobileHeader } from './home/HomeMobileHeader'
 import { HomeGroupFilterBar } from './home/HomeGroupFilterBar'
@@ -20,7 +21,8 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
   }
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-5xl mx-auto pb-24 md:pb-6">
+    <div className="px-2 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-5xl mx-auto pb-24 md:pb-6">
+      {h.showConfetti && <MissionAcceptedCelebration onDone={h.clearConfetti} />}
       <HomeMobileHeader
         city={h.city}
         postalCode={h.postalCode}
@@ -87,7 +89,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
       )}
 
       {!h.loading && !h.error && h.cards.length > 0 && (
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3 -mx-2 md:mx-0" aria-label="Courses disponibles">
+        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3" aria-label="Courses disponibles">
           {h.cards.map((c) => (
             <li key={c.id} className="h-full">
               <CourseCard course={c} onAccept={h.acceptMission} onShowDetail={onShowCurrentCourse} />

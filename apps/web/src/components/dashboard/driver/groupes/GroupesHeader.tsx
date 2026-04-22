@@ -3,12 +3,17 @@ import Image from 'next/image'
 import { Plus, Link2 } from 'lucide-react'
 
 interface Props {
-  count:     number
-  onCreate:  () => void
-  onJoin:    () => void
+  privateCount: number
+  publicCount?: number
+  onCreate:     () => void
+  onJoin:       () => void
 }
 
-export function GroupesHeader({ count, onCreate, onJoin }: Props) {
+export function GroupesHeader({ privateCount, publicCount = 0, onCreate, onJoin }: Props) {
+  const subtitle = publicCount > 0
+    ? `${privateCount} privé${privateCount > 1 ? 's' : ''} · ${publicCount} public${publicCount > 1 ? 's' : ''}`
+    : `${privateCount} privé${privateCount > 1 ? 's' : ''}`
+
   return (
     <header className="flex items-start justify-between gap-3 mb-4">
       <div className="flex items-center gap-2.5 min-w-0">
@@ -17,9 +22,7 @@ export function GroupesHeader({ count, onCreate, onJoin }: Props) {
           <h1 className="text-[20px] font-bold text-ink leading-tight tracking-tight">
             Mes groupes
           </h1>
-          <p className="text-[12px] text-warm-500 mt-0.5">
-            {count} groupe{count > 1 ? 's' : ''} rejoint{count > 1 ? 's' : ''}
-          </p>
+          <p className="text-[12px] text-warm-500 mt-0.5">{subtitle}</p>
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">

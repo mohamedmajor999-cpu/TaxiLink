@@ -5,6 +5,7 @@ import type { Mission } from '@/lib/supabase/types'
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 const mockGetAgenda = vi.fn()
+const mockPush = vi.fn()
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
@@ -14,6 +15,10 @@ vi.mock('@/services/missionService', () => ({
   missionService: {
     getAgenda: (...a: unknown[]) => mockGetAgenda(...a),
   },
+}))
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush }),
 }))
 
 import { useAuth } from '@/hooks/useAuth'
@@ -178,26 +183,24 @@ describe('useUpcomingTab — next / nextInMinutes', () => {
   })
 })
 
-// ─── openDetails / closeDetails ───────────────────────────────────────────────
-describe('useUpcomingTab — détails', () => {
-  it('openDetails sélectionne une mission', async () => {
+// ─── openDetails ──────────────────────────────────────────────────────────────
+describe('useUpcomingTab — navigation vers détail', () => {
+  it('openDetails appelle router.push avec le bon chemin', async () => {
     const m = mission('m1', '2026-05-01T11:00:00.000Z')
     mockGetAgenda.mockResolvedValueOnce([m])
     const { result } = renderHook(() => useUpcomingTab())
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    act(() => { result.current.openDetails(m) })
-    expect(result.current.detailsMission).toBe(m)
+    act(() => { result.current.openDetails('m1') })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur/mission/m1')
   })
 
-  it('closeDetails remet detailsMission à null', async () => {
-    const m = mission('m1', '2026-05-01T11:00:00.000Z')
-    mockGetAgenda.mockResolvedValueOnce([m])
+  it('openDetails construit le chemin avec un id différent', async () => {
+    mockGetAgenda.mockResolvedValueOnce([])
     const { result } = renderHook(() => useUpcomingTab())
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    act(() => { result.current.openDetails(m) })
-    act(() => { result.current.closeDetails() })
-    expect(result.current.detailsMission).toBeNull()
+    act(() => { result.current.openDetails('abc-123') })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur/mission/abc-123')
   })
 })

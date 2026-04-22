@@ -1,5 +1,6 @@
 'use client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
 import type { Mission } from '@/lib/supabase/types'
@@ -23,12 +24,15 @@ export interface DayGroup {
 
 export function useUpcomingTab() {
   const { user } = useAuth()
+  const router = useRouter()
   const [missions, setMissions] = useState<Mission[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [detailsMission, setDetailsMission] = useState<Mission | null>(null)
-  const openDetails = useCallback((m: Mission) => setDetailsMission(m), [])
-  const closeDetails = useCallback(() => setDetailsMission(null), [])
+
+  const openDetails = useCallback(
+    (id: string) => router.push(`/dashboard/chauffeur/mission/${id}`),
+    [router]
+  )
 
   useEffect(() => {
     if (!user) return
@@ -73,7 +77,9 @@ export function useUpcomingTab() {
   }, [upcoming, today, tomorrow])
 
   const next = upcoming[0]
-  const nextInMinutes = next ? Math.max(Math.round((new Date(next.scheduled_at).getTime() - Date.now()) / 60_000), 0) : null
+  const nextInMinutes = next
+    ? Math.max(Math.round((new Date(next.scheduled_at).getTime() - Date.now()) / 60_000), 0)
+    : null
   const todayTotal = groups.find((g) => g.key === today.toDateString())?.total ?? 0
   const todayCount = groups.find((g) => g.key === today.toDateString())?.missions.length ?? 0
   const tomorrowTotal = groups.find((g) => g.key === tomorrow.toDateString())?.total ?? 0
@@ -84,6 +90,6 @@ export function useUpcomingTab() {
     next, nextInMinutes,
     todayTotal, todayCount,
     tomorrowTotal, tomorrowCount,
-    detailsMission, openDetails, closeDetails,
+    openDetails,
   }
 }

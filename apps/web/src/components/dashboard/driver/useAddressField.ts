@@ -9,9 +9,9 @@ import {
   type AddressSuggestion,
 } from '@/services/addressService'
 
-const DEBOUNCE_MS = 1000
+const DEBOUNCE_MS = 350
 const BLUR_CLOSE_MS = 150
-const MIN_CHARS = 5
+const MIN_CHARS = 3
 
 function newSessionToken(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {

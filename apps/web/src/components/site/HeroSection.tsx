@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ArrowRight, Shield, CreditCard, MapPin } from 'lucide-react'
 import { HeroFloatingCardsLeft, HeroFloatingCardsRight } from './HeroFloatingCards'
 import { HeroPhoneMockup } from './HeroPhoneMockup'
+import { InstallButton } from './InstallButton'
 
 export function HeroSection() {
   return (
@@ -29,6 +30,7 @@ export function HeroSection() {
           S&apos;inscrire gratuitement
           <ArrowRight className="w-4 h-4 transition-transform group-active:translate-x-0.5" strokeWidth={2.4} />
         </Link>
+        <InstallButton variant="secondary" className="w-full sm:w-auto" />
         <Link href="/auth/login" className="md:hidden text-[14px] font-semibold text-warm-600 px-4 py-2">
           Déjà inscrit ? <span className="text-ink underline underline-offset-4 decoration-2 decoration-brand">Se connecter</span>
         </Link>

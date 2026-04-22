@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { QRCodeSVG } from 'qrcode.react'
 import { Smartphone, Share, Plus, CheckCircle2, ArrowRight } from 'lucide-react'
 import { useInstallSection } from './useInstallSection'
+import { InstallButton } from './InstallButton'
 
 const STEPS = [
   { icon: Share,        title: 'Ouvrez le menu Partager',        desc: 'Sur Safari (iOS) ou Chrome (Android).' },
@@ -47,13 +48,16 @@ export function InstallSection() {
             <p className="text-[14.5px] text-warm-500 leading-relaxed mb-5">
               Pointez l&apos;appareil photo vers le QR code ci-contre. Ou ouvrez directement <span className="font-semibold text-ink">{appUrl.replace(/^https?:\/\//, '')}</span> sur votre téléphone.
             </p>
-            <Link
-              href="/telecharger"
-              className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-ink text-white font-semibold text-[14px] hover:bg-warm-800 transition-colors"
-            >
-              Guide d&apos;installation
-              <ArrowRight className="w-4 h-4" strokeWidth={2.4} />
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <InstallButton label="Installer en 1 clic" />
+              <Link
+                href="/telecharger"
+                className="inline-flex items-center gap-1 h-11 px-4 rounded-full text-[13.5px] font-semibold text-warm-600 hover:text-ink transition-colors"
+              >
+                Guide détaillé
+                <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.4} />
+              </Link>
+            </div>
           </div>
         </div>
 

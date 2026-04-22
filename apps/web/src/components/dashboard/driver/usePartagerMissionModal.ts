@@ -122,7 +122,6 @@ export function usePartagerMissionModal(_onClose: () => void, mission?: Mission)
       setPublished(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : isEdit ? 'Erreur lors de la mise à jour' : 'Erreur lors de la publication')
-      setPreview(false)
     } finally {
       setSaving(false)
     }

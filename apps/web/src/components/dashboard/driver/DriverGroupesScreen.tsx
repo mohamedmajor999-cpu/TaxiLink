@@ -2,7 +2,6 @@
 
 import { Plus, Search, Users } from 'lucide-react'
 import { GroupCard } from './GroupCard'
-import { GroupMembersModal } from './GroupMembersModal'
 import { CreateGroupModal } from './groupes/CreateGroupModal'
 import { JoinGroupModal } from './groupes/JoinGroupModal'
 import { GroupesHeader } from './groupes/GroupesHeader'
@@ -14,15 +13,15 @@ export function DriverGroupesScreen() {
     showCreate, setShowCreate, showJoin, setShowJoin,
     newName, setNewName, newDesc, setNewDesc,
     joinId, setJoinId, saving,
-    selectedGroup, memberStats, statsLoading, statsPeriod, setStatsPeriod,
-    openMembers, closeMembers, handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
+    handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
     query, setQuery, filteredGroups,
+    activeGroupId, activeSummary, openGroup,
   } = useDriverGroupesScreen()
 
   return (
     <div className="max-w-2xl mx-auto pb-4">
       <GroupesHeader
-        count={groups.length}
+        privateCount={groups.length}
         onCreate={() => setShowCreate(true)}
         onJoin={() => setShowJoin(true)}
       />
@@ -52,18 +51,23 @@ export function DriverGroupesScreen() {
           Aucun groupe ne correspond à « {query} »
         </div>
       ) : (
-        <div className="flex flex-col gap-3 mb-6">
-          {filteredGroups.map((group) => (
-            <GroupCard
-              key={group.id}
-              group={group}
-              isAdmin={isAdmin(group)}
-              onViewMembers={openMembers}
-              onLeave={handleLeave}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        <>
+          <SectionLabel>Groupes privés</SectionLabel>
+          <div className="flex flex-col gap-3 mb-6">
+            {filteredGroups.map((group) => (
+              <GroupCard
+                key={group.id}
+                group={group}
+                isAdmin={isAdmin(group)}
+                isActive={group.id === activeGroupId}
+                summary={group.id === activeGroupId ? activeSummary : null}
+                onOpen={openGroup}
+                onLeave={handleLeave}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       <button
@@ -103,19 +107,15 @@ export function DriverGroupesScreen() {
           onClose={() => setShowJoin(false)}
         />
       )}
-
-      {selectedGroup && (
-        <GroupMembersModal
-          group={selectedGroup}
-          stats={memberStats}
-          loading={statsLoading}
-          period={statsPeriod}
-          onPeriod={setStatsPeriod}
-          isAdmin={isAdmin(selectedGroup)}
-          onClose={closeMembers}
-        />
-      )}
     </div>
+  )
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-warm-500 mb-2 px-1">
+      {children}
+    </p>
   )
 }
 

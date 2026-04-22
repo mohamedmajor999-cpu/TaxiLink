@@ -30,18 +30,18 @@ afterEach(() => {
 })
 
 describe('useAddressField', () => {
-  it('suggestions vides si valeur < 5 caractères', async () => {
+  it('suggestions vides si valeur < 3 caractères', async () => {
     const { useAddressField } = await import('@/components/dashboard/driver/useAddressField')
     const onChange = vi.fn()
     const { result } = renderHook(() =>
-      useAddressField({ value: 'abc', onChange, onSelectSuggestion: vi.fn() }),
+      useAddressField({ value: 'ab', onChange, onSelectSuggestion: vi.fn() }),
     )
     await act(async () => { await vi.runAllTimersAsync() })
     expect(result.current.suggestions).toHaveLength(0)
     expect(mockSearchGoogle).not.toHaveBeenCalled()
   })
 
-  it('appelle searchGoogle après le debounce (1s) si valeur >= 5 chars', async () => {
+  it('appelle searchGoogle après le debounce si valeur >= 3 chars', async () => {
     const { useAddressField } = await import('@/components/dashboard/driver/useAddressField')
     const onChange = vi.fn()
     const { result } = renderHook(() =>

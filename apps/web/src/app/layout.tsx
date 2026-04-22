@@ -31,7 +31,14 @@ export const metadata: Metadata = {
   alternates: { canonical: BASE_URL },
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'TaxiLink Pro' },
   formatDetection: { telephone: false },
-  icons: { apple: '/icons/apple-touch-icon.png' },
+  icons: {
+    icon: [
+      { url: '/brand/favicon.svg', type: 'image/svg+xml' },
+      { url: '/brand/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/icons/apple-touch-icon.png',
+    shortcut: '/brand/icon.svg',
+  },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',

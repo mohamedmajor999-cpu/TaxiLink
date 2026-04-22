@@ -131,6 +131,18 @@ export const missionService = {
     await api.delete<{ ok: true }>(`/api/missions/${id}`)
   },
 
+  /** Récupère une mission par son ID */
+  async getById(id: string): Promise<Mission | null> {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('missions')
+      .select('*, mission_groups(group_id)')
+      .eq('id', id)
+      .single()
+    if (error) return null
+    return data
+  },
+
   /** Agenda d'un chauffeur : ses missions assignées non terminées, triées par date croissante */
   async getAgenda(driverId: string): Promise<Mission[]> {
     const supabase = createClient()
@@ -142,5 +154,36 @@ export const missionService = {
       .order('scheduled_at', { ascending: true })
     if (error) throw new Error(error.message)
     return data ?? []
+  },
+
+  /** Créer une course manuellement dans l'agenda (saisie chauffeur) */
+  async createManual(driverId: string, data: {
+    departure: string
+    destination: string
+    scheduledAt: string
+    type: 'CPAM' | 'PRIVE' | 'TAXILINK'
+    priceEur: number | null
+    patientName: string | null
+    notes: string | null
+  }): Promise<Mission> {
+    const supabase = createClient()
+    const { data: mission, error } = await supabase
+      .from('missions')
+      .insert({
+        driver_id: driverId,
+        departure: data.departure,
+        destination: data.destination,
+        scheduled_at: data.scheduledAt,
+        type: data.type,
+        price_eur: data.priceEur,
+        patient_name: data.patientName,
+        notes: data.notes,
+        status: 'ACCEPTED',
+        visibility: 'PRIVATE',
+      })
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return mission
   },
 }

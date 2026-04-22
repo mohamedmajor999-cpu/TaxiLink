@@ -15,6 +15,7 @@ export function useDriverMissions() {
   const [error, setError] = useState<string | null>(null)
   const [accepting, setAccepting] = useState<string | null>(null)
   const [filter, setFilter] = useState<MissionTypeFilter>('ALL')
+  const [showConfetti, setShowConfetti] = useState(false)
 
   const loadMissions = useCallback(async () => {
     if (!user) return
@@ -56,6 +57,7 @@ export function useDriverMissions() {
     setAccepting(id)
     try {
       await missionService.accept(id, user.id)
+      setShowConfetti(true)
       addToast({ message: 'Mission acceptée !', type: 'warning' })
       await loadMissions()
     } catch (err) {
@@ -83,10 +85,13 @@ export function useDriverMissions() {
 
   const filtered = filter === 'ALL' ? missions : missions.filter((m) => m.type === filter)
 
+  const clearConfetti = () => setShowConfetti(false)
+
   return {
     missions, currentMission, loading, error,
     accepting, filter, setFilter, filtered,
     loadMissions, acceptMission, completeMission,
     toasts, dismissToast,
+    showConfetti, clearConfetti,
   }
 }

@@ -1,12 +1,10 @@
 'use client'
 import { Clock, CheckCircle2, Loader2 } from 'lucide-react'
-import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { RideBadge } from '@/components/taxilink/RideBadge'
 import { ToastContainer } from '@/components/ui/Toast'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedTab, type PostedMissionView } from './usePostedTab'
 import { AcceptedBanner } from './AcceptedBanner'
-import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
 
 export function PostedTab() {
@@ -15,9 +13,9 @@ export function PostedTab() {
 
   if (p.loading) {
     return (
-      <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+      <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-6">
         {[0, 1].map((i) => (
-          <li key={i} className="h-40 rounded-2xl bg-warm-100 motion-safe:animate-pulse" />
+          <li key={i} className="h-24 rounded-xl bg-warm-100 motion-safe:animate-pulse" />
         ))}
       </ul>
     )
@@ -49,7 +47,7 @@ export function PostedTab() {
   return (
     <>
       <ToastContainer toasts={p.toasts} onDismiss={p.dismissToast} />
-      <ul className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+      <ul className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-3 items-stretch">
         {p.items.map((item) => (
           <li key={item.mission.id} className="h-full">
             <PostedCard
@@ -76,13 +74,18 @@ function PostedCard({
   const { mission, status, driverProfile } = item
   const isWaiting = status === 'waiting'
   const fare = computeDisplayFare(mission)
+
   const cardStyle = isWaiting
-    ? 'h-full flex flex-col bg-paper border-2 border-dashed border-warm-300 rounded-2xl overflow-hidden'
-    : 'h-full flex flex-col bg-paper border border-warm-200 rounded-2xl overflow-hidden shadow-soft'
+    ? 'h-full flex flex-col bg-paper border-2 border-dashed border-warm-300 rounded-xl overflow-hidden'
+    : 'h-full flex flex-col bg-paper border border-warm-200 rounded-xl overflow-hidden shadow-soft'
+
+  const dateLabel = new Date(mission.scheduled_at).toLocaleDateString('fr-FR', {
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+  })
 
   return (
     <article className={cardStyle}>
-      <div className="px-5 pt-4 flex items-center justify-between gap-3">
+      <div className="px-4 pt-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           {isWaiting ? (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brand text-ink text-[11px] font-semibold">
@@ -99,22 +102,24 @@ function PostedCard({
             {mission.type === 'CPAM' ? 'Médical' : mission.type === 'PRIVE' ? 'Privé' : 'TaxiLink'}
           </RideBadge>
         </div>
-        <span className="text-[11px] text-warm-500">
-          {new Date(mission.scheduled_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-        </span>
+        <span className="text-[11px] text-warm-500">{dateLabel}</span>
       </div>
 
-      <div className="px-5 pt-4 grid grid-cols-[1fr_auto] gap-4 items-end flex-1">
-        <RouteTimeline from={addressAsPoint(mission.departure)} to={addressAsPoint(mission.destination)} compact />
-        <div className="text-right translate-x-[-5px] translate-y-[-27px]">
+      <div className="px-4 pt-2 pb-3 flex items-end justify-between gap-3 flex-1">
+        <div className="flex-1 min-w-0 space-y-0.5">
+          <p className="text-[12px] text-warm-500 truncate">{mission.departure}</p>
+          <p className="text-[11px] text-warm-400 leading-none">&#8595;</p>
+          <p className="text-[12px] font-semibold text-ink truncate">{mission.destination}</p>
+        </div>
+        <div className="shrink-0 text-right">
           {fare.isEstimated && (
-            <div className="text-[10px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">
-              Prix estimé
-            </div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">
+              Estimé
+            </p>
           )}
-          <div className="text-[32px] font-bold leading-none text-ink tabular-nums tracking-tight">
-            {fare.value}<span className="text-[24px]">€</span>
-          </div>
+          <p className="text-[18px] font-bold leading-none text-ink tabular-nums tracking-tight">
+            {fare.value}<span className="text-[14px]">€</span>
+          </p>
         </div>
       </div>
 
@@ -122,7 +127,7 @@ function PostedCard({
         <AcceptedBanner profile={driverProfile} acceptedAt={mission.accepted_at} />
       )}
 
-      <div className="px-5 pt-3 pb-4 flex items-center justify-between gap-2">
+      <div className="px-4 pb-3 flex items-center justify-between gap-2">
         <span className="text-[11px] text-warm-500">Postée par vous</span>
         {isWaiting && (
           <div className="flex gap-2">
@@ -130,7 +135,7 @@ function PostedCard({
               type="button"
               onClick={onEdit}
               disabled={deleting}
-              className="h-8 px-3 rounded-lg text-[12px] font-semibold text-warm-600 hover:bg-warm-50 transition-colors disabled:opacity-50"
+              className="h-7 px-3 rounded-lg text-[11px] font-semibold text-warm-600 hover:bg-warm-50 transition-colors disabled:opacity-50"
             >
               Modifier
             </button>
@@ -138,7 +143,7 @@ function PostedCard({
               type="button"
               onClick={onDelete}
               disabled={deleting}
-              className="h-8 px-3 rounded-lg text-[12px] font-semibold text-danger hover:bg-danger-soft transition-colors inline-flex items-center gap-1 disabled:opacity-50"
+              className="h-7 px-3 rounded-lg text-[11px] font-semibold text-danger hover:bg-danger-soft transition-colors inline-flex items-center gap-1 disabled:opacity-50"
             >
               {deleting && <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />}
               Supprimer
@@ -149,4 +154,3 @@ function PostedCard({
     </article>
   )
 }
-

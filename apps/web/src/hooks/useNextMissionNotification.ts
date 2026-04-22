@@ -34,7 +34,7 @@ export function useNextMissionNotification(mission: Mission | null) {
         new Notification('Course dans 15 min', {
           body: `${mission.departure} → ${mission.destination}`,
           tag: `taxilink-course-${mission.id}`,
-          icon: '/icons/icon-192.png',
+          icon: '/brand/icon.svg',
         })
       } catch { /* silencieux : certains navigateurs refusent sur HTTP */ }
     }, delay)

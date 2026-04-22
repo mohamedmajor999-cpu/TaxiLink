@@ -77,40 +77,42 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
         </div>
       </div>
 
-      <div className="px-5 py-2.5 border-t border-warm-100 grid grid-cols-[minmax(0,1fr)_auto] gap-4 items-center">
-        <div>
-          <RouteTimeline from={course.from} to={course.to} compact />
-          <div className="flex items-center gap-2 mt-1.5 pl-[26px] text-[14px] text-ink font-semibold">
-            <span className="inline-flex items-center gap-1">
-              <ArrowLeftRight className="w-3.5 h-3.5" strokeWidth={1.8} />
-              {course.distanceKm.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km
-            </span>
-            <span aria-hidden="true" className="text-warm-300">·</span>
-            <span className="inline-flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" strokeWidth={1.8} />
-              {formatDuration(course.durationMin)}
-            </span>
+      <div className="px-5 py-2.5 border-t border-warm-100">
+        <div className="flex items-center gap-4">
+          <div className="flex-1 min-w-0">
+            <RouteTimeline from={course.from} to={course.to} compact />
+          </div>
+          <div className="text-right shrink-0 whitespace-nowrap min-w-[64px]">
+            {course.priceIsEstimated && (
+              <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5 leading-none">
+                Prix estimé
+              </div>
+            )}
+            {hasRange(course) ? (
+              <div className="text-[18px] font-bold leading-none text-ink tabular-nums tracking-tight">
+                {course.priceMinEur}<span className="text-[13px] text-warm-500">–</span>{course.priceMaxEur}<span className="text-[13px]">€</span>
+              </div>
+            ) : (
+              <div className="text-[26px] font-bold leading-none text-ink tabular-nums tracking-tight">
+                {course.priceEur}<span className="text-[18px]">€</span>
+              </div>
+            )}
           </div>
         </div>
-        <div className="text-right shrink-0 whitespace-nowrap min-w-[64px]">
-          {course.priceIsEstimated && (
-            <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5 leading-none">
-              Prix estimé
-            </div>
-          )}
-          {hasRange(course) ? (
-            <div className="text-[18px] font-bold leading-none text-ink tabular-nums tracking-tight">
-              {course.priceMinEur}<span className="text-[13px] text-warm-500">–</span>{course.priceMaxEur}<span className="text-[13px]">€</span>
-            </div>
-          ) : (
-            <div className="text-[26px] font-bold leading-none text-ink tabular-nums tracking-tight">
-              {course.priceEur}<span className="text-[18px]">€</span>
-            </div>
-          )}
+        <div className="flex items-center gap-2 mt-0.5 pl-[26px] text-[14px] text-ink font-semibold">
+          <span className="inline-flex items-center gap-1">
+            <ArrowLeftRight className="w-3.5 h-3.5" strokeWidth={1.8} />
+            {course.distanceKm.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km
+          </span>
+          <span aria-hidden="true" className="text-warm-300">·</span>
+          <span className="inline-flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5" strokeWidth={1.8} />
+            {formatDuration(course.durationMin)}
+          </span>
         </div>
       </div>
 
-      <div className="px-5 pb-3 pt-2.5 mt-auto">
+      <div className="px-5 pb-3 pt-1 mt-auto">
         {footer ?? (
           <div className="flex items-stretch gap-2">
             <div className="flex-1">

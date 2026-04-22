@@ -1,12 +1,13 @@
-const CACHE_NAME = 'taxilink-v4'
+const CACHE_NAME = 'taxilink-v5'
 const OFFLINE_URL = '/offline'
 
 const STATIC_ASSETS = [
   '/',
   '/offline',
   '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/brand/icon.svg',
+  '/brand/logo-primary.svg',
+  '/brand/logo-wordmark.svg',
   '/icons/apple-touch-icon.png',
   '/telecharger',
   '/install',

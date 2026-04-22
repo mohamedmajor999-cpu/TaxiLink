@@ -7,6 +7,11 @@ const groups: Group[] = [
   { id: 'g2', name: 'VSL Paris', description: null, createdBy: 'u2' } as Group,
 ]
 
+const mockPush = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush, back: vi.fn() }),
+}))
+
 vi.mock('@/components/dashboard/driver/useDriverGroupes', () => ({
   useDriverGroupes: () => ({
     groups,
@@ -14,6 +19,14 @@ vi.mock('@/components/dashboard/driver/useDriverGroupes', () => ({
     error: null,
     isAdmin: vi.fn(),
   }),
+}))
+
+vi.mock('@/services/groupStatsService', () => ({
+  groupStatsService: {
+    getActivitySummary: vi.fn().mockResolvedValue({
+      available: 0, exchanged7d: 0, reprisePercent: 0, onlineCount: 0,
+    }),
+  },
 }))
 
 describe('useDriverGroupesScreen', () => {
@@ -45,5 +58,13 @@ describe('useDriverGroupesScreen', () => {
     act(() => { result.current.setQuery('groupe') })
     expect(result.current.filteredGroups).toHaveLength(1)
     expect(result.current.filteredGroups[0].id).toBe('g1')
+  })
+
+  it('openGroup navigue vers /dashboard/chauffeur/groupe/[id]', async () => {
+    mockPush.mockClear()
+    const { useDriverGroupesScreen } = await import('@/components/dashboard/driver/useDriverGroupesScreen')
+    const { result } = renderHook(() => useDriverGroupesScreen())
+    act(() => { result.current.openGroup(groups[0]) })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur/groupe/g1')
   })
 })

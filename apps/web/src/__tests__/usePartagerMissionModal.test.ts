@@ -250,7 +250,7 @@ describe('usePartagerMissionModal — submit', () => {
     expect(result.current.error).toBeNull()
   })
 
-  it('echec : met error et ferme la preview', async () => {
+  it('echec : met error et garde la preview ouverte', async () => {
     mockSubmitMission.mockRejectedValueOnce(new Error('Validation: champ manquant'))
 
     const { result } = renderHook(() => usePartagerMissionModal(vi.fn()))
@@ -260,7 +260,7 @@ describe('usePartagerMissionModal — submit', () => {
     await act(async () => { await result.current.submit() })
 
     expect(result.current.error).toBe('Validation: champ manquant')
-    expect(result.current.preview).toBe(false)
+    expect(result.current.preview).toBe(true)
     expect(result.current.published).toBe(false)
     expect(result.current.saving).toBe(false)
   })
