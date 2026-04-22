@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { OnboardingSplash } from './OnboardingSplash'
 import { OnboardingSlide } from './OnboardingSlide'
 import { OnboardingWelcome } from './OnboardingWelcome'
@@ -9,7 +11,13 @@ import { SlideIlloRgpd } from './SlideIlloRgpd'
 import { useOnboardingPage } from './useOnboardingPage'
 
 export function OnboardingPage() {
+  const router = useRouter()
   const { step, slideIndex, totalSlides, next, skip, markSeen } = useOnboardingPage()
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (window.matchMedia('(min-width: 768px)').matches) router.replace('/')
+  }, [router])
 
   if (step === 'splash') return <OnboardingSplash />
 
@@ -20,7 +28,7 @@ export function OnboardingPage() {
       <OnboardingSlide
         variant="light"
         title="Prenez des courses en 3 secondes."
-        lead="Appuyez longuement sur une course. Elle est à vous. Plus de surenchère, plus de bordel dans le groupe WhatsApp."
+        lead="Appuyez longuement sur une course. Elle est à vous. Plus de surenchère, plus de désordre dans le groupe WhatsApp."
         illo={<SlideIlloLongPress />}
         stepIdx={slideIndex}
         total={totalSlides}

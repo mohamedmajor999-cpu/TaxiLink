@@ -16,14 +16,14 @@ const KEYFRAMES = `
   100% { transform: rotate(0deg) scale(1); }
 }
 @keyframes celebration-fade-out {
-  0%, 80% { opacity: 1; }
+  0%, 85% { opacity: 1; }
   100%    { opacity: 0; }
 }
 `
 
 export function MissionAcceptedCelebration({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(onDone, 2800)
+    const timer = setTimeout(onDone, 4200)
     return () => clearTimeout(timer)
   }, [onDone])
 
@@ -39,7 +39,7 @@ export function MissionAcceptedCelebration({ onDone }: { onDone: () => void }) {
         <div
           className="pointer-events-auto bg-paper rounded-3xl shadow-2xl border border-warm-200 px-8 py-7 flex flex-col items-center text-center max-w-sm w-full"
           style={{
-            animation: 'celebration-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both, celebration-fade-out 2800ms ease-in both',
+            animation: 'celebration-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both, celebration-fade-out 4200ms ease-in both',
           }}
         >
           <div
@@ -52,7 +52,7 @@ export function MissionAcceptedCelebration({ onDone }: { onDone: () => void }) {
             Félicitations&nbsp;!
           </h2>
           <p className="text-[14px] text-warm-600 mt-1.5">
-            Vous avez accepté une course
+            Vous avez accepté une course. Bonne route&nbsp;!
           </p>
         </div>
       </div>
