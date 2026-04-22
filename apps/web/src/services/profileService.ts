@@ -37,12 +37,18 @@ export const profileService = {
 
   async updateProfile(
     userId: string,
-    updates: { full_name?: string; phone?: string }
+    updates: { first_name?: string; last_name?: string; full_name?: string; phone?: string }
   ): Promise<void> {
     const supabase = createClient()
+    // Si on fournit first/last_name sans full_name, on dérive full_name automatiquement
+    // pour garder les deux colonnes synchronisées.
+    const payload: typeof updates = { ...updates }
+    if ((updates.first_name != null || updates.last_name != null) && updates.full_name == null) {
+      payload.full_name = `${updates.first_name ?? ''} ${updates.last_name ?? ''}`.trim()
+    }
     const { error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(payload)
       .eq('id', userId)
     if (error) throw new Error(error.message)
   },
