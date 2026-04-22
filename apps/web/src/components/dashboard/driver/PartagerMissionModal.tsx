@@ -94,7 +94,6 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
   const vocalSnapshot = () => ({
     type: f.type, medicalMotif: f.medicalMotif,
     departure: f.departure, destination: f.destination,
-    date: f.date, time: f.time,
   })
 
   return (

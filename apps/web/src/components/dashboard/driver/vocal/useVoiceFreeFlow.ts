@@ -28,8 +28,6 @@ export function useVoiceFreeFlow({ filler, snapshot, onComplete }: Args) {
   const wasProcessingRef = useRef(false)
   const completedRef = useRef(false)
   const activeRef = useRef(false)
-  const initialDateTimeRef = useRef<{ date: string; time: string } | null>(null)
-  const datetimeProvidedRef = useRef(false)
   const snapshotRef = useRef(snapshot)
   snapshotRef.current = snapshot
   const onCompleteRef = useRef(onComplete)
@@ -43,12 +41,7 @@ export function useVoiceFreeFlow({ filler, snapshot, onComplete }: Args) {
     if (!wasProcessingRef.current) return
     wasProcessingRef.current = false
 
-    const s = snapshotRef.current()
-    if (initialDateTimeRef.current
-      && (s.date !== initialDateTimeRef.current.date || s.time !== initialDateTimeRef.current.time)) {
-      datetimeProvidedRef.current = true
-    }
-    const missing = getMissingCriticalFields(s, { datetimeProvided: datetimeProvidedRef.current })
+    const missing = getMissingCriticalFields(snapshotRef.current(), { parsedFields: filler.parsedFields })
     if (missing.length === 0 || relanceCount >= MAX_RELANCES) {
       finalize()
       return
@@ -77,9 +70,7 @@ export function useVoiceFreeFlow({ filler, snapshot, onComplete }: Args) {
     completedRef.current = false
     activeRef.current = true
     wasProcessingRef.current = false
-    const s = snapshotRef.current()
-    initialDateTimeRef.current = { date: s.date, time: s.time }
-    datetimeProvidedRef.current = false
+    filler.resetParsedFields()
     setRelanceCount(0)
     setLastQuestion(null)
     setStatus('listening')

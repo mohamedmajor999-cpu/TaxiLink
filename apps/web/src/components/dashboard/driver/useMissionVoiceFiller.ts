@@ -42,8 +42,10 @@ export function useMissionVoiceFiller(args: Args) {
   const [transcript, setTranscript] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [parseError, setParseError] = useState<string | null>(null)
+  const [parsedFields, setParsedFields] = useState<Set<string>>(() => new Set())
   const transcriptRef = useRef('')
   const shouldProcessRef = useRef(false)
+  const parsedFieldsRef = useRef<Set<string>>(new Set())
 
   const voice = useVoiceDictation({
     lang: 'fr-FR',
@@ -56,6 +58,14 @@ export function useMissionVoiceFiller(args: Args) {
 
   const applyParsed = useCallback(async (parsed: ParsedMissionFields) => {
     const a = argsRef.current
+    const fields = new Set(parsedFieldsRef.current)
+    const add = (cond: unknown, k: string) => { if (cond) fields.add(k) }
+    add(parsed.type, 'type'); add(parsed.medical_motif, 'medicalMotif')
+    add(parsed.date, 'date'); add(parsed.time, 'time')
+    add(parsed.departure, 'departure'); add(parsed.destination, 'destination')
+    parsedFieldsRef.current = fields
+    setParsedFields(fields)
+
     if (parsed.type) a.setType(parsed.type)
     if (parsed.type === 'PRIVE') { a.setMedicalMotif(null); a.setTransportType(null); a.setReturnTrip(false); a.setReturnTime(null) }
     else {
@@ -120,6 +130,11 @@ export function useMissionVoiceFiller(args: Args) {
 
   const stop = useCallback(() => { voice.stop() }, [voice])
 
+  const resetParsedFields = useCallback(() => {
+    parsedFieldsRef.current = new Set()
+    setParsedFields(new Set())
+  }, [])
+
   return {
     isSupported: voice.isSupported,
     isListening: voice.isListening,
@@ -127,6 +142,8 @@ export function useMissionVoiceFiller(args: Args) {
     interimTranscript: voice.interimTranscript,
     transcript,
     error: micErrorLabel(voice.error) ?? parseError,
+    parsedFields,
+    resetParsedFields,
     start, stop,
   }
 }
