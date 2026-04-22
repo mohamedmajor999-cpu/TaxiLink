@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Mission } from '@/lib/supabase/types'
 
@@ -18,21 +18,11 @@ interface UseMissionRealtimeOptions {
  * Isole toute la logique de subscription hors des composants UI.
  */
 export function useMissionRealtime({ onInsert, onUpdate, onDelete }: UseMissionRealtimeOptions) {
-  const stableOnInsert = useCallback(
-    (mission: Mission) => onInsert?.(mission),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  )
-  const stableOnUpdate = useCallback(
-    (mission: Mission) => onUpdate?.(mission),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  )
-  const stableOnDelete = useCallback(
-    (mission: { id: string }) => onDelete?.(mission),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  )
+  // Ref mise à jour à chaque render : garantit qu'on appelle toujours la
+  // dernière version des callbacks (sinon closure figée au premier render,
+  // où user peut encore être null → loadMissions no-op).
+  const callbacksRef = useRef({ onInsert, onUpdate, onDelete })
+  callbacksRef.current = { onInsert, onUpdate, onDelete }
 
   useEffect(() => {
     const supabase = createClient()
@@ -42,19 +32,19 @@ export function useMissionRealtime({ onInsert, onUpdate, onDelete }: UseMissionR
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'missions', filter: 'status=eq.AVAILABLE' },
-        (payload) => stableOnInsert(payload.new as Mission)
+        (payload) => callbacksRef.current.onInsert?.(payload.new as Mission)
       )
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'missions' },
-        (payload) => stableOnUpdate(payload.new as Mission)
+        (payload) => callbacksRef.current.onUpdate?.(payload.new as Mission)
       )
       .on(
         'postgres_changes',
         { event: 'DELETE', schema: 'public', table: 'missions' },
         (payload) => {
           const id = (payload.old as { id?: string } | null)?.id
-          if (id) stableOnDelete({ id })
+          if (id) callbacksRef.current.onDelete?.({ id })
         }
       )
       .subscribe()
@@ -62,5 +52,5 @@ export function useMissionRealtime({ onInsert, onUpdate, onDelete }: UseMissionR
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [stableOnInsert, stableOnUpdate, stableOnDelete])
+  }, [])
 }
