@@ -14,7 +14,10 @@ interface Particle {
   drift: number
 }
 
-const COLORS = ['#FFD23F', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+const COLORS = [
+  '#FFD23F', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+  '#EC4899', '#14B8A6', '#F97316', '#06B6D4',
+]
 
 function rand(min: number, max: number): number {
   return Math.random() * (max - min) + min
@@ -23,18 +26,18 @@ function rand(min: number, max: number): number {
 function makeParticles(count: number): Particle[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i,
-    x: rand(2, 98),
-    delay: rand(0, 800),
-    duration: rand(1500, 3000),
+    x: rand(0, 100),
+    delay: rand(0, 1200),
+    duration: rand(1800, 3400),
     size: rand(6, 14),
     color: COLORS[Math.floor(Math.random() * COLORS.length)],
     rotation: rand(0, 360),
     shape: Math.random() > 0.5 ? 'square' : 'circle',
-    drift: rand(-40, 40),
+    drift: rand(-60, 60),
   }))
 }
 
-const PARTICLES = makeParticles(40)
+const PARTICLES = makeParticles(120)
 
 const KEYFRAMES = `
 @keyframes confetti-fall {
@@ -54,7 +57,7 @@ const KEYFRAMES = `
 
 export function ConfettiOverlay({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(onDone, 3000)
+    const timer = setTimeout(onDone, 4600)
     return () => clearTimeout(timer)
   }, [onDone])
 
