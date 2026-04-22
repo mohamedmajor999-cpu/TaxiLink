@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { ArrowRight, Menu, X } from 'lucide-react'
 import { useLandingNav } from './useLandingNav'
 
 const NAV_LINKS = [
@@ -17,14 +17,14 @@ export function LandingNav() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-warm-100 pwa-safe-top">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-[80px] flex items-center justify-between">
+      <nav className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-warm-100/80 pwa-safe-top">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-[72px] flex items-center justify-between gap-6">
 
-          <Link href="/" className="flex items-center" aria-label="TaxiLink Pro">
-            <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={320} height={70} priority className="h-12 md:h-[64px] w-auto" />
+          <Link href="/" className="flex items-center shrink-0" aria-label="TaxiLink Pro">
+            <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={320} height={70} priority className="h-12 md:h-14 w-auto" />
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-7">
             {NAV_LINKS.map(({ label, href }) => (
               <a key={href} href={href} className="text-[14px] font-medium text-warm-600 hover:text-ink transition-colors">
                 {label}
@@ -32,12 +32,13 @@ export function LandingNav() {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-2.5">
-            <Link href="/auth/login" className="text-[14px] font-semibold text-warm-600 hover:text-ink px-4 py-2.5 transition-colors">
+          <div className="hidden md:flex items-center gap-2">
+            <Link href="/auth/login" className="text-[14px] font-semibold text-ink bg-warm-100 hover:bg-warm-200 px-4 py-2 rounded-lg transition-colors">
               Se connecter
             </Link>
-            <Link href="/auth/register" className="text-[14px] font-semibold text-white bg-ink px-4 py-2.5 rounded-lg hover:bg-warm-800 transition-all hover:-translate-y-px">
+            <Link href="/auth/register" className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-white bg-ink hover:bg-warm-800 px-4 py-2 rounded-lg transition-all hover:-translate-y-px shadow-sm hover:shadow-md">
               S&apos;inscrire
+              <ArrowRight size={14} strokeWidth={2.5} />
             </Link>
           </div>
 
