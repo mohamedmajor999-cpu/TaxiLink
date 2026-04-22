@@ -1,21 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80" role="img" aria-label="TaxiLink">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160" width="120" height="160" role="img" aria-label="TaxiLink">
   <defs>
-    <clipPath id="tlFvC"><rect width="80" height="80" rx="12"/></clipPath>
-    <clipPath id="tlFvZh"><polygon points="0,0 80,0 80,30 0,50"/></clipPath>
-    <clipPath id="tlFvZb"><polygon points="0,50 80,30 80,80 0,80"/></clipPath>
+    <clipPath id="tlFvPin"><path d="M 60 4 C 30 4 8 26 8 56 C 8 88 60 156 60 156 C 60 156 112 88 112 56 C 112 26 90 4 60 4 Z"/></clipPath>
+    <clipPath id="tlFvZh"><polygon points="0,0 120,0 120,62 0,72"/></clipPath>
+    <clipPath id="tlFvZb"><polygon points="0,72 120,62 120,160 0,160"/></clipPath>
   </defs>
-  <g clip-path="url(#tlFvC)">
-    <rect width="80" height="80" fill="#09090B"/>
-    <polygon points="0,50 80,30 80,80 0,80" fill="#FBBF24"/>
+  <g clip-path="url(#tlFvPin)">
+    <rect width="120" height="160" fill="#09090B"/>
+    <polygon points="0,72 120,62 120,160 0,160" fill="#FBBF24"/>
     <g clip-path="url(#tlFvZh)" fill="#FBBF24">
-      <rect x="20" y="16" width="40" height="9" rx="1.5"/>
-      <rect x="35" y="16" width="10" height="48"/>
-      <rect x="35" y="55" width="25" height="9" rx="1.5"/>
+      <rect x="32" y="22" width="56" height="13" rx="2"/>
+      <rect x="53" y="22" width="14" height="82"/>
+      <rect x="53" y="91" width="35" height="13" rx="2"/>
     </g>
     <g clip-path="url(#tlFvZb)" fill="#09090B">
-      <rect x="20" y="16" width="40" height="9" rx="1.5"/>
-      <rect x="35" y="16" width="10" height="48"/>
-      <rect x="35" y="55" width="25" height="9" rx="1.5"/>
+      <rect x="32" y="22" width="56" height="13" rx="2"/>
+      <rect x="53" y="22" width="14" height="82"/>
+      <rect x="53" y="91" width="35" height="13" rx="2"/>
     </g>
   </g>
 </svg>

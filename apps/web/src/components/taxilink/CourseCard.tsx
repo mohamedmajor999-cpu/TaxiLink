@@ -91,16 +91,16 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
               </div>
             )}
             {course.priceIsEstimated && (
-              <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5 leading-none mt-[10px]">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-warm-500 mb-0.5 leading-none mt-[30px]">
                 Prix estimé
               </div>
             )}
             {hasRange(course) ? (
-              <div className={`text-[18px] font-bold leading-none text-ink tabular-nums tracking-tight ${course.priceIsEstimated ? '' : 'mt-[10px]'}`}>
+              <div className={`text-[18px] font-bold leading-none text-ink tabular-nums tracking-tight ${course.priceIsEstimated ? '' : 'mt-[30px]'}`}>
                 {course.priceMinEur}<span className="text-[13px] text-warm-500">–</span>{course.priceMaxEur}<span className="text-[13px]">€</span>
               </div>
             ) : (
-              <div className={`text-[26px] font-bold leading-none text-ink tabular-nums tracking-tight ${course.priceIsEstimated ? '' : 'mt-[10px]'}`}>
+              <div className={`text-[26px] font-bold leading-none text-ink tabular-nums tracking-tight ${course.priceIsEstimated ? '' : 'mt-[30px]'}`}>
                 {course.priceEur}<span className="text-[18px]">€</span>
               </div>
             )}
