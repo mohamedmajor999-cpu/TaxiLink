@@ -26,7 +26,10 @@ Schéma attendu :
 }
 
 Règles :
-- "type" = "CPAM" si course médicale/patient/hôpital/clinique sinon "PRIVE".
+- "type" :
+  * "CPAM" si contexte médical explicite (hôpital, clinique, patient, consultation, dialyse, kiné, rendez-vous médical, etc.).
+  * "PRIVE" si contexte privé explicite (aéroport, gare, particulier, client, trajet professionnel sans contexte médical).
+  * null si aucun indice ne permet de trancher entre médical et privé. Ne JAMAIS deviner : mieux vaut null qu'une mauvaise catégorisation.
 - "medical_motif" UNIQUEMENT si type = "CPAM", sinon null :
   * "HDJ" (hôpital de jour) = dialyse, chimiothérapie, radiothérapie, hôpital de jour, séance, rééducation, kiné en centre
   * "CONSULTATION" = consultation, rendez-vous médical, examen, radio, scanner, IRM, analyse, entrée ou sortie d'hospitalisation, transfert

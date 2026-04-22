@@ -6,6 +6,7 @@ import { useGuidedVoicePrompt } from '../guided/useGuidedVoicePrompt'
 import { getMissingCriticalFields, type VocalFormSnapshot } from './missingCriticalFields'
 
 const MAX_RELANCES = 3
+const SILENCE_AUTO_STOP_MS = 2500
 
 export type VocalFlowStatus = 'idle' | 'listening' | 'processing' | 'asking' | 'complete'
 
@@ -57,6 +58,16 @@ export function useVoiceFreeFlow({ filler, snapshot, onComplete }: Args) {
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filler.isListening, filler.isProcessing, filler.error])
+
+  // Auto-stop si silence > SILENCE_AUTO_STOP_MS : déclenche le parse sans
+  // obliger le chauffeur à recliquer sur le micro entre deux relances.
+  useEffect(() => {
+    if (!activeRef.current || !filler.isListening) return
+    if (filler.interimTranscript) return
+    if (!filler.transcript.trim()) return
+    const id = setTimeout(() => filler.stop(), SILENCE_AUTO_STOP_MS)
+    return () => clearTimeout(id)
+  }, [filler.isListening, filler.interimTranscript, filler.transcript, filler])
 
   const finalize = useCallback(() => {
     if (completedRef.current) return
