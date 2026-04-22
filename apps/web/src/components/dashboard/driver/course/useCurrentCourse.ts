@@ -20,6 +20,7 @@ export function useCurrentCourse() {
   const [traffic, setTraffic] = useState<TrafficEstimate | null>(null)
   const [cancelling, setCancelling] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
+  const [completing, setCompleting] = useState(false)
 
   useEffect(() => {
     if (!user?.id) return
@@ -72,6 +73,17 @@ export function useCurrentCourse() {
     }
   }
 
+  const complete = async () => {
+    if (!mission) return
+    setCompleting(true)
+    try {
+      await missionService.complete(mission.id)
+      router.push('/dashboard/chauffeur')
+    } catch {
+      setCompleting(false)
+    }
+  }
+
   const smsHref = mission?.phone ? buildSmsHref(mission.phone, driver.name || '') : null
   const wazeHref = to ? `https://waze.com/ul?ll=${to.lat}%2C${to.lng}&navigate=yes` : null
   const gmapsHref = buildGmapsHref(to, mission?.destination)
@@ -80,6 +92,7 @@ export function useCurrentCourse() {
     loading, mission, from, to, route, traffic,
     smsHref, wazeHref, gmapsHref,
     cancel, cancelling, cancelOpen, setCancelOpen,
+    complete, completing,
     currentUserId: user?.id ?? null,
   }
 }

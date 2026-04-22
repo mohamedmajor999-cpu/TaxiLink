@@ -90,7 +90,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
         <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="Courses disponibles">
           {h.cards.map((c) => (
             <li key={c.id} className="h-full">
-              <CourseCard course={c} onAccept={h.acceptMission} />
+              <CourseCard course={c} onAccept={h.acceptMission} onShowDetail={onShowCurrentCourse} />
             </li>
           ))}
         </ul>

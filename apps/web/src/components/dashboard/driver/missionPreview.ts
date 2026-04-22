@@ -14,17 +14,8 @@ const PAYMENT_FROM_TYPE: Record<MissionFormType, 'CPAM' | 'CB' | 'Espèces'> = {
   PRIVE: 'Espèces',
 }
 
-function fmtClient(name: string): string {
-  const raw = name.trim()
-  if (!raw) return 'Client'
-  const parts = raw.split(/\s+/).filter(Boolean)
-  if (parts.length === 1) return parts[0]
-  return `${parts[0]} ${parts[1][0]}.`
-}
-
 export interface BuildPreviewArgs {
   type: MissionFormType
-  patientName: string
   departure: string
   destination: string
   distanceKm: number | null
@@ -51,7 +42,6 @@ export function buildPreviewCard(args: BuildPreviewArgs): CourseCardData {
     id: 'preview',
     urgent: isUrgent ? { etaMin: Math.max(minutesAhead, 1) } : undefined,
     scheduledInMin: minutesAhead,
-    clientName: fmtClient(args.patientName),
     badges,
     from: addressAsPoint(args.departure),
     to: addressAsPoint(args.destination),

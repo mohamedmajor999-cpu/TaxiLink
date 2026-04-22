@@ -51,7 +51,7 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
       ? (f.groupIds.length === 1 ? findGroupName(f.myGroups, f.groupIds[0]) : `${f.groupIds.length} groupes`)
       : null
   const card = buildPreviewCard({
-    type: f.type, patientName: f.patientName,
+    type: f.type,
     departure: f.departure, destination: f.destination,
     distanceKm: f.distanceKm, durationMin: f.durationMin,
     priceEur: f.previewFare.value, priceIsEstimated: f.previewFare.isEstimated,

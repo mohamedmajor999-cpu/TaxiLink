@@ -17,14 +17,6 @@ const PAYMENT_FROM_TYPE: Record<string, 'CPAM' | 'CB' | 'Espèces'> = {
   TAXILINK: 'CB',
 }
 
-function fmtClient(m: Mission): string {
-  const raw = typeof m.patient_name === 'string' ? m.patient_name.trim() : ''
-  if (!raw) return 'Client'
-  const parts = raw.split(/\s+/).filter(Boolean)
-  if (parts.length === 1) return parts[0]
-  return `${parts[0]} ${parts[1][0]}.`
-}
-
 /**
  * Extrait la liste des groupes ciblés par une mission.
  * Source 1 : relation `mission_groups` (embarquée par les queries enrichies).
@@ -75,7 +67,6 @@ export function toCourseCard(m: Mission, groupsById: Map<string, Group>): Course
     id: m.id,
     urgent: isUrgent ? { etaMin: Math.max(minutesAhead, 1) } : undefined,
     scheduledInMin: minutesAhead,
-    clientName: fmtClient(m),
     badges,
     from: addressAsPoint(m.departure),
     to: addressAsPoint(m.destination),
