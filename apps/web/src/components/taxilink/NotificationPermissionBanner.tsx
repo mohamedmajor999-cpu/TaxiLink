@@ -1,13 +1,13 @@
 'use client'
 import { Bell, X } from 'lucide-react'
-import { useState } from 'react'
+import { useNotificationPermissionBanner } from './useNotificationPermissionBanner'
 
 interface Props {
   onActivate: () => void
 }
 
 export function NotificationPermissionBanner({ onActivate }: Props) {
-  const [dismissed, setDismissed] = useState(false)
+  const { dismissed, dismiss } = useNotificationPermissionBanner()
   if (dismissed) return null
   return (
     <div
@@ -28,7 +28,7 @@ export function NotificationPermissionBanner({ onActivate }: Props) {
       </button>
       <button
         type="button"
-        onClick={() => setDismissed(true)}
+        onClick={dismiss}
         aria-label="Ignorer la demande de notifications"
         className="shrink-0 w-7 h-7 rounded-full hover:bg-warm-50 flex items-center justify-center"
       >

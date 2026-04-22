@@ -46,7 +46,7 @@ export function HoldAcceptButton({
         if (e.key === ' ' || e.key === 'Enter') cancel()
       }}
       aria-label="Maintenir 2 secondes pour accepter la course"
-      className={`relative w-full h-14 px-6 rounded-xl overflow-hidden flex items-center justify-center gap-2 font-semibold text-[14px] select-none transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${baseColors} ${isPressing ? 'scale-[0.98]' : ''}`}
+      className={`relative w-full h-[64px] px-6 rounded-xl overflow-hidden flex items-center justify-center gap-2 font-semibold text-[16px] select-none transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${baseColors} ${isPressing ? 'scale-[0.98]' : ''}`}
     >
       {variant === 'default' && !isConfirmed && (
         <span

@@ -1,14 +1,6 @@
 'use client'
-import { useState } from 'react'
 import { X } from 'lucide-react'
-
-export const CANCEL_REASONS = [
-  { key: 'delay', label: 'Retard important' },
-  { key: 'vehicle', label: 'Véhicule immobilisé' },
-  { key: 'personal', label: 'Urgence personnelle' },
-  { key: 'address', label: 'Adresse introuvable' },
-  { key: 'other', label: 'Autre' },
-] as const
+import { CANCEL_REASONS, useCancelMissionDialog } from './useCancelMissionDialog'
 
 interface Props {
   open: boolean
@@ -18,14 +10,10 @@ interface Props {
 }
 
 export function CancelMissionDialog({ open, submitting, onClose, onSubmit }: Props) {
-  const [selected, setSelected] = useState<string | null>(null)
-  const [customText, setCustomText] = useState('')
+  const { selected, setSelected, customText, setCustomText, canSubmit, handleConfirm } =
+    useCancelMissionDialog({ submitting, onSubmit })
 
   if (!open) return null
-
-  const label = CANCEL_REASONS.find((r) => r.key === selected)?.label ?? ''
-  const effective = selected === 'other' ? customText.trim() : label
-  const canSubmit = !submitting && Boolean(effective)
 
   return (
     <div
@@ -96,7 +84,7 @@ export function CancelMissionDialog({ open, submitting, onClose, onSubmit }: Pro
           </button>
           <button
             type="button"
-            onClick={() => effective && onSubmit(effective)}
+            onClick={handleConfirm}
             disabled={!canSubmit}
             className="h-12 rounded-xl bg-danger text-paper text-[14px] font-semibold hover:brightness-95 disabled:opacity-50"
           >

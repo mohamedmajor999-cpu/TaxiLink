@@ -1,13 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
 import { Plus, Search, Users } from 'lucide-react'
 import { GroupCard } from './GroupCard'
 import { GroupMembersModal } from './GroupMembersModal'
 import { CreateGroupModal } from './groupes/CreateGroupModal'
 import { JoinGroupModal } from './groupes/JoinGroupModal'
 import { GroupesHeader } from './groupes/GroupesHeader'
-import { useDriverGroupes } from './useDriverGroupes'
+import { useDriverGroupesScreen } from './useDriverGroupesScreen'
 
 export function DriverGroupesScreen() {
   const {
@@ -17,18 +16,8 @@ export function DriverGroupesScreen() {
     joinId, setJoinId, saving,
     selectedGroup, memberStats, statsLoading, statsPeriod, setStatsPeriod,
     openMembers, closeMembers, handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
-  } = useDriverGroupes()
-
-  const [query, setQuery] = useState('')
-
-  const filteredGroups = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return groups
-    return groups.filter((g) =>
-      g.name.toLowerCase().includes(q) ||
-      (g.description ?? '').toLowerCase().includes(q)
-    )
-  }, [groups, query])
+    query, setQuery, filteredGroups,
+  } = useDriverGroupesScreen()
 
   return (
     <div className="max-w-2xl mx-auto pb-4">

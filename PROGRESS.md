@@ -49,9 +49,11 @@ Header fixe · 4 sections (problème / chauffeurs / patrons / CTA) · Bouton fix
 - Prompt caching testé puis retiré (Haiku exige 2048 tok min · prompt système ~1200 tok)
 
 ### Services & tests
-- **152 tests au total** ✅ · 75 services · 59 hooks · 0 erreur TS · 0 erreur ESLint
-- Services testés : mission, auth, driver, profile, payment, document, groupStats, userPrefs
-- Hooks testés : login, driverStats/Missions/Profile/Payments/Agenda, groupActions/Stats/Card, reservation, voice, install/download, navbar, confirmWithPassword
+- **723 tests au total** ✅ · 93 fichiers · 0 erreur TS · 0 erreur ESLint
+- Couverture atteinte (2026-04-22) : **Statements 84.7% · Functions 87.1% · Lines 89.9%** (cible 80% ✅)
+- Services testés : mission, auth, driver, profile, payment, document, groupStats, userPrefs, address/routing
+- Hooks P1 testés : login, driverStats/Missions/Profile/Payments/Agenda, groupActions/Stats/Card, reservation, voice, install/download, navbar, confirmWithPassword, courseMap, guidedVoicePrompt/Answer/Applier, missionVoiceFiller, guidedMissionScreen, nextMissionBanner, missionRoute, historyTab, agendaTab, ttsAnnouncer, cancelMissionDialog, missionPricing, courseTopStats
+- Hooks P2 testés : voiceTipCard, settingsToggles, notificationPermissionBanner, landingNav, installSection, driverCoursesScreen, mobileStickyCta, pwaFirstLaunchGate, driverGroupesScreen, driverHomeFilters, addressFieldVoice, driverProfilScreen, voiceDictation, settingsApp, settingsCompte, settingsPreferences, addressField, voiceFreeFlow
 
 ### Déploiement & infra
 - GitHub `mohamedmajor999-cpu/TaxiLink` · Vercel `taxi-link-web.vercel.app`

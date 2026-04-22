@@ -29,8 +29,11 @@ export function NextMissionBanner({ mission, onShowDetail, onComplete, userCoord
           <p className="text-[14px] font-bold text-ink leading-tight">
             {v.countdown}
           </p>
-          <p className="text-[12.5px] text-warm-500 truncate mt-0.5">
-            {shortAddr(mission.departure)} → {shortAddr(mission.destination)}
+          <p className="text-[12px] text-warm-500 truncate mt-0.5">
+            {shortAddr(mission.departure)}
+          </p>
+          <p className="text-[12px] text-warm-500 truncate">
+            → {shortAddr(mission.destination)}
           </p>
         </div>
 
