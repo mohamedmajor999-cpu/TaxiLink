@@ -86,7 +86,7 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
           </div>
           <div className="text-right shrink-0 whitespace-nowrap min-w-[64px]">
             {course.publisher && (
-              <div className="text-[11px] font-semibold text-warm-600 mb-0.5 leading-none">
+              <div className="text-[11px] font-semibold text-warm-600 mb-0.5 leading-none -mt-[10px]">
                 {course.publisher}
               </div>
             )}
