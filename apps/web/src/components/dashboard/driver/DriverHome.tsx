@@ -2,6 +2,7 @@
 import { CourseCard } from '@/components/taxilink/CourseCard'
 import { NotificationPermissionBanner } from '@/components/taxilink/NotificationPermissionBanner'
 import { MissionAcceptedCelebration } from '@/components/ui/MissionAcceptedCelebration'
+import { ToastContainer } from '@/components/ui/Toast'
 import { useDriverHome, HOME_TYPE_FILTERS, HOME_SORT_OPTIONS, type HomeSort } from './useDriverHome'
 import { HomeMobileHeader } from './home/HomeMobileHeader'
 import { HomeGroupFilterBar } from './home/HomeGroupFilterBar'
@@ -23,6 +24,7 @@ export function DriverHome({ onPostCourse, onShowCurrentCourse }: Props) {
   return (
     <div className="px-2 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-5xl mx-auto pb-24 md:pb-6">
       {h.showConfetti && <MissionAcceptedCelebration onDone={h.clearConfetti} />}
+      <ToastContainer toasts={h.toasts} onDismiss={h.dismissToast} />
       <HomeMobileHeader
         city={h.city}
         postalCode={h.postalCode}

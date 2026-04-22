@@ -83,6 +83,8 @@ export function useDriverHome() {
     currentMission: m.currentMission,
     showConfetti: m.showConfetti,
     clearConfetti: m.clearConfetti,
+    toasts: m.toasts,
+    dismissToast: m.dismissToast,
     userCoords,
     requestLocation,
     notificationPermission: notif.permission,
