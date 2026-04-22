@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 
 interface Props {
   city: string
@@ -14,9 +15,7 @@ export function HomeMobileHeader({
   return (
     <header className="md:hidden flex items-center justify-between gap-3 mb-5">
       <div className="flex items-center gap-2.5 min-w-0">
-        <div className="w-9 h-9 bg-ink rounded-lg flex items-center justify-center shrink-0">
-          <div className="w-3 h-3 bg-brand rounded-sm" />
-        </div>
+        <Image src="/brand/icon.svg" alt="TaxiLink" width={36} height={36} className="h-9 w-9 shrink-0" />
         <div className="min-w-0">
           <div className="text-[15px] font-semibold text-ink leading-tight">TaxiLink</div>
           <div className="text-[12px] text-warm-500 truncate">

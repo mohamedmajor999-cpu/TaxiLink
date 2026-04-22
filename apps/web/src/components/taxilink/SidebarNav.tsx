@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { Home, List, Plus, Users, User } from 'lucide-react'
 import { OnlineDot } from './OnlineDot'
 import type { DriverTab, NavBadge } from './navTypes'
@@ -33,11 +34,8 @@ export function SidebarNav({
 }: Props) {
   return (
     <aside className="hidden md:flex flex-col w-60 shrink-0 bg-paper border-r border-warm-200 h-screen sticky top-0">
-      <div className="px-5 py-6 flex items-center gap-2">
-        <div className="w-7 h-7 bg-ink rounded-lg flex items-center justify-center">
-          <div className="w-2.5 h-2.5 bg-brand rounded-sm" />
-        </div>
-        <span className="font-semibold text-ink text-sm">TaxiLink</span>
+      <div className="px-5 py-6 flex items-center">
+        <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={157} height={28} className="h-7 w-auto" />
       </div>
 
       <nav className="flex-1 px-3 space-y-1">

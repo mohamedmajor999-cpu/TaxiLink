@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { Plus, Link2 } from 'lucide-react'
 
 interface Props {
@@ -11,9 +12,7 @@ export function GroupesHeader({ count, onCreate, onJoin }: Props) {
   return (
     <header className="flex items-start justify-between gap-3 mb-4">
       <div className="flex items-center gap-2.5 min-w-0">
-        <div className="w-10 h-10 bg-ink rounded-xl flex items-center justify-center shrink-0">
-          <div className="w-3 h-3 bg-brand rounded-sm" />
-        </div>
+        <Image src="/brand/icon.svg" alt="TaxiLink" width={40} height={40} className="w-10 h-10 shrink-0" />
         <div className="min-w-0">
           <h1 className="text-[20px] font-bold text-ink leading-tight tracking-tight">
             Mes groupes

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
 import { useForgotPasswordForm } from './useForgotPasswordForm'
@@ -11,9 +12,8 @@ export function ForgotPasswordForm() {
     <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-xl font-black text-secondary">T</div>
-            <span className="font-black text-2xl text-secondary">TaxiLink <span className="text-primary">Pro</span></span>
+          <Link href="/" className="inline-flex items-center mb-6" aria-label="TaxiLink Pro">
+            <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={224} height={40} priority className="h-10 w-auto" />
           </Link>
           <h1 className="text-2xl font-black text-secondary">Mot de passe oublié</h1>
           <p className="text-muted mt-2 text-sm">

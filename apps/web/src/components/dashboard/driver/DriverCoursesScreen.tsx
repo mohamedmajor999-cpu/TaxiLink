@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { Calendar, Download, Plus } from 'lucide-react'
 import { useDriverCoursesScreen, type CoursesTab } from './courses/useDriverCoursesScreen'
 import { UpcomingTab } from './courses/UpcomingTab'
@@ -17,9 +18,7 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
     <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-5xl mx-auto pb-24 md:pb-6">
       <header className="flex items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 md:w-10 md:h-10 bg-ink rounded-lg flex items-center justify-center shrink-0">
-            <div className="w-3 h-3 md:w-3.5 md:h-3.5 bg-brand rounded-sm" />
-          </div>
+          <Image src="/brand/icon.svg" alt="TaxiLink" width={40} height={40} className="w-9 h-9 md:w-10 md:h-10 shrink-0" />
           <div className="min-w-0">
             <h1 className="text-[18px] md:text-[22px] font-bold text-ink leading-tight tracking-tight">
               Mes courses

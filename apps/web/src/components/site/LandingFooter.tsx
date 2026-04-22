@@ -23,7 +23,7 @@ export function LandingFooter() {
       <div className="md:grid md:grid-cols-[2fr_1fr_1fr_1fr] md:gap-12 pb-8 md:pb-10">
         <div className="mb-8 md:mb-0">
           <Link href="/" className="flex items-center" aria-label="TaxiLink Pro">
-            <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={360} height={80} className="h-16 md:h-20 w-auto" />
+            <Image src="/brand/logo-with-tagline.svg" alt="TaxiLink Pro" width={350} height={80} className="h-16 md:h-20 w-auto" />
           </Link>
           <p className="text-[14px] text-warm-500 mt-4 max-w-[28ch] leading-relaxed">
             L&apos;outil métier des chauffeurs de taxi français. Fabriqué à Marseille.

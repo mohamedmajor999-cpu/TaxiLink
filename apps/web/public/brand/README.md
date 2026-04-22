@@ -3,12 +3,14 @@
 ## Charte couleurs
 
 ```css
---tl-black:   #0A0A0A;
---tl-yellow:  #FACC15;
+--tl-black:   #09090B;
+--tl-yellow:  #FBBF24;
 --tl-white:   #FFFFFF;
---tl-gray:    #555555;
---tl-gray-d:  #A0A0A0;
+--tl-gray:    #71717A;
+--tl-gray-d:  #A1A1AA;
 ```
+
+Typographie : **Plus Jakarta Sans** (weight 800 pour TaxiLink, 700 pour Pro).
 
 ## Fichiers inclus
 

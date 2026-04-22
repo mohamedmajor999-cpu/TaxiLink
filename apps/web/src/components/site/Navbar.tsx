@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
 import { useNavbar } from './useNavbar'
@@ -12,13 +13,8 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-xl font-black text-secondary">
-              T
-            </div>
-            <span className="text-lg font-black text-secondary tracking-tight">
-              TaxiLink <span className="text-primary">Pro</span>
-            </span>
+          <Link href="/" className="flex items-center" aria-label="TaxiLink Pro">
+            <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={202} height={36} priority className="h-9 w-auto" />
           </Link>
 
           {/* Desktop nav */}
