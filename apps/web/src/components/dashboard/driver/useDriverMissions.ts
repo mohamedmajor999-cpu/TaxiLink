@@ -61,10 +61,9 @@ export function useDriverMissions() {
       addToast({ message: 'Mission acceptée !', type: 'warning' })
       await loadMissions()
     } catch (err) {
-      addToast({
-        message: err instanceof Error ? err.message : "Impossible d'accepter la mission",
-        type: 'warning',
-      })
+      const msg = err instanceof Error ? err.message : "Impossible d'accepter la mission"
+      addToast({ message: msg, type: 'warning' })
+      if (msg.includes('déjà acceptée')) await loadMissions()
     } finally {
       setAccepting(null)
     }
