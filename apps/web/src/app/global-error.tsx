@@ -18,9 +18,14 @@ export default function GlobalError({
     <html lang="fr">
       <body className="flex min-h-screen flex-col items-center justify-center bg-white p-6 text-center font-sans">
         <h1 className="mb-2 text-xl font-bold text-secondary">Une erreur est survenue</h1>
-        <p className="mb-6 text-sm text-muted">
+        <p className="mb-4 text-sm text-muted">
           L&apos;équipe a été notifiée automatiquement.
         </p>
+        {error.digest && (
+          <p className="mb-6 font-mono text-[11px] text-muted select-all">
+            Référence : {error.digest}
+          </p>
+        )}
         <button
           onClick={reset}
           className="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-secondary"
