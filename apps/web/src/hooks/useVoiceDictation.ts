@@ -40,6 +40,9 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
   // On auto-restart tant que l'utilisateur n'a pas explicitement appelé stop().
   const wantListeningRef = useRef(false)
   const restartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Après auto-restart, Chrome peut ré-émettre le dernier final de la session
+  // précédente. On déduplique le texte identique sur une courte fenêtre.
+  const lastFinalRef = useRef<{ text: string; at: number } | null>(null)
 
   useEffect(() => {
     const Ctor = getSpeechRecognitionCtor()
@@ -56,7 +59,12 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
         const text = result[0].transcript
         if (result.isFinal) {
           const trimmed = text.trim()
-          if (trimmed) onFinalRef.current(trimmed)
+          if (!trimmed) continue
+          const now = Date.now()
+          const last = lastFinalRef.current
+          if (last && last.text === trimmed && now - last.at < 3000) continue
+          lastFinalRef.current = { text: trimmed, at: now }
+          onFinalRef.current(trimmed)
         } else {
           interim += text
         }
@@ -104,6 +112,7 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
     const r = recognitionRef.current
     if (!r || isListening) return
     wantListeningRef.current = true
+    lastFinalRef.current = null
     try { r.start() } catch { /* déjà démarré : ignore */ }
   }, [isListening])
 
