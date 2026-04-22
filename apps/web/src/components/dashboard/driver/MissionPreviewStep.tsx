@@ -58,21 +58,6 @@ export function MissionPreviewStep({
 
         <CourseCard course={card} footer={<></>} />
 
-        {hasRecap && (
-          <div className="mt-5">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-warm-500 mb-2">
-              Détails — touchez pour corriger
-            </p>
-            <GuidedFieldsRecap
-              form={form!} myGroups={myGroups!}
-              visibleQuestions={visibleQuestions!}
-              currentIndex={-1}
-              onEdit={onEditField!}
-              variant="summary"
-            />
-          </div>
-        )}
-
         {error && (
           <div className="mt-4 flex items-start gap-2 rounded-2xl border border-danger/30 bg-danger-soft p-3 text-[13px] text-danger">
             <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
@@ -80,7 +65,7 @@ export function MissionPreviewStep({
           </div>
         )}
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-3">
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-3">
           <button
             type="button"
             onClick={onBack}
@@ -109,6 +94,21 @@ export function MissionPreviewStep({
             )}
           </button>
         </div>
+
+        {hasRecap && (
+          <div className="mt-6">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-warm-500 mb-2">
+              Détails — touchez pour corriger
+            </p>
+            <GuidedFieldsRecap
+              form={form!} myGroups={myGroups!}
+              visibleQuestions={visibleQuestions!}
+              currentIndex={-1}
+              onEdit={onEditField!}
+              variant="summary"
+            />
+          </div>
+        )}
       </div>
     </div>
   )

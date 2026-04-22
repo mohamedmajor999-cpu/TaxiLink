@@ -7,7 +7,8 @@ import { buildScheduledAt } from './missionFormHelpers'
 import { buildPreviewCard, findGroupName } from './missionPreview'
 import { MissionPreviewStep } from './MissionPreviewStep'
 import { MissionPublishedStep } from './MissionPublishedStep'
-import { MissionFormLibre } from './MissionFormLibre'
+import { MissionFormLibre, getLibreFieldAnchor } from './MissionFormLibre'
+import { MissionFormVocal } from './MissionFormVocal'
 import { MissionModeToggle, type MissionCreationMode } from './MissionModeToggle'
 import { GuidedMissionFlow } from './guided/GuidedMissionFlow'
 import type { GuidedSetters } from './guided/useGuidedAnswerApplier'
@@ -20,7 +21,7 @@ interface Props {
 
 export function PartagerMissionModal({ onClose, mission }: Props) {
   const f = usePartagerMissionModal(onClose, mission)
-  const [mode, setMode] = useState<MissionCreationMode>('GUIDED')
+  const [mode, setMode] = useState<MissionCreationMode>('FREE')
   const [editFieldId, setEditFieldId] = useState<string | null>(null)
 
   const voice = useMissionVoiceFiller({
@@ -73,11 +74,27 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
     setDestinationCoords: f.setDestinationCoords,
   }
 
-  const onEditField = (id: string) => {
-    setEditFieldId(id)
-    f.hidePreview()
-  }
   const isGuided = mode === 'GUIDED' && !f.isEdit
+  const isVocal = mode === 'VOCAL' && !f.isEdit
+  const onEditField = (id: string) => {
+    f.hidePreview()
+    if (isGuided) {
+      setEditFieldId(id)
+      return
+    }
+    // Depuis Mains libres : on bascule en Semi-libre pour exposer le formulaire éditable.
+    if (isVocal) setMode('FREE')
+    const anchor = getLibreFieldAnchor(id)
+    if (!anchor) return
+    setTimeout(() => {
+      document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 100)
+  }
+
+  const vocalSnapshot = () => ({
+    type: f.type, medicalMotif: f.medicalMotif, patientName: f.patientName,
+    departure: f.departure, destination: f.destination,
+  })
 
   return (
     <div className="bg-paper pb-24 md:pb-6">
@@ -88,7 +105,11 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
               {f.isEdit ? 'Modifier la course' : 'Nouvelle course'}
             </h2>
             <p className="text-[12px] text-warm-500 mt-0.5">
-              {f.preview ? 'Aperçu avant publication' : mode === 'GUIDED' ? 'Assistance pas à pas' : 'Formulaire libre'}
+              {f.preview
+                ? 'Aperçu avant publication'
+                : mode === 'GUIDED' ? 'Assistance pas à pas'
+                : mode === 'VOCAL' ? 'Dictée mains libres'
+                : 'Formulaire libre'}
             </p>
           </div>
           {!f.isEdit && !f.preview && <MissionModeToggle mode={mode} onChange={setMode} />}
@@ -108,10 +129,13 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
           />
         </div>
       )}
-      {!isGuided && !f.preview && (
+      {!isGuided && !isVocal && !f.preview && (
         <div className="px-4 md:px-8 py-4 max-w-2xl mx-auto">
           <MissionFormLibre f={f} voice={voice} />
         </div>
+      )}
+      {isVocal && !f.preview && (
+        <MissionFormVocal filler={voice} snapshot={vocalSnapshot} onComplete={f.showPreview} />
       )}
 
       {f.preview && (
@@ -121,10 +145,10 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
           departureCoords={f.departureCoords}
           destinationCoords={f.destinationCoords}
           routeGeometry={f.routeGeometry}
-          form={isGuided ? f : undefined}
-          myGroups={isGuided ? f.myGroups : undefined}
-          visibleQuestions={isGuided ? visibleQuestions : undefined}
-          onEditField={isGuided ? onEditField : undefined}
+          form={f}
+          myGroups={f.myGroups}
+          visibleQuestions={visibleQuestions}
+          onEditField={onEditField}
         />
       )}
     </div>

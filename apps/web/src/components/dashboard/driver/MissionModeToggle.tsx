@@ -1,8 +1,8 @@
 'use client'
 
-import { ListChecks, Mic } from 'lucide-react'
+import { ListChecks, Mic, Waves } from 'lucide-react'
 
-export type MissionCreationMode = 'GUIDED' | 'FREE'
+export type MissionCreationMode = 'GUIDED' | 'FREE' | 'VOCAL'
 
 interface Props {
   mode: MissionCreationMode
@@ -18,7 +18,11 @@ export function MissionModeToggle({ mode, onChange }: Props) {
       </ModeButton>
       <ModeButton active={mode === 'FREE'} onClick={() => onChange('FREE')}>
         <Mic className="w-3.5 h-3.5" strokeWidth={2} />
-        Libre
+        Semi-libre
+      </ModeButton>
+      <ModeButton active={mode === 'VOCAL'} onClick={() => onChange('VOCAL')}>
+        <Waves className="w-3.5 h-3.5" strokeWidth={2} />
+        Mains libres
       </ModeButton>
     </div>
   )
