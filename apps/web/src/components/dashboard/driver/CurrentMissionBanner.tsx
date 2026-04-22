@@ -2,6 +2,7 @@
 
 import { Icon } from '@/components/ui/Icon'
 import { TYPE_COLORS } from '@/constants/missionTypes'
+import { formatMissionPrice } from '@/lib/formatMissionPrice'
 import type { Mission } from '@/lib/supabase/types'
 
 export function CurrentMissionBanner({
@@ -40,7 +41,7 @@ export function CurrentMissionBanner({
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-white font-black text-xl">{mission.price_eur?.toFixed(2)}€</span>
+        <span className="text-white font-black text-xl">{formatMissionPrice(mission, { decimals: true })}</span>
         <span className="text-white/50 text-sm">{mission.distance_km} km</span>
         <div className="flex-1" />
         {mission.phone && (

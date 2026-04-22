@@ -13,6 +13,8 @@ export function missionToAgendaRide(m: Mission): AgendaRide {
     destination: m.destination,
     distanceKm: m.distance_km ?? 0,
     priceEur: m.price_eur ?? 0,
+    priceMinEur: m.price_min_eur ?? undefined,
+    priceMaxEur: m.price_max_eur ?? undefined,
     scheduledAt: m.scheduled_at,
     driverId: m.driver_id ?? '',
   }

@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui/Icon'
 import { ErrorBanner } from '@/components/ui/ErrorBanner'
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader'
 import { ToastContainer } from '@/components/ui/Toast'
+import { MissionAcceptedCelebration } from '@/components/ui/MissionAcceptedCelebration'
 import { CurrentMissionBanner } from './CurrentMissionBanner'
 import { MissionFilterBar } from './MissionFilterBar'
 import { AvailableMissionGrid } from './AvailableMissionGrid'
@@ -15,6 +16,7 @@ export function DriverMissions({ isOnline }: { isOnline: boolean }) {
     accepting, filter, setFilter, filtered,
     loadMissions, acceptMission, completeMission,
     toasts, dismissToast,
+    showConfetti, clearConfetti,
   } = useDriverMissions()
 
   if (!isOnline) {
@@ -35,6 +37,7 @@ export function DriverMissions({ isOnline }: { isOnline: boolean }) {
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
+      {showConfetti && <MissionAcceptedCelebration onDone={clearConfetti} />}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       {error && <ErrorBanner message={error} onRetry={loadMissions} />}
       {currentMission && (

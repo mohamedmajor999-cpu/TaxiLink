@@ -30,7 +30,7 @@ export function JsonLd() {
     '@type': 'Organization',
     name: 'TaxiLink Pro',
     url: 'https://taxilink.fr',
-    logo: 'https://taxilink.fr/icons/icon-512.png',
+    logo: 'https://taxilink.fr/brand/logo-primary.svg',
     description: 'Plateforme de gestion de missions pour chauffeurs de taxi et VTC en France.',
     foundingLocation: {
       '@type': 'Country',

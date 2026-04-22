@@ -1,11 +1,11 @@
 'use client'
 
-import { Icon } from '@/components/ui/Icon'
-import { ErrorBanner } from '@/components/ui/ErrorBanner'
-import { SkeletonLoader } from '@/components/ui/SkeletonLoader'
+import { Plus, Search, Users } from 'lucide-react'
 import { GroupCard } from './GroupCard'
-import { GroupMembersModal } from './GroupMembersModal'
-import { useDriverGroupes } from './useDriverGroupes'
+import { CreateGroupModal } from './groupes/CreateGroupModal'
+import { JoinGroupModal } from './groupes/JoinGroupModal'
+import { GroupesHeader } from './groupes/GroupesHeader'
+import { useDriverGroupesScreen } from './useDriverGroupesScreen'
 
 export function DriverGroupesScreen() {
   const {
@@ -13,131 +13,142 @@ export function DriverGroupesScreen() {
     showCreate, setShowCreate, showJoin, setShowJoin,
     newName, setNewName, newDesc, setNewDesc,
     joinId, setJoinId, saving,
-    selectedGroup, memberStats, statsLoading, statsPeriod, setStatsPeriod,
-    openMembers, closeMembers, handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
-  } = useDriverGroupes()
+    handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
+    query, setQuery, filteredGroups,
+    activeGroupId, activeSummary, openGroup,
+  } = useDriverGroupesScreen()
 
   return (
-    <div className="max-w-2xl space-y-6 pb-20 md:pb-0">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-black text-secondary mb-1">Mes groupes</h2>
-          <p className="text-muted text-sm">Partagez des missions avec vos collègues de confiance</p>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={() => setShowJoin(true)}
-            className="flex items-center gap-1.5 h-9 px-4 rounded-xl border-2 border-line text-secondary font-semibold text-sm hover:bg-bgsoft transition-colors">
-            <Icon name="link" size={16} />
-            Rejoindre
-          </button>
-          <button onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-secondary font-bold text-sm hover:bg-yellow-400 transition-colors">
-            <Icon name="add" size={16} />
-            Créer
-          </button>
-        </div>
+    <div className="max-w-2xl mx-auto pb-4">
+      <GroupesHeader
+        privateCount={groups.length}
+        onCreate={() => setShowCreate(true)}
+        onJoin={() => setShowJoin(true)}
+      />
+
+      <div className="relative mb-5">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-warm-500" strokeWidth={1.8} />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Rechercher ou rejoindre un groupe"
+          className="w-full h-11 pl-10 pr-4 rounded-full border border-warm-200 bg-paper text-[13px] text-ink placeholder:text-warm-500 focus:outline-none focus:border-ink transition-colors"
+        />
       </div>
 
-      {error && <ErrorBanner message={error} />}
+      {error && (
+        <div className="mb-4 rounded-2xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
+          {error}
+        </div>
+      )}
 
       {loading ? (
-        <SkeletonLoader count={3} height="h-20" />
+        <ListSkeleton />
       ) : groups.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-16 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-bgsoft flex items-center justify-center">
-            <Icon name="group" size={32} className="text-muted" />
-          </div>
-          <p className="font-bold text-secondary">Aucun groupe pour l&apos;instant</p>
-          <p className="text-sm text-muted max-w-xs">
-            Créez un groupe avec vos collègues ou rejoignez-en un avec son identifiant.
-          </p>
+        <EmptyState onCreate={() => setShowCreate(true)} />
+      ) : filteredGroups.length === 0 ? (
+        <div className="rounded-2xl border border-warm-200 bg-paper p-8 text-center text-[13px] text-warm-600 mb-6">
+          Aucun groupe ne correspond à « {query} »
         </div>
       ) : (
-        <div className="space-y-3">
-          {groups.map((group) => (
-            <GroupCard
-              key={group.id}
-              group={group}
-              isAdmin={isAdmin(group)}
-              onViewMembers={openMembers}
-              onLeave={handleLeave}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        <>
+          <SectionLabel>Groupes privés</SectionLabel>
+          <div className="flex flex-col gap-3 mb-6">
+            {filteredGroups.map((group) => (
+              <GroupCard
+                key={group.id}
+                group={group}
+                isAdmin={isAdmin(group)}
+                isActive={group.id === activeGroupId}
+                summary={group.id === activeGroupId ? activeSummary : null}
+                onOpen={openGroup}
+                onLeave={handleLeave}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        </>
       )}
 
-      {/* Modal — Créer un groupe */}
+      <button
+        type="button"
+        onClick={() => setShowCreate(true)}
+        className="w-full flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed border-warm-300 bg-paper hover:bg-warm-50 transition-colors text-left"
+      >
+        <div className="w-10 h-10 rounded-xl bg-warm-100 flex items-center justify-center shrink-0">
+          <Plus className="w-5 h-5 text-ink" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <div className="text-[14px] font-semibold text-ink">Créer votre groupe</div>
+          <div className="text-[12px] text-warm-500 mt-0.5">
+            Invitez vos collègues · Gratuit jusqu&apos;à 10 membres
+          </div>
+        </div>
+      </button>
+
       {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowCreate(false)} />
-          <div className="relative bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-secondary">Créer un groupe</h3>
-              <button onClick={() => setShowCreate(false)} aria-label="Fermer"
-                className="w-8 h-8 rounded-xl bg-bgsoft flex items-center justify-center">
-                <Icon name="close" size={16} />
-              </button>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">Nom du groupe *</label>
-              <input value={newName} onChange={(e) => setNewName(e.target.value)}
-                placeholder="Ex : Les collègues du lundi"
-                className="w-full h-11 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">Description (optionnel)</label>
-              <input value={newDesc} onChange={(e) => setNewDesc(e.target.value)}
-                placeholder="Ex : Groupe des chauffeurs de la région Ouest"
-                className="w-full h-11 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
-            </div>
-            <button onClick={handleCreate} disabled={saving || !newName.trim()}
-              className="w-full h-11 rounded-xl bg-primary text-secondary font-bold text-sm flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors disabled:opacity-50">
-              {saving ? <><Icon name="sync" size={16} className="animate-spin" />Création...</> : <><Icon name="check" size={16} />Créer le groupe</>}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Modal — Rejoindre un groupe */}
-      {showJoin && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowJoin(false)} />
-          <div className="relative bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-secondary">Rejoindre un groupe</h3>
-              <button onClick={() => setShowJoin(false)} aria-label="Fermer"
-                className="w-8 h-8 rounded-xl bg-bgsoft flex items-center justify-center">
-                <Icon name="close" size={16} />
-              </button>
-            </div>
-            <p className="text-sm text-muted">Demandez l&apos;identifiant du groupe à son administrateur et collez-le ci-dessous.</p>
-            <div>
-              <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">Identifiant du groupe</label>
-              <input value={joinId} onChange={(e) => setJoinId(e.target.value)}
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                className="w-full h-11 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-mono transition-colors" />
-            </div>
-            <button onClick={handleJoin} disabled={saving || !joinId.trim()}
-              className="w-full h-11 rounded-xl bg-secondary text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-secondary/80 transition-colors disabled:opacity-50">
-              {saving ? <><Icon name="sync" size={16} className="animate-spin" />Rejoindre...</> : <><Icon name="login" size={16} />Rejoindre le groupe</>}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Modal — Membres + stats */}
-      {selectedGroup && (
-        <GroupMembersModal
-          group={selectedGroup}
-          stats={memberStats}
-          loading={statsLoading}
-          period={statsPeriod}
-          onPeriod={setStatsPeriod}
-          isAdmin={isAdmin(selectedGroup)}
-          onClose={closeMembers}
+        <CreateGroupModal
+          newName={newName}
+          setNewName={setNewName}
+          newDesc={newDesc}
+          setNewDesc={setNewDesc}
+          saving={saving}
+          onSubmit={handleCreate}
+          onClose={() => setShowCreate(false)}
         />
       )}
+
+      {showJoin && (
+        <JoinGroupModal
+          joinId={joinId}
+          setJoinId={setJoinId}
+          saving={saving}
+          onSubmit={handleJoin}
+          onClose={() => setShowJoin(false)}
+        />
+      )}
+    </div>
+  )
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-warm-500 mb-2 px-1">
+      {children}
+    </p>
+  )
+}
+
+function ListSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 mb-6">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="h-20 rounded-2xl bg-warm-100 motion-safe:animate-pulse" />
+      ))}
+    </div>
+  )
+}
+
+function EmptyState({ onCreate }: { onCreate: () => void }) {
+  return (
+    <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center mb-6">
+      <div className="mx-auto w-12 h-12 rounded-2xl bg-warm-100 flex items-center justify-center mb-3">
+        <Users className="w-5 h-5 text-warm-600" strokeWidth={1.8} />
+      </div>
+      <p className="text-[16px] font-bold text-ink mb-1">
+        Aucun groupe pour l&apos;instant
+      </p>
+      <p className="text-[13px] text-warm-600 mb-4 max-w-xs mx-auto">
+        Créez un groupe avec vos collègues ou rejoignez-en un avec son identifiant.
+      </p>
+      <button
+        type="button"
+        onClick={onCreate}
+        className="inline-flex items-center gap-1.5 h-10 px-5 rounded-full bg-ink text-paper text-[13px] font-semibold hover:bg-warm-800 transition-colors"
+      >
+        <Plus className="w-4 h-4" strokeWidth={2} />
+        Créer un groupe
+      </button>
     </div>
   )
 }

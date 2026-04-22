@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
-import type { PasswordStrengthInfo } from './useRegisterForm'
+import type { PasswordStrengthInfo } from './passwordStrength'
 
 interface Props {
   email:            string

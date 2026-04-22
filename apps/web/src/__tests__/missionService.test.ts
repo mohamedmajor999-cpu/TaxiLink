@@ -3,9 +3,11 @@ import { missionService } from '@/services/missionService'
 import { api } from '@/lib/api'
 
 // ─── Mocks chaîne SELECT ──────────────────────────────────────────────────────
+const mockLimit       = vi.fn()
 const mockOrder       = vi.fn()
 const mockMaybeSingle = vi.fn()
 const mockNeq         = vi.fn()
+const mockGt          = vi.fn()
 const mockEqStatus    = vi.fn()
 const mockEqDriver    = vi.fn()
 const mockSelect      = vi.fn()
@@ -35,12 +37,20 @@ beforeEach(() => {
   vi.clearAllMocks()
 
   // SELECT : from → select → eq(driver) → { eq(status), neq, order }
-  //                                eq(status) → { neq, order, maybeSingle }
-  mockOrder.mockResolvedValue({ data: [mission], error: null })
+  //                                eq(status) → { neq, order, maybeSingle, limit }
+  //                                order → { limit } (pour getCurrentForDriver)
+  //                                order est aussi awaitable (pour getAvailable/getAgenda/…)
+  mockLimit.mockResolvedValue({ data: [mission], error: null })
+  mockOrder.mockReturnValue({
+    limit: mockLimit,
+    then: (onFulfilled: (v: { data: unknown; error: unknown }) => unknown) =>
+      Promise.resolve({ data: [mission], error: null }).then(onFulfilled),
+  })
   mockMaybeSingle.mockResolvedValue({ data: mission, error: null })
   mockNeq.mockReturnValue({ order: mockOrder })
-  mockEqStatus.mockReturnValue({ neq: mockNeq, order: mockOrder, maybeSingle: mockMaybeSingle })
-  mockEqDriver.mockReturnValue({ eq: mockEqStatus, neq: mockNeq, order: mockOrder })
+  mockGt.mockReturnValue({ order: mockOrder })
+  mockEqStatus.mockReturnValue({ neq: mockNeq, gt: mockGt, order: mockOrder, maybeSingle: mockMaybeSingle })
+  mockEqDriver.mockReturnValue({ eq: mockEqStatus, neq: mockNeq, gt: mockGt, order: mockOrder })
   mockSelect.mockReturnValue({ eq: mockEqDriver })
 
   // UPDATE : from → update → eq1 → résout directement (complete)
@@ -76,20 +86,26 @@ describe('missionService.getAvailable', () => {
 
 // ─── getCurrentForDriver ──────────────────────────────────────────────────────
 describe('missionService.getCurrentForDriver', () => {
-  it('retourne la mission en cours', async () => {
-    mockMaybeSingle.mockResolvedValue({ data: { ...mission, status: 'IN_PROGRESS' }, error: null })
+  it('retourne la mission en cours la plus recente', async () => {
+    mockLimit.mockResolvedValue({ data: [{ ...mission, status: 'IN_PROGRESS' }], error: null })
     const result = await missionService.getCurrentForDriver('drv-1')
     expect(result?.id).toBe('m1')
   })
 
   it('retourne null si aucune mission en cours', async () => {
-    mockMaybeSingle.mockResolvedValue({ data: null, error: null })
+    mockLimit.mockResolvedValue({ data: [], error: null })
+    const result = await missionService.getCurrentForDriver('drv-1')
+    expect(result).toBeNull()
+  })
+
+  it('retourne null si data est null', async () => {
+    mockLimit.mockResolvedValue({ data: null, error: null })
     const result = await missionService.getCurrentForDriver('drv-1')
     expect(result).toBeNull()
   })
 
   it('leve une erreur si Supabase echoue', async () => {
-    mockMaybeSingle.mockResolvedValue({ data: null, error: { message: 'Acces refuse' } })
+    mockLimit.mockResolvedValue({ data: null, error: { message: 'Acces refuse' } })
     await expect(missionService.getCurrentForDriver('drv-1')).rejects.toThrow('Acces refuse')
   })
 })

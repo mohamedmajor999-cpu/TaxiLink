@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
-import Script from 'next/script'
+import { Inter, Instrument_Serif } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({
@@ -8,6 +7,14 @@ const inter = Inter({
   display: 'swap',
   variable: '--font-inter',
   weight: ['400', '500', '600', '700', '800', '900'],
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-serif',
+  weight: '400',
+  style: ['normal', 'italic'],
 })
 
 const BASE_URL = 'https://taxilink.fr'
@@ -24,7 +31,14 @@ export const metadata: Metadata = {
   alternates: { canonical: BASE_URL },
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'TaxiLink Pro' },
   formatDetection: { telephone: false },
-  icons: { apple: '/icons/apple-touch-icon.png' },
+  icons: {
+    icon: [
+      { url: '/brand/favicon.svg', type: 'image/svg+xml' },
+      { url: '/brand/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/icons/apple-touch-icon.png',
+    shortcut: '/brand/icon.svg',
+  },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
@@ -56,21 +70,17 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#FFD23F',
+  themeColor: '#FFFFFF',
   width: 'device-width',
   initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`scroll-smooth ${inter.variable}`}>
+    <html lang="fr" className={`scroll-smooth ${inter.variable} ${instrumentSerif.variable}`}>
       <body className="font-sans antialiased bg-white text-secondary">
         {children}
-        <Script id="sw-register" strategy="afterInteractive">{`
-          if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
-          }
-        `}</Script>
       </body>
     </html>
   )

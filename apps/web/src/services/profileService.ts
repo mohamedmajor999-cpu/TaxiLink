@@ -13,6 +13,17 @@ export const profileService = {
     return data
   },
 
+  async getFullName(userId: string): Promise<string | null> {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', userId)
+      .maybeSingle()
+    if (error) throw new Error(error.message)
+    return data?.full_name ?? null
+  },
+
   async getRole(userId: string): Promise<string | null> {
     const supabase = createClient()
     const { data, error } = await supabase

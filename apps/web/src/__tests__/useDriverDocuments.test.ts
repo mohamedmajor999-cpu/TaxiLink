@@ -28,8 +28,8 @@ const mockUseDocumentUpload = vi.mocked(useDocumentUpload)
 beforeEach(() => {
   vi.clearAllMocks()
   mockUseDocumentUpload.mockReturnValue({
-    uploading: false,
-    error: null,
+    uploading: null,
+    error: '',
     fileInputRef,
     triggerUpload: mockTriggerUpload,
     handleFileChange: mockHandleFileChange,

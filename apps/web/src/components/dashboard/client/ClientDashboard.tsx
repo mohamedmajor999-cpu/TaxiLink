@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
 import { ErrorBanner } from '@/components/ui/ErrorBanner'
@@ -24,9 +25,9 @@ export function ClientDashboard() {
     <div className="min-h-screen bg-bgsoft">
       <header className="bg-white border-b border-line sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center font-black text-secondary">T</div>
-            <span className="font-black text-secondary hidden sm:block">TaxiLink <span className="text-primary">Pro</span></span>
+          <Link href="/" className="flex items-center" aria-label="TaxiLink Pro">
+            <Image src="/brand/icon.svg" alt="TaxiLink Pro" width={32} height={32} priority className="h-8 w-8 sm:hidden" />
+            <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={179} height={32} priority className="h-8 w-auto hidden sm:block" />
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-muted hidden sm:block">

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
 
@@ -7,9 +8,8 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid md:grid-cols-4 gap-8 mb-10">
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-xl font-black text-secondary">T</div>
-              <span className="text-lg font-black text-secondary">TaxiLink <span className="text-primary">Pro</span></span>
+            <Link href="/" className="flex items-center mb-4" aria-label="TaxiLink Pro">
+              <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={202} height={36} className="h-9 w-auto" />
             </Link>
             <p className="text-muted text-sm leading-relaxed max-w-xs mb-4">
               La plateforme d&apos;échange de courses entre chauffeurs professionnels. Hôpital, privé — sans WhatsApp.

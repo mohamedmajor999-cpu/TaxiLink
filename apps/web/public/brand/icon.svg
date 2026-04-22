@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="TaxiLink Pro">
+  <defs>
+    <clipPath id="tlIcC"><rect width="120" height="120" rx="18"/></clipPath>
+    <clipPath id="tlIcZh"><polygon points="0,0 120,0 120,45 0,75"/></clipPath>
+    <clipPath id="tlIcZb"><polygon points="0,75 120,45 120,120 0,120"/></clipPath>
+  </defs>
+  <g clip-path="url(#tlIcC)">
+    <rect width="120" height="120" fill="#09090B"/>
+    <polygon points="0,75 120,45 120,120 0,120" fill="#FBBF24"/>
+    <g clip-path="url(#tlIcZh)" fill="#FBBF24">
+      <rect x="30" y="24" width="60" height="13" rx="2"/>
+      <rect x="53" y="24" width="14" height="72"/>
+      <rect x="53" y="83" width="37" height="13" rx="2"/>
+    </g>
+    <g clip-path="url(#tlIcZb)" fill="#09090B">
+      <rect x="30" y="24" width="60" height="13" rx="2"/>
+      <rect x="53" y="24" width="14" height="72"/>
+      <rect x="53" y="83" width="37" height="13" rx="2"/>
+    </g>
+  </g>
+</svg>

@@ -1,12 +1,13 @@
-const CACHE_NAME = 'taxilink-v2'
+const CACHE_NAME = 'taxilink-v5'
 const OFFLINE_URL = '/offline'
 
 const STATIC_ASSETS = [
   '/',
   '/offline',
   '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/brand/icon.svg',
+  '/brand/logo-primary.svg',
+  '/brand/logo-wordmark.svg',
   '/icons/apple-touch-icon.png',
   '/telecharger',
   '/install',
@@ -36,12 +37,17 @@ self.addEventListener('fetch', (event) => {
   // Ignorer les requêtes non-GET
   if (event.request.method !== 'GET') return
 
-  // Ignorer les API Supabase et les routes API Next.js
+  // Ignorer les API Supabase, les routes API Next.js et les APIs externes (BAN, OSRM)
   const url = new URL(event.request.url)
   if (
     url.pathname.startsWith('/api/') ||
     url.hostname.includes('supabase.co') ||
-    url.hostname.includes('supabase.io')
+    url.hostname.includes('supabase.io') ||
+    url.hostname === 'api-adresse.data.gouv.fr' ||
+    url.hostname === 'router.project-osrm.org' ||
+    url.hostname === 'photon.komoot.io' ||
+    url.hostname === 'api.mapbox.com' ||
+    url.hostname.endsWith('.tile.openstreetmap.org')
   ) return
 
   // Pages de navigation → Network First avec fallback offline

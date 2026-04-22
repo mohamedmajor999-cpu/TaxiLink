@@ -1,33 +1,156 @@
 'use client'
-
-import { Icon } from '@/components/ui/Icon'
+import { useMemo, useState } from 'react'
+import type { Mission } from '@/lib/supabase/types'
+import { useMissionVoiceFiller } from './useMissionVoiceFiller'
+import { usePartagerMissionModal } from './usePartagerMissionModal'
+import { buildScheduledAt } from './missionFormHelpers'
+import { buildPreviewCard, findGroupName } from './missionPreview'
+import { MissionPreviewStep } from './MissionPreviewStep'
+import { MissionPublishedStep } from './MissionPublishedStep'
+import { MissionFormLibre, getLibreFieldAnchor } from './MissionFormLibre'
+import { MissionFormVocal } from './MissionFormVocal'
+import { MissionModeToggle, type MissionCreationMode } from './MissionModeToggle'
+import { GuidedMissionFlow } from './guided/GuidedMissionFlow'
+import type { GuidedSetters } from './guided/useGuidedAnswerApplier'
+import { getVisibleQuestions } from './guided/guidedQuestions'
 
 interface Props {
   onClose: () => void
+  mission?: Mission
 }
 
-export function PartagerMissionModal({ onClose }: Props) {
+export function PartagerMissionModal({ onClose, mission }: Props) {
+  const f = usePartagerMissionModal(onClose, mission)
+  const [mode, setMode] = useState<MissionCreationMode>('FREE')
+  const [editFieldId, setEditFieldId] = useState<string | null>(null)
+
+  const voice = useMissionVoiceFiller({
+    setType: f.setType, setMedicalMotif: f.setMedicalMotif,
+    setTransportType: f.setTransportType, setReturnTrip: f.setReturnTrip,
+    setReturnTime: f.setReturnTime, setCompanion: f.setCompanion,
+    setPassengers: f.setPassengers,
+    setDeparture: f.setDeparture, setDestination: f.setDestination,
+    setDate: f.setDate, setTime: f.setTime,
+    setPrice: f.setPrice, setPriceMin: f.setPriceMin, setPriceMax: f.setPriceMax,
+    setPatientName: f.setPatientName, setPhone: f.setPhone,
+    setVisibility: f.setVisibility, setGroupIds: f.setGroupIds,
+    myGroups: f.myGroups,
+    setDepartureCoords: f.setDepartureCoords,
+    setDestinationCoords: f.setDestinationCoords,
+  })
+
+  const visibleQuestions = useMemo(
+    () => getVisibleQuestions({ type: f.type, returnTrip: f.returnTrip, visibility: f.visibility }),
+    [f.type, f.returnTrip, f.visibility],
+  )
+
+  if (f.published) return <MissionPublishedStep isEdit={f.isEdit} onClose={onClose} />
+
+  const groupLabel =
+    f.visibility === 'GROUP' && f.groupIds.length > 0
+      ? (f.groupIds.length === 1 ? findGroupName(f.myGroups, f.groupIds[0]) : `${f.groupIds.length} groupes`)
+      : null
+  const card = buildPreviewCard({
+    type: f.type,
+    departure: f.departure, destination: f.destination,
+    distanceKm: f.distanceKm, durationMin: f.durationMin,
+    priceEur: f.previewFare.value, priceIsEstimated: f.previewFare.isEstimated,
+    priceMinEur: f.previewFare.min, priceMaxEur: f.previewFare.max,
+    scheduledAtIso: buildScheduledAt(f.date, f.time),
+    groupName: groupLabel,
+    medicalMotif: f.type === 'CPAM' ? f.medicalMotif : null,
+  })
+
+  const guidedSetters: GuidedSetters = {
+    setType: f.setType, setMedicalMotif: f.setMedicalMotif,
+    setTransportType: f.setTransportType, setReturnTrip: f.setReturnTrip,
+    setReturnTime: f.setReturnTime, setCompanion: f.setCompanion,
+    setPassengers: f.setPassengers,
+    setDeparture: f.setDeparture, setDestination: f.setDestination,
+    setDate: f.setDate, setTime: f.setTime,
+    setPatientName: f.setPatientName, setPhone: f.setPhone,
+    setVisibility: f.setVisibility, setGroupIds: f.setGroupIds,
+    setDepartureCoords: f.setDepartureCoords,
+    setDestinationCoords: f.setDestinationCoords,
+  }
+
+  const isGuided = mode === 'GUIDED' && !f.isEdit
+  const isVocal = mode === 'VOCAL' && !f.isEdit
+  const onEditField = (id: string) => {
+    f.hidePreview()
+    if (isGuided) {
+      setEditFieldId(id)
+      return
+    }
+    // Depuis Mains libres : on bascule en Semi-libre pour exposer le formulaire éditable.
+    if (isVocal) setMode('FREE')
+    const anchor = getLibreFieldAnchor(id)
+    if (!anchor) return
+    setTimeout(() => {
+      document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 100)
+  }
+
+  const vocalSnapshot = () => ({
+    type: f.type, medicalMotif: f.medicalMotif,
+    departure: f.departure, destination: f.destination,
+  })
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-6 shadow-xl">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-black text-secondary">Partager une mission</h2>
-          <button onClick={onClose} aria-label="Fermer"
-            className="w-9 h-9 rounded-xl bg-bgsoft flex items-center justify-center hover:bg-line transition-colors">
-            <Icon name="close" size={18} />
-          </button>
-        </div>
-        <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Icon name="share" size={32} className="text-primary" />
+    <div className="bg-paper pb-24 md:pb-6">
+      <div className="px-4 md:px-8 pt-4 md:pt-6 pb-2 max-w-2xl mx-auto">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-[20px] font-bold text-ink leading-tight tracking-tight">
+              {f.isEdit ? 'Modifier la course' : 'Nouvelle course'}
+            </h2>
+            <p className="text-[12px] text-warm-500 mt-0.5">
+              {f.preview
+                ? 'Aperçu avant publication'
+                : mode === 'GUIDED' ? 'Assistance pas à pas'
+                : mode === 'VOCAL' ? 'Dictée mains libres'
+                : 'Formulaire libre'}
+            </p>
           </div>
-          <p className="font-bold text-secondary">Fonctionnalité en cours de développement</p>
-          <p className="text-sm text-muted max-w-xs">
-            Tu pourras bientôt créer une mission et la partager avec tes groupes ou tous les chauffeurs.
-          </p>
+          {!f.isEdit && !f.preview && <MissionModeToggle mode={mode} onChange={setMode} />}
         </div>
       </div>
+
+      {/* Flux guidé : monté en continu pour préserver la position quand l'aperçu se ferme. */}
+      {isGuided && (
+        <div className={f.preview ? 'hidden' : ''}>
+          <GuidedMissionFlow
+            form={f}
+            myGroups={f.myGroups}
+            setters={guidedSetters}
+            onComplete={f.showPreview}
+            editFieldId={editFieldId}
+            onEditHandled={() => setEditFieldId(null)}
+          />
+        </div>
+      )}
+      {!isGuided && !isVocal && !f.preview && (
+        <div className="px-4 md:px-8 py-4 max-w-2xl mx-auto">
+          <MissionFormLibre f={f} voice={voice} />
+        </div>
+      )}
+      {isVocal && !f.preview && (
+        <MissionFormVocal filler={voice} snapshot={vocalSnapshot} onComplete={f.showPreview} />
+      )}
+
+      {f.preview && (
+        <MissionPreviewStep
+          card={card} isEdit={f.isEdit} saving={f.saving} error={f.error}
+          onBack={f.hidePreview} onConfirm={f.submit}
+          departureCoords={f.departureCoords}
+          destinationCoords={f.destinationCoords}
+          routeGeometry={f.routeGeometry}
+          form={f}
+          myGroups={f.myGroups}
+          visibleQuestions={visibleQuestions}
+          onEditField={onEditField}
+        />
+      )}
     </div>
   )
 }

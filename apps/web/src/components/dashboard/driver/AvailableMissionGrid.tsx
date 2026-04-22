@@ -3,6 +3,7 @@
 import { Icon } from '@/components/ui/Icon'
 import { TYPE_COLORS } from '@/constants/missionTypes'
 import { getMinutesUntil } from '@/lib/dateUtils'
+import { formatMissionPrice } from '@/lib/formatMissionPrice'
 import type { Mission } from '@/lib/supabase/types'
 
 type AvailableMissionGridProps = {
@@ -66,7 +67,7 @@ export function AvailableMissionGrid({
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xl font-black text-secondary">{m.price_eur?.toFixed(2)}€</p>
+                  <p className="text-xl font-black text-secondary">{formatMissionPrice(m, { decimals: true })}</p>
                   <p className="text-xs text-muted">{m.distance_km} km · {m.duration_min} min</p>
                 </div>
                 <div className="flex items-center gap-2">

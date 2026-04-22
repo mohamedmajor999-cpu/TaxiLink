@@ -1,53 +1,50 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook } from '@testing-library/react'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { act, renderHook } from '@testing-library/react'
 import { useOnboardingPage } from '@/components/onboarding/useOnboardingPage'
 
-// ─── Mock IntersectionObserver ────────────────────────────────────────────────
-const mockObserve    = vi.fn()
-const mockDisconnect = vi.fn()
-
-const MockIntersectionObserver = vi.fn(() => ({
-  observe: mockObserve,
-  disconnect: mockDisconnect,
-}))
-
 beforeEach(() => {
-  vi.clearAllMocks()
-  vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
+  vi.useFakeTimers()
 })
 
 afterEach(() => {
-  vi.unstubAllGlobals()
+  vi.useRealTimers()
 })
 
-// ─── État initial ─────────────────────────────────────────────────────────────
-describe('useOnboardingPage — état initial', () => {
-  it('showCta est false au départ', () => {
+describe('useOnboardingPage — étapes', () => {
+  it('démarre sur le splash et avance automatiquement vers slide1', () => {
     const { result } = renderHook(() => useOnboardingPage())
-    expect(result.current.showCta).toBe(false)
+    expect(result.current.step).toBe('splash')
+
+    act(() => { vi.advanceTimersByTime(1600) })
+    expect(result.current.step).toBe('slide1')
+    expect(result.current.slideIndex).toBe(0)
   })
 
-  it('expose une ref lastSectionRef initialement null', () => {
+  it('next() navigue slide1 → slide2 → slide3 → welcome', () => {
     const { result } = renderHook(() => useOnboardingPage())
-    expect(result.current.lastSectionRef).toBeDefined()
-    expect(result.current.lastSectionRef.current).toBeNull()
-  })
-})
+    act(() => { vi.advanceTimersByTime(1600) })
 
-// ─── Comportement IntersectionObserver ───────────────────────────────────────
-// Note: l'observer n'est créé que si lastSectionRef.current est non-null au montage.
-// En environnement de test, la ref est null → l'effect retourne tôt.
-// On vérifie donc que le hook ne crashe pas et que l'observer n'est pas appelé à tort.
-describe('useOnboardingPage — IntersectionObserver', () => {
-  it('ne crée pas d\'observer si la ref est null au montage', () => {
-    renderHook(() => useOnboardingPage())
-    expect(MockIntersectionObserver).not.toHaveBeenCalled()
-    expect(mockObserve).not.toHaveBeenCalled()
+    act(() => { result.current.next() })
+    expect(result.current.step).toBe('slide2')
+
+    act(() => { result.current.next() })
+    expect(result.current.step).toBe('slide3')
+
+    act(() => { result.current.next() })
+    expect(result.current.step).toBe('welcome')
   })
 
-  it('n\'appelle pas disconnect si aucun observer n\'a été créé', () => {
-    const { unmount } = renderHook(() => useOnboardingPage())
-    unmount()
-    expect(mockDisconnect).not.toHaveBeenCalled()
+  it('skip() saute directement à welcome', () => {
+    const { result } = renderHook(() => useOnboardingPage())
+    act(() => { vi.advanceTimersByTime(1600) })
+
+    act(() => { result.current.skip() })
+    expect(result.current.step).toBe('welcome')
+  })
+
+  it('markSeen() est exposé comme fonction idempotente', () => {
+    const { result } = renderHook(() => useOnboardingPage())
+    expect(() => act(() => { result.current.markSeen() })).not.toThrow()
+    expect(() => act(() => { result.current.markSeen() })).not.toThrow()
   })
 })

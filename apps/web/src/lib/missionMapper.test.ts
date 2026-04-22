@@ -15,6 +15,8 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     phone: '0601020304',
     distance_km: 5.2,
     price_eur: 28,
+    price_min_eur: null,
+    price_max_eur: null,
     client_id: null,
     created_at: '2026-04-10T10:00:00Z',
     accepted_at: null,
@@ -27,8 +29,13 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     notes: null,
     updated_at: '2026-04-10T10:00:00Z',
     shared_by: null,
-    group_id: null,
     visibility: 'assigned',
+    medical_motif: null,
+    return_trip: false,
+    return_time: null,
+    transport_type: null,
+    companion: false,
+    passengers: null,
     ...overrides,
   }
 }

@@ -39,6 +39,17 @@ export const groupService = {
     }))
   },
 
+  /** Noms des groupes auxquels une mission est partagée */
+  async getNamesForMission(missionId: string): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('mission_groups')
+      .select('groups(name)')
+      .eq('mission_id', missionId)
+    if (error) throw error
+    const rows = (data ?? []) as Array<{ groups: { name: string } | null }>
+    return rows.map((r) => r.groups?.name).filter((n): n is string => !!n)
+  },
+
   /** Créer un groupe et y ajouter le créateur comme admin */
   async create(name: string, description: string | null, createdBy: string): Promise<Group> {
     const { data: group, error: gErr } = await supabase

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { RefreshButton } from './RefreshButton'
 
@@ -12,9 +13,7 @@ export default function OfflinePage() {
     <div className="min-h-screen bg-secondary flex items-center justify-center px-4">
       <div className="text-center max-w-sm">
         {/* Logo */}
-        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-3xl font-black text-secondary mx-auto mb-8">
-          T
-        </div>
+        <Image src="/brand/logo-dark.svg" alt="TaxiLink Pro" width={280} height={50} priority className="h-12 w-auto mx-auto mb-8" />
 
         {/* Icon */}
         <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-6">

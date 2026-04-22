@@ -8,8 +8,9 @@ export const missionService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('status', 'AVAILABLE')
+      .gt('scheduled_at', new Date().toISOString())
       .order('scheduled_at', { ascending: true })
     if (error) throw new Error(error.message)
     return data ?? []
@@ -19,12 +20,13 @@ export const missionService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('driver_id', driverId)
       .eq('status', 'IN_PROGRESS')
-      .maybeSingle()
+      .order('accepted_at', { ascending: false })
+      .limit(1)
     if (error) throw new Error(error.message)
-    return data ?? null
+    return data?.[0] ?? null
   },
 
   /**
@@ -60,12 +62,39 @@ export const missionService = {
     if (error) throw new Error(error.message)
   },
 
+  /**
+   * Annuler une mission côté chauffeur : la remet dans le pool AVAILABLE,
+   * libère le driver_id, et trace le motif dans `notes`. La course redevient
+   * donc visible par les autres chauffeurs.
+   */
+  async cancel(missionId: string, reason: string): Promise<void> {
+    const supabase = createClient()
+    const { data: current } = await supabase
+      .from('missions')
+      .select('notes')
+      .eq('id', missionId)
+      .single()
+    const existingNotes = current?.notes ?? ''
+    const marker = `[Annulation chauffeur ${new Date().toISOString()}: ${reason}]`
+    const merged = existingNotes ? `${marker}\n${existingNotes}` : marker
+    const { error } = await supabase
+      .from('missions')
+      .update({
+        driver_id: null,
+        status: 'AVAILABLE',
+        accepted_at: null,
+        notes: merged,
+      })
+      .eq('id', missionId)
+    if (error) throw new Error(error.message)
+  },
+
   /** Historique des missions terminées d'un chauffeur */
   async getDoneByDriver(driverId: string): Promise<Mission[]> {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('driver_id', driverId)
       .eq('status', 'DONE')
       .order('completed_at', { ascending: false })
@@ -78,7 +107,7 @@ export const missionService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('client_id', clientId)
       .order('scheduled_at', { ascending: false })
     if (error) throw new Error(error.message)
@@ -91,16 +120,70 @@ export const missionService = {
     return mission
   },
 
+  /** Mettre à jour une mission existante (statut AVAILABLE uniquement, ownership vérifié côté serveur) */
+  async update(id: string, patch: MissionInput): Promise<Mission> {
+    const { mission } = await api.patch<{ mission: Mission }>(`/api/missions/${id}`, patch)
+    return mission
+  },
+
+  /** Supprimer une mission postée (statut AVAILABLE uniquement, ownership vérifié côté serveur) */
+  async remove(id: string): Promise<void> {
+    await api.delete<{ ok: true }>(`/api/missions/${id}`)
+  },
+
+  /** Récupère une mission par son ID */
+  async getById(id: string): Promise<Mission | null> {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('missions')
+      .select('*, mission_groups(group_id)')
+      .eq('id', id)
+      .single()
+    if (error) return null
+    return data
+  },
+
   /** Agenda d'un chauffeur : ses missions assignées non terminées, triées par date croissante */
   async getAgenda(driverId: string): Promise<Mission[]> {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('missions')
-      .select('*')
+      .select('*, mission_groups(group_id)')
       .eq('driver_id', driverId)
       .neq('status', 'DONE')
       .order('scheduled_at', { ascending: true })
     if (error) throw new Error(error.message)
     return data ?? []
+  },
+
+  /** Créer une course manuellement dans l'agenda (saisie chauffeur) */
+  async createManual(driverId: string, data: {
+    departure: string
+    destination: string
+    scheduledAt: string
+    type: 'CPAM' | 'PRIVE' | 'TAXILINK'
+    priceEur: number | null
+    patientName: string | null
+    notes: string | null
+  }): Promise<Mission> {
+    const supabase = createClient()
+    const { data: mission, error } = await supabase
+      .from('missions')
+      .insert({
+        driver_id: driverId,
+        departure: data.departure,
+        destination: data.destination,
+        scheduled_at: data.scheduledAt,
+        type: data.type,
+        price_eur: data.priceEur,
+        patient_name: data.patientName,
+        notes: data.notes,
+        status: 'ACCEPTED',
+        visibility: 'PRIVATE',
+      })
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return mission
   },
 }

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="85mm" height="55mm" viewBox="0 0 850 550" role="img" aria-label="TaxiLink Pro — carte de visite recto">
+  <rect width="850" height="550" fill="#FFFFFF"/>
+  <g>
+    <rect x="60" y="65" width="90" height="90" rx="20" fill="#0A0A0A"/>
+    <rect x="76" y="87" width="58" height="16" rx="8" fill="#FACC15"/>
+    <circle cx="84" cy="95" r="3.7" fill="#0A0A0A"/>
+    <circle cx="126" cy="95" r="3.7" fill="#0A0A0A"/>
+    <rect x="99" y="103" width="16" height="32" rx="4" fill="#FACC15"/>
+  </g>
+  <text x="175" y="125" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="46" font-weight="700" fill="#0A0A0A" letter-spacing="-1.7">TaxiLink</text>
+  <rect x="420" y="95" width="58" height="34" rx="7" fill="#FACC15"/>
+  <text x="449" y="119" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#0A0A0A" letter-spacing="0.5">Pro</text>
+  <text x="176" y="158" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="500" fill="#555555">Partage de course entre taxis</text>
+  <line x1="60" y1="290" x2="790" y2="290" stroke="#E5E5E0" stroke-width="1"/>
+  <text x="60" y="365" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="30" font-weight="700" fill="#0A0A0A" letter-spacing="-0.5">M. MAJOR</text>
+  <text x="60" y="395" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="500" fill="#777777" letter-spacing="2.5">FONDATEUR</text>
+  <text x="790" y="365" text-anchor="end" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="500" fill="#0A0A0A">contact@taxilink.pro</text>
+  <text x="790" y="390" text-anchor="end" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="400" fill="#777777">taxilink.pro</text>
+  <rect x="60" y="470" width="40" height="4" rx="2" fill="#FACC15"/>
+</svg>

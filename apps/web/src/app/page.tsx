@@ -1,30 +1,36 @@
 import type { Metadata } from 'next'
-import { Navbar } from '@/components/site/Navbar'
+import { LandingNav }            from '@/components/site/LandingNav'
+import { HeroSection }           from '@/components/site/HeroSection'
+import { ProblemSolutionSection } from '@/components/site/ProblemSolutionSection'
+import { FeaturesSection }       from '@/components/site/FeaturesSection'
+import { InstallSection }        from '@/components/site/InstallSection'
+import { PricingSection }        from '@/components/site/PricingSection'
+import { FaqSection }            from '@/components/site/FaqSection'
+import { LandingFooter }         from '@/components/site/LandingFooter'
+import { MobileStickyCta }       from '@/components/site/MobileStickyCta'
+import { PwaFirstLaunchGate }    from '@/components/site/PwaFirstLaunchGate'
+import { JsonLd }                from '@/components/JsonLd'
 
 export const metadata: Metadata = {
-  title: 'TaxiLink Pro — La plateforme des chauffeurs professionnels',
-  description: 'Gérez vos missions, votre agenda et vos revenus en un seul endroit. Rejoignez +2 400 chauffeurs de taxi et VTC sur TaxiLink Pro.',
+  title: 'TaxiLink Pro — Fini WhatsApp. Échangez vos courses entre chauffeurs.',
+  description: 'Postez une course à la voix en 30 secondes. Un collègue l\'accepte en un geste. 100% gratuit, zéro commission, données hébergées en France.',
   robots: { index: true, follow: true },
 }
-import { Hero } from '@/components/site/Hero'
-import { ProblemeSection } from '@/components/site/ProblemeSection'
-import { Features } from '@/components/site/Features'
-import { PatronSection } from '@/components/site/PatronSection'
-import { GratuitSection } from '@/components/site/GratuitSection'
-import { Footer } from '@/components/site/Footer'
-import { JsonLd } from '@/components/JsonLd'
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main>
+      <PwaFirstLaunchGate />
       <JsonLd />
-      <Navbar />
-      <Hero />
-      <ProblemeSection />
-      <Features />
-      <PatronSection />
-      <GratuitSection />
-      <Footer />
+      <LandingNav />
+      <HeroSection />
+      <ProblemSolutionSection />
+      <FeaturesSection />
+      <InstallSection />
+      <PricingSection />
+      <FaqSection />
+      <LandingFooter />
+      <MobileStickyCta />
     </main>
   )
 }
