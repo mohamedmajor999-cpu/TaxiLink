@@ -43,7 +43,7 @@ interface Props {
 export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
   const isUrgent = !!course.urgent
   const tier = getTimeTier(course.scheduledInMin)
-  const cardStyle = `bg-paper border border-warm-200 rounded-lg md:rounded-xl overflow-hidden hover:border-warm-300 hover:shadow-soft transition-all h-full flex flex-col ${isUrgent ? 'shadow-soft' : ''}`
+  const cardStyle = `bg-paper border border-ink/25 rounded-lg md:rounded-xl overflow-hidden hover:border-ink/40 hover:shadow-soft transition-all h-full flex flex-col ${isUrgent ? 'shadow-soft' : ''}`
 
   return (
     <article className={cardStyle}>
@@ -80,13 +80,13 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
       </div>
 
       <div className="px-5 py-2.5 border-t border-warm-100">
-        <div className="flex items-center gap-4">
+        <div className="flex items-start gap-4">
           <div className="flex-1 min-w-0">
             <RouteTimeline from={course.from} to={course.to} compact />
           </div>
           <div className="text-right shrink-0 whitespace-nowrap min-w-[64px]">
             {course.publisher && (
-              <div className="text-[11px] font-semibold text-warm-600 mb-0.5 leading-none -mt-[10px]">
+              <div className="text-[11px] font-semibold text-warm-600 mb-1 leading-tight pt-1">
                 {course.publisher}
               </div>
             )}
