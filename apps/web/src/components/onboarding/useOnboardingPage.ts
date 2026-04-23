@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export type OnboardingStep = 'splash' | 'slide1' | 'slide2' | 'slide3' | 'welcome'
 
@@ -7,11 +7,6 @@ const SLIDES: OnboardingStep[] = ['slide1', 'slide2', 'slide3']
 
 export function useOnboardingPage() {
   const [step, setStep] = useState<OnboardingStep>('splash')
-
-  useEffect(() => {
-    const t = setTimeout(() => setStep('slide1'), 1600)
-    return () => clearTimeout(t)
-  }, [])
 
   const next = useCallback(() => {
     setStep((s) => {

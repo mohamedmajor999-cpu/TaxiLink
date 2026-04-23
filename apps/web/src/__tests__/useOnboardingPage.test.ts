@@ -1,28 +1,22 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useOnboardingPage } from '@/components/onboarding/useOnboardingPage'
 
-beforeEach(() => {
-  vi.useFakeTimers()
-})
-
-afterEach(() => {
-  vi.useRealTimers()
-})
-
 describe('useOnboardingPage — étapes', () => {
-  it('démarre sur le splash et avance automatiquement vers slide1', () => {
+  it('démarre sur le splash et avance vers slide1 via next()', () => {
     const { result } = renderHook(() => useOnboardingPage())
     expect(result.current.step).toBe('splash')
 
-    act(() => { vi.advanceTimersByTime(1600) })
+    act(() => { result.current.next() })
     expect(result.current.step).toBe('slide1')
     expect(result.current.slideIndex).toBe(0)
   })
 
-  it('next() navigue slide1 → slide2 → slide3 → welcome', () => {
+  it('next() navigue splash → slide1 → slide2 → slide3 → welcome', () => {
     const { result } = renderHook(() => useOnboardingPage())
-    act(() => { vi.advanceTimersByTime(1600) })
+
+    act(() => { result.current.next() })
+    expect(result.current.step).toBe('slide1')
 
     act(() => { result.current.next() })
     expect(result.current.step).toBe('slide2')
@@ -36,7 +30,6 @@ describe('useOnboardingPage — étapes', () => {
 
   it('skip() saute directement à welcome', () => {
     const { result } = renderHook(() => useOnboardingPage())
-    act(() => { vi.advanceTimersByTime(1600) })
 
     act(() => { result.current.skip() })
     expect(result.current.step).toBe('welcome')

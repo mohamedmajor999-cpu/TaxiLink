@@ -19,7 +19,7 @@ export function OnboardingPage() {
     if (window.matchMedia('(min-width: 768px)').matches) router.replace('/')
   }, [router])
 
-  if (step === 'splash') return <OnboardingSplash />
+  if (step === 'splash') return <OnboardingSplash onNext={next} />
 
   if (step === 'welcome') return <OnboardingWelcome onEnter={markSeen} />
 
