@@ -6,6 +6,8 @@ const ENDPOINT = 'https://routes.googleapis.com/directions/v2:computeRoutes'
 
 export interface TrafficEstimate {
   durationSec: number
+  /** Durée sans trafic (routes.staticDuration). Null si absente de la réponse. */
+  staticDurationSec: number | null
   distanceM: number
   predicted: boolean
 }
@@ -47,7 +49,7 @@ export async function fetchGoogleRoutesTraffic(params: FetchParams): Promise<Tra
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters',
+        'X-Goog-FieldMask': 'routes.duration,routes.staticDuration,routes.distanceMeters',
       },
       body: JSON.stringify(body),
     })
@@ -56,12 +58,18 @@ export async function fetchGoogleRoutesTraffic(params: FetchParams): Promise<Tra
       console.warn(`[googleRoutes] ${res.status} ${res.statusText}`, txt.slice(0, 300))
       return null
     }
-    const json = await res.json() as { routes?: Array<{ duration?: string; distanceMeters?: number }> }
+    const json = await res.json() as {
+      routes?: Array<{ duration?: string; staticDuration?: string; distanceMeters?: number }>
+    }
     const route = json.routes?.[0]
     if (!route?.duration || route.distanceMeters == null) return null
     const durationSec = parseInt(route.duration.replace(/s$/, ''), 10)
     if (!Number.isFinite(durationSec)) return null
-    return { durationSec, distanceM: route.distanceMeters, predicted }
+    const staticSec = route.staticDuration
+      ? parseInt(route.staticDuration.replace(/s$/, ''), 10)
+      : NaN
+    const staticDurationSec = Number.isFinite(staticSec) ? staticSec : null
+    return { durationSec, staticDurationSec, distanceM: route.distanceMeters, predicted }
   } catch (err) {
     if ((err as Error)?.name !== 'AbortError') console.warn('[googleRoutes] fetch failed', err)
     return null

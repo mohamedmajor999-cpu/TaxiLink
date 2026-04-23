@@ -12,6 +12,8 @@ const TTL_MS = 7 * 24 * 60 * 60 * 1000
 interface RouteResult {
   distance_km: number
   duration_min: number
+  /** Durée sans trafic (Google routes.staticDuration) — pour calcul exact du temps perdu. */
+  static_duration_min: number | null
   geometry: GeoJSON.LineString | null
 }
 
@@ -76,7 +78,7 @@ export async function computeRouteGoogle(
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': key,
-        'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline',
+        'X-Goog-FieldMask': 'routes.duration,routes.staticDuration,routes.distanceMeters,routes.polyline.encodedPolyline',
       },
       body: JSON.stringify(body),
     })
@@ -87,7 +89,12 @@ export async function computeRouteGoogle(
   if (!res.ok) return null
 
   const json = (await res.json()) as {
-    routes?: { distanceMeters?: number; duration?: string; polyline?: { encodedPolyline?: string } }[]
+    routes?: {
+      distanceMeters?: number
+      duration?: string
+      staticDuration?: string
+      polyline?: { encodedPolyline?: string }
+    }[]
   }
   const route = json.routes?.[0]
   const meters = route?.distanceMeters
@@ -95,6 +102,12 @@ export async function computeRouteGoogle(
   if (typeof meters !== 'number' || !durationStr) return null
   const seconds = Number(durationStr.replace(/s$/, ''))
   if (Number.isNaN(seconds)) return null
+  const staticSeconds = route?.staticDuration
+    ? Number(route.staticDuration.replace(/s$/, ''))
+    : NaN
+  const staticDurationMin = Number.isFinite(staticSeconds)
+    ? Math.round(staticSeconds / 60)
+    : null
   const encoded = route?.polyline?.encodedPolyline
   const geometry: GeoJSON.LineString | null = encoded
     ? { type: 'LineString', coordinates: decodePolyline(encoded) }
@@ -102,6 +115,7 @@ export async function computeRouteGoogle(
   const result: RouteResult = {
     distance_km: Math.round(meters / 100) / 10,
     duration_min: Math.round(seconds / 60),
+    static_duration_min: staticDurationMin,
     geometry,
   }
   cache.set(rKey, result)
@@ -141,6 +155,7 @@ export async function computeRoute(
   return {
     distance_km: Math.round(route.distance / 100) / 10,
     duration_min: Math.round(route.duration / 60),
+    static_duration_min: null, // OSRM ne fournit pas de référence sans trafic
     geometry: route.geometry ?? null,
   }
 }
