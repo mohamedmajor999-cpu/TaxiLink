@@ -6,6 +6,7 @@ import { useLoginForm } from '@/components/auth/useLoginForm'
 const mockPush    = vi.fn()
 const mockSignIn  = vi.fn()
 const mockGetRole = vi.fn()
+const mockSignInWithGoogle = vi.fn()
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }))
 
@@ -14,7 +15,10 @@ vi.mock('@/lib/validators', () => ({
 }))
 
 vi.mock('@/services/authService', () => ({
-  authService: { signIn: (...a: unknown[]) => mockSignIn(...a) },
+  authService: {
+    signIn: (...a: unknown[]) => mockSignIn(...a),
+    signInWithGoogle: (...a: unknown[]) => mockSignInWithGoogle(...a),
+  },
 }))
 
 vi.mock('@/services/profileService', () => ({
@@ -84,5 +88,24 @@ describe('useLoginForm — connexion', () => {
     act(() => { result.current.setEmail('test@test.com'); result.current.setPassword('pass123') })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })
     expect(result.current.error).toBe('Compte désactivé')
+  })
+})
+
+// ─── Connexion Google ─────────────────────────────────────────────────────────
+describe('useLoginForm — handleGoogle', () => {
+  it('appelle signInWithGoogle avec l\'URL de callback de l\'origine courante', async () => {
+    mockSignInWithGoogle.mockResolvedValue(undefined)
+    const { result } = renderHook(() => useLoginForm())
+    await act(async () => { await result.current.handleGoogle() })
+    expect(mockSignInWithGoogle).toHaveBeenCalledWith(`${window.location.origin}/auth/callback`)
+    expect(result.current.error).toBe('')
+  })
+
+  it('remet googleLoading à false et affiche l\'erreur si OAuth échoue', async () => {
+    mockSignInWithGoogle.mockRejectedValue(new Error('OAuth error'))
+    const { result } = renderHook(() => useLoginForm())
+    await act(async () => { await result.current.handleGoogle() })
+    expect(result.current.error).toBe('OAuth error')
+    expect(result.current.googleLoading).toBe(false)
   })
 })

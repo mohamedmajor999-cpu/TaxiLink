@@ -2,10 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { profileService } from '@/services/profileService'
 
 // ─── Mock Supabase ─────────────────────────────────────────────────────────────
-const { mockFrom, mockSelect, mockUpdate, mockEq, mockSingle } = vi.hoisted(() => ({
+const { mockFrom, mockSelect, mockUpdate, mockUpsert, mockEq, mockSingle } = vi.hoisted(() => ({
   mockFrom:   vi.fn(),
   mockSelect: vi.fn(),
   mockUpdate: vi.fn(),
+  mockUpsert: vi.fn(),
   mockEq:     vi.fn(),
   mockSingle: vi.fn(),
 }))
@@ -14,13 +15,21 @@ vi.mock('@/lib/supabase/client', () => ({
   createClient: () => ({ from: mockFrom }),
 }))
 
+// Helper : builder update avec resultat select() renvoyant { data, error } final
+function mockUpdateChain(result: { data: unknown; error: unknown }) {
+  const terminal = vi.fn().mockResolvedValue(result)
+  const eqStep = vi.fn().mockReturnValue({ select: terminal })
+  mockUpdate.mockReturnValue({ eq: eqStep })
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   mockSingle.mockResolvedValue({ data: null, error: null })
   mockEq.mockReturnValue({ single: mockSingle })
   mockSelect.mockReturnValue({ eq: mockEq })
-  mockUpdate.mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
-  mockFrom.mockReturnValue({ select: mockSelect, update: mockUpdate })
+  mockUpsert.mockResolvedValue({ error: null })
+  mockUpdateChain({ data: [{ id: 'u1' }], error: null })
+  mockFrom.mockReturnValue({ select: mockSelect, update: mockUpdate, upsert: mockUpsert })
 })
 
 // ─── getProfile ───────────────────────────────────────────────────────────────
@@ -61,16 +70,30 @@ describe('profileService.getRole', () => {
 
 // ─── updateProfile ────────────────────────────────────────────────────────────
 describe('profileService.updateProfile', () => {
-  it('met a jour sans erreur', async () => {
-    const mockEqUpdate = vi.fn().mockResolvedValue({ error: null })
-    mockUpdate.mockReturnValue({ eq: mockEqUpdate })
+  it('met a jour sans erreur quand la ligne existe', async () => {
+    mockUpdateChain({ data: [{ id: 'u1' }], error: null })
     await expect(profileService.updateProfile('u1', { full_name: 'Nouveau Nom', phone: '0607080910' })).resolves.toBeUndefined()
     expect(mockUpdate).toHaveBeenCalledWith({ full_name: 'Nouveau Nom', phone: '0607080910' })
+    expect(mockUpsert).not.toHaveBeenCalled()
   })
 
-  it('leve une erreur si Supabase echoue', async () => {
-    const mockEqUpdate = vi.fn().mockResolvedValue({ error: { message: 'Erreur mise a jour' } })
-    mockUpdate.mockReturnValue({ eq: mockEqUpdate })
+  it('leve une erreur si Supabase echoue sur update', async () => {
+    mockUpdateChain({ data: null, error: { message: 'Erreur mise a jour' } })
     await expect(profileService.updateProfile('u1', { full_name: 'X' })).rejects.toThrow('Erreur mise a jour')
+  })
+
+  it('fait un upsert fallback si la ligne n\'existe pas', async () => {
+    mockUpdateChain({ data: [], error: null })
+    await expect(profileService.updateProfile('u1', { first_name: 'Yannis', last_name: 'Major', phone: '0601020304' })).resolves.toBeUndefined()
+    expect(mockUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'u1', first_name: 'Yannis', last_name: 'Major', phone: '0601020304' }),
+      { onConflict: 'id' },
+    )
+  })
+
+  it('leve une erreur si l\'upsert fallback echoue', async () => {
+    mockUpdateChain({ data: [], error: null })
+    mockUpsert.mockResolvedValue({ error: { message: 'RLS denied' } })
+    await expect(profileService.updateProfile('u1', { first_name: 'X', last_name: 'Y' })).rejects.toThrow('RLS denied')
   })
 })

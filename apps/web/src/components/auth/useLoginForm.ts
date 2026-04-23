@@ -10,6 +10,7 @@ export function useLoginForm() {
   const [password, setPassword] = useState('')
   const [showPw, setShowPw]     = useState(false)
   const [loading, setLoading]   = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError]       = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,5 +30,17 @@ export function useLoginForm() {
     }
   }
 
-  return { email, setEmail, password, setPassword, showPw, setShowPw, loading, error, handleSubmit }
+  const handleGoogle = async () => {
+    setError('')
+    setGoogleLoading(true)
+    try {
+      const redirectTo = `${window.location.origin}/auth/callback`
+      await authService.signInWithGoogle(redirectTo)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur Google')
+      setGoogleLoading(false)
+    }
+  }
+
+  return { email, setEmail, password, setPassword, showPw, setShowPw, loading, googleLoading, error, handleSubmit, handleGoogle }
 }

@@ -46,10 +46,19 @@ export const profileService = {
     if ((updates.first_name != null || updates.last_name != null) && updates.full_name == null) {
       payload.full_name = `${updates.first_name ?? ''} ${updates.last_name ?? ''}`.trim()
     }
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .update(payload)
       .eq('id', userId)
+      .select('id')
     if (error) throw new Error(error.message)
+    // Si la ligne n'existait pas, update n'affecte 0 ligne sans erreur.
+    // On upsert en fallback pour garantir la persistance (cas de trigger defaillant).
+    if (!data || data.length === 0) {
+      const { error: upsertError } = await supabase
+        .from('profiles')
+        .upsert({ id: userId, ...payload }, { onConflict: 'id' })
+      if (upsertError) throw new Error(upsertError.message)
+    }
   },
 }
