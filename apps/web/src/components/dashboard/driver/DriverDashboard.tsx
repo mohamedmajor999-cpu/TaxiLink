@@ -36,12 +36,15 @@ export function DriverDashboard() {
   const unseenAcceptCount = useUnseenAcceptCount()
   const showModal = showCreer || Boolean(editingMission)
   const closeModal = () => {
-    setShowCreer(false)
-    clearEdit()
+    // Edit modal is store-driven (no URL entry) → just clear the store
+    // Creer modal pushed ?creer=1 → router.back() defait proprement l'entree
+    if (editingMission) clearEdit()
+    else if (showCreer) router.back()
   }
   const handleTabChange = (tab: typeof activeTab) => {
-    closeModal()
-    setDetailMissionId(null)
+    // setActiveTab fait un seul push qui clear tab + mission + creer.
+    // Le store d'edition n'est pas dans l'URL → on le reset ici.
+    clearEdit()
     setActiveTab(tab)
   }
   const goToPostedTab = () => {
@@ -84,7 +87,7 @@ export function DriverDashboard() {
         {showModal ? (
           <PartagerMissionModal onClose={closeModal} mission={editingMission ?? undefined} />
         ) : detailMissionId ? (
-          <MissionDetailScreen missionId={detailMissionId} onBack={() => setDetailMissionId(null)} />
+          <MissionDetailScreen missionId={detailMissionId} onBack={() => router.back()} />
         ) : (
           <>
             {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowMissionDetail={setDetailMissionId} onGoToProfile={() => handleTabChange('profil')} />}
