@@ -11,9 +11,10 @@ import { NextMissionBanner } from './NextMissionBanner'
 interface Props {
   onPostCourse: () => void
   onShowMissionDetail: (id: string) => void
+  onGoToProfile: () => void
 }
 
-export function DriverHome({ onPostCourse, onShowMissionDetail }: Props) {
+export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }: Props) {
   const h = useDriverHome()
 
   const onSortChange = (v: HomeSort) => {
@@ -31,6 +32,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail }: Props) {
         isOnline={h.driver.isOnline}
         onToggleOnline={() => h.setOnline(!h.driver.isOnline)}
         initials={h.initials}
+        onProfile={onGoToProfile}
       />
 
       <TodaySummary

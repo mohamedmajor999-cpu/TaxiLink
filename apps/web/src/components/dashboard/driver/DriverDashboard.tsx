@@ -89,7 +89,7 @@ export function DriverDashboard() {
           <MissionDetailScreen missionId={detailMissionId} onBack={() => setDetailMissionId(null)} />
         ) : (
           <>
-            {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowMissionDetail={setDetailMissionId} />}
+            {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowMissionDetail={setDetailMissionId} onGoToProfile={() => handleTabChange('profil')} />}
             {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={() => setShowCreer(true)} />}
             {activeTab === 'groupes' && (
               <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">

@@ -7,10 +7,11 @@ interface Props {
   isOnline: boolean
   onToggleOnline: () => void
   initials: string
+  onProfile: () => void
 }
 
 export function HomeMobileHeader({
-  city, postalCode, isOnline, onToggleOnline, initials,
+  city, postalCode, isOnline, onToggleOnline, initials, onProfile,
 }: Props) {
   return (
     <header className="md:hidden flex items-center justify-between gap-3 mb-5">
@@ -38,9 +39,14 @@ export function HomeMobileHeader({
           />
           {isOnline ? 'En ligne' : 'Hors ligne'}
         </button>
-        <div className="w-9 h-9 rounded-full border border-warm-300 bg-paper flex items-center justify-center text-[12px] font-semibold text-ink">
+        <button
+          type="button"
+          onClick={onProfile}
+          aria-label="Mon profil"
+          className="w-9 h-9 rounded-full border border-warm-300 bg-paper flex items-center justify-center text-[12px] font-semibold text-ink hover:bg-warm-50 transition-colors"
+        >
           {initials}
-        </div>
+        </button>
       </div>
     </header>
   )

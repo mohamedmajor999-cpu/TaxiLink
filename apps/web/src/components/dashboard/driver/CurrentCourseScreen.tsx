@@ -1,6 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
@@ -115,20 +115,13 @@ function Stat({ label, value, sub, border = false }: { label: string; value: str
 }
 
 function BackButton({ onBack }: { onBack?: () => void }) {
+  const router = useRouter()
   const className = 'inline-flex items-center gap-2 text-[13px] font-semibold text-warm-600 hover:text-ink transition-colors'
-  if (onBack) {
-    return (
-      <button type="button" onClick={onBack} className={className}>
-        <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-        Retour
-      </button>
-    )
-  }
   return (
-    <Link href="/dashboard/chauffeur" className={className}>
+    <button type="button" onClick={onBack ?? (() => router.back())} className={className}>
       <ArrowLeft className="w-4 h-4" strokeWidth={2} />
       Retour
-    </Link>
+    </button>
   )
 }
 
