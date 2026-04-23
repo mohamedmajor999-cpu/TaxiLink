@@ -5,6 +5,7 @@ import {
   getSpeechRecognitionCtor,
   type SpeechRecognitionInstance,
 } from '@/lib/speechRecognition'
+import { useWakeLock } from './useWakeLock'
 
 /**
  * Hook générique de dictée vocale via Web Speech API.
@@ -36,6 +37,7 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
   const [interimTranscript, setInterimTranscript] = useState('')
   const [error, setError] = useState<string | null>(null)
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
+  const { acquire: acquireWakeLock, release: releaseWakeLock } = useWakeLock()
   // Chrome coupe la reconnaissance après ~5-10s de silence même avec continuous=true.
   // On auto-restart tant que l'utilisateur n'a pas explicitement appelé stop().
   const wantListeningRef = useRef(false)
@@ -78,6 +80,7 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
       setError(e.error || 'unknown')
       setIsListening(false)
       setInterimTranscript('')
+      void releaseWakeLock()
     }
     instance.onend = () => {
       setInterimTranscript('')
@@ -93,6 +96,7 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
       }
       wantListeningRef.current = false
       setIsListening(false)
+      void releaseWakeLock()
     }
     instance.onstart = () => {
       setError(null)
@@ -105,16 +109,18 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
       if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current)
       try { instance.abort() } catch { /* noop */ }
       recognitionRef.current = null
+      void releaseWakeLock()
     }
-  }, [lang, continuous])
+  }, [lang, continuous, releaseWakeLock])
 
   const start = useCallback(() => {
     const r = recognitionRef.current
     if (!r || isListening) return
     wantListeningRef.current = true
     lastFinalRef.current = null
+    void acquireWakeLock()
     try { r.start() } catch { /* déjà démarré : ignore */ }
-  }, [isListening])
+  }, [isListening, acquireWakeLock])
 
   const stop = useCallback(() => {
     const r = recognitionRef.current
@@ -122,7 +128,8 @@ export function useVoiceDictation(options: Options): UseVoiceDictation {
     wantListeningRef.current = false
     if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current)
     try { r.stop() } catch { /* noop */ }
-  }, [])
+    void releaseWakeLock()
+  }, [releaseWakeLock])
 
   return { isSupported, isListening, interimTranscript, start, stop, error }
 }

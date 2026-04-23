@@ -15,8 +15,29 @@ type MissionLike = Pick<
   'price_eur' | 'type' | 'medical_motif' | 'distance_km' | 'duration_min' | 'scheduled_at' | 'departure' | 'destination'
 >
 
-function pad2(n: number): string {
-  return n.toString().padStart(2, '0')
+// Les tarifs CPAM et préfectoraux sont définis en heure de Paris. On force ce
+// fuseau à l'extraction, sinon un device en UTC (VPN, extension privacy) voit
+// un prix majoré différent (ex: 06h30 UTC lu comme nuit au lieu de 08h30 locale).
+const PARIS_PARTS = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Paris',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+})
+
+function parisDateTime(iso: string): { date: string; time: string } | null {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  const parts = PARIS_PARTS.formatToParts(d)
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
+  const hour = get('hour') === '24' ? '00' : get('hour')
+  return {
+    date: `${get('year')}-${get('month')}-${get('day')}`,
+    time: `${hour}:${get('minute')}`,
+  }
 }
 
 function normalizeMotif(raw: string | null | undefined): MedicalMotif | null {
@@ -25,10 +46,9 @@ function normalizeMotif(raw: string | null | undefined): MedicalMotif | null {
 }
 
 function estimateFor(m: MissionLike): number | null {
-  const d = new Date(m.scheduled_at)
-  if (Number.isNaN(d.getTime())) return null
-  const date = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
-  const time = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
+  const parts = parisDateTime(m.scheduled_at)
+  if (!parts) return null
+  const { date, time } = parts
 
   if (m.type === 'CPAM') {
     const motif = normalizeMotif(m.medical_motif)
