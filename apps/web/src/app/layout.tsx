@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Instrument_Serif } from 'next/font/google'
 import './globals.css'
+import { ServiceWorkerRegistrar } from '@/components/site/ServiceWorkerRegistrar'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" className={`scroll-smooth ${inter.variable} ${instrumentSerif.variable}`}>
       <body className="font-sans antialiased bg-white text-secondary">
+        <ServiceWorkerRegistrar />
         {children}
       </body>
     </html>
