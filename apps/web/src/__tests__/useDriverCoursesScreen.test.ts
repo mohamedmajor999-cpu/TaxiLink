@@ -1,7 +1,17 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useDriverCoursesScreen } from '@/components/dashboard/driver/courses/useDriverCoursesScreen'
 import { usePostedAcceptStore } from '@/store/postedAcceptStore'
+
+// ─── Mocks next/navigation ────────────────────────────────────────────────────
+const mockPush = vi.fn()
+let currentSearch = ''
+
+vi.mock('next/navigation', () => ({
+  useRouter:       () => ({ push: mockPush }),
+  usePathname:     () => '/dashboard/chauffeur',
+  useSearchParams: () => new URLSearchParams(currentSearch),
+}))
 
 function seedUnseen(missionId = 'm1') {
   usePostedAcceptStore.getState().add({
@@ -14,42 +24,58 @@ function seedUnseen(missionId = 'm1') {
   })
 }
 
-describe('useDriverCoursesScreen', () => {
-  beforeEach(() => {
-    usePostedAcceptStore.getState().reset()
-  })
+beforeEach(() => {
+  vi.clearAllMocks()
+  currentSearch = 'tab=courses'
+  usePostedAcceptStore.getState().reset()
+})
 
-
-  it("onglet actif par défaut = 'upcoming'", () => {
+describe('useDriverCoursesScreen — lecture URL', () => {
+  it("onglet actif par defaut = 'upcoming' quand aucun ?subtab=", () => {
     const { result } = renderHook(() => useDriverCoursesScreen())
     expect(result.current.active).toBe('upcoming')
   })
 
-  it('setActive change onglet actif', () => {
+  it("lit 'history' depuis ?subtab=history", () => {
+    currentSearch = 'tab=courses&subtab=history'
     const { result } = renderHook(() => useDriverCoursesScreen())
-    act(() => { result.current.setActive('history') })
     expect(result.current.active).toBe('history')
   })
 
+  it("fallback 'upcoming' si ?subtab= invalide", () => {
+    currentSearch = 'tab=courses&subtab=bidon'
+    const { result } = renderHook(() => useDriverCoursesScreen())
+    expect(result.current.active).toBe('upcoming')
+  })
+})
+
+describe('useDriverCoursesScreen — setActive (push URL)', () => {
+  it("push ?subtab=history en preservant ?tab=courses", () => {
+    const { result } = renderHook(() => useDriverCoursesScreen())
+    act(() => { result.current.setActive('history') })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses&subtab=history')
+  })
+
+  it("retire ?subtab quand on revient sur 'upcoming'", () => {
+    currentSearch = 'tab=courses&subtab=history'
+    const { result } = renderHook(() => useDriverCoursesScreen())
+    act(() => { result.current.setActive('upcoming') })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses')
+  })
+})
+
+describe('useDriverCoursesScreen — subTabs + badge', () => {
   it('subTabs contient 4 entrées', () => {
     const { result } = renderHook(() => useDriverCoursesScreen())
     expect(result.current.subTabs).toHaveLength(4)
   })
 
-  it('dateLabel est une chaîne non vide', () => {
+  it('dateLabel est une chaine non vide', () => {
     const { result } = renderHook(() => useDriverCoursesScreen())
     expect(result.current.dateLabel).toBeTruthy()
-    expect(typeof result.current.dateLabel).toBe('string')
   })
 
-  it("subTabs inclut 'agenda' et 'posted'", () => {
-    const { result } = renderHook(() => useDriverCoursesScreen())
-    const ids = result.current.subTabs.map((t) => t.id)
-    expect(ids).toContain('agenda')
-    expect(ids).toContain('posted')
-  })
-
-  it("sous-onglet 'Postées' porte badge=N quand il y a N acceptation(s) non vue(s)", () => {
+  it("sous-onglet 'Postees' porte badge=N quand il y a N acceptation(s) non vue(s)", () => {
     seedUnseen('m1')
     seedUnseen('m2')
     const { result } = renderHook(() => useDriverCoursesScreen())
@@ -57,7 +83,9 @@ describe('useDriverCoursesScreen', () => {
     expect(posted?.badge).toBe(2)
     expect(result.current.postedBadge).toBe(2)
   })
+})
 
+describe('useDriverCoursesScreen — effets sur acceptations non vues', () => {
   it("setActive('posted') vide les acceptations non vues", () => {
     seedUnseen('m1')
     const { result } = renderHook(() => useDriverCoursesScreen())
@@ -72,9 +100,10 @@ describe('useDriverCoursesScreen', () => {
     expect(usePostedAcceptStore.getState().unseen['m1']).toBeTruthy()
   })
 
-  it("l'event window 'taxilink:open-posted-tab' bascule sur 'posted'", () => {
-    const { result } = renderHook(() => useDriverCoursesScreen())
-    act(() => { window.dispatchEvent(new CustomEvent('taxilink:open-posted-tab')) })
-    expect(result.current.active).toBe('posted')
+  it("arriver deja sur ?subtab=posted avec des unseen les vide", () => {
+    seedUnseen('m1')
+    currentSearch = 'tab=courses&subtab=posted'
+    renderHook(() => useDriverCoursesScreen())
+    expect(Object.keys(usePostedAcceptStore.getState().unseen)).toHaveLength(0)
   })
 })

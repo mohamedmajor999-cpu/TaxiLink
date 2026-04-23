@@ -1,4 +1,5 @@
 'use client'
+import { useRouter } from 'next/navigation'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
 import { useMissionEditStore } from '@/store/missionEditStore'
@@ -17,6 +18,7 @@ import { PartagerMissionModal } from './PartagerMissionModal'
 import { PostedMissionAcceptPopup } from './PostedMissionAcceptPopup'
 
 export function DriverDashboard() {
+  const router = useRouter()
   const { driverName, loading } = useDriverAuth()
   const {
     activeTab,
@@ -43,12 +45,8 @@ export function DriverDashboard() {
     setActiveTab(tab)
   }
   const goToPostedTab = () => {
-    closeModal()
-    setDetailMissionId(null)
-    setActiveTab('courses')
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('taxilink:open-posted-tab'))
-    }
+    clearEdit()
+    router.push('/dashboard/chauffeur?tab=courses&subtab=posted')
   }
 
   if (loading) {

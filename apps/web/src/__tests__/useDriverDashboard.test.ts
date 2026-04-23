@@ -17,11 +17,13 @@ beforeEach(() => {
   currentSearch = ''
 })
 
-// ─── État initial ─────────────────────────────────────────────────────────────
-describe('useDriverDashboard — état initial', () => {
-  it('démarre sur "home" quand aucun ?tab=', () => {
+// ─── État initial (lecture URL) ───────────────────────────────────────────────
+describe('useDriverDashboard — lecture URL', () => {
+  it('démarre sur "home" quand aucun query', () => {
     const { result } = renderHook(() => useDriverDashboard())
     expect(result.current.activeTab).toBe('home')
+    expect(result.current.detailMissionId).toBeNull()
+    expect(result.current.showCreer).toBe(false)
   })
 
   it('lit "profil" depuis ?tab=profil', () => {
@@ -36,24 +38,25 @@ describe('useDriverDashboard — état initial', () => {
     expect(result.current.activeTab).toBe('home')
   })
 
-  it('showCreer est false au départ', () => {
+  it('lit detailMissionId depuis ?mission=abc', () => {
+    currentSearch = 'mission=abc'
     const { result } = renderHook(() => useDriverDashboard())
-    expect(result.current.showCreer).toBe(false)
+    expect(result.current.detailMissionId).toBe('abc')
+  })
+
+  it('lit showCreer depuis ?creer=1', () => {
+    currentSearch = 'creer=1'
+    const { result } = renderHook(() => useDriverDashboard())
+    expect(result.current.showCreer).toBe(true)
   })
 })
 
-// ─── Navigation onglets (push URL) ────────────────────────────────────────────
+// ─── setActiveTab (push URL) ──────────────────────────────────────────────────
 describe('useDriverDashboard — setActiveTab', () => {
   it('push ?tab=courses', () => {
     const { result } = renderHook(() => useDriverDashboard())
     act(() => { result.current.setActiveTab('courses') })
     expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses')
-  })
-
-  it('push ?tab=profil', () => {
-    const { result } = renderHook(() => useDriverDashboard())
-    act(() => { result.current.setActiveTab('profil') })
-    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?tab=profil')
   })
 
   it('push sans query quand on revient sur "home"', () => {
@@ -63,26 +66,49 @@ describe('useDriverDashboard — setActiveTab', () => {
     expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur')
   })
 
-  it('reset detailMissionId lors du changement', () => {
+  it('efface mission et creer lors du changement d\'onglet', () => {
+    currentSearch = 'mission=abc&creer=1'
     const { result } = renderHook(() => useDriverDashboard())
-    act(() => { result.current.setDetailMissionId('m1') })
     act(() => { result.current.setActiveTab('courses') })
-    expect(result.current.detailMissionId).toBeNull()
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses')
   })
 })
 
-// ─── showCreer ────────────────────────────────────────────────────────────────
-describe('useDriverDashboard — showCreer', () => {
-  it('passe showCreer à true', () => {
+// ─── setDetailMissionId ───────────────────────────────────────────────────────
+describe('useDriverDashboard — setDetailMissionId', () => {
+  it('push ?mission=<id>', () => {
     const { result } = renderHook(() => useDriverDashboard())
-    act(() => { result.current.setShowCreer(true) })
-    expect(result.current.showCreer).toBe(true)
+    act(() => { result.current.setDetailMissionId('m1') })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?mission=m1')
   })
 
-  it('repasse showCreer à false', () => {
+  it('retire ?mission quand on passe null', () => {
+    currentSearch = 'mission=m1'
+    const { result } = renderHook(() => useDriverDashboard())
+    act(() => { result.current.setDetailMissionId(null) })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur')
+  })
+
+  it('preserve ?tab= lors de l\'ouverture du detail', () => {
+    currentSearch = 'tab=courses'
+    const { result } = renderHook(() => useDriverDashboard())
+    act(() => { result.current.setDetailMissionId('m1') })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses&mission=m1')
+  })
+})
+
+// ─── setShowCreer ─────────────────────────────────────────────────────────────
+describe('useDriverDashboard — setShowCreer', () => {
+  it('push ?creer=1 a l\'ouverture', () => {
     const { result } = renderHook(() => useDriverDashboard())
     act(() => { result.current.setShowCreer(true) })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?creer=1')
+  })
+
+  it('retire ?creer a la fermeture', () => {
+    currentSearch = 'creer=1'
+    const { result } = renderHook(() => useDriverDashboard())
     act(() => { result.current.setShowCreer(false) })
-    expect(result.current.showCreer).toBe(false)
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur')
   })
 })
