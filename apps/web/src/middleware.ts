@@ -34,15 +34,28 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // 2. Vérification du rôle pour les routes protégées
+  // 2. Vérification complétude profil + rôle pour les routes protégées
   if (pathname.startsWith('/dashboard/chauffeur') || pathname.startsWith('/dashboard/client')) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, first_name, last_name, phone')
       .eq('id', user.id)
       .single()
 
-    const role = profile?.role
+    // Inscription via Google : Google fournit prénom/nom mais jamais le téléphone.
+    // On force le user à compléter avant d'accéder au dashboard.
+    const isIncomplete = !profile
+      || !profile.first_name?.trim()
+      || !profile.last_name?.trim()
+      || !profile.phone?.trim()
+
+    if (isIncomplete) {
+      const completeUrl = new URL('/auth/complete-profile', request.url)
+      completeUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(completeUrl)
+    }
+
+    const role = profile.role
 
     // Chauffeur essaie d'accéder au dashboard client → redirige vers son dashboard
     if (pathname.startsWith('/dashboard/client') && role !== 'client') {
