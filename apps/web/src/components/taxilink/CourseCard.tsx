@@ -88,7 +88,7 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
             <div className="h-[32px] text-[11px] font-semibold text-warm-600 leading-tight">
               {course.publisher ?? ' '}
             </div>
-            <div className="mt-3.5">
+            <div className="mt-1">
               {course.priceIsEstimated && (
                 <>
                   <div className="h-4" aria-hidden="true" />
