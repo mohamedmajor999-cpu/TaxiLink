@@ -43,7 +43,7 @@ interface Props {
 export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
   const isUrgent = !!course.urgent
   const tier = getTimeTier(course.scheduledInMin)
-  const cardStyle = `bg-paper border border-ink/25 rounded-lg md:rounded-xl overflow-hidden hover:border-ink/40 hover:shadow-soft transition-all h-full flex flex-col ${isUrgent ? 'shadow-soft' : ''}`
+  const cardStyle = `bg-paper border border-ink/55 rounded-lg md:rounded-xl overflow-hidden hover:border-ink/70 hover:shadow-soft transition-all h-full flex flex-col ${isUrgent ? 'shadow-soft' : ''}`
 
   return (
     <article className={cardStyle}>
@@ -88,7 +88,7 @@ export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
             <div className="h-[32px] text-[11px] font-semibold text-warm-600 leading-tight">
               {course.publisher ?? ' '}
             </div>
-            <div className="mt-3.5">
+            <div className="mt-px">
               {course.priceIsEstimated && (
                 <>
                   <div className="h-4" aria-hidden="true" />
