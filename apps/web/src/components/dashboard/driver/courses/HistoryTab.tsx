@@ -1,72 +1,15 @@
 'use client'
-import { Download } from 'lucide-react'
 import { RideBadge } from '@/components/taxilink/RideBadge'
 import { useHistoryTab, type MonthGroup, type Period } from './useHistoryTab'
+import { HistoryStatsHeader } from './HistoryStatsHeader'
 import type { Mission } from '@/lib/supabase/types'
 import { formatMissionPrice } from '@/lib/formatMissionPrice'
-
-// ─── Period pills ─────────────────────────────────────────────────────────────
 
 const PERIOD_OPTIONS: { value: Period; label: string }[] = [
   { value: 'week', label: '7 jours' },
   { value: 'month', label: '30 jours' },
   { value: 'all', label: 'Tout' },
 ]
-
-// ─── Stats header ─────────────────────────────────────────────────────────────
-
-function StatsHeader({
-  stats,
-  onExport,
-}: {
-  stats: { total: number; count: number; km: number }
-  onExport: () => void
-}) {
-  return (
-    <div className="relative rounded-2xl bg-ink px-5 py-4 flex items-center justify-between gap-4">
-      <div className="flex items-center gap-6 flex-wrap">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-warm-500 mb-0.5">
-            Revenus
-          </p>
-          <p className="text-[28px] font-bold leading-none text-paper tabular-nums">
-            {stats.total.toLocaleString('fr-FR')}
-            <span className="text-[18px] ml-0.5">€</span>
-          </p>
-        </div>
-        <div className="h-10 w-px bg-warm-300 hidden sm:block" />
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-warm-500 mb-0.5">
-            Courses
-          </p>
-          <p className="text-[22px] font-bold leading-none text-paper tabular-nums">
-            {stats.count}
-          </p>
-        </div>
-        <div className="h-10 w-px bg-warm-300 hidden sm:block" />
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-warm-500 mb-0.5">
-            Km parcourus
-          </p>
-          <p className="text-[22px] font-bold leading-none text-paper tabular-nums">
-            {stats.km.toLocaleString('fr-FR')}
-          </p>
-        </div>
-      </div>
-      <button
-        type="button"
-        onClick={onExport}
-        title="Exporter en CSV"
-        className="shrink-0 flex items-center gap-1.5 rounded-lg bg-warm-800 hover:bg-warm-600 px-3 py-2 text-[12px] font-semibold text-warm-300 transition-colors"
-      >
-        <Download className="w-3.5 h-3.5" strokeWidth={2} />
-        CSV
-      </button>
-    </div>
-  )
-}
-
-// ─── History row ──────────────────────────────────────────────────────────────
 
 function HistoryRow({
   mission,
@@ -102,8 +45,6 @@ function HistoryRow({
   )
 }
 
-// ─── Month section (used in 'all' view) ──────────────────────────────────────
-
 function MonthSection({
   group,
   openDetail,
@@ -133,8 +74,6 @@ function MonthSection({
   )
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function HistoryTab() {
   const h = useHistoryTab()
 
@@ -157,10 +96,8 @@ export function HistoryTab() {
 
   return (
     <div className="mt-6 space-y-4">
-      {/* Stats header */}
-      <StatsHeader stats={h.stats} onExport={h.handleExportCsv} />
+      <HistoryStatsHeader stats={h.stats} onExport={h.handleExportCsv} />
 
-      {/* Period pills */}
       <div className="flex gap-2">
         {PERIOD_OPTIONS.map(({ value, label }) => (
           <button
@@ -179,7 +116,6 @@ export function HistoryTab() {
         ))}
       </div>
 
-      {/* Empty state */}
       {h.filtered.length === 0 && (
         <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
           <p className="text-[20px] font-bold leading-tight text-ink mb-2 tracking-tight">
@@ -193,7 +129,6 @@ export function HistoryTab() {
         </div>
       )}
 
-      {/* All view : grouped by month */}
       {h.period === 'all' && h.groups.length > 0 && (
         <div>
           {h.groups.map((g) => (
@@ -202,7 +137,6 @@ export function HistoryTab() {
         </div>
       )}
 
-      {/* Week / month view : flat list */}
       {h.period !== 'all' && h.filtered.length > 0 && (
         <ul className="rounded-2xl border border-warm-200 bg-paper overflow-hidden">
           {h.filtered.map((m) => (

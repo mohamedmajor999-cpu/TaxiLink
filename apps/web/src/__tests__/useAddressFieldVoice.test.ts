@@ -27,7 +27,7 @@ vi.mock('@/components/dashboard/driver/smartAddressLookup', () => ({
   smartAddressLookup: (...a: unknown[]) => mockSmartAddressLookup(...a),
 }))
 
-const SUGGESTION: AddressSuggestion = { label: '10 Rue de la Paix, Paris', lat: 48.87, lng: 2.33, placeId: null }
+const SUGGESTION: AddressSuggestion = { label: '10 Rue de la Paix, Paris', lat: 48.87, lng: 2.33, score: 0.9 }
 
 beforeEach(() => {
   vi.clearAllMocks()

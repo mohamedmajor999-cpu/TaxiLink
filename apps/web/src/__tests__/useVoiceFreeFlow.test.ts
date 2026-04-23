@@ -18,10 +18,11 @@ vi.mock('@/components/dashboard/driver/vocal/missingCriticalFields', () => ({
 }))
 
 const mockFiller = {
+  isSupported: true,
   isListening: false,
   isProcessing: false,
-  error: null,
-  parsedFields: {},
+  error: null as string | null,
+  parsedFields: new Set<string>(),
   transcript: '',
   interimTranscript: '',
   start: vi.fn(),
@@ -35,8 +36,8 @@ beforeEach(() => {
   vi.clearAllMocks()
   mockGetMissing.mockReturnValue([])
   Object.assign(mockFiller, {
-    isListening: false, isProcessing: false, error: null,
-    parsedFields: {}, transcript: '', interimTranscript: '',
+    isSupported: true, isListening: false, isProcessing: false, error: null,
+    parsedFields: new Set<string>(), transcript: '', interimTranscript: '',
   })
 })
 

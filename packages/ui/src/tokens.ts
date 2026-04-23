@@ -1,3 +1,7 @@
+// Design tokens partagés. Consommés par apps/web/tailwind.config.ts
+// et destinés à une future app mobile. Les clés reflètent la nomenclature
+// Tailwind utilisée dans le code (classes utilitaires).
+
 export const colors = {
   primary: '#FFD23F',
   secondary: '#1A1A1A',
@@ -15,7 +19,7 @@ export const shadows = {
 } as const
 
 export const borderRadius = {
-  card: '12px',
-  modal: '20px',
-  button: '32px',
+  '2xl': '16px',
+  '3xl': '20px',
+  '4xl': '32px',
 } as const

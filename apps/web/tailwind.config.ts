@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import { colors as coreColors, shadows as coreShadows, borderRadius as coreRadii } from '@taxilink/ui'
 
 const config: Config = {
   content: [
@@ -9,13 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // — Tokens existants (dashboard) —
-        primary: '#FFD23F',
-        secondary: '#1A1A1A',
-        accent: '#3B82F6',
-        bgsoft: '#F8F9FA',
-        line: '#E5E7EB',
-        muted: '#9CA3AF',
+        // — Tokens dashboard legacy (source : packages/ui) —
+        ...coreColors,
         // — Nouveau design system (landing refonte) —
         ink: '#000000',
         paper: '#FFFFFF',
@@ -42,19 +38,14 @@ const config: Config = {
         'display-sm': ['26px', { lineHeight: '1.2' }],
       },
       boxShadow: {
-        soft: '0 2px 16px rgba(0,0,0,.04)',
-        card: '0 4px 24px rgba(0,0,0,.06)',
-        button: '0 2px 8px rgba(0,0,0,.08)',
-        fab: '0 8px 24px rgba(255, 210, 63, 0.4)',
+        ...coreShadows,
         'fab-hover': '0 12px 32px rgba(255, 210, 63, 0.5)',
         subtle: '0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04)',
         float: '0 8px 24px rgba(0,0,0,.08)',
         toast: '0 12px 32px rgba(0,0,0,.12)',
       },
       borderRadius: {
-        '2xl': '16px',
-        '3xl': '20px',
-        '4xl': '32px',
+        ...coreRadii,
       },
       animation: {
         'gradient-shift': 'gradientShift 3s ease infinite',

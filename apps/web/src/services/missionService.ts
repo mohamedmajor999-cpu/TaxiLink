@@ -1,67 +1,11 @@
 import { createClient } from '@/lib/supabase/client'
 import { api } from '@/lib/api'
+import { broadcastMissionAccepted } from '@/lib/missionBroadcast'
+import { missionQueries } from './missionQueries'
 import type { Mission } from '@/lib/supabase/types'
 import type { MissionInput } from '@/lib/validators'
 
-type Supabase = ReturnType<typeof createClient>
-
-// Notifie les autres chauffeurs qu'une mission a ete acceptee. Necessaire
-// car la policy SELECT ne retourne plus la ligne IN_PROGRESS aux chauffeurs
-// non concernes, donc Supabase filtre l'event postgres_changes UPDATE.
-// Best-effort : on ne bloque pas l'acceptation si le broadcast echoue.
-function broadcastMissionAccepted(supabase: Supabase, missionId: string): Promise<void> {
-  return new Promise<void>((resolve) => {
-    try {
-      const channel = supabase.channel('mission-events')
-      const cleanup = () => {
-        try { supabase.removeChannel(channel) } catch { /* noop */ }
-        resolve()
-      }
-      const timeout = setTimeout(cleanup, 3000)
-      channel.subscribe(async (status) => {
-        if (status !== 'SUBSCRIBED') return
-        clearTimeout(timeout)
-        try {
-          await channel.send({
-            type: 'broadcast',
-            event: 'accepted',
-            payload: { id: missionId },
-          })
-        } catch { /* noop */ }
-        cleanup()
-      })
-    } catch {
-      resolve()
-    }
-  })
-}
-
-export const missionService = {
-  async getAvailable(): Promise<Mission[]> {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('missions')
-      .select('*, mission_groups(group_id), publisher:profiles!missions_client_id_fkey(full_name)')
-      .eq('status', 'AVAILABLE')
-      .gt('scheduled_at', new Date().toISOString())
-      .order('scheduled_at', { ascending: true })
-    if (error) throw new Error(error.message)
-    return data ?? []
-  },
-
-  async getCurrentForDriver(driverId: string): Promise<Mission | null> {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('missions')
-      .select('*, mission_groups(group_id)')
-      .eq('driver_id', driverId)
-      .eq('status', 'IN_PROGRESS')
-      .order('accepted_at', { ascending: false })
-      .limit(1)
-    if (error) throw new Error(error.message)
-    return data?.[0] ?? null
-  },
-
+const missionMutations = {
   /**
    * Accepter une mission.
    * Lève une erreur si la mission a déjà été prise par un autre chauffeur
@@ -124,31 +68,6 @@ export const missionService = {
     if (error) throw new Error(error.message)
   },
 
-  /** Historique des missions terminées d'un chauffeur */
-  async getDoneByDriver(driverId: string): Promise<Mission[]> {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('missions')
-      .select('*, mission_groups(group_id)')
-      .eq('driver_id', driverId)
-      .eq('status', 'DONE')
-      .order('completed_at', { ascending: false })
-    if (error) throw new Error(error.message)
-    return data ?? []
-  },
-
-  /** Toutes les missions d'un client, triées par date décroissante */
-  async getClientMissions(clientId: string): Promise<Mission[]> {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('missions')
-      .select('*, mission_groups(group_id)')
-      .eq('client_id', clientId)
-      .order('scheduled_at', { ascending: false })
-    if (error) throw new Error(error.message)
-    return data ?? []
-  },
-
   /** Créer une nouvelle mission (passe par l'API route pour la validation serveur) */
   async create(input: MissionInput): Promise<Mission> {
     const { mission } = await api.post<{ mission: Mission }>('/api/missions', input)
@@ -164,31 +83,6 @@ export const missionService = {
   /** Supprimer une mission postée (statut AVAILABLE uniquement, ownership vérifié côté serveur) */
   async remove(id: string): Promise<void> {
     await api.delete<{ ok: true }>(`/api/missions/${id}`)
-  },
-
-  /** Récupère une mission par son ID */
-  async getById(id: string): Promise<Mission | null> {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('missions')
-      .select('*, mission_groups(group_id)')
-      .eq('id', id)
-      .single()
-    if (error) return null
-    return data
-  },
-
-  /** Agenda d'un chauffeur : ses missions assignées non terminées, triées par date croissante */
-  async getAgenda(driverId: string): Promise<Mission[]> {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('missions')
-      .select('*, mission_groups(group_id)')
-      .eq('driver_id', driverId)
-      .neq('status', 'DONE')
-      .order('scheduled_at', { ascending: true })
-    if (error) throw new Error(error.message)
-    return data ?? []
   },
 
   /** Créer une course manuellement dans l'agenda (saisie chauffeur) */
@@ -221,4 +115,9 @@ export const missionService = {
     if (error) throw new Error(error.message)
     return mission
   },
+}
+
+export const missionService = {
+  ...missionQueries,
+  ...missionMutations,
 }

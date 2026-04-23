@@ -6,6 +6,21 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ## ✅ Terminé
 
+### Auth Google OAuth + complétion profil (2026-04-23)
+- **Google OAuth activé** : Google Cloud Console OAuth client configuré (app publiée en prod, pas testeurs) · redirect URI Supabase `https://ivumykufinlniffxqlud.supabase.co/auth/v1/callback` · Client ID + Secret injectés dans Supabase provider · Site URL + Redirect URLs configurés
+- **Complétion profil obligatoire** : Google fournit prénom/nom mais jamais le téléphone → middleware intercepte les profils incomplets avant tout accès dashboard
+  - `src/middleware.ts` : SELECT étendu à `role, first_name, last_name, phone` · redirection vers `/auth/complete-profile?redirect=<pathname>` si un champ est vide
+  - `src/app/auth/complete-profile/page.tsx` (server component) : vérifie auth + re-check complétude · redirige vers `redirectTo` si déjà complet
+  - `src/components/auth/CompleteProfileForm.tsx` + `useCompleteProfileForm.ts` : formulaire 3 champs (nom/prénom/téléphone) avec validation `isValidPhone`
+  - Pas de double-saisie : champs Google pré-remplis, seul le téléphone est réellement obligatoire à saisir
+- Triggers DB existants (`handle_new_user` + `create_driver_on_profile`) déjà compatibles OAuth via COALESCE sur `first_name`/`given_name`
+
+### Fix prix incohérent multi-device (2026-04-23)
+- **Bug** : même mission affichée à 84€ sur un device et 126€ sur un autre (même compte)
+- **Cause racine** : `new Date(scheduled_at).getHours()` retourne l'heure locale du device · un device en UTC (VPN, extension privacy) lit 06h30 UTC = nuit CPAM (×1.5) au lieu de 08h30 Paris
+- **Fix** : `src/lib/missionFare.ts` force l'extraction via `Intl.DateTimeFormat` avec `timeZone: 'Europe/Paris'` · helper `parisDateTime()` retourne `{ date, time }` déterministes peu importe le fuseau du device
+- Vérifié : mission Faculté des sciences → Campus Saint-Charles (15.4km · samedi 8h30) = 84€ sans majoration ✅
+
 ### Landing page (`/`) — refonte complète 2026-04-21
 - Nouveaux composants : `LandingNav` · `HeroSection` + `HeroFloatingCards` + `HeroPhoneMockup` · `ProblemSolutionSection` + `ProblemWhatsappCard` + `SolutionTaxilinkCard` · `FeaturesSection` · `PricingSection` · `FaqSection` · `LandingFooter`
 - Design system landing : tokens `ink`/`paper`/`brand`/`warm-*`/`danger` ajoutés dans `tailwind.config.ts` · Inter uniquement

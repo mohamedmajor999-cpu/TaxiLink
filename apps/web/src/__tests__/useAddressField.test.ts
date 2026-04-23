@@ -15,7 +15,7 @@ vi.mock('@/services/addressService', () => ({
 }))
 
 const SUGGESTIONS: AddressSuggestion[] = [
-  { label: '10 Rue de la Paix, Paris', lat: 48.87, lng: 2.33, placeId: 'pid1', mainText: '10 Rue de la Paix' },
+  { label: '10 Rue de la Paix, Paris', lat: 48.87, lng: 2.33, score: 0.9, placeId: 'pid1', mainText: '10 Rue de la Paix' },
 ]
 
 beforeEach(() => {

@@ -20,13 +20,13 @@ const STATE_CPAM_GROUP: GuidedVisibilityState = {
 
 function makeOptions(overrides: Partial<{
   state: GuidedVisibilityState
-  apply: ReturnType<typeof vi.fn>
-  onComplete: ReturnType<typeof vi.fn>
+  apply: (id: string, value: unknown) => Promise<void>
+  onComplete: () => void
 }> = {}) {
   return {
     state: STATE_PRIVE_PUBLIC,
-    apply: vi.fn().mockResolvedValue(undefined),
-    onComplete: vi.fn(),
+    apply: vi.fn().mockResolvedValue(undefined) as (id: string, value: unknown) => Promise<void>,
+    onComplete: vi.fn() as () => void,
     ...overrides,
   }
 }
@@ -194,7 +194,7 @@ describe('useGuidedMissionFlow — handleVoiceResult', () => {
     const { result } = renderHook(() => useGuidedMissionFlow(makeOptions({ apply })))
 
     await act(async () => {
-      await result.current.handleVoiceResult({ intent: 'answer', value: 'PRIVE' })
+      await result.current.handleVoiceResult({ intent: 'answer', value: 'PRIVE', targetQuestionId: null })
     })
     expect(apply).toHaveBeenCalledWith('type', 'PRIVE')
     expect(result.current.currentQuestion?.id).toBe('phone')
@@ -209,7 +209,7 @@ describe('useGuidedMissionFlow — handleVoiceResult', () => {
     expect(result.current.currentQuestion?.id).toBe('phone')
 
     await act(async () => {
-      await result.current.handleVoiceResult({ intent: 'skip' })
+      await result.current.handleVoiceResult({ intent: 'skip', value: null, targetQuestionId: null })
     })
     expect(result.current.currentQuestion?.id).toBe('departure')
   })
@@ -220,7 +220,7 @@ describe('useGuidedMissionFlow — handleVoiceResult', () => {
 
     await act(async () => { await result.current.answer('PRIVE') })
     await act(async () => {
-      await result.current.handleVoiceResult({ intent: 'back' })
+      await result.current.handleVoiceResult({ intent: 'back', value: null, targetQuestionId: null })
     })
     expect(result.current.currentQuestion?.id).toBe('type')
   })
@@ -229,7 +229,7 @@ describe('useGuidedMissionFlow — handleVoiceResult', () => {
     const { result } = renderHook(() => useGuidedMissionFlow(makeOptions()))
 
     await act(async () => {
-      await result.current.handleVoiceResult({ intent: 'goto', targetQuestionId: 'date' })
+      await result.current.handleVoiceResult({ intent: 'goto', value: null, targetQuestionId: 'date' })
     })
     expect(result.current.currentQuestion?.id).toBe('date')
   })
@@ -238,7 +238,7 @@ describe('useGuidedMissionFlow — handleVoiceResult', () => {
     const { result } = renderHook(() => useGuidedMissionFlow(makeOptions()))
 
     await act(async () => {
-      await result.current.handleVoiceResult({ intent: 'unclear' })
+      await result.current.handleVoiceResult({ intent: 'unclear', value: null, targetQuestionId: null })
     })
     expect(result.current.currentQuestion?.id).toBe('type')
   })
