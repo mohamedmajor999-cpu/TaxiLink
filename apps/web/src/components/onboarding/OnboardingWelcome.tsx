@@ -11,17 +11,19 @@ interface Props {
 export function OnboardingWelcome({ onEnter }: Props) {
   return (
     <div className="min-h-[100dvh] w-full bg-white flex flex-col pwa-safe-top pwa-safe-bottom animate-fade-in">
-      <div className="flex-1 flex flex-col items-center px-6 pt-16">
-        <Image
-          src="/brand/icon.svg"
-          alt=""
-          width={112}
-          height={112}
-          priority
-          className="w-20 h-20 md:w-24 md:h-24 drop-shadow-sm"
-        />
+      <div className="flex-1 flex flex-col items-center px-6 pt-14">
+        <div className="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-brand grid place-items-center shadow-[0_10px_30px_-10px_rgba(10,10,10,0.25)]">
+          <Image
+            src="/brand/icon.svg"
+            alt=""
+            width={112}
+            height={112}
+            priority
+            className="w-14 h-14 md:w-16 md:h-16"
+          />
+        </div>
 
-        <h1 className="mt-8 text-[36px] md:text-[40px] font-extrabold tracking-[-0.035em] leading-[1.05] text-center text-ink">
+        <h1 className="mt-7 text-[36px] md:text-[40px] font-extrabold tracking-[-0.035em] leading-[1.05] text-center text-ink">
           Prêt à{' '}
           <span className="inline-block bg-brand px-2 rounded-md -rotate-[1.5deg]">
             rouler
@@ -33,19 +35,18 @@ export function OnboardingWelcome({ onEnter }: Props) {
           Rejoignez les chauffeurs qui ont dit adieu à WhatsApp. Postez une course à la voix, un collègue l&apos;attrape.
         </p>
 
-        <div className="mt-10 flex items-center gap-3">
+        <ol className="mt-8 flex flex-col items-start gap-3 self-center">
           {['Inscription', 'Vérification', 'En route'].map((t, i) => (
-            <div key={t} className="flex items-center gap-2">
-              <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-warm-500">
-                <span className="w-6 h-6 rounded-full bg-brand grid place-items-center text-ink font-black text-[11px]">
-                  {i + 1}
-                </span>
+            <li key={t} className="flex items-center gap-3">
+              <span className="w-7 h-7 rounded-full bg-brand grid place-items-center text-ink font-black text-[12px] shrink-0">
+                {i + 1}
+              </span>
+              <span className="text-[13px] font-bold uppercase tracking-[0.12em] text-ink">
                 {t}
               </span>
-              {i < 2 && <span aria-hidden className="w-4 h-px bg-warm-200" />}
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
 
       <div className="px-5 pb-6 flex flex-col gap-3">
