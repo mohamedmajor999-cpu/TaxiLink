@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { authService } from '@/services/authService'
 import { isValidEmail, isValidPassword, isValidPhone } from '@/lib/validators'
+import { isValidDepartement } from '@/lib/departement'
 import { computeStrengthInfo } from './passwordStrength'
 
 export function useRegisterForm() {
@@ -46,6 +47,7 @@ export function useRegisterForm() {
     if (!firstName.trim()) { setError('Le prénom est requis'); return }
     if (!lastName.trim())  { setError('Le nom est requis'); return }
     if (phone && !isValidPhone(phone)) { setError('Format de téléphone invalide (ex: 0601020304)'); return }
+    if (!isValidDepartement(department.trim())) { setError('Sélectionne ton département'); return }
     setLoading(true)
     try {
       await authService.finalizeSignUp({
@@ -54,7 +56,7 @@ export function useRegisterForm() {
         first_name: firstName.trim(),
         last_name:  lastName.trim(),
         phone:      phone || undefined,
-        department: department.trim() || undefined,
+        department: department.trim(),
       })
       setSuccess(true)
     } catch (err) {

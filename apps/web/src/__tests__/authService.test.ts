@@ -44,7 +44,7 @@ describe('authService.signIn', () => {
 
 // ─── finalizeSignUp ───────────────────────────────────────────────────────────
 describe('authService.finalizeSignUp', () => {
-  const params = { email: 'new@test.com', password: 'pass123', first_name: 'Marc', last_name: 'Dupont' }
+  const params = { email: 'new@test.com', password: 'pass123', first_name: 'Marc', last_name: 'Dupont', department: '13' }
 
   it('cree le compte avec toutes les metadata', async () => {
     mockSignUp.mockResolvedValue({ data: { user: { identities: [{ id: '1' }] } }, error: null })
@@ -53,7 +53,10 @@ describe('authService.finalizeSignUp', () => {
       email: 'new@test.com',
       password: 'pass123',
       options: expect.objectContaining({
-        data: expect.objectContaining({ first_name: 'Marc', last_name: 'Dupont', role: 'driver' }),
+        data: expect.objectContaining({
+          first_name: 'Marc', last_name: 'Dupont', role: 'driver',
+          department: '13', dept_preferences: ['13'],
+        }),
       }),
     }))
   })

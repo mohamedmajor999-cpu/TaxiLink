@@ -85,7 +85,17 @@ The hook lives **in the same `components/` subdirectory** as its component (not 
 
 ### Real-time
 
-`useMissionRealtime()` hook subscribes to Supabase real-time changes on the `missions` table. It receives `onInsert` and `onUpdate` callbacks. Used in `useDriverMissions` to push toast notifications and reload the mission list.
+`useMissionRealtime()` hook subscribes to Supabase real-time changes on the `missions` table. It receives `onInsert`/`onUpdate`/`onDelete` callbacks. `useDriverMissions` applies patch-diff updates to the local mission list (no full reload) — events outside the driver's `dept_preferences` are filtered client-side.
+
+### Scoping géographique par département
+
+Chaque mission porte un champ `departement` (colonne TEXT, cf. migration `20260423_mission_departement.sql`) calculé à partir du code postal de `departure` via [lib/departement.ts](apps/web/src/lib/departement.ts). Formats : `"01"`–`"95"` (sauf `"20"`), `"2A"`/`"2B"` pour la Corse, `"971"`–`"978"` pour les DROM-COM.
+
+Chaque chauffeur déclare ses départements actifs de deux façons :
+- **À l'inscription** (obligatoire) — [RegisterStep2](apps/web/src/components/auth/RegisterStep2.tsx) force le choix d'un département ; `authService.finalizeSignUp` seed `dept_preferences: [department]`.
+- **Après coup** via [DeptPreferencesCard](apps/web/src/components/dashboard/driver/profil/DeptPreferencesCard.tsx) dans le profil pour en ajouter/retirer.
+
+Stockage : `auth.users.raw_user_meta_data.dept_preferences: string[]`. `missionQueries.getAvailable(departments?)` filtre côté serveur via `.in('departement', ...)` si la liste est non vide ; sinon aucun filtre (fallback legacy « vois tout », gardé pour les comptes créés avant cette feature).
 
 ## Design system
 

@@ -124,9 +124,38 @@ describe('useRegisterForm — étape 2', () => {
     mockFinalizeSignUp.mockRejectedValue(new Error('Erreur serveur'))
     const { result } = renderHook(() => useRegisterForm())
     await goToStep2(result)
-    act(() => { result.current.setFirstName('Marc'); result.current.setLastName('Dupont') })
+    act(() => {
+      result.current.setFirstName('Marc')
+      result.current.setLastName('Dupont')
+      result.current.setDepartment('13')
+    })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })
     expect(result.current.error).toBe('Erreur serveur')
+    expect(result.current.success).toBe(false)
+  })
+
+  it('refuse si le département est manquant', async () => {
+    const { result } = renderHook(() => useRegisterForm())
+    await goToStep2(result)
+    act(() => {
+      result.current.setFirstName('Marc')
+      result.current.setLastName('Dupont')
+    })
+    await act(async () => { await result.current.handleSubmit(fakeEvent) })
+    expect(result.current.error).toContain('département')
+    expect(result.current.success).toBe(false)
+  })
+
+  it('refuse si le département est invalide', async () => {
+    const { result } = renderHook(() => useRegisterForm())
+    await goToStep2(result)
+    act(() => {
+      result.current.setFirstName('Marc')
+      result.current.setLastName('Dupont')
+      result.current.setDepartment('99')
+    })
+    await act(async () => { await result.current.handleSubmit(fakeEvent) })
+    expect(result.current.error).toContain('département')
     expect(result.current.success).toBe(false)
   })
 })

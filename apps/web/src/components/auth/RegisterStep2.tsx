@@ -1,6 +1,7 @@
 'use client'
 
 import { Icon } from '@/components/ui/Icon'
+import { ALL_DEPARTEMENTS } from '@/lib/departement'
 
 interface Props {
   firstName:     string
@@ -47,10 +48,17 @@ export function RegisterStep2({
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Département</label>
-        <input type="text" value={department} onChange={e => setDepartment(e.target.value)}
-          placeholder="13" maxLength={3}
-          className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
+        <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Département d&apos;activité</label>
+        <select value={department} onChange={e => setDepartment(e.target.value)} required
+          className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors bg-white">
+          <option value="">Sélectionne ton département</option>
+          {ALL_DEPARTEMENTS.map((d) => (
+            <option key={d.code} value={d.code}>{d.code} — {d.name}</option>
+          ))}
+        </select>
+        <p className="mt-1 text-xs text-muted">
+          Tu recevras les missions de ce département. Tu pourras en ajouter plus tard dans ton profil.
+        </p>
       </div>
 
       <button type="submit" disabled={loading}

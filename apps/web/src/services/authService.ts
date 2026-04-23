@@ -14,7 +14,7 @@ export const authService = {
     first_name: string
     last_name:  string
     phone?:     string
-    department?: string
+    department: string
   }) {
     const supabase = createClient()
     const { data, error } = await supabase.auth.signUp({
@@ -28,6 +28,9 @@ export const authService = {
           role:       'driver',
           phone:      params.phone,
           department: params.department,
+          // Seed la liste des départements actifs avec celui du signup.
+          // Le chauffeur pourra en ajouter/retirer via le profil.
+          dept_preferences: [params.department],
         },
       },
     })
