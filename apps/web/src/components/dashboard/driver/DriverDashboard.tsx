@@ -1,5 +1,6 @@
 'use client'
-import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
 import { useMissionEditStore } from '@/store/missionEditStore'
@@ -19,6 +20,7 @@ import { PostedMissionAcceptPopup } from './PostedMissionAcceptPopup'
 
 export function DriverDashboard() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { driverName, loading } = useDriverAuth()
   const {
     activeTab,
@@ -34,12 +36,17 @@ export function DriverDashboard() {
   const clearEdit = useMissionEditStore((s) => s.clearEdit)
   usePostedMissionAcceptNotifier()
   const unseenAcceptCount = useUnseenAcceptCount()
+  const isEditerUrl = searchParams.get('editer') === '1'
+  // Sync URL → store : si l'URL perd ?editer=1 (Precedent) alors que le store a
+  // encore une mission en edition, on vide le store pour fermer la modal.
+  useEffect(() => {
+    if (!isEditerUrl && editingMission) clearEdit()
+  }, [isEditerUrl, editingMission, clearEdit])
   const showModal = showCreer || Boolean(editingMission)
   const closeModal = () => {
-    // Edit modal is store-driven (no URL entry) → just clear the store
-    // Creer modal pushed ?creer=1 → router.back() defait proprement l'entree
-    if (editingMission) clearEdit()
-    else if (showCreer) router.back()
+    // Les deux modals (creer et editer) ont une entree d'historique → router.back()
+    // defait proprement. Le useEffect ci-dessus clear le store quand l'URL perd editer.
+    if (editingMission || showCreer) router.back()
   }
   const handleTabChange = (tab: typeof activeTab) => {
     // setActiveTab fait un seul push qui clear tab + mission + creer.

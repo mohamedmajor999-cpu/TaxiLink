@@ -1,15 +1,27 @@
 'use client'
 import { Clock, CheckCircle2, Loader2 } from 'lucide-react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { RideBadge } from '@/components/taxilink/RideBadge'
 import { ToastContainer } from '@/components/ui/Toast'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedTab, type PostedMissionView } from './usePostedTab'
 import { AcceptedBanner } from './AcceptedBanner'
 import { computeDisplayFare } from '@/lib/missionFare'
+import type { Mission } from '@/lib/supabase/types'
 
 export function PostedTab() {
   const p = usePostedTab()
   const startEdit = useMissionEditStore((s) => s.startEdit)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const openEdit = (mission: Mission) => {
+    startEdit(mission)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('editer', '1')
+    router.push(`${pathname}?${params.toString()}`)
+  }
 
   if (p.loading) {
     return (
@@ -53,7 +65,7 @@ export function PostedTab() {
             <PostedCard
               item={item}
               deleting={p.deletingId === item.mission.id}
-              onEdit={() => startEdit(item.mission)}
+              onEdit={() => openEdit(item.mission)}
               onDelete={() => p.remove(item.mission.id)}
             />
           </li>
