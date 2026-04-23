@@ -91,13 +91,13 @@ describe('missionService.getAvailable', () => {
   })
 
   it('retourne [] si data est null', async () => {
-    mockOrder.mockResolvedValue({ data: null, error: null })
+    mockLimit.mockResolvedValue({ data: null, error: null })
     const result = await missionService.getAvailable()
     expect(result).toEqual([])
   })
 
   it('leve une erreur si Supabase echoue', async () => {
-    mockOrder.mockResolvedValue({ data: null, error: { message: 'DB error' } })
+    mockLimit.mockResolvedValue({ data: null, error: { message: 'DB error' } })
     await expect(missionService.getAvailable()).rejects.toThrow('DB error')
   })
 })
@@ -168,19 +168,19 @@ describe('missionService.complete', () => {
 describe('missionService.getDoneByDriver', () => {
   it('retourne les missions DONE du chauffeur', async () => {
     const missions = [{ id: 'm3', status: 'DONE', driver_id: 'drv-1' }]
-    mockOrder.mockResolvedValue({ data: missions, error: null })
+    mockLimit.mockResolvedValue({ data: missions, error: null })
     const result = await missionService.getDoneByDriver('drv-1')
     expect(result).toEqual(missions)
   })
 
   it('retourne un tableau vide si data est null', async () => {
-    mockOrder.mockResolvedValue({ data: null, error: null })
+    mockLimit.mockResolvedValue({ data: null, error: null })
     const result = await missionService.getDoneByDriver('drv-1')
     expect(result).toEqual([])
   })
 
   it('leve une erreur si Supabase echoue', async () => {
-    mockOrder.mockResolvedValue({ data: null, error: { message: 'Connexion perdue' } })
+    mockLimit.mockResolvedValue({ data: null, error: { message: 'Connexion perdue' } })
     await expect(missionService.getDoneByDriver('drv-1')).rejects.toThrow('Connexion perdue')
   })
 })
@@ -188,20 +188,20 @@ describe('missionService.getDoneByDriver', () => {
 // ─── getClientMissions ────────────────────────────────────────────────────────
 describe('missionService.getClientMissions', () => {
   it('retourne les missions du client', async () => {
-    mockOrder.mockResolvedValue({ data: [mission], error: null })
+    mockLimit.mockResolvedValue({ data: [mission], error: null })
     const result = await missionService.getClientMissions('c1')
     expect(result).toHaveLength(1)
     expect(result[0].client_id).toBe('c1')
   })
 
   it('retourne [] si data est null', async () => {
-    mockOrder.mockResolvedValue({ data: null, error: null })
+    mockLimit.mockResolvedValue({ data: null, error: null })
     const result = await missionService.getClientMissions('c1')
     expect(result).toEqual([])
   })
 
   it('leve une erreur si Supabase echoue', async () => {
-    mockOrder.mockResolvedValue({ data: null, error: { message: 'Acces refuse' } })
+    mockLimit.mockResolvedValue({ data: null, error: { message: 'Acces refuse' } })
     await expect(missionService.getClientMissions('c1')).rejects.toThrow('Acces refuse')
   })
 })
@@ -232,20 +232,20 @@ describe('missionService.getAgenda', () => {
       { id: 'm1', status: 'AVAILABLE', driver_id: 'drv-1' },
       { id: 'm2', status: 'IN_PROGRESS', driver_id: 'drv-1' },
     ]
-    mockOrder.mockResolvedValue({ data: missions, error: null })
+    mockLimit.mockResolvedValue({ data: missions, error: null })
     const result = await missionService.getAgenda('drv-1')
     expect(result).toEqual(missions)
     expect(mockFrom).toHaveBeenCalledWith('missions')
   })
 
   it('retourne un tableau vide si data est null', async () => {
-    mockOrder.mockResolvedValue({ data: null, error: null })
+    mockLimit.mockResolvedValue({ data: null, error: null })
     const result = await missionService.getAgenda('drv-1')
     expect(result).toEqual([])
   })
 
   it('leve une erreur si Supabase echoue', async () => {
-    mockOrder.mockResolvedValue({ data: null, error: { message: 'DB error' } })
+    mockLimit.mockResolvedValue({ data: null, error: { message: 'DB error' } })
     await expect(missionService.getAgenda('drv-1')).rejects.toThrow('DB error')
   })
 })

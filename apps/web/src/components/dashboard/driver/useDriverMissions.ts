@@ -43,9 +43,22 @@ export function useDriverMissions() {
         sub: `${m.departure} → ${m.destination}`,
         type: 'warning',
       })
-      loadMissions()
+      setMissions((prev) => (prev.some((x) => x.id === m.id) ? prev : [m, ...prev]))
     },
-    onUpdate: () => loadMissions(),
+    onUpdate: (m) => {
+      setMissions((prev) => {
+        const idx = prev.findIndex((x) => x.id === m.id)
+        // Sortie de la liste si la mission n'est plus disponible (acceptée/annulée/terminée)
+        if (m.status !== 'AVAILABLE') {
+          return idx === -1 ? prev : prev.filter((x) => x.id !== m.id)
+        }
+        if (idx === -1) return prev
+        const next = [...prev]
+        next[idx] = m
+        return next
+      })
+      setCurrentMission((prev) => (prev?.id === m.id ? m : prev))
+    },
     onDelete: ({ id }) => {
       setMissions((prev) => prev.filter((x) => x.id !== id))
       setCurrentMission((prev) => (prev?.id === id ? null : prev))
