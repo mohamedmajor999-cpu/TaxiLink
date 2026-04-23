@@ -4,6 +4,7 @@ import { ProfileHero } from './profil/ProfileHero'
 import { ProfileStatsCard } from './profil/ProfileStatsCard'
 import { SettingsCompte } from './profil/SettingsCompte'
 import { SettingsPreferences } from './profil/SettingsPreferences'
+import { DeptPreferencesCard } from './profil/DeptPreferencesCard'
 import { SettingsApp } from './profil/SettingsApp'
 
 interface Props {
@@ -38,6 +39,7 @@ export function DriverProfilScreen({ driverName }: Props) {
 
       <SettingsCompte />
       <SettingsPreferences />
+      <DeptPreferencesCard />
       <SettingsApp />
 
       <p className="text-center text-[11px] text-warm-500 pt-2 pb-8">
