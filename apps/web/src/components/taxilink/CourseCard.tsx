@@ -43,7 +43,7 @@ interface Props {
 export function CourseCard({ course, onAccept, onShowDetail, footer }: Props) {
   const isUrgent = !!course.urgent
   const tier = getTimeTier(course.scheduledInMin)
-  const cardStyle = `bg-paper border border-ink/40 rounded-lg md:rounded-xl overflow-hidden hover:border-ink/55 hover:shadow-soft transition-all h-full flex flex-col ${isUrgent ? 'shadow-soft' : ''}`
+  const cardStyle = `bg-paper border border-ink/55 rounded-lg md:rounded-xl overflow-hidden hover:border-ink/70 hover:shadow-soft transition-all h-full flex flex-col ${isUrgent ? 'shadow-soft' : ''}`
 
   return (
     <article className={cardStyle}>
