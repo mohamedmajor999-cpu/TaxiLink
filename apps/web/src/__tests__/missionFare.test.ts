@@ -8,6 +8,7 @@ function mkMission(overrides: Partial<Mission> = {}): Mission {
     client_id: 'c1',
     driver_id: null,
     status: 'AVAILABLE',
+    departement: '13',
     departure: 'Marseille Saint-Charles, 13001 Marseille',
     destination: 'Hôpital Nord, 13015 Marseille',
     departure_lat: null, departure_lng: null,

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { api } from '@/lib/api'
 import { broadcastMissionAccepted } from '@/lib/missionBroadcast'
+import { extractDepartement } from '@/lib/departement'
 import { missionQueries } from './missionQueries'
 import type { Mission } from '@/lib/supabase/types'
 import type { MissionInput } from '@/lib/validators'
@@ -101,6 +102,7 @@ const missionMutations = {
       .insert({
         driver_id: driverId,
         departure: data.departure,
+        departement: extractDepartement(data.departure),
         destination: data.destination,
         scheduled_at: data.scheduledAt,
         type: data.type,

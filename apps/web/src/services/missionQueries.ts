@@ -7,13 +7,24 @@ import type { Mission } from '@/lib/supabase/types'
 const DEFAULT_LIMIT = 100
 
 export const missionQueries = {
-  async getAvailable(limit = DEFAULT_LIMIT): Promise<Mission[]> {
+  /**
+   * Feed des missions disponibles.
+   * @param departments liste de codes dept (ex: ['75','93']). Si vide/undefined,
+   *   aucun filtre appliqué (comportement legacy pour chauffeur sans préférences).
+   */
+  async getAvailable(departments?: string[], limit = DEFAULT_LIMIT): Promise<Mission[]> {
     const supabase = createClient()
-    const { data, error } = await supabase
+    let query = supabase
       .from('missions')
       .select('*, mission_groups(group_id), publisher:profiles!missions_client_id_fkey(full_name)')
       .eq('status', 'AVAILABLE')
       .gt('scheduled_at', new Date().toISOString())
+
+    if (departments && departments.length > 0) {
+      query = query.in('departement', departments)
+    }
+
+    const { data, error } = await query
       .order('scheduled_at', { ascending: true })
       .limit(limit)
     if (error) throw new Error(error.message)

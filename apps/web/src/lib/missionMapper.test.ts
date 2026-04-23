@@ -19,6 +19,7 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     price_max_eur: null,
     client_id: null,
     created_at: '2026-04-10T10:00:00Z',
+    departement: null,
     accepted_at: null,
     completed_at: null,
     departure_lat: null,

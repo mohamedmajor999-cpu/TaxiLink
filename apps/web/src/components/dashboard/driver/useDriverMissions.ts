@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useToasts } from '@/hooks/useToasts'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
+import { useDeptPreferences } from '@/hooks/useDeptPreferences'
 import { missionService } from '@/services/missionService'
 import { type MissionTypeFilter } from '@/constants/missionTypes'
 import type { Mission } from '@/lib/supabase/types'
@@ -9,6 +10,7 @@ import type { Mission } from '@/lib/supabase/types'
 export function useDriverMissions() {
   const { user } = useAuth()
   const { toasts, addToast, dismissToast } = useToasts()
+  const { depts, loading: deptsLoading } = useDeptPreferences()
   const [missions, setMissions] = useState<Mission[]>([])
   const [currentMission, setCurrentMission] = useState<Mission | null>(null)
   const [loading, setLoading] = useState(true)
@@ -22,7 +24,7 @@ export function useDriverMissions() {
     try {
       setError(null)
       const [available, current] = await Promise.all([
-        missionService.getAvailable(),
+        missionService.getAvailable(depts),
         missionService.getCurrentForDriver(user.id),
       ])
       setMissions(available)
@@ -32,12 +34,20 @@ export function useDriverMissions() {
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [user, depts])
 
-  useEffect(() => { loadMissions() }, [loadMissions])
+  // On attend la résolution des préférences avant le premier fetch pour
+  // éviter un double load (d'abord sans filtre, puis avec).
+  useEffect(() => {
+    if (!deptsLoading) loadMissions()
+  }, [deptsLoading, loadMissions])
+
+  // Si les prefs sont vides, on ne filtre rien (comportement legacy).
+  const matchesDeptPref = (m: Mission) => depts.length === 0 || (!!m.departement && depts.includes(m.departement))
 
   useMissionRealtime({
     onInsert: (m) => {
+      if (!matchesDeptPref(m)) return
       addToast({
         message: 'Nouvelle mission disponible !',
         sub: `${m.departure} → ${m.destination}`,

@@ -190,6 +190,7 @@ export type Database = {
           companion: boolean
           completed_at: string | null
           created_at: string
+          departement: string | null
           departure: string
           departure_lat: number | null
           departure_lng: number | null
@@ -224,6 +225,7 @@ export type Database = {
           companion?: boolean
           completed_at?: string | null
           created_at?: string
+          departement?: string | null
           departure: string
           departure_lat?: number | null
           departure_lng?: number | null
@@ -258,6 +260,7 @@ export type Database = {
           companion?: boolean
           completed_at?: string | null
           created_at?: string
+          departement?: string | null
           departure?: string
           departure_lat?: number | null
           departure_lng?: number | null

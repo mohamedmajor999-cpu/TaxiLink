@@ -3,6 +3,7 @@ import { createServerSupabaseClient as createClient } from '@/lib/supabase/serve
 import { validateMission, type MissionInput } from '@/lib/validators'
 import { rateLimit } from '@/lib/rateLimiter'
 import { replaceMissionGroups } from '@/services/missionGroupsService'
+import { extractDepartement } from '@/lib/departement'
 
 type RouteParams = { params: Promise<{ id: string }> }
 
@@ -92,6 +93,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     const visibility = body.visibility ?? 'GROUP'
     const groupIds = visibility === 'PUBLIC' ? [] : (body.group_ids ?? [])
 
+    const departure = body.departure.trim()
+
     const { data, error: updateError } = await ctx.supabase
       .from('missions')
       .update({
@@ -102,7 +105,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         return_time: body.type === 'CPAM' && body.return_trip ? (body.return_time ?? null) : null,
         companion: body.companion ?? false,
         passengers: body.type !== 'CPAM' ? (body.passengers ?? null) : null,
-        departure: body.departure.trim(),
+        departure,
+        departement: extractDepartement(departure),
         destination: body.destination.trim(),
         departure_lat: body.departure_lat ?? null,
         departure_lng: body.departure_lng ?? null,

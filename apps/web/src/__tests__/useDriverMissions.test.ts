@@ -21,6 +21,12 @@ vi.mock('@/hooks/useMissionRealtime', () => ({
   useMissionRealtime: vi.fn(),
 }))
 
+const STABLE_EMPTY: string[] = []
+const STABLE_SAVE = async () => {}
+vi.mock('@/hooks/useDeptPreferences', () => ({
+  useDeptPreferences: () => ({ depts: STABLE_EMPTY, loading: false, save: STABLE_SAVE }),
+}))
+
 vi.mock('@/services/missionService', () => ({
   missionService: {
     getAvailable:        (...a: unknown[]) => mockGetAvailable(...a),

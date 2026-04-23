@@ -3,6 +3,7 @@ import { createServerSupabaseClient as createClient } from '@/lib/supabase/serve
 import { validateMission, type MissionInput } from '@/lib/validators'
 import { rateLimit } from '@/lib/rateLimiter'
 import { replaceMissionGroups } from '@/services/missionGroupsService'
+import { extractDepartement } from '@/lib/departement'
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,6 +33,8 @@ export async function POST(req: NextRequest) {
     const visibility = body.visibility ?? 'GROUP'
     const groupIds = visibility === 'PUBLIC' ? [] : (body.group_ids ?? [])
 
+    const departure = body.departure.trim()
+
     const { data, error: insertError } = await supabase.from('missions').insert({
       client_id: user.id,
       shared_by: user.id,
@@ -43,7 +46,8 @@ export async function POST(req: NextRequest) {
       companion: body.companion ?? false,
       passengers: body.type !== 'CPAM' ? (body.passengers ?? null) : null,
       status: 'AVAILABLE',
-      departure: body.departure.trim(),
+      departure,
+      departement: extractDepartement(departure),
       destination: body.destination.trim(),
       departure_lat: body.departure_lat ?? null,
       departure_lng: body.departure_lng ?? null,
