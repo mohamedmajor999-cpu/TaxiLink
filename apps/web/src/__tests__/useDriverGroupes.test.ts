@@ -10,6 +10,12 @@ const mockJoin        = vi.fn()
 const mockLeave       = vi.fn()
 const mockDeleteGroup = vi.fn()
 
+vi.mock('next/navigation', () => ({
+  useRouter:       () => ({ push: vi.fn(), back: vi.fn() }),
+  usePathname:     () => '/dashboard/chauffeur',
+  useSearchParams: () => new URLSearchParams(''),
+}))
+
 // Mock Supabase client (real-time channel)
 const mockSubscribe        = vi.fn().mockReturnValue({})
 const mockOn               = vi.fn()

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { groupService } from '@/services/groupService'
 import type { Group } from '@taxilink/core'
 
@@ -10,8 +11,32 @@ interface Params {
 }
 
 export function useGroupActions({ driverId, setGroups, loadGroups, setError }: Params) {
-  const [showCreate, setShowCreate] = useState(false)
-  const [showJoin,   setShowJoin]   = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const modalParam = searchParams.get('modal')
+  const showCreate = modalParam === 'creer-groupe'
+  const showJoin = modalParam === 'rejoindre-groupe'
+
+  const setShowCreate = (open: boolean) => {
+    if (open) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('modal', 'creer-groupe')
+      router.push(`${pathname}?${params.toString()}`)
+    } else {
+      router.back()
+    }
+  }
+  const setShowJoin = (open: boolean) => {
+    if (open) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('modal', 'rejoindre-groupe')
+      router.push(`${pathname}?${params.toString()}`)
+    } else {
+      router.back()
+    }
+  }
+
   const [newName,    setNewName]    = useState('')
   const [newDesc,    setNewDesc]    = useState('')
   const [joinId,     setJoinId]     = useState('')

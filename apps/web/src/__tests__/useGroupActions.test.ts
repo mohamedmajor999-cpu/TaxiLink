@@ -8,6 +8,15 @@ const mockCreate = vi.fn()
 const mockJoin   = vi.fn()
 const mockLeave  = vi.fn()
 const mockDelete = vi.fn()
+const mockPush   = vi.fn()
+const mockBack   = vi.fn()
+let currentSearch = ''
+
+vi.mock('next/navigation', () => ({
+  useRouter:       () => ({ push: mockPush, back: mockBack }),
+  usePathname:     () => '/dashboard/chauffeur',
+  useSearchParams: () => new URLSearchParams(currentSearch),
+}))
 
 vi.mock('@/services/groupService', () => ({
   groupService: {
@@ -25,6 +34,7 @@ const fakeGroup: Group = {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  currentSearch = ''
   mockCreate.mockResolvedValue(fakeGroup)
   mockJoin.mockResolvedValue(undefined)
   mockLeave.mockResolvedValue(undefined)
@@ -91,5 +101,42 @@ describe('useGroupActions — handleDelete', () => {
     await act(async () => { await result.current.handleDelete('g1') })
     expect(mockDelete).toHaveBeenCalledWith('g1')
     expect(setGroups).toHaveBeenCalled()
+  })
+})
+
+// ─── Modals URL-syncro ────────────────────────────────────────────────────────
+describe('useGroupActions — modals URL-syncro', () => {
+  const makeArgs = () => ({
+    driverId: 'd1',
+    setGroups: vi.fn(),
+    loadGroups: vi.fn().mockResolvedValue(undefined),
+    setError: vi.fn(),
+  })
+
+  it('showCreate reflete ?modal=creer-groupe', () => {
+    currentSearch = 'modal=creer-groupe'
+    const { result } = renderHook(() => useGroupActions(makeArgs()))
+    expect(result.current.showCreate).toBe(true)
+    expect(result.current.showJoin).toBe(false)
+  })
+
+  it('showJoin reflete ?modal=rejoindre-groupe', () => {
+    currentSearch = 'modal=rejoindre-groupe'
+    const { result } = renderHook(() => useGroupActions(makeArgs()))
+    expect(result.current.showJoin).toBe(true)
+    expect(result.current.showCreate).toBe(false)
+  })
+
+  it('setShowCreate(true) push ?modal=creer-groupe', () => {
+    const { result } = renderHook(() => useGroupActions(makeArgs()))
+    act(() => { result.current.setShowCreate(true) })
+    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?modal=creer-groupe')
+  })
+
+  it('setShowCreate(false) appelle router.back()', () => {
+    currentSearch = 'modal=creer-groupe'
+    const { result } = renderHook(() => useGroupActions(makeArgs()))
+    act(() => { result.current.setShowCreate(false) })
+    expect(mockBack).toHaveBeenCalled()
   })
 })
