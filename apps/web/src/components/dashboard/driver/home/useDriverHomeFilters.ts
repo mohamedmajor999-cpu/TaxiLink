@@ -28,6 +28,10 @@ export const HOME_SORT_OPTIONS: { key: HomeSort; label: string }[] = [
 
 const FAR_AWAY = Number.POSITIVE_INFINITY
 
+// Meme tolerance que le filtre serveur (missionQueries.getAvailable) : une
+// course "vient de demarrer" reste visible jusqu'a 24h dans le passe.
+const PAST_TOLERANCE_MS = 24 * 60 * 60 * 1000
+
 interface Params {
   missions: Mission[]
   groups: Group[]
@@ -52,7 +56,7 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
   }, [groups])
 
   const filtered = useMemo(() => {
-    let list = missions.filter((x) => new Date(x.scheduled_at).getTime() > now)
+    let list = missions.filter((x) => new Date(x.scheduled_at).getTime() > now - PAST_TOLERANCE_MS)
     if (filter !== 'ALL') list = list.filter((x) => x.type === filter)
     if (selectedGroupId === HOME_GROUP_PUBLIC) {
       list = list.filter(isPublicMission)
@@ -83,7 +87,7 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
   )
 
   const counts = useMemo(() => {
-    const live = missions.filter((x) => new Date(x.scheduled_at).getTime() > now)
+    const live = missions.filter((x) => new Date(x.scheduled_at).getTime() > now - PAST_TOLERANCE_MS)
     const c: Record<HomeTypeFilter, number> = { ALL: live.length, CPAM: 0, PRIVE: 0 }
     for (const x of live) {
       if (x.type === 'CPAM') c.CPAM++
@@ -99,7 +103,7 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
   }, [selectedGroupId, groupsById])
 
   const scopeCount = useMemo(() => {
-    let list = missions.filter((x) => new Date(x.scheduled_at).getTime() > now)
+    let list = missions.filter((x) => new Date(x.scheduled_at).getTime() > now - PAST_TOLERANCE_MS)
     if (selectedGroupId === HOME_GROUP_PUBLIC) {
       list = list.filter(isPublicMission)
     } else if (selectedGroupId) {

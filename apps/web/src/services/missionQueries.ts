@@ -6,6 +6,11 @@ import type { Mission } from '@/lib/supabase/types'
 // plus haute si le cas d'usage le justifie.
 const DEFAULT_LIMIT = 100
 
+// Tolérance sur le passé : une course AVAILABLE dont scheduled_at est dans
+// la dernière journée reste visible. Un chauffeur peut poster "16h00" à 16h03
+// (arrondi UX) — la course doit rester affichable pour être prise.
+const PAST_TOLERANCE_MS = 24 * 60 * 60 * 1000
+
 export const missionQueries = {
   /**
    * Feed des missions disponibles.
@@ -14,11 +19,12 @@ export const missionQueries = {
    */
   async getAvailable(departments?: string[], limit = DEFAULT_LIMIT): Promise<Mission[]> {
     const supabase = createClient()
+    const since = new Date(Date.now() - PAST_TOLERANCE_MS).toISOString()
     let query = supabase
       .from('missions')
       .select('*, mission_groups(group_id), publisher:profiles!missions_client_id_fkey(full_name)')
       .eq('status', 'AVAILABLE')
-      .gt('scheduled_at', new Date().toISOString())
+      .gt('scheduled_at', since)
 
     if (departments && departments.length > 0) {
       query = query.in('departement', departments)
