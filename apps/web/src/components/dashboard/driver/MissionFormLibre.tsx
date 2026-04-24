@@ -134,6 +134,8 @@ export function MissionFormLibre({ f, voice }: Props) {
           staticDurationMin={f.staticDurationMin ?? null}
           date={f.date} time={f.time}
           departure={f.departure} destination={f.destination}
+          passengers={f.passengers} transportType={f.transportType}
+          returnTrip={f.returnTrip}
         />
       </div>
 

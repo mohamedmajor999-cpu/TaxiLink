@@ -1,4 +1,4 @@
-import type { MedicalMotif } from '@/lib/validators'
+import type { MedicalMotif, TransportType } from '@/lib/validators'
 import type { MissionFormType } from './missionFormHelpers'
 import { estimateCpamFare } from './cpamFareEstimate'
 import { estimateMarseilleFareRange } from './marseilleFareEstimate'
@@ -20,6 +20,9 @@ interface Args {
   time: string
   departure: string
   destination: string
+  passengers?: number | null
+  transportType?: TransportType | null
+  returnTrip?: boolean
 }
 
 const parseNum = (s: string): number | null => {
@@ -47,11 +50,15 @@ export function computeEffectivePrice(args: Args): EffectivePrice | null {
   if (args.type === 'CPAM' && args.medicalMotif) {
     const v = estimateCpamFare({
       distanceKm: args.distanceKm,
+      durationMin: args.durationMin,
       date: args.date,
       time: args.time,
       medicalMotif: args.medicalMotif,
       departure: args.departure,
       destination: args.destination,
+      passengers: args.passengers,
+      transportType: args.transportType,
+      returnTrip: args.returnTrip,
     })
     return v != null ? { kind: 'fixed', value: v } : null
   }

@@ -1,18 +1,16 @@
 import type { Mission } from '@/lib/supabase/types'
-import type { MedicalMotif } from '@/lib/validators'
+import type { MedicalMotif, TransportType } from '@/lib/validators'
 import { estimateCpamFare } from '@/components/dashboard/driver/cpamFareEstimate'
 import { estimateMarseilleFare } from '@/components/dashboard/driver/marseilleFareEstimate'
 
 export interface DisplayFare {
-  /** Valeur à afficher (0 si aucune estimation possible). */
   value: number
-  /** Vrai si la valeur vient d'une estimation algorithmique (CPAM / Marseille) et non d'un prix saisi. */
   isEstimated: boolean
 }
 
 type MissionLike = Pick<
   Mission,
-  'price_eur' | 'type' | 'medical_motif' | 'distance_km' | 'duration_min' | 'static_duration_min' | 'scheduled_at' | 'departure' | 'destination'
+  'price_eur' | 'type' | 'medical_motif' | 'distance_km' | 'duration_min' | 'static_duration_min' | 'scheduled_at' | 'departure' | 'destination' | 'passengers' | 'transport_type' | 'return_trip'
 >
 
 // Les tarifs CPAM et préfectoraux sont définis en heure de Paris. On force ce
@@ -45,6 +43,11 @@ function normalizeMotif(raw: string | null | undefined): MedicalMotif | null {
   return null
 }
 
+function normalizeTransportType(raw: string | null | undefined): TransportType | null {
+  if (raw === 'SEATED' || raw === 'WHEELCHAIR' || raw === 'STRETCHER') return raw
+  return null
+}
+
 function estimateFor(m: MissionLike): number | null {
   const parts = parisDateTime(m.scheduled_at)
   if (!parts) return null
@@ -55,11 +58,15 @@ function estimateFor(m: MissionLike): number | null {
     if (!motif) return null
     return estimateCpamFare({
       distanceKm: m.distance_km,
+      durationMin: m.duration_min,
       date,
       time,
       medicalMotif: motif,
       departure: m.departure,
       destination: m.destination,
+      passengers: m.passengers,
+      transportType: normalizeTransportType(m.transport_type),
+      returnTrip: m.return_trip,
     })
   }
   if (m.type === 'PRIVE') {
@@ -76,12 +83,6 @@ function estimateFor(m: MissionLike): number | null {
   return null
 }
 
-/**
- * Prix à afficher pour une mission :
- * - si `price_eur` est renseigné (> 0) → prix manuel, `isEstimated = false`
- * - sinon → on tente l'estimation CPAM / Marseille ; si succès, `isEstimated = true`
- * - sinon → 0, `isEstimated = false` (on n'affiche pas le label "Prix estimé" sur un 0 non-estimé)
- */
 export function computeDisplayFare(m: MissionLike): DisplayFare {
   const stored = m.price_eur != null ? Number(m.price_eur) : null
   if (stored != null && Number.isFinite(stored) && stored > 0) {

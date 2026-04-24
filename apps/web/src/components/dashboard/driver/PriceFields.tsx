@@ -1,5 +1,5 @@
 'use client'
-import type { MedicalMotif } from '@/lib/validators'
+import type { MedicalMotif, TransportType } from '@/lib/validators'
 import type { MissionFormType } from './missionFormHelpers'
 import { FieldCard } from './MissionFormPrimitives'
 import { FareEstimateButton } from './FareEstimateButton'
@@ -20,6 +20,9 @@ interface Props {
   time: string
   departure: string
   destination: string
+  passengers?: number | null
+  transportType?: TransportType | null
+  returnTrip?: boolean
 }
 
 export function PriceFields(p: Props) {
@@ -42,6 +45,8 @@ export function PriceFields(p: Props) {
             staticDurationMin={p.staticDurationMin ?? null}
             date={p.date} time={p.time}
             departure={p.departure} destination={p.destination}
+            passengers={p.passengers} transportType={p.transportType}
+            returnTrip={p.returnTrip}
             onEstimate={(v) => { p.setPriceMin(String(v)); p.setPriceMax(String(v)) }}
             onEstimateRange={(min, max) => { p.setPriceMin(String(min)); p.setPriceMax(String(max)) }}
           />

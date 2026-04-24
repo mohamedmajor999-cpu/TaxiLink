@@ -1,5 +1,5 @@
 'use client'
-import type { MedicalMotif } from '@/lib/validators'
+import type { MedicalMotif, TransportType } from '@/lib/validators'
 import type { MissionFormType } from './missionFormHelpers'
 import { estimateMarseilleFareRange } from './marseilleFareEstimate'
 import { estimateCpamFare } from './cpamFareEstimate'
@@ -14,6 +14,9 @@ interface Props {
   time: string
   departure: string
   destination: string
+  passengers?: number | null
+  transportType?: TransportType | null
+  returnTrip?: boolean
   /** CPAM ou Privé sans fourchette : pré-remplit un seul prix. */
   onEstimate: (value: number) => void
   /** Privé : pré-remplit min + max. */
@@ -22,10 +25,14 @@ interface Props {
 
 export function FareEstimateButton({
   type, medicalMotif, distanceKm, durationMin, staticDurationMin, date, time, departure, destination,
+  passengers, transportType, returnTrip,
   onEstimate, onEstimateRange,
 }: Props) {
   if (type === 'CPAM' && medicalMotif) {
-    const est = estimateCpamFare({ distanceKm, date, time, medicalMotif, departure, destination })
+    const est = estimateCpamFare({
+      distanceKm, durationMin, date, time, medicalMotif, departure, destination,
+      passengers, transportType, returnTrip,
+    })
     if (est == null) return null
     return (
       <Wrapper>

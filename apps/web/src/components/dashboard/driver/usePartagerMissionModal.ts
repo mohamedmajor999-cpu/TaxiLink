@@ -81,6 +81,8 @@ export function usePartagerMissionModal(_onClose: () => void, mission?: Mission)
     staticDurationMin: route.staticDurationMin,
     date: form.date, time: form.time,
     departure: form.departure, destination: form.destination,
+    passengers: form.passengers, transportType: form.transportType,
+    returnTrip: form.returnTrip,
   })
 
   const canSubmit = useMemo(() => {

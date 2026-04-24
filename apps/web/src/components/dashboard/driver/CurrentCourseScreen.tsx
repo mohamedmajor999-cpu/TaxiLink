@@ -41,6 +41,9 @@ export function CurrentCourseScreen({ onBack }: Props = {}) {
     scheduled_at: mission.scheduled_at,
     departure: mission.departure,
     destination: mission.destination,
+    passengers: mission.passengers,
+    transport_type: mission.transport_type,
+    return_trip: mission.return_trip,
   })
 
   return (

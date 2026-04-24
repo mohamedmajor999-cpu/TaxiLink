@@ -1,6 +1,6 @@
 'use client'
 import { useMemo } from 'react'
-import type { MedicalMotif } from '@/lib/validators'
+import type { MedicalMotif, TransportType } from '@/lib/validators'
 import { computeEffectivePrice } from './computeEffectivePrice'
 import type { MissionFormType } from './missionFormHelpers'
 
@@ -17,6 +17,9 @@ interface Params {
   time: string
   departure: string
   destination: string
+  passengers?: number | null
+  transportType?: TransportType | null
+  returnTrip?: boolean
 }
 
 export function useMissionPricing(p: Params) {
@@ -28,10 +31,14 @@ export function useMissionPricing(p: Params) {
       staticDurationMin: p.staticDurationMin ?? null,
       date: p.date, time: p.time,
       departure: p.departure, destination: p.destination,
+      passengers: p.passengers ?? null,
+      transportType: p.transportType ?? null,
+      returnTrip: p.returnTrip ?? false,
     }),
     [p.price, p.priceMin, p.priceMax, p.type, p.medicalMotif,
       p.distanceKm, p.durationMin, p.staticDurationMin,
-      p.date, p.time, p.departure, p.destination],
+      p.date, p.time, p.departure, p.destination,
+      p.passengers, p.transportType, p.returnTrip],
   )
 
   const previewFare = useMemo(() => {
