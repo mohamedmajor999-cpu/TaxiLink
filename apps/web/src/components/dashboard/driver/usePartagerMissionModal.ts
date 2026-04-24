@@ -78,6 +78,7 @@ export function usePartagerMissionModal(_onClose: () => void, mission?: Mission)
     price: form.price, priceMin: form.priceMin, priceMax: form.priceMax,
     type: form.type, medicalMotif: form.medicalMotif,
     distanceKm: route.distanceKm, durationMin: route.durationMin,
+    staticDurationMin: route.staticDurationMin,
     date: form.date, time: form.time,
     departure: form.departure, destination: form.destination,
   })
@@ -137,6 +138,7 @@ export function usePartagerMissionModal(_onClose: () => void, mission?: Mission)
     setDestinationCoords: route.setDestinationCoords,
     onSelectPublic, onToggleGroup,
     distanceKm: route.distanceKm, durationMin: route.durationMin,
+    staticDurationMin: route.staticDurationMin,
     routeGeometry: route.routeGeometry,
     loadingRoute: route.loadingRoute, routeError: route.routeError,
     effectivePrice, previewFare,

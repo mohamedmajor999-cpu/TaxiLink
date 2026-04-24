@@ -9,6 +9,7 @@ interface Props {
   medicalMotif: MedicalMotif | null
   distanceKm: number | null
   durationMin: number | null
+  staticDurationMin?: number | null
   date: string
   time: string
   departure: string
@@ -20,7 +21,7 @@ interface Props {
 }
 
 export function FareEstimateButton({
-  type, medicalMotif, distanceKm, durationMin, date, time, departure, destination,
+  type, medicalMotif, distanceKm, durationMin, staticDurationMin, date, time, departure, destination,
   onEstimate, onEstimateRange,
 }: Props) {
   if (type === 'CPAM' && medicalMotif) {
@@ -36,7 +37,11 @@ export function FareEstimateButton({
   }
 
   if (type === 'PRIVE') {
-    const r = estimateMarseilleFareRange({ distanceKm, durationMin, date, time })
+    const r = estimateMarseilleFareRange({
+      distanceKm, durationMin,
+      staticDurationMin: staticDurationMin ?? null,
+      date, time, departure, destination,
+    })
     if (r == null) return null
     const handle = () => {
       if (onEstimateRange && r.min !== r.max) onEstimateRange(r.min, r.max)

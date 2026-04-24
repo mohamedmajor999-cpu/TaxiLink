@@ -12,6 +12,7 @@ interface Params {
   medicalMotif: MedicalMotif | null
   distanceKm: number | null
   durationMin: number | null
+  staticDurationMin?: number | null
   date: string
   time: string
   departure: string
@@ -24,11 +25,12 @@ export function useMissionPricing(p: Params) {
       price: p.price, priceMin: p.priceMin, priceMax: p.priceMax,
       type: p.type, medicalMotif: p.medicalMotif,
       distanceKm: p.distanceKm, durationMin: p.durationMin,
+      staticDurationMin: p.staticDurationMin ?? null,
       date: p.date, time: p.time,
       departure: p.departure, destination: p.destination,
     }),
     [p.price, p.priceMin, p.priceMax, p.type, p.medicalMotif,
-      p.distanceKm, p.durationMin,
+      p.distanceKm, p.durationMin, p.staticDurationMin,
       p.date, p.time, p.departure, p.destination],
   )
 

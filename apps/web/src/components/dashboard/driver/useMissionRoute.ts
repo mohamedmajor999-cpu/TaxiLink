@@ -19,6 +19,7 @@ export function useMissionRoute(args: UseMissionRouteArgs = {}) {
   const [destinationCoords, setDestinationCoordsState] = useState<Coords | null>(args.initialDestination ?? null)
   const [distanceKm, setDistanceKm] = useState<number | null>(args.initialDistanceKm ?? null)
   const [durationMin, setDurationMin] = useState<number | null>(args.initialDurationMin ?? null)
+  const [staticDurationMin, setStaticDurationMin] = useState<number | null>(null)
   const [routeGeometry, setRouteGeometry] = useState<GeoJSON.LineString | null>(null)
   const [loadingRoute, setLoadingRoute] = useState(false)
   const [routeError, setRouteError] = useState<string | null>(null)
@@ -30,6 +31,7 @@ export function useMissionRoute(args: UseMissionRouteArgs = {}) {
     setDepartureCoordsState(c)
     setDistanceKm(null)
     setDurationMin(null)
+    setStaticDurationMin(null)
     setRouteGeometry(null)
     setRouteError(null)
   }, [])
@@ -38,6 +40,7 @@ export function useMissionRoute(args: UseMissionRouteArgs = {}) {
     setDestinationCoordsState(c)
     setDistanceKm(null)
     setDurationMin(null)
+    setStaticDurationMin(null)
     setRouteGeometry(null)
     setRouteError(null)
   }, [])
@@ -70,12 +73,14 @@ export function useMissionRoute(args: UseMissionRouteArgs = {}) {
           if (ctrl.signal.aborted) return
           setDistanceKm(res.distance_km)
           setDurationMin(res.duration_min)
+          setStaticDurationMin(res.static_duration_min ?? null)
           setRouteGeometry(res.geometry)
         })
         .catch((err) => {
           if ((err as Error).name === 'AbortError') return
           setDistanceKm(null)
           setDurationMin(null)
+          setStaticDurationMin(null)
           setRouteGeometry(null)
           setRouteError(err instanceof Error ? err.message : "Échec du calcul d'itinéraire")
         })
@@ -90,6 +95,7 @@ export function useMissionRoute(args: UseMissionRouteArgs = {}) {
     destinationCoords,
     distanceKm,
     durationMin,
+    staticDurationMin,
     routeGeometry,
     loadingRoute,
     routeError,

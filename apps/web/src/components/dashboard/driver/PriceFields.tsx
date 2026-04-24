@@ -15,6 +15,7 @@ interface Props {
   setPriceMax: (v: string) => void
   distanceKm: number | null
   durationMin: number | null
+  staticDurationMin?: number | null
   date: string
   time: string
   departure: string
@@ -38,6 +39,7 @@ export function PriceFields(p: Props) {
           <FareEstimateButton
             type={p.type} medicalMotif={p.medicalMotif}
             distanceKm={p.distanceKm} durationMin={p.durationMin}
+            staticDurationMin={p.staticDurationMin ?? null}
             date={p.date} time={p.time}
             departure={p.departure} destination={p.destination}
             onEstimate={(v) => { p.setPriceMin(String(v)); p.setPriceMax(String(v)) }}
@@ -61,6 +63,7 @@ export function PriceFields(p: Props) {
         <FareEstimateButton
           type={p.type} medicalMotif={p.medicalMotif}
           distanceKm={p.distanceKm} durationMin={p.durationMin}
+          staticDurationMin={p.staticDurationMin ?? null}
           date={p.date} time={p.time}
           departure={p.departure} destination={p.destination}
           onEstimate={(v) => p.setPrice(String(v))}

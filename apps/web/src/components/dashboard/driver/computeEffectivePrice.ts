@@ -15,6 +15,7 @@ interface Args {
   medicalMotif: MedicalMotif | null
   distanceKm: number | null
   durationMin: number | null
+  staticDurationMin?: number | null
   date: string
   time: string
   departure: string
@@ -59,8 +60,11 @@ export function computeEffectivePrice(args: Args): EffectivePrice | null {
     const r = estimateMarseilleFareRange({
       distanceKm: args.distanceKm,
       durationMin: args.durationMin,
+      staticDurationMin: args.staticDurationMin ?? null,
       date: args.date,
       time: args.time,
+      departure: args.departure,
+      destination: args.destination,
     })
     if (r == null) return null
     return r.min === r.max ? { kind: 'fixed', value: r.min } : { kind: 'range', min: r.min, max: r.max }

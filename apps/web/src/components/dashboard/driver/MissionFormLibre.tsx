@@ -131,6 +131,7 @@ export function MissionFormLibre({ f, voice }: Props) {
           priceMin={f.priceMin} setPriceMin={f.setPriceMin}
           priceMax={f.priceMax} setPriceMax={f.setPriceMax}
           distanceKm={f.distanceKm} durationMin={f.durationMin}
+          staticDurationMin={f.staticDurationMin ?? null}
           date={f.date} time={f.time}
           departure={f.departure} destination={f.destination}
         />

@@ -68,6 +68,8 @@ function estimateFor(m: MissionLike): number | null {
       durationMin: m.duration_min,
       date,
       time,
+      departure: m.departure,
+      destination: m.destination,
     })
   }
   return null
