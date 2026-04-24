@@ -102,21 +102,40 @@ describe('estimateMarseilleFare — supplément trafic (vraie formule)', () => {
     // 2.40 + 10*1.12 + 35.60 * 20/60 = 2.40 + 11.20 + 11.87 = 25.47 → 25 €
     expect(v).toBe(25)
   })
-  it('sans staticDuration → fallback legacy (facteur 0.60)', () => {
-    const withStatic = estimateMarseilleFare({
-      distanceKm: 10, date: '2026-04-21', time: '10:00',
-      durationMin: 40, staticDurationMin: 20,
-      departure: MARS, destination: MARS,
-    })
-    const withoutStatic = estimateMarseilleFare({
+  it('sans staticDuration → fallback max(kmCost, hourlyCost) — circulaire BDR', () => {
+    // 40 min, 10 km intra-Marseille jour (TARIF_A 1.12)
+    // kmCost = 10*1.12 = 11.20 ; hourlyCost = 40/60*35.60 = 23.73
+    // Taximetre bascule en horaire → 2.40 + max(11.20, 23.73) = 26.13 → 26 €
+    const v = estimateMarseilleFare({
       distanceKm: 10, date: '2026-04-21', time: '10:00',
       durationMin: 40,
       departure: MARS, destination: MARS,
     })
-    // fallback non-null quand il y a un différentiel
-    expect(withoutStatic).not.toBeNull()
-    // la vraie formule donne une valeur différente du fallback
-    expect(withStatic).not.toBe(withoutStatic)
+    expect(v).toBe(26)
+  })
+
+  it('sans staticDuration + vitesse rapide → pas de supplement (kmCost >= hourlyCost)', () => {
+    // 15 min, 10 km (40 km/h). kmCost = 11.20, hourlyCost = 8.90.
+    // Le compteur reste en tarif km : 2.40 + 11.20 = 13.60 → 14 €
+    const v = estimateMarseilleFare({
+      distanceKm: 10, date: '2026-04-21', time: '10:00',
+      durationMin: 15,
+      departure: MARS, destination: MARS,
+    })
+    expect(v).toBe(14)
+  })
+
+  it('mission user : 4.7 km, 15 min, 19h15 intra-Marseille → 11 €', () => {
+    // Cas reel mission eca68bfb (cf. discussion session) :
+    // kmCost = 4.7*1.45 = 6.82, hourlyCost = 15/60*35.60 = 8.90
+    // max(6.82, 8.90) = 8.90 ; 2.40 + 8.90 = 11.30 → 11 €
+    const v = estimateMarseilleFare({
+      distanceKm: 4.7, date: '2026-04-24', time: '19:15',
+      durationMin: 15,
+      departure: '56 Bd Louis Villecroze, 13014 Marseille',
+      destination: '6 Av. Henri Romain Boyer, 13015 Marseille',
+    })
+    expect(v).toBe(11)
   })
 })
 

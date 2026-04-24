@@ -11,10 +11,6 @@ const TARIF_C = 2.24 // jour, retour à vide
 const TARIF_D = 2.90 // nuit / dim / fériés, retour à vide
 const TARIF_HORAIRE = 35.60
 
-// Fallback : quand on n'a pas staticDuration (mission stockée sans refetch
-// Google), on prend 60% du différentiel (coûtHoraire - coûtKm) comme approx.
-const SLOW_SUPPLEMENT_FACTOR = 0.60
-
 interface Args {
   distanceKm: number | null
   date: string
@@ -35,15 +31,17 @@ function computeSlowSupplement(
   kmCost: number,
 ): number {
   if (durationMin == null || durationMin <= 0) return 0
-  // Vraie formule : temps perdu dans le trafic × tarif horaire.
+  // Mode exact : on connait la duree sans trafic → on ne facture que le temps
+  // REELLEMENT perdu dans les embouteillages, × tarif horaire.
   if (staticDurationMin != null && staticDurationMin >= 0) {
     const lost = Math.max(0, Math.min(60, durationMin - staticDurationMin))
     return (lost / 60) * TARIF_HORAIRE
   }
-  // Fallback legacy (pas de staticDuration disponible).
+  // Fallback : le taximetre bascule en tarif horaire si plus avantageux que
+  // le tarif km (arrete prefectoral BDR 2026). On facture la difference quand
+  // le couteHoraire depasse le couteKm, comme le compteur le ferait.
   const hourlyCost = (durationMin / 60) * TARIF_HORAIRE
-  const excess = hourlyCost - kmCost
-  return excess > 0 ? excess * SLOW_SUPPLEMENT_FACTOR : 0
+  return Math.max(0, hourlyCost - kmCost)
 }
 
 export function estimateMarseilleFare({
