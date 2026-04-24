@@ -6,7 +6,7 @@ const MARS = 'Gare Saint-Charles, 13001 Marseille'
 const AIX = 'Place Jeanne d\'Arc, 13100 Aix-en-Provence'
 const CASSIS = 'Port de Cassis, 13260 Cassis'
 
-describe('estimateMarseilleFare — tarif A (jour, AR)', () => {
+describe('estimateMarseilleFare — tarif A (jour, retour charge = intra-ZUPC)', () => {
   it('10 km intra-Marseille jour → 2.40 + 10*1.12 = 13.60 → arrondi 14 €', () => {
     const v = estimateMarseilleFare({
       distanceKm: 10, date: '2026-04-21', time: '10:00',
@@ -15,19 +15,19 @@ describe('estimateMarseilleFare — tarif A (jour, AR)', () => {
     })
     expect(v).toBe(14)
   })
-  it('Marseille → Aix (même ZUPC) jour → tarif A', () => {
+})
+
+describe('estimateMarseilleFare — tarif C (jour, retour vide = inter-ZUPC)', () => {
+  it('Marseille → Aix (ZUPC différentes) → tarif C', () => {
     const v = estimateMarseilleFare({
       distanceKm: 30, date: '2026-04-21', time: '10:00',
       durationMin: 30, staticDurationMin: 30,
       departure: MARS, destination: AIX,
     })
-    // 2.40 + 30*1.12 = 36 → 36 €
-    expect(v).toBe(36)
+    // 2.40 + 30*2.24 = 69.60 → 70 €
+    expect(v).toBe(70)
   })
-})
-
-describe('estimateMarseilleFare — tarif C (jour, AS)', () => {
-  it('Marseille → Cassis (hors ZUPC) jour → tarif C', () => {
+  it('Marseille → Cassis (hors ZUPC BDR) → tarif C', () => {
     const v = estimateMarseilleFare({
       distanceKm: 20, date: '2026-04-21', time: '10:00',
       durationMin: 30, staticDurationMin: 30,
@@ -35,6 +35,16 @@ describe('estimateMarseilleFare — tarif C (jour, AS)', () => {
     })
     // 2.40 + 20*2.24 = 47.20 → 47 €
     expect(v).toBe(47)
+  })
+  it('Marseille → Marignane (ZUPC différentes) 21.2 km → 50 € (cas mission 030fe0a9)', () => {
+    const v = estimateMarseilleFare({
+      distanceKm: 21.2, date: '2026-04-24', time: '14:00',
+      durationMin: 22, staticDurationMin: 22,
+      departure: '6 Av. Henri Romain Boyer, 13015 Marseille, France',
+      destination: 'Aéroport Marseille Provence, 13700 Marignane, France',
+    })
+    // 2.40 + 21.2*2.24 = 49.89 → 50 €
+    expect(v).toBe(50)
   })
 })
 
@@ -83,7 +93,7 @@ describe('estimateMarseilleFare — course minimum', () => {
 })
 
 describe('estimateMarseilleFare — supplément trafic (vraie formule)', () => {
-  it('20 min perdus = 35.60 * 20/60 = 11.87 € ajoutés', () => {
+  it('20 min perdus intra-Marseille = 35.60 * 20/60 = 11.87 € ajoutés', () => {
     const v = estimateMarseilleFare({
       distanceKm: 10, date: '2026-04-21', time: '10:00',
       durationMin: 40, staticDurationMin: 20,
@@ -111,7 +121,7 @@ describe('estimateMarseilleFare — supplément trafic (vraie formule)', () => {
 })
 
 describe('estimateMarseilleFareRange — fourchette vs prix exact', () => {
-  it('ZUPC connu → prix exact (min = max)', () => {
+  it('Intra-Marseille → prix exact tarif A (min = max)', () => {
     const r = estimateMarseilleFareRange({
       distanceKm: 10, date: '2026-04-21', time: '10:00',
       durationMin: 20, staticDurationMin: 20,
@@ -119,8 +129,9 @@ describe('estimateMarseilleFareRange — fourchette vs prix exact', () => {
     })
     expect(r).not.toBeNull()
     expect(r!.min).toBe(r!.max)
+    expect(r!.min).toBe(14)
   })
-  it('Marseille → Cassis jour → tarif C exact (pas de fourchette)', () => {
+  it('Marseille → Cassis jour → tarif C exact', () => {
     const r = estimateMarseilleFareRange({
       distanceKm: 20, date: '2026-04-21', time: '10:00',
       durationMin: 30, staticDurationMin: 30,
@@ -128,7 +139,7 @@ describe('estimateMarseilleFareRange — fourchette vs prix exact', () => {
     })
     expect(r).not.toBeNull()
     expect(r!.min).toBe(r!.max)
-    expect(r!.min).toBe(47) // 2.40 + 20*2.24
+    expect(r!.min).toBe(47)
   })
   it('adresses absentes → fourchette AR/AS', () => {
     const r = estimateMarseilleFareRange({

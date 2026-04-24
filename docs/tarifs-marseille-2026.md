@@ -52,42 +52,70 @@ Arrêté officiel : [bouches-du-rhone.gouv.fr](https://www.bouches-du-rhone.gouv
 
 ---
 
-## 4. Formule d'estimation utilisée par TaxiLink
+## 4. Choix A/B vs C/D — règle officielle (arrêté 2026, article 3)
 
-**Choix « fourchette basse »** : tarifs A / B (aller-retour en charge), plus bas que C / D.
-Raison : l'estimation doit rester conservatrice pour ne pas décourager le client.
+> - **Tarif A / B** : course avec **retour EN CHARGE à la station**.
+> - **Tarif C / D** : course avec **retour À VIDE à la station**.
+
+La "station" = commune de rattachement du taxi. Le tarif dépend donc de la **ZUPC** (Zone Unifiée de Prise en Charge) du chauffeur et de la destination.
+
+### 4.1 Liste des ZUPC des Bouches-du-Rhône
+
+| ZUPC | Communes regroupées |
+|---|---|
+| **Marseille** | Marseille, Allauch, Plan-de-Cuques, Septèmes-les-Vallons |
+| **Aéroport Marignane** | Marignane, Vitrolles |
+| **Aix-en-Provence** | Aix-en-Provence |
+| **Aubagne** | Aubagne |
+| **Arles** | Arles |
+| **La Ciotat** | La Ciotat |
+| **Martigues** | Martigues |
+| **Istres** | Istres |
+| **Miramas** | Miramas |
+| **Salon-de-Provence** | Salon-de-Provence |
+
+### 4.2 Logique appliquée par TaxiLink
 
 ```text
-Entrées :
-  distanceKm  (calculée via OSRM à partir des adresses départ + arrivée)
-  date        (YYYY-MM-DD)
-  heure       (HH:MM)
+Détection tarif (colonne) :
+  mêmeZUPC(départ, arrivée) = départ et arrivée appartiennent à la même ZUPC
+  useAB = mêmeZUPC → A/B (retour en charge)
+          sinon    → C/D (retour à vide)
 
-Détection tarif :
-  estNuit   = heure < 7  OU  heure >= 19
-  estDim    = (dayOfWeek == 0)
-  estFérié  = date ∈ liste jours fériés FR
-  useTarifB = estNuit OU estDim OU estFérié
+Détection période (ligne) :
+  estNuit = heure < 7 OU heure >= 19
+  estDim  = (dayOfWeek == 0)
+  estFérié = date ∈ liste jours fériés FR
+  useNuit = estNuit OU estDim OU estFérié
 
-  tarif     = useTarifB ? 1,45 €/km (B) : 1,12 €/km (A)
+Prix/km :
+  useAB  + jour  → A = 1,12 €/km
+  useAB  + nuit  → B = 1,45 €/km
+  !useAB + jour  → C = 2,24 €/km
+  !useAB + nuit  → D = 2,90 €/km
 
 Calcul :
-  prixBrut     = 2,40 + (distanceKm × tarif)
-  prixFinal    = max(8,00 ; arrondi(prixBrut))
+  prixBrut  = 2,40 + (distanceKm × prix/km)
+             + (tempsPerduMin / 60 × 35,60)   // supplément trafic
+  prixFinal = max(8,00 ; arrondi(prixBrut))
 ```
+
+> **Note** : TaxiLink ne connaît pas à l'avance la station du chauffeur qui prendra la mission. La règle « même ZUPC = A/B » est donc une approximation favorable au client (hypothèse optimiste sur le retour en charge). Un trajet sortant de la ZUPC du chauffeur passe systématiquement en C/D (prix le plus sûr).
 
 ---
 
 ## 5. Exemples
 
-| Scénario | Distance | Date/heure | Tarif | Calcul | Prix estimé |
-|---|---|---|---|---|---|
-| Course urbaine jour | 8 km | mer. 14:00 | A (1,12) | 2,40 + 8×1,12 = 11,36 | **11 €** |
-| Course nuit | 8 km | mer. 22:00 | B (1,45) | 2,40 + 8×1,45 = 14,00 | **14 €** |
-| Course dimanche | 12 km | dim. 10:00 | B | 2,40 + 12×1,45 = 19,80 | **20 €** |
-| Course 14 juillet | 15 km | férié 11:00 | B | 2,40 + 15×1,45 = 24,15 | **24 €** |
-| Petite course jour | 2 km | lun. 10:00 | A | 2,40 + 2×1,12 = 4,64 → min 8 | **8 €** |
-| Aéroport Marignane | 28 km | mar. 09:00 | A | 2,40 + 28×1,12 = 33,76 | **34 €** |
+| Scénario | Distance | Date/heure | ZUPC | Tarif | Calcul | Prix estimé |
+|---|---|---|---|---|---|---|
+| Intra-Marseille jour | 8 km | mer. 14:00 | même (Mars) | A (1,12) | 2,40 + 8×1,12 = 11,36 | **11 €** |
+| Intra-Marseille nuit | 8 km | mer. 22:00 | même | B (1,45) | 2,40 + 8×1,45 = 14,00 | **14 €** |
+| Intra-Marseille dimanche | 12 km | dim. 10:00 | même | B | 2,40 + 12×1,45 = 19,80 | **20 €** |
+| Petite course jour | 2 km | lun. 10:00 | même | A | 2,40 + 2×1,12 = 4,64 → min 8 | **8 €** |
+| Marseille → Aéroport Marignane | 21 km | jeu. 14:00 | différentes | **C (2,24)** | 2,40 + 21×2,24 = 49,44 | **50 €** |
+| Marseille → Aix | 30 km | mar. 10:00 | différentes | **C** | 2,40 + 30×2,24 = 69,60 | **70 €** |
+| Marseille → Cassis (hors BDR) | 20 km | mar. 10:00 | hors ZUPC | **C** | 2,40 + 20×2,24 = 47,20 | **47 €** |
+| Marseille → Aix la nuit | 30 km | sam. 22:00 | différentes | **D (2,90)** | 2,40 + 30×2,90 = 89,40 | **89 €** |
 
 ---
 
@@ -107,11 +135,14 @@ Calcul :
 
 ## 7. Limites connues / améliorations possibles
 
-- [ ] **Suppléments** non modélisés : 4e passager, bagages, animaux, prise en charge gare/aéroport (~3,24 €).
-- [ ] **Tarif CPAM médical** : non implémenté (conventionné Sécu, barème différent — à définir séparément).
-- [ ] **Tarifs C/D** (retour à vide) : non utilisés — possibilité d'afficher une fourchette haute/basse.
-- [ ] **Mise à jour annuelle** : l'arrêté 2027 est publié typiquement en janvier → valeurs à revoir.
+- [x] **Tarifs C/D** (retour à vide) : désormais appliqués automatiquement dès que le trajet sort de la ZUPC du chauffeur.
+- [x] **Supplément trafic** : `duration - staticDuration` via Google Routes × 35,60 €/h.
+- [ ] **Suppléments** non modélisés : ≥ 5ᵉ passager (+4 €/pers), bagages hors coffre (+2 €), 3ᵉ valise+ par passager (+2 €).
+- [ ] **Péages** : à la charge du client, non modélisés (l'arrêté exige l'accord exprès du client avant emprunt).
+- [ ] **Tarif CPAM médical** : implémenté séparément dans `cpamFareEstimate.ts` (barème conventionné Sécu).
+- [ ] **Mise à jour annuelle** : l'arrêté 2027 sera publié typiquement en janvier → valeurs à revoir.
 - [ ] **Pâques** : l'algorithme est valide pour années grégoriennes ≥ 1583.
+- [ ] **ZUPC précises** : la composition de chaque ZUPC est une approximation basée sur les usages connus ; elle pourrait être affinée par commune via l'arrêté préfectoral de création de ZUPC (2017 pour Marseille).
 
 ---
 
@@ -120,5 +151,5 @@ Calcul :
 - [Taxis de France — tarifs par département 2026](https://www.taxis-de-france.com/tarifstaxis.php)
 - [Prix taxi aéroport de Marseille](https://www.taxismarseilleaeroport.fr/tarifs)
 - [TaxiProxi — Bouches-du-Rhône](https://www.taxiproxi.fr/tarif-taxi-departement-bouches-du-rhone)
-- [Arrêté préfectoral 13 (PDF)](https://www.bouches-du-rhone.gouv.fr/content/download/4553/26623/file/Arret%C3%A9%20Pr%C3%A9fectoral%2021%2001%202013.pdf)
-- [Arrêté national — Légifrance](https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000051106303)
+- [Arrêté préfectoral BDR n° 13-2026-02-03-00010 (29 janvier 2026)](https://www.bouches-du-rhone.gouv.fr/)
+- [Arrêté national du 24 décembre 2025 — Légifrance](https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053228231)

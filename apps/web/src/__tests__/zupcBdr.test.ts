@@ -23,15 +23,15 @@ describe('extractCommune', () => {
 })
 
 describe('isInZupcBdr', () => {
-  it('accepte les 11 communes ZUPC (variantes accents/tirets)', () => {
+  it('accepte les communes rattachées à une ZUPC BDR', () => {
     const ok = [
-      'Marseille', 'marseille', 'Aix-en-Provence', 'aix en provence',
-      'Arles', 'Aubagne', 'Istres', 'La Ciotat', 'Marignane',
-      'Martigues', 'Miramas', 'Salon-de-Provence', 'Vitrolles',
+      'Marseille', 'Allauch', 'Plan-de-Cuques', 'Septèmes-les-Vallons',
+      'Aix-en-Provence', 'Arles', 'Aubagne', 'Istres', 'La Ciotat',
+      'Marignane', 'Martigues', 'Miramas', 'Salon-de-Provence', 'Vitrolles',
     ]
     for (const c of ok) expect(isInZupcBdr(c)).toBe(true)
   })
-  it('rejette les communes hors ZUPC', () => {
+  it('rejette les communes hors BDR', () => {
     expect(isInZupcBdr('Cassis')).toBe(false)
     expect(isInZupcBdr('Nice')).toBe(false)
     expect(isInZupcBdr('Lyon')).toBe(false)
@@ -42,25 +42,49 @@ describe('isInZupcBdr', () => {
   })
 })
 
-describe('determineReturnMode', () => {
-  it('les 2 adresses dans ZUPC → charge', () => {
-    expect(determineReturnMode(
-      'Gare Saint-Charles, 13001 Marseille',
-      'Aéroport Marignane, 13700 Marignane',
-    )).toBe('charge')
-  })
-  it('au moins une hors ZUPC → vide', () => {
-    expect(determineReturnMode(
-      'Gare Saint-Charles, 13001 Marseille',
-      'Port de Cassis, 13260 Cassis',
-    )).toBe('vide')
-  })
+describe('determineReturnMode — intra-ZUPC = charge', () => {
   it('intra-Marseille → charge', () => {
     expect(determineReturnMode(
       'Vieux-Port, 13001 Marseille',
       'Hôpital Nord, 13015 Marseille',
     )).toBe('charge')
   })
+  it('Marseille → Allauch (même ZUPC Marseille) → charge', () => {
+    expect(determineReturnMode(
+      'Gare Saint-Charles, 13001 Marseille',
+      'Centre Allauch, 13190 Allauch',
+    )).toBe('charge')
+  })
+  it('Marignane → Vitrolles (même ZUPC aéroport) → charge', () => {
+    expect(determineReturnMode(
+      'Aéroport, 13700 Marignane',
+      'Centre, 13127 Vitrolles',
+    )).toBe('charge')
+  })
+})
+
+describe('determineReturnMode — inter-ZUPC = vide', () => {
+  it('Marseille → Marignane (ZUPC différentes) → vide', () => {
+    expect(determineReturnMode(
+      'Gare Saint-Charles, 13001 Marseille',
+      'Aéroport Marseille Provence, 13700 Marignane',
+    )).toBe('vide')
+  })
+  it('Marseille → Aix (ZUPC différentes) → vide', () => {
+    expect(determineReturnMode(
+      'Vieux-Port, 13001 Marseille',
+      'Cours Mirabeau, 13100 Aix-en-Provence',
+    )).toBe('vide')
+  })
+  it('Marseille → Cassis (hors ZUPC BDR) → vide', () => {
+    expect(determineReturnMode(
+      'Gare Saint-Charles, 13001 Marseille',
+      'Port de Cassis, 13260 Cassis',
+    )).toBe('vide')
+  })
+})
+
+describe('determineReturnMode — cas limites', () => {
   it('adresse ambigüe (chaîne vide) → null', () => {
     expect(determineReturnMode('', 'Marseille')).toBeNull()
     expect(determineReturnMode(null, 'Marseille')).toBeNull()

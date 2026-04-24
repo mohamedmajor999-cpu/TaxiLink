@@ -1,12 +1,31 @@
-// Zone Unifiée de Prise en Charge (ZUPC) — Bouches-du-Rhône.
-// Une course dont origine ET destination sont dans cette zone = tarif A/B
-// (retour en charge probable). Autrement = tarif C/D (retour à vide).
+// Zones Unifiées de Prise en Charge (ZUPC) des Bouches-du-Rhône.
+//
+// Logique officielle (arrêté préfectoral BDR 2026, article 3) :
+// - Tarif A/B = retour EN CHARGE à la station (même ZUPC → le chauffeur peut
+//   re-prendre un client au retour).
+// - Tarif C/D = retour À VIDE à la station (sort de la ZUPC → rentre vide).
+//
+// Chaque commune principale du département est sa propre ZUPC (sauf Marseille
+// qui englobe 4 communes limitrophes). Un trajet inter-ZUPC = retour à vide.
 
-const ZUPC_COMMUNES_BDR = [
-  'aix en provence', 'arles', 'aubagne', 'istres', 'la ciotat',
-  'marignane', 'marseille', 'martigues', 'miramas',
-  'salon de provence', 'vitrolles',
-] as const
+const ZUPC_MARSEILLE = [
+  'marseille', 'allauch', 'plan de cuques', 'septemes les vallons',
+]
+const ZUPC_AIX = ['aix en provence']
+const ZUPC_AUBAGNE = ['aubagne']
+const ZUPC_AEROPORT = ['marignane', 'vitrolles']
+const ZUPC_ARLES = ['arles']
+const ZUPC_LA_CIOTAT = ['la ciotat']
+const ZUPC_MARTIGUES = ['martigues']
+const ZUPC_ISTRES = ['istres']
+const ZUPC_MIRAMAS = ['miramas']
+const ZUPC_SALON = ['salon de provence']
+
+const ALL_ZUPC: readonly (readonly string[])[] = [
+  ZUPC_MARSEILLE, ZUPC_AIX, ZUPC_AUBAGNE, ZUPC_AEROPORT,
+  ZUPC_ARLES, ZUPC_LA_CIOTAT, ZUPC_MARTIGUES, ZUPC_ISTRES,
+  ZUPC_MIRAMAS, ZUPC_SALON,
+]
 
 function normalizeCommune(name: string): string {
   return name
@@ -18,42 +37,43 @@ function normalizeCommune(name: string): string {
     .trim()
 }
 
-/**
- * Extrait la commune d'une adresse formatée style "Rue X, 13001 Marseille" ou
- * "Marseille Saint-Charles, 13001 Marseille". Retourne null si aucun segment
- * ne ressemble à une ville française. On prend le dernier segment non-vide
- * après virgule, on enlève un éventuel code postal, on normalise.
- */
 export function extractCommune(address: string | null | undefined): string | null {
   if (!address) return null
-  // Google stocke "…, 13015 Marseille, France" → on filtre le segment pays
-  // pour qu'il ne devienne pas le "dernier segment".
+  // Filtre le segment pays final (Google stocke "..., 13015 Marseille, France").
   const segments = address.split(',')
     .map((s) => s.trim())
     .filter(Boolean)
     .filter((s) => !/^(france|fr)$/i.test(s))
   if (segments.length === 0) return null
   const last = segments[segments.length - 1]
-  // Retire le code postal ("13015 Marseille" → "Marseille") puis un éventuel
-  // "France" collé sans virgule ("Marseille France" → "Marseille").
   return last
     .replace(/^\d{4,5}\s+/, '')
     .replace(/\s+france$/i, '')
     .trim() || null
 }
 
-export function isInZupcBdr(commune: string | null | undefined): boolean {
-  if (!commune) return false
+/** Retourne la ZUPC (liste de communes normalisées) contenant la commune, ou null. */
+function findZupc(commune: string | null | undefined): readonly string[] | null {
+  if (!commune) return null
   const n = normalizeCommune(commune)
-  return ZUPC_COMMUNES_BDR.some((c) => n === c || n.includes(c))
+  for (const zupc of ALL_ZUPC) {
+    if (zupc.some((c) => n === c || n.includes(c))) return zupc
+  }
+  return null
+}
+
+/** True si la commune est dans une ZUPC BDR connue (pour info / UI). */
+export function isInZupcBdr(commune: string | null | undefined): boolean {
+  return findZupc(commune) !== null
 }
 
 export type ReturnMode = 'charge' | 'vide'
 
 /**
- * Détermine si le retour est "en charge" (A/B) ou "à vide" (C/D) à partir des
- * adresses complètes. Retourne null si au moins une adresse est ambiguë —
- * l'appelant devra alors afficher une fourchette min/max.
+ * Détermine le mode de retour à partir des adresses :
+ * - Même ZUPC → "charge" (tarif A/B)
+ * - ZUPC différentes, ou au moins une hors BDR → "vide" (tarif C/D)
+ * - Au moins une adresse inextractible → null (appelant affiche fourchette)
  */
 export function determineReturnMode(
   departure: string | null | undefined,
@@ -62,7 +82,9 @@ export function determineReturnMode(
   const depCommune = extractCommune(departure)
   const dstCommune = extractCommune(destination)
   if (!depCommune || !dstCommune) return null
-  const depIn = isInZupcBdr(depCommune)
-  const dstIn = isInZupcBdr(dstCommune)
-  return depIn && dstIn ? 'charge' : 'vide'
+  const depZupc = findZupc(depCommune)
+  const dstZupc = findZupc(dstCommune)
+  // Même ZUPC (même référence de tableau) = retour en charge
+  if (depZupc && dstZupc && depZupc === dstZupc) return 'charge'
+  return 'vide'
 }
