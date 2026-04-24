@@ -11,6 +11,10 @@ describe('extractCommune', () => {
   it('gère le suffixe "France"', () => {
     expect(extractCommune('Place Jean Jaurès, 13001 Marseille France')).toBe('Marseille')
   })
+  it('gère le segment ", France" final (format Google Places)', () => {
+    expect(extractCommune('6 Avenue Henri Romain Boyer, 6 Av. Henri Romain Boyer, 13015 Marseille, France')).toBe('Marseille')
+    expect(extractCommune('Aéroport Marseille Provence (MRS), rd 20, 13700 Marignane, France')).toBe('Marignane')
+  })
   it('retourne null pour une entrée vide', () => {
     expect(extractCommune('')).toBeNull()
     expect(extractCommune(null)).toBeNull()

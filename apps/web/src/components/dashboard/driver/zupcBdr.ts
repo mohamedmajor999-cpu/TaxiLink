@@ -26,14 +26,20 @@ function normalizeCommune(name: string): string {
  */
 export function extractCommune(address: string | null | undefined): string | null {
   if (!address) return null
-  const segments = address.split(',').map((s) => s.trim()).filter(Boolean)
+  // Google stocke "…, 13015 Marseille, France" → on filtre le segment pays
+  // pour qu'il ne devienne pas le "dernier segment".
+  const segments = address.split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .filter((s) => !/^(france|fr)$/i.test(s))
   if (segments.length === 0) return null
   const last = segments[segments.length - 1]
-  // Retire un code postal éventuel au début ("13001 Marseille" → "Marseille").
-  const withoutCp = last.replace(/^\d{4,5}\s+/, '').trim()
-  // Retire un code pays éventuel en fin ("Marseille France" → "Marseille").
-  const withoutCountry = withoutCp.replace(/\s+france$/i, '').trim()
-  return withoutCountry || null
+  // Retire le code postal ("13015 Marseille" → "Marseille") puis un éventuel
+  // "France" collé sans virgule ("Marseille France" → "Marseille").
+  return last
+    .replace(/^\d{4,5}\s+/, '')
+    .replace(/\s+france$/i, '')
+    .trim() || null
 }
 
 export function isInZupcBdr(commune: string | null | undefined): boolean {
