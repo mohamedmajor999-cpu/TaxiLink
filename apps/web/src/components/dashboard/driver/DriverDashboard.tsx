@@ -78,7 +78,7 @@ export function DriverDashboard() {
     .toUpperCase() || 'YB'
 
   return (
-    <div className="min-h-screen bg-paper flex">
+    <div className="min-h-screen flex" style={{ backgroundColor: '#FFFFFF' }}>
       <SidebarNav
         activeTab={activeTab}
         onTabChange={handleTabChange}

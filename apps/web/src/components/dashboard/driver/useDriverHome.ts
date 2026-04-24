@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Group } from '@taxilink/core'
 import { useDriverStore } from '@/store/driverStore'
 import { useAuth } from '@/hooks/useAuth'
@@ -26,17 +26,37 @@ export function useDriverHome() {
 
   const [groups, setGroups] = useState<Group[]>([])
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const [userAccuracy, setUserAccuracy] = useState<number | null>(null)
+  const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null)
 
+  const watchIdRef = useRef<number | null>(null)
   const requestLocation = () => {
     if (typeof navigator === 'undefined' || !('geolocation' in navigator)) return
-    navigator.geolocation.getCurrentPosition(
-      (pos) => setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+    if (watchIdRef.current != null) return
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        const newAcc = pos.coords.accuracy
+        setUserAccuracy((prev) => {
+          // Rejette les lectures sensiblement moins précises (évite les sauts Wi-Fi ↔ GPS)
+          if (prev != null && newAcc > prev * 2 && newAcc > 30) return prev
+          setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+          return newAcc
+        })
+      },
       () => { /* permission refusée : tri « plus proche » retombe sur « plus tôt » */ },
-      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300_000 },
+      { enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 },
     )
   }
 
-  useEffect(() => { requestLocation() }, [])
+  useEffect(() => {
+    requestLocation()
+    return () => {
+      if (watchIdRef.current != null && typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+        navigator.geolocation.clearWatch(watchIdRef.current)
+        watchIdRef.current = null
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (!user?.id) return
@@ -48,6 +68,30 @@ export function useDriverHome() {
   }, [user?.id])
 
   const f = useDriverHomeFilters({ missions: m.missions, groups, userCoords })
+
+  const mappableMissions = useMemo(
+    () => f.filteredMissions.filter((x) => x.departure_lat != null && x.departure_lng != null),
+    [f.filteredMissions],
+  )
+  const selectedMission = useMemo(
+    () => (selectedMissionId ? f.filteredMissions.find((x) => x.id === selectedMissionId) ?? null : null),
+    [f.filteredMissions, selectedMissionId],
+  )
+
+  useEffect(() => {
+    if (!selectedMissionId) return
+    if (!f.filteredMissions.some((x) => x.id === selectedMissionId)) setSelectedMissionId(null)
+  }, [f.filteredMissions, selectedMissionId])
+
+  const acceptSelected = async () => {
+    if (!selectedMissionId) return
+    await m.acceptMission(selectedMissionId)
+    setSelectedMissionId(null)
+  }
+
+  const toggleMission = (id: string) => {
+    setSelectedMissionId((prev) => (prev === id ? null : id))
+  }
 
   const initials =
     (driver.name || '')
@@ -65,6 +109,17 @@ export function useDriverHome() {
     city: 'Marseille',
     postalCode: '13008',
     cards: f.cards,
+    mappableMissions,
+    filteredMissions: f.filteredMissions,
+    selectedMissionId,
+    setSelectedMissionId,
+    toggleMission,
+    selectedMission,
+    acceptSelected,
+    urgentOnly: f.urgentOnly,
+    setUrgentOnly: f.setUrgentOnly,
+    nearbyOnly: f.nearbyOnly,
+    setNearbyOnly: f.setNearbyOnly,
     counts: f.counts,
     scopeLabel: f.scopeLabel,
     scopeCount: f.scopeCount,
@@ -73,6 +128,7 @@ export function useDriverHome() {
     sort: f.sort,
     setSort: f.setSort,
     hasUserCoords: userCoords !== null,
+    userAccuracy,
     groups,
     selectedGroupId: f.selectedGroupId,
     setSelectedGroupId: f.setSelectedGroupId,

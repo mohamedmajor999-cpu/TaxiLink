@@ -1,7 +1,9 @@
 'use client'
 import Image from 'next/image'
-import { Home, List, Plus, Users, User } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Home, List, Plus, Users, User, LogOut } from 'lucide-react'
 import { OnlineDot } from './OnlineDot'
+import { authService } from '@/services/authService'
 import type { DriverTab, NavBadge } from './navTypes'
 
 interface Props {
@@ -32,8 +34,15 @@ export function SidebarNav({
   isOnline,
   badges,
 }: Props) {
+  const router = useRouter()
+  const handleSignOut = async () => {
+    try {
+      await authService.signOut()
+      router.replace('/auth/login')
+    } catch { /* ignore : onAuthStateChange redirigera au prochain refresh */ }
+  }
   return (
-    <aside className="hidden md:flex flex-col w-60 shrink-0 bg-paper border-r border-warm-200 h-screen sticky top-0">
+    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-warm-200 h-screen sticky top-0" style={{ backgroundColor: '#FFFFFF' }}>
       <div className="px-5 py-6 flex items-center">
         <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={157} height={28} className="h-7 w-auto" />
       </div>
@@ -74,17 +83,27 @@ export function SidebarNav({
         ))}
       </nav>
 
-      <div className="m-3 p-3 rounded-xl border border-warm-200 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-ink text-paper flex items-center justify-center text-sm font-semibold">
-          {driverInitials}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-ink truncate">{driverName}</div>
-          <div className="flex items-center gap-1.5 text-[11px] text-warm-500">
-            <OnlineDot online={isOnline} size="sm" />
-            {groupName} · {isOnline ? 'En ligne' : 'Hors ligne'}
+      <div className="m-3 rounded-xl border border-warm-200 overflow-hidden">
+        <div className="p-3 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-ink text-paper flex items-center justify-center text-sm font-semibold">
+            {driverInitials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-ink truncate">{driverName}</div>
+            <div className="flex items-center gap-1.5 text-[11px] text-warm-500">
+              <OnlineDot online={isOnline} size="sm" />
+              {groupName} · {isOnline ? 'En ligne' : 'Hors ligne'}
+            </div>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-[13px] font-semibold text-danger bg-warm-50 hover:bg-danger-soft border-t border-warm-200 transition-colors"
+        >
+          <LogOut className="w-4 h-4" strokeWidth={2} />
+          Se déconnecter
+        </button>
       </div>
     </aside>
   )

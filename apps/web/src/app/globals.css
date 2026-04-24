@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'leaflet/dist/leaflet.css';
+
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 
 body {
@@ -83,6 +85,69 @@ body {
 
 /* Nav link active indicator */
 .nav-active { color: #FFD23F !important; }
+
+/* Leaflet overrides — pins/attributions */
+.leaflet-container { font-family: var(--font-inter), sans-serif; background: #FFFFFF; }
+.leaflet-control-attribution { font-size: 10px !important; background: rgba(255,255,255,0.8) !important; }
+.leaflet-popup-content-wrapper { border-radius: 12px; }
+
+/* Mission price pin */
+.mission-pin {
+  background: #fff;
+  border: 2px solid #1A1A1A;
+  border-radius: 999px;
+  padding: 5px 10px 5px 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1A1A1A;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  white-space: nowrap;
+  transition: transform 0.15s ease;
+  cursor: pointer;
+}
+.mission-pin::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-right: 2px solid #1A1A1A;
+  border-bottom: 2px solid #1A1A1A;
+}
+.mission-pin.selected {
+  background: #FFD11A;
+  color: #1A1A1A;
+  border-color: #1A1A1A;
+  transform: scale(1.1);
+  z-index: 10;
+}
+.mission-pin.selected::after { background: #FFD11A; border-color: #1A1A1A; }
+.mission-pin.urgent::before {
+  content: '';
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 11px; height: 11px;
+  background: #FFD11A;
+  border: 1.5px solid #1A1A1A;
+  border-radius: 50%;
+  z-index: 2;
+}
+.leaflet-div-icon { background: transparent; border: none; }
+
+/* Me marker (taxi car icon — top-down Uber-style) */
+.me-marker-taxi {
+  background: transparent;
+  border: none;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
 
 /* PWA standalone : safe-areas iOS (notch) + contenu au ras des bords système */
 @media (display-mode: standalone) {

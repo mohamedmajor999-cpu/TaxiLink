@@ -42,6 +42,8 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
   const [filter, setFilter] = useState<HomeTypeFilter>('ALL')
   const [sort, setSort] = useState<HomeSort>('soonest')
   const [selectedGroupId, setSelectedGroupId] = useState<HomeGroupSelection>(null)
+  const [urgentOnly, setUrgentOnly] = useState(false)
+  const [nearbyOnly, setNearbyOnly] = useState(false)
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
@@ -58,6 +60,15 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
   const filtered = useMemo(() => {
     let list = missions.filter((x) => new Date(x.scheduled_at).getTime() > now - PAST_TOLERANCE_MS)
     if (filter !== 'ALL') list = list.filter((x) => x.type === filter)
+    if (urgentOnly) {
+      list = list.filter((x) => (new Date(x.scheduled_at).getTime() - now) / 60_000 <= 10)
+    }
+    if (nearbyOnly && userCoords) {
+      list = list.filter((x) => {
+        if (x.departure_lat == null || x.departure_lng == null) return false
+        return haversineKm(userCoords, { lat: x.departure_lat, lng: x.departure_lng }) <= 5
+      })
+    }
     if (selectedGroupId === HOME_GROUP_PUBLIC) {
       list = list.filter(isPublicMission)
     } else if (selectedGroupId) {
@@ -79,7 +90,7 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
       return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()
     })
     return sorted
-  }, [missions, filter, selectedGroupId, now, sort, userCoords])
+  }, [missions, filter, selectedGroupId, now, sort, userCoords, urgentOnly, nearbyOnly])
 
   const cards = useMemo<CourseCardData[]>(
     () => filtered.map((x) => toCourseCard(x, groupsById)),
@@ -120,8 +131,13 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
     selectedGroupId,
     setSelectedGroupId,
     cards,
+    filteredMissions: filtered,
     counts,
     scopeLabel,
     scopeCount,
+    urgentOnly,
+    setUrgentOnly,
+    nearbyOnly,
+    setNearbyOnly,
   }
 }

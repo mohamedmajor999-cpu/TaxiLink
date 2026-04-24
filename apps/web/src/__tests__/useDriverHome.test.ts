@@ -83,6 +83,7 @@ beforeEach(() => {
     selectedGroupId: null,
     setSelectedGroupId: mockSetSelectedGroupId,
     cards: [],
+    filteredMissions: [],
     counts: { ALL: 0, CPAM: 0, PRIVE: 0 },
     scopeLabel: 'tous mes groupes',
     scopeCount: 0,
@@ -94,6 +95,8 @@ beforeEach(() => {
     ...globalThis.navigator,
     geolocation: {
       getCurrentPosition: vi.fn((_ok, err) => err?.({ code: 1 } as GeolocationPositionError)),
+      watchPosition: vi.fn((_ok, err) => { err?.({ code: 1 } as GeolocationPositionError); return 1 }),
+      clearWatch: vi.fn(),
     },
   })
 })
@@ -132,6 +135,8 @@ describe('useDriverHome — geolocalisation', () => {
       ...globalThis.navigator,
       geolocation: {
         getCurrentPosition: vi.fn((ok) => ok({ coords: { latitude: 43.3, longitude: 5.4 } } as GeolocationPosition)),
+        watchPosition: vi.fn((ok) => { ok({ coords: { latitude: 43.3, longitude: 5.4 } } as GeolocationPosition); return 1 }),
+        clearWatch: vi.fn(),
       },
     })
     const { result } = renderHook(() => useDriverHome())

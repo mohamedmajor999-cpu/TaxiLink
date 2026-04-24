@@ -1,12 +1,26 @@
 'use client'
-import { CourseCard } from '@/components/taxilink/CourseCard'
-import { NotificationPermissionBanner } from '@/components/taxilink/NotificationPermissionBanner'
+import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { MissionAcceptedCelebration } from '@/components/ui/MissionAcceptedCelebration'
 import { ToastContainer } from '@/components/ui/Toast'
-import { useDriverHome, HOME_TYPE_FILTERS, HOME_SORT_OPTIONS, type HomeSort } from './useDriverHome'
-import { HomeMobileHeader } from './home/HomeMobileHeader'
-import { HomeGroupFilterBar } from './home/HomeGroupFilterBar'
+import { useDriverHome } from './useDriverHome'
 import { NextMissionBanner } from './NextMissionBanner'
+import { DriverHomeSheet } from './home/DriverHomeSheet'
+import { DriverHomeAcceptBar } from './home/DriverHomeAcceptBar'
+import { DriverHomeTopOverlay } from './home/DriverHomeTopOverlay'
+import { DriverHomeFilterChips } from './home/DriverHomeFilterChips'
+import type { SheetSnap } from './home/useSheetDrag'
+
+const DriverHomeMap = dynamic(
+  () => import('./home/DriverHomeMap').then((m) => m.DriverHomeMap),
+  { ssr: false, loading: () => <MapFallback /> },
+)
+
+const SHEET_PX: Record<SheetSnap, number> = {
+  collapsed: 160,
+  default: 400,
+  expanded: 620,
+}
 
 interface Props {
   onPostCourse: () => void
@@ -16,181 +30,107 @@ interface Props {
 
 export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }: Props) {
   const h = useDriverHome()
+  const [snap, setSnap] = useState<SheetSnap>('default')
 
-  const onSortChange = (v: HomeSort) => {
-    h.setSort(v)
-    if (v === 'nearest' && !h.hasUserCoords) h.requestLocation()
+  const onAccept = async () => {
+    try { await h.acceptSelected() } catch { /* toast déjà géré par acceptMission */ }
   }
 
   return (
-    <div className="px-2 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-5xl mx-auto pb-24 md:pb-6">
+    <div className="flex flex-col md:flex-row h-[calc(100dvh-72px)] md:h-screen overflow-hidden" style={{ backgroundColor: '#FFFFFF' }}>
       {h.showConfetti && <MissionAcceptedCelebration onDone={h.clearConfetti} />}
       <ToastContainer toasts={h.toasts} onDismiss={h.dismissToast} />
-      <HomeMobileHeader
-        city={h.city}
-        postalCode={h.postalCode}
-        isOnline={h.driver.isOnline}
-        onToggleOnline={() => h.setOnline(!h.driver.isOnline)}
-        initials={h.initials}
-        onProfile={onGoToProfile}
-      />
 
-      <TodaySummary
-        earnings={h.driver.todayEarnings ?? 0}
-        rides={h.driver.todayRides ?? 0}
-        km={h.driver.todayKm ?? 0}
-      />
-
-      {h.currentMission && h.notificationPermission === 'default' && (
-        <NotificationPermissionBanner onActivate={() => { void h.requestNotificationPermission() }} />
-      )}
-
-      {h.currentMission && (
-        <NextMissionBanner
-          mission={h.currentMission}
-          onShowDetail={() => onShowMissionDetail(h.currentMission!.id)}
-          onComplete={h.completeMission}
-          userCoords={h.userCoords}
-        />
-      )}
-
-      <header className="flex items-start justify-between gap-3 mb-4">
-        <div className="min-w-0">
-          <h2 className="text-[22px] font-bold text-ink leading-tight tracking-tight">
-            Courses dispo
-          </h2>
-          <p className="text-[13px] text-warm-500 mt-1">
-            {h.scopeCount} disponible{h.scopeCount > 1 ? 's' : ''}
-            {h.scopeLabel && <> · <span className="text-ink/70">{h.scopeLabel}</span></>}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <SortSelect value={h.sort} onChange={onSortChange} />
-        </div>
-      </header>
-
-      <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
-        {HOME_TYPE_FILTERS.map((f) => (
-          <TypePill
-            key={f.key}
-            active={h.filter === f.key}
-            label={`${f.label} (${h.counts[f.key]})`}
-            onClick={() => h.setFilter(f.key)}
+      <div className="relative flex-1 min-h-[60px] md:flex-none md:w-[58%] md:h-full md:p-4" style={{ backgroundColor: '#FFFFFF' }}>
+        <div className="relative w-full h-full overflow-hidden md:rounded-2xl md:border md:border-warm-200 md:shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+          <DriverHomeMap
+            missions={h.mappableMissions}
+            userCoords={h.userCoords}
+            userAccuracy={h.userAccuracy}
+            selectedId={h.selectedMissionId}
+            onSelect={h.toggleMission}
           />
-        ))}
+          <DriverHomeTopOverlay
+            isOnline={h.driver.isOnline}
+            count={h.scopeCount}
+            initials={h.initials}
+            onToggleOnline={() => h.setOnline(!h.driver.isOnline)}
+            onProfile={onGoToProfile}
+            onRequestLocation={h.hasUserCoords ? undefined : h.requestLocation}
+          />
+          {snap === 'collapsed' && (
+            <div className="md:hidden absolute top-16 left-0 right-0 z-[500] pointer-events-auto">
+              <DriverHomeFilterChips
+                filter={h.filter}
+                counts={h.counts}
+                urgentOnly={h.urgentOnly}
+                nearbyOnly={h.nearbyOnly}
+                hasUserCoords={h.hasUserCoords}
+                onFilterChange={h.setFilter}
+                onUrgentToggle={() => h.setUrgentOnly(!h.urgentOnly)}
+                onNearbyToggle={() => h.setNearbyOnly(!h.nearbyOnly)}
+                floating
+              />
+            </div>
+          )}
+        </div>
       </div>
 
-      <HomeGroupFilterBar
-        groups={h.groups}
-        selected={h.selectedGroupId}
-        onSelect={h.setSelectedGroupId}
-      />
+      <div className="shrink-0 flex flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200">
+        <div
+          className="relative shrink-0 -mt-6 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 bg-paper rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none flex flex-col transition-[height] duration-300 ease-out"
+          style={{ height: `${SHEET_PX[snap]}px` }}
+        >
+          <DriverHomeSheet
+            missions={h.filteredMissions}
+            selectedId={h.selectedMissionId}
+            userCoords={h.userCoords}
+            filter={h.filter}
+            counts={h.counts}
+            urgentOnly={h.urgentOnly}
+            nearbyOnly={h.nearbyOnly}
+            hasUserCoords={h.hasUserCoords}
+            onSelect={h.toggleMission}
+            onFilterChange={h.setFilter}
+            onUrgentToggle={() => h.setUrgentOnly(!h.urgentOnly)}
+            onNearbyToggle={() => h.setNearbyOnly(!h.nearbyOnly)}
+            onPostCourse={onPostCourse}
+            scopeLabel={h.scopeLabel}
+            loading={h.loading}
+            snap={snap}
+            onSnapChange={setSnap}
+            banner={
+              h.currentMission ? (
+                <NextMissionBanner
+                  mission={h.currentMission}
+                  onShowDetail={() => onShowMissionDetail(h.currentMission!.id)}
+                  onComplete={h.completeMission}
+                  userCoords={h.userCoords}
+                />
+              ) : null
+            }
+          />
+        </div>
 
-      {h.loading && <ListSkeleton />}
-      {h.error && <ErrorState message={h.error} />}
-      {!h.loading && !h.error && h.cards.length === 0 && (
-        <EmptyState onPostCourse={onPostCourse} />
-      )}
-
-      {!h.loading && !h.error && h.cards.length > 0 && (
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3" aria-label="Courses disponibles">
-          {h.cards.map((c) => (
-            <li key={c.id} className="h-full">
-              <CourseCard course={c} onAccept={h.acceptMission} onShowDetail={onShowMissionDetail} />
-            </li>
-          ))}
-        </ul>
-      )}
+        <div className="shrink-0 h-20 px-3 py-2.5 bg-paper border-t border-warm-200">
+          <DriverHomeAcceptBar
+            disabled={!h.selectedMission}
+            onAccept={onAccept}
+            onShowDetail={() => h.selectedMissionId && onShowMissionDetail(h.selectedMissionId)}
+            emptyLabel="Sélectionnez une annonce"
+          />
+        </div>
+      </div>
     </div>
   )
 }
 
-function TodaySummary({ earnings, rides, km }: { earnings: number; rides: number; km: number }) {
+function MapFallback() {
   return (
-    <div className="mb-5 text-[13px] text-warm-600 tabular-nums">
-      <span className="font-semibold text-ink">{earnings}€</span>
-      <span className="mx-1.5 text-warm-400">·</span>
-      <span>{rides} {rides > 1 ? 'courses' : 'course'}</span>
-      <span className="mx-1.5 text-warm-400">·</span>
-      <span>{km} km</span>
-      <span className="mx-1.5 text-warm-400">·</span>
-      <span className="text-warm-500">aujourd&apos;hui</span>
-    </div>
-  )
-}
-
-function SortSelect({ value, onChange }: { value: HomeSort; onChange: (v: HomeSort) => void }) {
-  return (
-    <label className="relative inline-flex items-center">
-      <span className="sr-only">Trier les courses</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as HomeSort)}
-        className="h-10 pl-3 pr-8 rounded-full border border-warm-200 bg-paper text-[13px] font-semibold text-ink appearance-none cursor-pointer hover:bg-warm-50"
-      >
-        {HOME_SORT_OPTIONS.map((o) => (
-          <option key={o.key} value={o.key}>{o.label}</option>
-        ))}
-      </select>
-      <svg
-        aria-hidden="true"
-        className="absolute right-2.5 w-3 h-3 text-warm-500 pointer-events-none"
-        viewBox="0 0 12 12" fill="none"
-      >
-        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </label>
-  )
-}
-
-function TypePill({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`shrink-0 inline-flex items-center h-10 px-5 rounded-full text-[14px] font-semibold transition-colors ${
-        active ? 'bg-ink text-paper' : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
-      }`}
-    >
-      {label}
-    </button>
-  )
-}
-
-function ListSkeleton() {
-  return (
-    <ul className="flex flex-col gap-4">
-      {[0, 1, 2].map((i) => (
-        <li key={i} className="h-56 rounded-2xl bg-warm-100 motion-safe:animate-pulse" />
-      ))}
-    </ul>
-  )
-}
-
-function ErrorState({ message }: { message: string }) {
-  return (
-    <div className="rounded-2xl border border-danger/30 bg-danger-soft p-5 text-sm text-danger">
-      {message}
-    </div>
-  )
-}
-
-function EmptyState({ onPostCourse }: { onPostCourse: () => void }) {
-  return (
-    <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
-      <p className="text-[20px] font-bold leading-tight text-ink mb-2 tracking-tight">
-        Aucune course disponible
-      </p>
-      <p className="text-sm text-warm-600 mb-5">
-        Aucune course dans vos groupes pour l&apos;instant.
-      </p>
-      <button
-        type="button"
-        onClick={onPostCourse}
-        className="inline-flex items-center h-10 px-5 rounded-lg bg-ink text-paper text-sm font-semibold"
-      >
-        Poster une course
-      </button>
+    <div className="w-full h-full bg-paper flex items-center justify-center">
+      <span className="text-[12px] font-semibold text-warm-500 motion-safe:animate-pulse">
+        Chargement de la carte…
+      </span>
     </div>
   )
 }
