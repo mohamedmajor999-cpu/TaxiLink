@@ -27,6 +27,7 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     destination_lat: null,
     destination_lng: null,
     duration_min: null,
+    static_duration_min: null,
     notes: null,
     updated_at: '2026-04-10T10:00:00Z',
     shared_by: null,

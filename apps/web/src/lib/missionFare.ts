@@ -12,7 +12,7 @@ export interface DisplayFare {
 
 type MissionLike = Pick<
   Mission,
-  'price_eur' | 'type' | 'medical_motif' | 'distance_km' | 'duration_min' | 'scheduled_at' | 'departure' | 'destination'
+  'price_eur' | 'type' | 'medical_motif' | 'distance_km' | 'duration_min' | 'static_duration_min' | 'scheduled_at' | 'departure' | 'destination'
 >
 
 // Les tarifs CPAM et préfectoraux sont définis en heure de Paris. On force ce
@@ -66,6 +66,7 @@ function estimateFor(m: MissionLike): number | null {
     return estimateMarseilleFare({
       distanceKm: m.distance_km,
       durationMin: m.duration_min,
+      staticDurationMin: m.static_duration_min,
       date,
       time,
       departure: m.departure,

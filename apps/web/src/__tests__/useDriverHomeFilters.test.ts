@@ -25,7 +25,8 @@ function makeMission(id: string, scheduledAt: string, opts: Partial<Record<strin
 }
 
 const FUTURE = '2026-05-01T12:00:00.000Z'
-const PAST   = '2026-05-01T08:00:00.000Z'
+// Passé au-delà de la tolérance 24h (cf. PAST_TOLERANCE_MS) — mission vraiment périmée.
+const PAST   = '2026-04-29T10:00:00.000Z'
 
 beforeEach(() => {
   vi.useFakeTimers()

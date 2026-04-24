@@ -18,6 +18,7 @@ export interface MissionInput {
   destination_lng?: number | null
   distance_km?: number | null
   duration_min?: number | null
+  static_duration_min?: number | null
   price_eur?: number | null
   price_min_eur?: number | null
   price_max_eur?: number | null
@@ -61,8 +62,8 @@ export function validateMission(d: MissionInput): ValidationError[] {
     if (lo > hi)            push('price_max_eur', 'Le prix maximum doit être supérieur ou égal au minimum')
     if (d.type === 'CPAM')  push('price_min_eur', 'La tranche de prix ne s\u2019applique qu\u2019aux courses privées')
   }
-  if (d.distance_km != null && (d.distance_km <= 0 || d.distance_km > 1000))   push('distance_km', 'La distance doit être comprise entre 0 et 1000 km')
-  if (d.duration_min != null && (d.duration_min <= 0 || d.duration_min > 600)) push('duration_min', 'La durée doit être comprise entre 0 et 600 minutes')
+  if (d.distance_km != null && (d.distance_km <= 0 || d.distance_km > 1000)) push('distance_km', 'La distance doit être comprise entre 0 et 1000 km')
+  for (const k of ['duration_min', 'static_duration_min'] as const) if (d[k] != null && (d[k]! <= 0 || d[k]! > 600)) push(k, 'La durée doit être comprise entre 0 et 600 minutes')
 
   // Coordonnées
   if (rangeKo(d.departure_lat, -90, 90))    push('departure_lat', 'La latitude doit être comprise entre -90 et 90')

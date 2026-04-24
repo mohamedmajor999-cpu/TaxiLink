@@ -37,6 +37,7 @@ export function CurrentCourseScreen({ onBack }: Props = {}) {
     medical_motif: mission.medical_motif,
     distance_km: mission.distance_km ?? (c.route ? c.route.distanceM / 1000 : c.traffic ? c.traffic.distanceM / 1000 : null),
     duration_min: mission.duration_min ?? (c.traffic ? c.traffic.durationSec / 60 : c.route ? c.route.durationSec / 60 : null),
+    static_duration_min: mission.static_duration_min ?? (c.traffic?.staticDurationSec != null ? c.traffic.staticDurationSec / 60 : null),
     scheduled_at: mission.scheduled_at,
     departure: mission.departure,
     destination: mission.destination,

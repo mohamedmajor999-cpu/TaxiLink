@@ -111,6 +111,7 @@ export function usePartagerMissionModal(_onClose: () => void, mission?: Mission)
         departureCoords: route.departureCoords,
         destinationCoords: route.destinationCoords,
         distanceKm: route.distanceKm, durationMin: route.durationMin,
+        staticDurationMin: route.staticDurationMin,
         date: form.date, time: form.time,
         price: form.price,
         priceMin: form.priceMin, priceMax: form.priceMax,

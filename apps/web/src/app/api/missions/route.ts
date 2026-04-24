@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
       destination_lng: body.destination_lng ?? null,
       distance_km: body.distance_km ?? null,
       duration_min: body.duration_min ?? null,
+      static_duration_min: body.static_duration_min ?? null,
       price_eur: body.price_eur ?? null,
       price_min_eur: body.price_min_eur ?? null,
       price_max_eur: body.price_max_eur ?? null,

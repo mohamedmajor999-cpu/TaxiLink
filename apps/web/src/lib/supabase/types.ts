@@ -200,6 +200,7 @@ export type Database = {
           distance_km: number | null
           driver_id: string | null
           duration_min: number | null
+          static_duration_min: number | null
           id: string
           medical_motif: string | null
           notes: string | null
@@ -235,6 +236,7 @@ export type Database = {
           distance_km?: number | null
           driver_id?: string | null
           duration_min?: number | null
+          static_duration_min?: number | null
           id?: string
           medical_motif?: string | null
           notes?: string | null
@@ -270,6 +272,7 @@ export type Database = {
           distance_km?: number | null
           driver_id?: string | null
           duration_min?: number | null
+          static_duration_min?: number | null
           id?: string
           medical_motif?: string | null
           notes?: string | null

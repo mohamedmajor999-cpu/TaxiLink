@@ -15,6 +15,7 @@ export interface SubmitMissionArgs {
   destinationCoords: Coords | null
   distanceKm: number | null
   durationMin: number | null
+  staticDurationMin: number | null
   date: string
   time: string
   price: string
@@ -86,6 +87,7 @@ export async function submitMission(args: SubmitMissionArgs): Promise<void> {
     destination_lng: args.destinationCoords?.lng ?? null,
     distance_km: args.distanceKm,
     duration_min: args.durationMin,
+    static_duration_min: args.staticDurationMin,
     price_eur: canonicalPrice,
     price_min_eur: hasRange ? minNum : null,
     price_max_eur: hasRange ? maxNum : null,

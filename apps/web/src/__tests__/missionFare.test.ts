@@ -15,6 +15,7 @@ function mkMission(overrides: Partial<Mission> = {}): Mission {
     destination_lat: null, destination_lng: null,
     distance_km: 10,
     duration_min: 20,
+    static_duration_min: null,
     price_eur: null,
     price_min_eur: null,
     price_max_eur: null,
