@@ -76,21 +76,23 @@ function NavBtn({
       type="button"
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
-      className={`h-[60px] flex flex-col items-center justify-center gap-0.5 ${active ? 'text-ink' : 'text-warm-400'}`}
+      className="h-[60px] flex items-center justify-center px-1.5"
     >
-      <span
-        className={`relative inline-flex items-center justify-center transition-colors ${
-          active ? 'bg-brand rounded-full px-4 py-0.5' : ''
+      <div
+        className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-2xl transition-colors ${
+          active ? 'bg-brand text-ink' : 'text-warm-400'
         }`}
       >
-        <Icon className="w-5 h-5" strokeWidth={active ? 2 : 1.8} fill="none" />
-        {hasBadge && (
-          <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-ink text-[10px] font-bold flex items-center justify-center ring-2 ring-paper">
-            {item.badge! > 99 ? '99+' : item.badge}
-          </span>
-        )}
-      </span>
-      <span className={`text-[11px] ${active ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+        <span className="relative inline-flex">
+          <Icon className="w-5 h-5" strokeWidth={active ? 2 : 1.8} fill="none" />
+          {hasBadge && (
+            <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-ink text-paper text-[10px] font-bold flex items-center justify-center ring-2 ring-paper">
+              {item.badge! > 99 ? '99+' : item.badge}
+            </span>
+          )}
+        </span>
+        <span className={`text-[11px] ${active ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+      </div>
     </button>
   )
 }
