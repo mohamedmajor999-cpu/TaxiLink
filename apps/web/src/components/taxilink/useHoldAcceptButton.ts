@@ -16,11 +16,16 @@ export function useHoldAcceptButton({
 }: Options) {
   const [state, setState] = useState<HoldState>('idle')
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearTimers = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current)
       timerRef.current = null
+    }
+    if (confirmTimerRef.current) {
+      clearTimeout(confirmTimerRef.current)
+      confirmTimerRef.current = null
     }
   }
 
@@ -31,9 +36,9 @@ export function useHoldAcceptButton({
     timerRef.current = setTimeout(() => {
       setState('confirmed')
       if (typeof navigator !== 'undefined') navigator.vibrate?.(50)
-      // Déclenche onConfirm immédiatement : la pop-up de célébration (pouce + confettis)
-      // démarre tout de suite. L'état 'confirmed' reste visible en parallèle.
-      void onConfirm()
+      // 300 ms de pause pour laisser le chauffeur voir "Course acceptée"
+      // avant le pouce + confettis. Confortable sans etre lent.
+      confirmTimerRef.current = setTimeout(() => void onConfirm(), 300)
     }, duration)
   }, [state, duration, onConfirm, disabled])
 

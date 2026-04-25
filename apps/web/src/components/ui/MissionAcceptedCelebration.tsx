@@ -22,7 +22,7 @@ const KEYFRAMES = `
 
 export function MissionAcceptedCelebration({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(onDone, 3200)
+    const timer = setTimeout(onDone, 3000)
     return () => clearTimeout(timer)
   }, [onDone])
 
@@ -34,7 +34,7 @@ export function MissionAcceptedCelebration({ onDone }: { onDone: () => void }) {
         role="status"
         aria-live="polite"
         className="fixed inset-0 z-[10000] flex flex-col items-center justify-center pointer-events-none"
-        style={{ animation: 'celebration-fade-out 3200ms ease-in both' }}
+        style={{ animation: 'celebration-fade-out 3000ms ease-in both' }}
       >
         <div
           className="w-[120px] h-[120px] rounded-full bg-emerald-500 flex items-center justify-center shadow-[0_12px_36px_rgba(16,185,129,0.45),0_0_0_6px_rgba(16,185,129,0.18)]"
@@ -47,14 +47,14 @@ export function MissionAcceptedCelebration({ onDone }: { onDone: () => void }) {
           style={{ animation: 'celebration-text-in 400ms ease-out 350ms both' }}
         >
           <h2
-            className="text-[26px] font-black text-white leading-tight tracking-tight"
-            style={{ textShadow: '0 2px 12px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.4)' }}
+            className="text-[26px] font-black text-brand leading-tight tracking-tight"
+            style={{ textShadow: '0 2px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}
           >
             Félicitations&nbsp;!
           </h2>
           <p
-            className="text-[14px] font-semibold text-white mt-1"
-            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.4)' }}
+            className="text-[14px] font-semibold text-paper mt-1"
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 2px rgba(0,0,0,0.5)' }}
           >
             Vous avez accepté une course. Bonne route&nbsp;!
           </p>

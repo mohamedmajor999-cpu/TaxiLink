@@ -29,12 +29,14 @@ describe('useHoldAcceptButton — états', () => {
     expect(result.current.state).toBe('confirmed')
   })
 
-  it('appelle onConfirm immédiatement quand confirmed (sans delai)', () => {
+  it('appelle onConfirm 300ms apres confirmed', () => {
     const onConfirm = vi.fn()
     const { result } = renderHook(() => useHoldAcceptButton({ onConfirm, duration: 1000 }))
     act(() => { result.current.start() })
     act(() => { vi.advanceTimersByTime(1000) })
     expect(result.current.state).toBe('confirmed')
+    expect(onConfirm).not.toHaveBeenCalled()
+    act(() => { vi.advanceTimersByTime(300) })
     expect(onConfirm).toHaveBeenCalledTimes(1)
   })
 

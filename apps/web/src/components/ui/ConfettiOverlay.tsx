@@ -27,8 +27,8 @@ function makeParticles(count: number): Particle[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i,
     x: rand(0, 100),
-    delay: rand(0, 1200),
-    duration: rand(1800, 3400),
+    delay: rand(0, 600),
+    duration: rand(1600, 2200),
     size: rand(6, 14),
     color: COLORS[Math.floor(Math.random() * COLORS.length)],
     rotation: rand(0, 360),
@@ -57,7 +57,7 @@ const KEYFRAMES = `
 
 export function ConfettiOverlay({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(onDone, 4600)
+    const timer = setTimeout(onDone, 3000)
     return () => clearTimeout(timer)
   }, [onDone])
 
