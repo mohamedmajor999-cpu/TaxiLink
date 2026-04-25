@@ -52,17 +52,17 @@ export function MissionSheetItem({ mission, selected, userCoords, onSelect }: Pr
       data-mission={mission.id}
       onClick={() => onSelect(mission.id)}
       aria-pressed={selected}
-      className={`w-full text-left rounded-2xl bg-paper transition-colors ${
+      className={`w-full text-left rounded-2xl bg-paper dark:bg-warm-800 transition-colors ${
         selected
-          ? 'border-2 border-ink shadow-[0_6px_16px_rgba(0,0,0,0.1)] p-[13px]'
-          : 'border border-warm-200 hover:border-warm-300 p-3.5'
+          ? 'border-2 border-ink dark:border-brand shadow-[0_6px_16px_rgba(0,0,0,0.1)] p-[13px]'
+          : 'border border-warm-200 dark:border-warm-600 hover:border-warm-300 p-3.5'
       }`}
     >
       <div className="flex gap-2.5 items-start">
         <div className="flex-1 min-w-0">
           <div className="grid grid-cols-[14px_1fr] gap-x-3 items-center">
             <span className="w-2.5 h-2.5 rounded-full bg-ink justify-self-center" />
-            <p className="text-[14px] font-semibold text-ink truncate leading-[1.3]">{mission.departure}</p>
+            <p className="text-[14px] font-semibold text-ink dark:text-paper truncate leading-[1.3]">{mission.departure}</p>
             <span className="w-0.5 h-3 bg-warm-200 justify-self-center my-0.5" />
             <span className="h-3" aria-hidden="true" />
             <span className="w-3 h-3 rounded-full bg-brand border-2 border-ink justify-self-center" />
@@ -85,7 +85,7 @@ export function MissionSheetItem({ mission, selected, userCoords, onSelect }: Pr
           </div>
         </div>
         <div className="text-right shrink-0 flex flex-col items-end gap-0.5">
-          <div className="text-[16px] font-black text-ink tabular-nums leading-tight">
+          <div className="text-[16px] font-black text-ink dark:text-brand tabular-nums leading-tight">
             {fare.value.toFixed(2).replace('.', ',')} €
           </div>
           {pickupKm != null && (

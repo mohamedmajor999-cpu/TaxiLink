@@ -1,6 +1,7 @@
 'use client'
 import type { ReactNode } from 'react'
-import { MapPin } from 'lucide-react'
+import { MapPin, Moon, Sun, Clock } from 'lucide-react'
+import type { NightModePref } from '@/store/nightModeStore'
 
 interface Props {
   isOnline: boolean
@@ -10,18 +11,26 @@ interface Props {
   onProfile: () => void
   onRequestLocation?: () => void
   middle?: ReactNode
+  nightPref?: NightModePref
+  nightActive?: boolean
+  onToggleNight?: () => void
 }
 
 export function DriverHomeTopOverlay({
   isOnline, count, initials,
   onToggleOnline, onProfile, onRequestLocation, middle,
+  nightPref, nightActive, onToggleNight,
 }: Props) {
+  const NightIcon = nightPref === 'auto' ? Clock : nightActive ? Moon : Sun
+  const nightLabel = nightPref === 'auto'
+    ? `Mode auto (${nightActive ? 'nuit' : 'jour'})`
+    : nightActive ? 'Mode nuit' : 'Mode jour'
   return (
     <div className="absolute top-3 left-0 right-0 px-4 z-[500] flex items-center justify-between gap-2 pointer-events-none">
       <button
         type="button"
         onClick={onToggleOnline}
-        className="pointer-events-auto inline-flex items-center gap-2 h-10 px-3.5 rounded-full bg-paper border border-warm-200 shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12.5px] font-bold text-ink"
+        className="pointer-events-auto inline-flex items-center gap-2 h-10 px-3.5 rounded-full bg-paper dark:bg-warm-800 border border-warm-200 dark:border-warm-600 shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12.5px] font-bold text-ink dark:text-paper"
         aria-pressed={isOnline}
       >
         <span
@@ -30,8 +39,8 @@ export function DriverHomeTopOverlay({
           style={isOnline ? { boxShadow: '0 0 0 4px rgba(16,185,129,0.18)' } : undefined}
         />
         {isOnline ? 'En ligne' : 'Hors ligne'}
-        <span className="text-warm-500 font-semibold">·</span>
-        <span className="text-warm-500 font-semibold">{count} annonce{count > 1 ? 's' : ''}</span>
+        <span className="text-warm-500 dark:text-warm-300 font-semibold">·</span>
+        <span className="text-warm-500 dark:text-warm-300 font-semibold">{count} annonce{count > 1 ? 's' : ''}</span>
       </button>
 
       {middle && (
@@ -45,18 +54,29 @@ export function DriverHomeTopOverlay({
           <button
             type="button"
             onClick={onRequestLocation}
-            className="inline-flex items-center gap-1 h-10 px-3 rounded-full bg-paper border border-warm-200 shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12px] font-semibold text-ink"
+            className="inline-flex items-center gap-1 h-10 px-3 rounded-full bg-paper dark:bg-warm-800 border border-warm-200 dark:border-warm-600 shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12px] font-semibold text-ink dark:text-paper"
             aria-label="Activer la géolocalisation"
           >
             <MapPin className="w-3.5 h-3.5" strokeWidth={2} />
             Ma position
           </button>
         )}
+        {onToggleNight && (
+          <button
+            type="button"
+            onClick={onToggleNight}
+            aria-label={nightLabel}
+            title={nightLabel}
+            className="w-10 h-10 rounded-full bg-paper dark:bg-warm-800 border border-warm-200 dark:border-warm-600 flex items-center justify-center text-ink dark:text-paper shadow-[0_4px_14px_rgba(0,0,0,0.08)]"
+          >
+            <NightIcon className="w-4 h-4" strokeWidth={2} />
+          </button>
+        )}
         <button
           type="button"
           onClick={onProfile}
           aria-label="Mon profil"
-          className="w-10 h-10 rounded-full bg-ink text-paper flex items-center justify-center text-[13px] font-extrabold shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
+          className="w-10 h-10 rounded-full bg-ink dark:bg-brand text-paper dark:text-ink flex items-center justify-center text-[13px] font-extrabold shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
         >
           {initials}
         </button>

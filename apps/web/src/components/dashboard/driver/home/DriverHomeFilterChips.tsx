@@ -67,8 +67,8 @@ function Chip({ active, onClick, label, count, icon, floating }: ChipProps) {
       aria-pressed={active}
       className={`shrink-0 inline-flex items-center gap-1 md:gap-1.5 h-7 md:h-9 px-2.5 md:px-3.5 rounded-full text-[11px] md:text-[12px] font-bold transition-colors ${floatShadow} ${
         active
-          ? 'bg-ink text-paper border border-ink'
-          : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
+          ? 'bg-ink text-paper border border-ink dark:bg-brand dark:text-ink dark:border-brand'
+          : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50 dark:bg-warm-800 dark:text-paper dark:border-warm-600 dark:hover:bg-warm-600'
       }`}
     >
       {icon}

@@ -4,19 +4,22 @@ import type { Map as LeafletMap, Marker, Circle } from 'leaflet'
 import { createMeMarkerIcon } from './missionMapPin'
 
 const MARSEILLE_FALLBACK: [number, number] = [43.2965, 5.3698]
-const MAPBOX_STYLE = 'streets-v12'
+const MAPBOX_STYLE_DAY = 'streets-v12'
+const MAPBOX_STYLE_NIGHT = 'navigation-night-v1'
 const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
 interface Params {
   userCoords: { lat: number; lng: number } | null
   userAccuracy: number | null
+  night?: boolean
 }
 
-export function useDriverHomeMap({ userCoords, userAccuracy }: Params) {
+export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<LeafletMap | null>(null)
   const meMarkerRef = useRef<Marker | null>(null)
   const accuracyCircleRef = useRef<Circle | null>(null)
+  const tileLayerRef = useRef<import('leaflet').TileLayer | null>(null)
   const userCoordsRef = useRef(userCoords)
   userCoordsRef.current = userCoords
 
@@ -42,12 +45,13 @@ export function useDriverHomeMap({ userCoords, userAccuracy }: Params) {
       }).setView([center.lat, center.lng], 13)
       const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
       if (token) {
-        L.tileLayer(
-          `https://api.mapbox.com/styles/v1/mapbox/${MAPBOX_STYLE}/tiles/{z}/{x}/{y}@2x?access_token=${token}`,
+        const style = night ? MAPBOX_STYLE_NIGHT : MAPBOX_STYLE_DAY
+        tileLayerRef.current = L.tileLayer(
+          `https://api.mapbox.com/styles/v1/mapbox/${style}/tiles/{z}/{x}/{y}@2x?access_token=${token}`,
           { maxZoom: 19, tileSize: 512, zoomOffset: -1 },
         ).addTo(map)
       } else {
-        L.tileLayer(OSM_URL, { maxZoom: 19 }).addTo(map)
+        tileLayerRef.current = L.tileLayer(OSM_URL, { maxZoom: 19 }).addTo(map)
       }
       map.zoomControl.setPosition('bottomleft')
       mapRef.current = map
@@ -66,6 +70,29 @@ export function useDriverHomeMap({ userCoords, userAccuracy }: Params) {
       meMarkerRef.current = null
     }
   }, [])
+
+  // Hot-swap des tuiles quand on bascule jour/nuit (sans demonter la carte).
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      const map = mapRef.current
+      if (!map) return
+      const L = (await import('leaflet')).default
+      if (cancelled) return
+      const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+      const next = token
+        ? L.tileLayer(
+            `https://api.mapbox.com/styles/v1/mapbox/${night ? MAPBOX_STYLE_NIGHT : MAPBOX_STYLE_DAY}/tiles/{z}/{x}/{y}@2x?access_token=${token}`,
+            { maxZoom: 19, tileSize: 512, zoomOffset: -1 },
+          )
+        : L.tileLayer(OSM_URL, { maxZoom: 19 })
+      next.addTo(map)
+      const prev = tileLayerRef.current
+      tileLayerRef.current = next
+      if (prev) setTimeout(() => prev.remove(), 200)
+    })()
+    return () => { cancelled = true }
+  }, [night])
 
   const didCenterOnUserRef = useRef(false)
   useEffect(() => {
