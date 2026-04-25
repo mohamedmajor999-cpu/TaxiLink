@@ -48,12 +48,12 @@ export function DriverHomeSheet({
 
   return (
     <section
-      className="bg-paper rounded-t-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] flex flex-col min-h-0 flex-1"
+      className="bg-paper dark:bg-warm-800 rounded-t-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] flex flex-col min-h-0 flex-1"
       aria-label="Liste des courses disponibles"
     >
       <div
         ref={dragHandleRef}
-        className="md:hidden h-9 flex items-center justify-center touch-none cursor-grab active:cursor-grabbing select-none"
+        className="group md:hidden h-10 flex items-center justify-center touch-none cursor-grab active:cursor-grabbing select-none"
         role="slider"
         aria-label="Redimensionner la feuille"
         aria-valuemin={1}
@@ -61,13 +61,13 @@ export function DriverHomeSheet({
         aria-valuenow={snap === 'one' ? 1 : snap === 'two' ? 2 : snap === 'three' ? 3 : 4}
         style={{ touchAction: 'none' }}
       >
-        <span className="w-16 h-2 rounded-full bg-warm-700" />
+        <span className="w-14 h-1.5 rounded-full bg-warm-500 dark:bg-warm-300 transition-all group-active:w-16 group-active:h-2 group-active:bg-ink dark:group-active:bg-paper" />
       </div>
       <div className="hidden md:block pt-4" />
       <div className={isCollapsed ? 'hidden md:block' : 'block'}>
         <header className="px-5 pb-2.5 flex items-center justify-between">
-          <h2 className="text-[15px] font-extrabold text-ink">Annonces autour de vous</h2>
-          <span className="text-[12px] text-warm-500 font-semibold">
+          <h2 className="text-[15px] font-extrabold text-ink dark:text-paper">Annonces autour de vous</h2>
+          <span className="text-[12px] text-warm-500 dark:text-warm-300 font-semibold">
             {missions.length} · {scopeLabel}
           </span>
         </header>
