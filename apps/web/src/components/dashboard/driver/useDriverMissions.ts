@@ -104,11 +104,14 @@ export function useDriverMissions({ onShowMissionDetail }: UseDriverMissionsOpti
   const acceptMission = async (id: string) => {
     if (!user) return
     setAccepting(id)
+    // Celebration optimiste : on declenche le pouce + confettis IMMEDIATEMENT,
+    // avant l'appel reseau. Si l'acceptation echoue (mission deja prise), on l'annule.
+    setShowConfetti(true)
     try {
       await missionService.accept(id, user.id)
-      setShowConfetti(true)
       await loadMissions()
     } catch (err) {
+      setShowConfetti(false)
       const msg = err instanceof Error ? err.message : "Impossible d'accepter la mission"
       addToast({ message: msg, type: 'warning' })
       if (msg.includes('déjà acceptée')) await loadMissions()
