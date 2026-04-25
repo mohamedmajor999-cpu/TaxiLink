@@ -30,7 +30,7 @@ export function DriverHomeTopOverlay({
       <button
         type="button"
         onClick={onToggleOnline}
-        className="pointer-events-auto inline-flex items-center gap-2 h-10 px-3.5 rounded-full bg-paper dark:bg-warm-800 border border-warm-200 dark:border-warm-600 shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12.5px] font-bold text-ink dark:text-paper"
+        className="pointer-events-auto inline-flex items-center gap-2 h-10 px-3.5 rounded-full bg-paper dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12.5px] font-bold text-ink dark:text-night-text"
         aria-pressed={isOnline}
       >
         <span
@@ -39,8 +39,8 @@ export function DriverHomeTopOverlay({
           style={isOnline ? { boxShadow: '0 0 0 4px rgba(16,185,129,0.18)' } : undefined}
         />
         {isOnline ? 'En ligne' : 'Hors ligne'}
-        <span className="text-warm-500 dark:text-warm-300 font-semibold">·</span>
-        <span className="text-warm-500 dark:text-warm-300 font-semibold">{count} annonce{count > 1 ? 's' : ''}</span>
+        <span className="text-warm-500 dark:text-night-text-soft font-semibold">·</span>
+        <span className="text-warm-500 dark:text-night-text-soft font-semibold">{count} annonce{count > 1 ? 's' : ''}</span>
       </button>
 
       {middle && (
@@ -54,7 +54,7 @@ export function DriverHomeTopOverlay({
           <button
             type="button"
             onClick={onRequestLocation}
-            className="inline-flex items-center gap-1 h-10 px-3 rounded-full bg-paper dark:bg-warm-800 border border-warm-200 dark:border-warm-600 shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12px] font-semibold text-ink dark:text-paper"
+            className="inline-flex items-center gap-1 h-10 px-3 rounded-full bg-paper dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12px] font-semibold text-ink dark:text-night-text"
             aria-label="Activer la géolocalisation"
           >
             <MapPin className="w-3.5 h-3.5" strokeWidth={2} />
@@ -67,7 +67,7 @@ export function DriverHomeTopOverlay({
             onClick={onToggleNight}
             aria-label={nightLabel}
             title={nightLabel}
-            className="w-10 h-10 rounded-full bg-paper dark:bg-warm-800 border border-warm-200 dark:border-warm-600 flex items-center justify-center text-ink dark:text-paper shadow-[0_4px_14px_rgba(0,0,0,0.08)]"
+            className="w-10 h-10 rounded-full bg-paper dark:bg-night-surface border border-warm-200 dark:border-night-border flex items-center justify-center text-ink dark:text-night-text shadow-[0_4px_14px_rgba(0,0,0,0.08)]"
           >
             <NightIcon className="w-4 h-4" strokeWidth={2} />
           </button>
@@ -76,7 +76,7 @@ export function DriverHomeTopOverlay({
           type="button"
           onClick={onProfile}
           aria-label="Mon profil"
-          className="w-10 h-10 rounded-full bg-ink dark:bg-brand text-paper dark:text-ink flex items-center justify-center text-[13px] font-extrabold shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
+          className="w-10 h-10 rounded-full bg-ink dark:bg-night-brand text-paper dark:text-night-bg flex items-center justify-center text-[13px] font-extrabold shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
         >
           {initials}
         </button>

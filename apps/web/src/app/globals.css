@@ -91,6 +91,17 @@ body {
 .leaflet-control-attribution { font-size: 10px !important; background: rgba(255,255,255,0.8) !important; }
 .leaflet-popup-content-wrapper { border-radius: 12px; }
 
+/* Mode nuit : controles zoom +/- harmonises avec la palette night */
+.dark .leaflet-bar a,
+.dark .leaflet-bar a:hover {
+  background-color: #1E2026;
+  color: #E5E2DA;
+  border-bottom-color: #383A42;
+}
+.dark .leaflet-bar a:hover { background-color: #292B32; }
+.dark .leaflet-control-attribution { background: rgba(30,32,38,0.85) !important; color: #9A9890 !important; }
+.dark .leaflet-control-attribution a { color: #D9A923 !important; }
+
 /* Mission price pin */
 .mission-pin {
   background: #fff;

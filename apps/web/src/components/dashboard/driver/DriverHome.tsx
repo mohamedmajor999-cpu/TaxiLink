@@ -46,11 +46,11 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
   }
 
   return (
-    <div className={`flex flex-col md:flex-row md:h-screen overflow-hidden bg-paper dark:bg-warm-800 ${mapFullscreen ? 'h-[100dvh]' : 'h-[calc(100dvh-60px)]'}`}>
+    <div className={`flex flex-col md:flex-row md:h-screen overflow-hidden bg-paper dark:bg-night-bg ${mapFullscreen ? 'h-[100dvh]' : 'h-[calc(100dvh-60px)]'}`}>
       {h.showConfetti && <MissionAcceptedCelebration onDone={h.clearConfetti} />}
       <ToastContainer toasts={h.toasts} onDismiss={h.dismissToast} />
 
-      <div className="relative flex-1 min-h-[60px] md:flex-none md:w-[58%] md:h-full md:p-4 bg-paper dark:bg-warm-800">
+      <div className="relative flex-1 min-h-[60px] md:flex-none md:w-[58%] md:h-full md:p-4 bg-paper dark:bg-night-bg">
         <div className="relative w-full h-full overflow-hidden md:rounded-2xl md:border md:border-warm-200 md:shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
           <DriverHomeMap
             missions={h.mappableMissions}
@@ -118,7 +118,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
       <div className={`shrink-0 flex flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200 ${mapFullscreen ? 'hidden md:flex' : ''}`}>
         <div
           ref={sheetRef}
-          className="relative shrink-0 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 bg-paper dark:bg-warm-800 rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none flex flex-col transition-[height] duration-300 ease-out"
+          className="relative shrink-0 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 bg-paper dark:bg-night-bg rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none flex flex-col transition-[height] duration-300 ease-out"
           style={{ height: `${sheetHeightPx}px` }}
         >
           <DriverHomeSheet
@@ -154,7 +154,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
           />
         </div>
 
-        <div className={`${h.selectedMission ? 'block' : 'hidden'} md:block shrink-0 h-20 px-3 py-2.5 bg-paper dark:bg-warm-800 border-t border-warm-200 dark:border-warm-600`}>
+        <div className={`${h.selectedMission ? 'block' : 'hidden'} md:block shrink-0 h-20 px-3 py-2.5 bg-paper dark:bg-night-bg border-t border-warm-200 dark:border-night-border`}>
           <DriverHomeAcceptBar
             disabled={!h.selectedMission}
             onAccept={onAccept}

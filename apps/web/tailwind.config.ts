@@ -26,6 +26,18 @@ const config: Config = {
           600: '#5F5E5A',
           800: '#2C2C2A',
         },
+        // Palette mode nuit : gris-bleu legerement chaud, jaune amber desature.
+        // Concue pour fatigue oculaire reduite (contraste WCAG AA, pas de pur blanc/noir/jaune).
+        night: {
+          bg: '#15171C',         // base : near-black bleute, pas de glare
+          surface: '#1E2026',    // cartes / chips au repos (1 niveau d elevation)
+          elevated: '#292B32',   // popup / hover / pin selectionne
+          border: '#383A42',     // bords subtils, contraste sans agressivite
+          text: '#E5E2DA',       // primaire : warm off-white (pas #FFF)
+          'text-soft': '#9A9890', // secondaire : tons inactifs / chiffres
+          brand: '#D9A923',      // amber-gold desature : remplace #FFD11A la nuit
+          'brand-soft': '#3A2F12', // fond subtil pour selections "brand" en nuit
+        },
         danger: { DEFAULT: '#A32D2D', soft: '#FCEBEB' },
       },
       fontFamily: {

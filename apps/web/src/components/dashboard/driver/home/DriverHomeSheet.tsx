@@ -48,7 +48,7 @@ export function DriverHomeSheet({
 
   return (
     <section
-      className="bg-paper dark:bg-warm-800 rounded-t-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] flex flex-col min-h-0 flex-1"
+      className="bg-paper dark:bg-night-bg rounded-t-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] flex flex-col min-h-0 flex-1"
       aria-label="Liste des courses disponibles"
     >
       <div
@@ -61,13 +61,13 @@ export function DriverHomeSheet({
         aria-valuenow={snap === 'one' ? 1 : snap === 'two' ? 2 : snap === 'three' ? 3 : 4}
         style={{ touchAction: 'none' }}
       >
-        <span className="w-14 h-1.5 rounded-full bg-warm-500 dark:bg-warm-300" />
+        <span className="w-14 h-1.5 rounded-full bg-warm-500 dark:bg-night-text-soft" />
       </div>
       <div className="hidden md:block pt-4" />
       <div className={isCollapsed ? 'hidden md:block' : 'block'}>
         <header className="px-5 pb-2.5 flex items-center justify-between">
-          <h2 className="text-[15px] font-extrabold text-ink dark:text-paper">Annonces autour de vous</h2>
-          <span className="text-[12px] text-warm-500 dark:text-warm-300 font-semibold">
+          <h2 className="text-[15px] font-extrabold text-ink dark:text-night-text">Annonces autour de vous</h2>
+          <span className="text-[12px] text-warm-500 dark:text-night-text-soft font-semibold">
             {missions.length} · {scopeLabel}
           </span>
         </header>

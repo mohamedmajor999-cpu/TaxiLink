@@ -33,7 +33,7 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
     <div
       role="dialog"
       aria-label="Détails de la course sélectionnée"
-      className="absolute left-3 right-3 bottom-3 z-[600] rounded-2xl bg-paper dark:bg-warm-800 border border-warm-200 dark:border-warm-600 shadow-[0_-8px_30px_rgba(0,0,0,0.18)] p-4 motion-safe:animate-[popup-in_280ms_cubic-bezier(0.34,1.56,0.64,1)]"
+      className="absolute left-3 right-3 bottom-3 z-[1100] rounded-2xl bg-paper dark:bg-night-elevated border border-warm-200 dark:border-night-border shadow-[0_-8px_30px_rgba(0,0,0,0.18)] p-4 motion-safe:animate-[popup-in_280ms_cubic-bezier(0.34,1.56,0.64,1)]"
       style={{
         animation: 'popup-in 280ms cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}
@@ -43,7 +43,7 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
         type="button"
         onClick={onClose}
         aria-label="Fermer"
-        className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-warm-100 dark:bg-warm-600 hover:bg-warm-200 dark:hover:bg-warm-500 flex items-center justify-center text-ink dark:text-paper transition-colors"
+        className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-warm-100 dark:bg-night-surface hover:bg-warm-200 dark:hover:bg-night-border flex items-center justify-center text-ink dark:text-night-text transition-colors"
       >
         <X className="w-4 h-4" strokeWidth={2.4} />
       </button>
@@ -52,7 +52,7 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
         <div className="flex-1 min-w-0">
           <div className="grid grid-cols-[14px_1fr] gap-x-3 items-center">
             <span className="w-2.5 h-2.5 rounded-full bg-ink justify-self-center" />
-            <p className="text-[15px] font-semibold text-ink dark:text-paper truncate leading-[1.3]">{mission.departure}</p>
+            <p className="text-[15px] font-semibold text-ink dark:text-night-text truncate leading-[1.3]">{mission.departure}</p>
             <span className="w-0.5 h-3.5 bg-warm-200 justify-self-center my-0.5" />
             <span className="h-3.5" aria-hidden="true" />
             <span className="w-3 h-3 rounded-full bg-brand border-2 border-ink justify-self-center" />
@@ -75,7 +75,7 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
           </div>
         </div>
         <div className="text-right shrink-0 flex flex-col items-end gap-1">
-          <div className="text-[20px] font-black text-ink dark:text-brand tabular-nums leading-tight">
+          <div className="text-[20px] font-black text-ink dark:text-night-brand tabular-nums leading-tight">
             {fare.value.toFixed(2).replace('.', ',')} €
           </div>
           {pickupKm != null && (
