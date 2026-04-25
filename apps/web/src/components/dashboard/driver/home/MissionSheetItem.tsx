@@ -13,8 +13,8 @@ const URGENT_THRESHOLD_MIN = 10
 function delayColorClass(minutes: number): string {
   if (minutes <= URGENT_THRESHOLD_MIN) return 'text-[#EF4444]'
   if (minutes < 60) return 'text-[#F59E0B]'
-  if (minutes < 1440) return 'text-ink'
-  return 'text-warm-500'
+  if (minutes < 1440) return 'text-ink dark:text-night-text'
+  return 'text-warm-500 dark:text-night-text-soft'
 }
 
 interface Props {
@@ -61,12 +61,12 @@ export function MissionSheetItem({ mission, selected, userCoords, onSelect }: Pr
       <div className="flex gap-2.5 items-start">
         <div className="flex-1 min-w-0">
           <div className="grid grid-cols-[14px_1fr] gap-x-3 items-center">
-            <span className="w-2.5 h-2.5 rounded-full bg-ink justify-self-center" />
+            <span className="w-2.5 h-2.5 rounded-full bg-ink dark:bg-night-text justify-self-center" />
             <p className="text-[14px] font-semibold text-ink dark:text-night-text truncate leading-[1.3]">{mission.departure}</p>
-            <span className="w-0.5 h-3 bg-warm-200 justify-self-center my-0.5" />
+            <span className="w-0.5 h-3 bg-warm-200 dark:bg-night-border justify-self-center my-0.5" />
             <span className="h-3" aria-hidden="true" />
-            <span className="w-3 h-3 rounded-full bg-brand border-2 border-ink justify-self-center" />
-            <p className="text-[14px] text-warm-500 font-medium truncate leading-[1.3]">{mission.destination}</p>
+            <span className="w-3 h-3 rounded-full bg-brand dark:bg-night-brand border-2 border-ink dark:border-night-text justify-self-center" />
+            <p className="text-[14px] text-warm-500 dark:text-night-text-soft font-medium truncate leading-[1.3]">{mission.destination}</p>
           </div>
           <div className="flex items-center gap-1.5 mt-2 pl-[26px] min-w-0 overflow-hidden whitespace-nowrap">
             <span className={`shrink-0 px-1.5 py-[2px] rounded text-[10px] font-extrabold uppercase tracking-[0.04em] ${badgeClass}`}>
@@ -90,7 +90,7 @@ export function MissionSheetItem({ mission, selected, userCoords, onSelect }: Pr
           </div>
           {pickupKm != null && (
             <div
-              className="inline-flex items-center gap-1 text-[11px] text-warm-500 font-semibold tabular-nums"
+              className="inline-flex items-center gap-1 text-[11px] text-warm-500 dark:text-night-text-soft font-semibold tabular-nums"
               title="Distance jusqu'au lieu de prise en charge"
             >
               <MapPin className="w-3 h-3" strokeWidth={2.2} />
@@ -99,7 +99,7 @@ export function MissionSheetItem({ mission, selected, userCoords, onSelect }: Pr
           )}
           {courseKm != null && (
             <div
-              className="inline-flex items-center gap-1 text-[11px] text-ink font-semibold tabular-nums"
+              className="inline-flex items-center gap-1 text-[11px] text-ink dark:text-night-text font-semibold tabular-nums"
               title="Distance de la course (depart > destination)"
             >
               <Route className="w-3 h-3" strokeWidth={2.2} />

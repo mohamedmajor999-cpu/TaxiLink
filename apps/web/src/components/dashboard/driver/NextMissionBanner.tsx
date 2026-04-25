@@ -18,21 +18,21 @@ export function NextMissionBanner({ mission, onShowDetail, onComplete, userCoord
   return (
     <section
       aria-label={v.isStarted ? 'Course en cours' : 'Prochaine course'}
-      className="mb-5 relative rounded-2xl bg-paper border border-warm-200 overflow-hidden"
+      className="mb-5 relative rounded-2xl bg-paper dark:bg-night-surface border border-warm-200 dark:border-night-border overflow-hidden"
     >
       <span aria-hidden="true" className={`absolute left-0 top-0 bottom-0 w-1 ${v.barClass}`} />
 
       <div className="pl-5 pr-3 py-3 flex items-center gap-3">
-        <Clock className="w-5 h-5 text-ink shrink-0" strokeWidth={2.2} />
+        <Clock className="w-5 h-5 text-ink dark:text-night-text shrink-0" strokeWidth={2.2} />
 
         <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-bold text-ink leading-tight">
+          <p className="text-[14px] font-bold text-ink dark:text-night-text leading-tight">
             {v.countdown}
           </p>
-          <p className="text-[12px] text-warm-500 truncate mt-0.5">
+          <p className="text-[12px] text-warm-500 dark:text-night-text-soft truncate mt-0.5">
             {shortAddr(mission.departure)}
           </p>
-          <p className="text-[12px] text-warm-500 truncate">
+          <p className="text-[12px] text-warm-500 dark:text-night-text-soft truncate">
             → {shortAddr(mission.destination)}
           </p>
         </div>
@@ -41,7 +41,7 @@ export function NextMissionBanner({ mission, onShowDetail, onComplete, userCoord
           <button
             type="button"
             onClick={onShowDetail}
-            className="h-9 px-3 rounded-lg bg-paper border border-warm-200 text-ink text-[13px] font-semibold hover:bg-brand hover:border-ink transition-colors"
+            className="h-9 px-3 rounded-lg bg-paper dark:bg-night-elevated border border-warm-200 dark:border-night-border text-ink dark:text-night-text text-[13px] font-semibold hover:bg-brand hover:border-ink dark:hover:bg-night-border transition-colors"
           >
             Détails
           </button>
@@ -50,7 +50,7 @@ export function NextMissionBanner({ mission, onShowDetail, onComplete, userCoord
               type="button"
               onClick={v.handleComplete}
               disabled={v.completing}
-              className="h-9 px-3 rounded-lg bg-ink text-paper text-[13px] font-semibold hover:brightness-110 active:brightness-125 transition-all disabled:opacity-60 inline-flex items-center gap-1.5"
+              className="h-9 px-3 rounded-lg bg-ink dark:bg-night-brand text-paper dark:text-night-bg text-[13px] font-semibold hover:brightness-110 active:brightness-125 transition-all disabled:opacity-60 inline-flex items-center gap-1.5"
             >
               {v.completing && <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2} />}
               Terminer

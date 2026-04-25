@@ -105,7 +105,7 @@ function SheetSkeleton() {
   return (
     <div className="space-y-2">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="h-[96px] rounded-2xl bg-warm-100 motion-safe:animate-pulse" />
+        <div key={i} className="h-[96px] rounded-2xl bg-warm-100 dark:bg-night-surface motion-safe:animate-pulse" />
       ))}
     </div>
   )
@@ -114,12 +114,12 @@ function SheetSkeleton() {
 function SheetEmpty({ onPostCourse }: { onPostCourse: () => void }) {
   return (
     <div className="text-center py-10 px-4">
-      <p className="text-[15px] font-extrabold text-ink mb-1">Aucune annonce autour de vous</p>
-      <p className="text-[12.5px] text-warm-500 mb-4">Aucune course ne correspond à vos filtres.</p>
+      <p className="text-[15px] font-extrabold text-ink dark:text-night-text mb-1">Aucune annonce autour de vous</p>
+      <p className="text-[12.5px] text-warm-500 dark:text-night-text-soft mb-4">Aucune course ne correspond à vos filtres.</p>
       <button
         type="button"
         onClick={onPostCourse}
-        className="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-ink text-paper text-[13px] font-semibold"
+        className="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-ink dark:bg-night-brand text-paper dark:text-night-bg text-[13px] font-semibold"
       >
         Poster une course
       </button>

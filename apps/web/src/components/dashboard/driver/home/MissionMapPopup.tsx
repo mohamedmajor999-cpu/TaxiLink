@@ -51,18 +51,18 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
       <div className="flex gap-3 items-start pr-8">
         <div className="flex-1 min-w-0">
           <div className="grid grid-cols-[14px_1fr] gap-x-3 items-center">
-            <span className="w-2.5 h-2.5 rounded-full bg-ink justify-self-center" />
+            <span className="w-2.5 h-2.5 rounded-full bg-ink dark:bg-night-text justify-self-center" />
             <p className="text-[15px] font-semibold text-ink dark:text-night-text truncate leading-[1.3]">{mission.departure}</p>
-            <span className="w-0.5 h-3.5 bg-warm-200 justify-self-center my-0.5" />
+            <span className="w-0.5 h-3.5 bg-warm-200 dark:bg-night-border justify-self-center my-0.5" />
             <span className="h-3.5" aria-hidden="true" />
-            <span className="w-3 h-3 rounded-full bg-brand border-2 border-ink justify-self-center" />
-            <p className="text-[15px] text-warm-500 font-medium truncate leading-[1.3]">{mission.destination}</p>
+            <span className="w-3 h-3 rounded-full bg-brand dark:bg-night-brand border-2 border-ink dark:border-night-text justify-self-center" />
+            <p className="text-[15px] text-warm-500 dark:text-night-text-soft font-medium truncate leading-[1.3]">{mission.destination}</p>
           </div>
           <div className="flex items-center gap-1.5 mt-2.5 flex-wrap pl-[26px]">
             <span className={`px-1.5 py-[2px] rounded text-[10.5px] font-extrabold uppercase tracking-[0.04em] ${badgeClass}`}>
               {typeLabel}
             </span>
-            <span className="text-[12px] font-bold text-warm-600">
+            <span className="text-[12px] font-bold text-warm-600 dark:text-night-text-soft">
               · {minutesUntil <= 0 ? 'Maintenant' : `Dans ${formatDuration(minutesUntil)}`}
               {mission.return_trip ? ' · A/R' : ''}
             </span>
@@ -79,13 +79,13 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
             {fare.value.toFixed(2).replace('.', ',')} €
           </div>
           {pickupKm != null && (
-            <div className="inline-flex items-center gap-1 text-[12px] text-warm-500 font-semibold tabular-nums">
+            <div className="inline-flex items-center gap-1 text-[12px] text-warm-500 dark:text-night-text-soft font-semibold tabular-nums">
               <MapPin className="w-3.5 h-3.5" strokeWidth={2.2} />
               {pickupKm < 10 ? pickupKm.toFixed(1) : pickupKm.toFixed(0)} km
             </div>
           )}
           {courseKm != null && (
-            <div className="inline-flex items-center gap-1 text-[12px] text-ink font-semibold tabular-nums">
+            <div className="inline-flex items-center gap-1 text-[12px] text-ink dark:text-night-text font-semibold tabular-nums">
               <Route className="w-3.5 h-3.5" strokeWidth={2.2} />
               {courseKm < 10 ? courseKm.toFixed(1) : courseKm.toFixed(0)} km
             </div>
@@ -101,7 +101,7 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
           type="button"
           onClick={onShowDetail}
           aria-label="Voir les détails complets"
-          className="shrink-0 h-[52px] px-3 rounded-xl bg-paper border border-warm-200 inline-flex items-center justify-center text-ink text-[12px] font-bold hover:bg-brand hover:border-ink transition-colors"
+          className="shrink-0 h-[52px] px-3 rounded-xl bg-paper dark:bg-night-elevated border border-warm-200 dark:border-night-border inline-flex items-center justify-center text-ink dark:text-night-text text-[12px] font-bold hover:bg-brand hover:border-ink dark:hover:bg-night-border transition-colors"
         >
           Détail
         </button>

@@ -29,7 +29,9 @@ export function HoldAcceptButton({
   const isConfirmed = state === 'confirmed'
 
   const baseColors =
-    variant === 'accent' || isConfirmed ? 'bg-brand text-ink' : 'bg-ink text-paper'
+    variant === 'accent' || isConfirmed
+      ? 'bg-brand text-ink dark:bg-night-brand dark:text-night-bg'
+      : 'bg-ink text-paper dark:bg-night-brand dark:text-night-bg'
 
   return (
     <button
