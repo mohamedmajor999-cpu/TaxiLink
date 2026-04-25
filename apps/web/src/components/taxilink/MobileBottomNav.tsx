@@ -34,20 +34,20 @@ export function MobileBottomNav({ activeTab, onTabChange, onPostCourse, coursesB
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       aria-label="Navigation principale"
     >
-      <div className="grid grid-cols-5 items-end h-[72px] relative">
+      <div className="grid grid-cols-5 items-end h-[60px] relative">
         {left.map((item) => (
           <NavBtn key={item.key} item={item} active={activeTab === item.key} onClick={() => onTabChange(item.key)} />
         ))}
 
-        <div className="flex items-start justify-center -mt-8">
-          <div className="w-[72px] h-[72px] rounded-full bg-paper border-2 border-warm-200 flex items-center justify-center">
+        <div className="flex items-start justify-center -mt-6">
+          <div className="w-[60px] h-[60px] rounded-full bg-paper border-2 border-warm-200 flex items-center justify-center">
             <button
               type="button"
               onClick={onPostCourse}
               aria-label="Poster une course"
-              className="w-[60px] h-[60px] rounded-full bg-ink text-brand flex items-center justify-center shadow-fab hover:shadow-fab-hover transition-shadow"
+              className="w-[48px] h-[48px] rounded-full bg-ink text-brand flex items-center justify-center shadow-fab hover:shadow-fab-hover transition-shadow"
             >
-              <Plus className="w-7 h-7" strokeWidth={2.6} />
+              <Plus className="w-6 h-6" strokeWidth={2.6} />
             </button>
           </div>
         </div>
@@ -76,17 +76,17 @@ function NavBtn({
       type="button"
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
-      className={`h-[72px] flex flex-col items-center justify-center gap-1 ${active ? 'text-ink' : 'text-warm-400'}`}
+      className={`h-[60px] flex flex-col items-center justify-center gap-0.5 ${active ? 'text-brand' : 'text-warm-400'}`}
     >
       <span className="relative inline-flex">
-        <Icon className="w-6 h-6" strokeWidth={active ? 2.2 : 1.8} fill={active ? 'currentColor' : 'none'} />
+        <Icon className="w-5 h-5" strokeWidth={active ? 2.2 : 1.8} fill={active ? 'currentColor' : 'none'} />
         {hasBadge && (
-          <span className="absolute -top-1.5 -right-2.5 min-w-[20px] h-[20px] px-1 rounded-full bg-brand text-ink text-[10px] font-bold flex items-center justify-center ring-2 ring-paper">
+          <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-ink text-[10px] font-bold flex items-center justify-center ring-2 ring-paper">
             {item.badge! > 99 ? '99+' : item.badge}
           </span>
         )}
       </span>
-      <span className={`text-[12px] ${active ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+      <span className={`text-[11px] ${active ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
     </button>
   )
 }
