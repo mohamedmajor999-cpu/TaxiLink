@@ -53,7 +53,7 @@ export function DriverHomeSheet({
     >
       <div
         ref={dragHandleRef}
-        className="group md:hidden h-10 flex items-center justify-center touch-none cursor-grab active:cursor-grabbing select-none"
+        className="md:hidden h-10 flex items-center justify-center touch-none cursor-grab active:cursor-grabbing select-none"
         role="slider"
         aria-label="Redimensionner la feuille"
         aria-valuemin={1}
@@ -61,7 +61,7 @@ export function DriverHomeSheet({
         aria-valuenow={snap === 'one' ? 1 : snap === 'two' ? 2 : snap === 'three' ? 3 : 4}
         style={{ touchAction: 'none' }}
       >
-        <span className="w-14 h-1.5 rounded-full bg-warm-500 dark:bg-warm-300 transition-all group-active:w-16 group-active:h-2 group-active:bg-ink dark:group-active:bg-paper" />
+        <span className="w-14 h-1.5 rounded-full bg-warm-500 dark:bg-warm-300" />
       </div>
       <div className="hidden md:block pt-4" />
       <div className={isCollapsed ? 'hidden md:block' : 'block'}>
