@@ -20,7 +20,7 @@ export function DriverHomeFilterChips({
   onFilterChange, onUrgentToggle, onNearbyToggle, floating,
 }: Props) {
   return (
-    <div className={`flex gap-2 overflow-x-auto hide-scrollbar ${floating ? 'px-4' : 'px-5 pb-3'}`}>
+    <div className={`flex gap-1.5 md:gap-2 overflow-x-auto hide-scrollbar ${floating ? 'px-4' : 'px-5 pb-3'}`}>
       {HOME_TYPE_FILTERS.map((f) => (
         <Chip
           key={f.key}
@@ -65,7 +65,7 @@ function Chip({ active, onClick, label, count, icon, floating }: ChipProps) {
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`shrink-0 inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[12px] font-bold transition-colors ${floatShadow} ${
+      className={`shrink-0 inline-flex items-center gap-1 md:gap-1.5 h-7 md:h-9 px-2.5 md:px-3.5 rounded-full text-[11px] md:text-[12px] font-bold transition-colors ${floatShadow} ${
         active
           ? 'bg-ink text-paper border border-ink'
           : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'

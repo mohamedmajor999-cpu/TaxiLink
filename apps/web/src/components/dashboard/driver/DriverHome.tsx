@@ -115,7 +115,11 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
           />
         </div>
 
-        <div className="shrink-0 h-20 px-3 py-2.5 bg-paper border-t border-warm-200">
+        <div
+          className={`shrink-0 h-20 px-3 py-2.5 bg-paper border-t border-warm-200 ${
+            h.selectedMission ? '' : 'hidden md:block'
+          }`}
+        >
           <DriverHomeAcceptBar
             disabled={!h.selectedMission}
             onAccept={onAccept}
