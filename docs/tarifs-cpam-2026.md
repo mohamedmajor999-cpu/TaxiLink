@@ -10,14 +10,14 @@
 | Élément | Valeur | Note |
 |---|---|---|
 | Forfait de prise en charge | **13,00 €** | Inclut les 4 premiers km (patient à bord) |
-| Tarif au km (BDR, à valider) | **1,22 €/km** | À partir du 5e km — exemple Isère faute de barème BDR officiel en ligne. À confirmer auprès de CPAM 13. |
+| Tarif au km (BDR) | **1,38 €/km** | À partir du 5e km — vérifié sur [calcul-taxi-conventionne.fr](https://calcul-taxi-conventionne.fr/simulateur) (2026) |
 | Plancher national | **1,07 €/km** | Aucun département ne peut descendre sous ce seuil |
 | Supplément grande ville | **+15,00 €** | Si prise en charge OU dépôt dans une des 12 villes listées — **sauf si intra-ZUPC** |
 | Majoration nuit / WE / férié | **× 1,5 sur socle** | Règle nuit : >50% du trajet entre 20h-8h |
 | Retour à vide (HDJ) — <50 km | **+25 %** sur partie km | Uniquement HDJ et hors intra-ZUPC |
 | Retour à vide (HDJ) — ≥50 km | **+50 %** sur partie km | Idem |
 | Supplément TPMR (fauteuil roulant) | **+30 €** | Détecté via `transport_type = 'WHEELCHAIR'`. **Hors majoration et abattement** |
-| Transport partagé | **-23 % / -35 % / -37 %** | 2 / 3 / 4+ patients dans le même véhicule (champ `passengers`) |
+| Transport partagé | **-23 % / -35 % / -37 %** | Abattement par patient. Chaque patient est facturé séparément à la CPAM ; total chauffeur = somme des facturations (donc 2 patients génèrent 2× le prix réduit, etc.) |
 | Frais d'approche + attente | **Supprimés** | Intégrés au forfait de 13 € |
 
 Source principale : [Légifrance — Arrêté 29 juillet 2025](https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000052060568)
@@ -98,18 +98,19 @@ Variables calculées :
                         ? (distanceKm ≥ 50 ? 0.50 : 0.25)
                         : 0
 
-UN trajet (aller avec patient) :
-  kmPart    = kmBillable × 1,22 × (1 + emptyReturnMult)
+Par patient (1 facture CPAM) :
+  kmPart    = kmBillable × 1,38 × (1 + emptyReturnMult)
   socle     = 13 + kmPart
   si bigCity           : socle += 15
   si majoré (nuit/WE/férié) : socle ×= 1,5
   si passengers 2      : socle ×= 0,77   (-23%)
   si passengers 3      : socle ×= 0,65   (-35%)
   si passengers ≥ 4    : socle ×= 0,63   (-37%)
-  si WHEELCHAIR        : oneWay = socle + 30   (hors majo/abattement)
-  sinon                : oneWay = socle
+  si WHEELCHAIR        : perPatient = socle + 30   (hors majo/abattement)
+  sinon                : perPatient = socle
 
-Total :
+Total chauffeur (somme des factures CPAM patient) :
+  oneWay    = perPatient × passengers
   prixFinal = round(returnTrip ? oneWay × 2 : oneWay)
 ```
 
@@ -117,19 +118,20 @@ Total :
 
 ## 6. Exemples chiffrés
 
-Hypothèses : départ et arrivée Marseille 2026, tarif BDR 1,22 €/km (à confirmer).
+Hypothèses : départ et arrivée Marseille 2026, tarif BDR officiel 1,38 €/km. Total = revenu chauffeur (somme des factures CPAM patient).
 
-| Scénario | dist/dur | Date/heure | Motif | ZUPC | Calcul | Prix estimé |
+| Scénario | dist | Date/heure | Motif | Patients | Calcul | Prix |
 |---|---|---|---|---|---|---|
-| Consultation intra-Marseille jour | 8 km / 20 min | mardi 14:00 | CONSULT. | même → pas GV | 13 + 4×1,22 = 17,88 | **18 €** |
-| Idem + retour aller | 8 km / 20 min | mardi 14:00 | CONSULT. | même | 17,88 × 2 = 35,76 | **36 €** (retour patient) |
-| Consultation nuit | 8 km / 20 min | mardi 22:00 | CONSULT. | même | 17,88 × 1,5 = 26,82 | **27 €** |
-| Consultation Marseille → Cassis | 20 km / 30 min | mardi 10:00 | CONSULT. | inter → +15 € | 13 + 16×1,22 + 15 = 47,52 | **48 €** |
-| HDJ Marseille → Cassis | 20 km / 30 min | mardi 10:00 | HDJ | inter | 13 + (16×1,22×1,25) + 15 = 52,40 | **52 €** |
-| HDJ Marseille → Aix dimanche | 60 km / 60 min | dim. 10:00 | HDJ | inter | (13+(56×1,22×1,5)+15) × 1,5 = 195,72 | **196 €** |
-| Fauteuil roulant (TPMR) intra | 8 km / 20 min | mardi 14:00 | CONSULT. | même | 17,88 + 30 = 47,88 | **48 €** |
-| 2 patients partagé intra | 8 km / 20 min | mardi 14:00 | CONSULT. | même | 17,88 × 0,77 = 13,77 | **14 €** |
-| 4 patients partagé intra | 8 km / 20 min | mardi 14:00 | CONSULT. | même | 17,88 × 0,63 = 11,26 | **11 €** |
+| Consultation intra-Marseille jour | 8 km | mardi 14:00 | CONSULT. | 1 | 13 + 4×1,38 = 18,52 | **19 €** |
+| Idem + aller-retour patient | 8 km | mardi 14:00 | CONSULT. | 1 | 18,52 × 2 = 37,04 | **37 €** |
+| Consultation nuit | 8 km | mardi 22:00 | CONSULT. | 1 | 18,52 × 1,5 = 27,78 | **28 €** |
+| Consultation Marseille → Cassis | 20 km | mardi 10:00 | CONSULT. | 1 | 13 + 16×1,38 + 15 = 50,08 | **50 €** |
+| HDJ Marseille → Cassis | 20 km | mardi 10:00 | HDJ | 1 | 13 + (16×1,38×1,25) + 15 = 55,60 | **56 €** |
+| HDJ Marseille → Aix dimanche | 60 km | dim. 10:00 | HDJ | 1 | (13+(56×1,38×1,5)+15) × 1,5 = 215,88 | **216 €** |
+| Fauteuil roulant (TPMR) intra | 8 km | mardi 14:00 | CONSULT. | 1 | 18,52 + 30 = 48,52 | **49 €** |
+| **Partagé 2 patients intra** (5 km HDJ) | 5 km | mardi 14:00 | HDJ | 2 | (13+1×1,38)×0,77×2 = 22,14 | **22 €** ✓ vs simulateur officiel |
+| Partagé 3 patients intra | 8 km | mardi 14:00 | CONSULT. | 3 | 18,52×0,65×3 = 36,11 | **36 €** |
+| Partagé 4+ patients intra | 8 km | mardi 14:00 | CONSULT. | 5 | 18,52×0,63×5 = 58,33 | **58 €** |
 
 ---
 
@@ -159,7 +161,7 @@ Hypothèses : départ et arrivée Marseille 2026, tarif BDR 1,22 €/km (à conf
 
 ## 8. Limites connues / améliorations possibles
 
-- [ ] **Tarif km BDR officiel** : la valeur exacte n'est pas publiée en ligne (Annexe 2 de la convention-type). On utilise 1,22 € par défaut (conservatif, alignement Isère). À **confirmer auprès de CPAM 13** (04.84.25.55.55).
+- [x] **Tarif km BDR officiel** : 1,38 €/km — valeur vérifiée sur le simulateur calcul-taxi-conventionne.fr (avril 2026).
 - [x] **Règle ZUPC sur grande ville** : implémentée (intra-ZUPC → pas de +15 €)
 - [x] **Règle nuit >50% temps** : implémentée via `durationMin`
 - [x] **Extraction commune propre** (pas de `.includes()` naïf)

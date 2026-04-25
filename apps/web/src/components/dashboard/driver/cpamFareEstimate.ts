@@ -5,9 +5,8 @@ import { extractCommune, determineReturnMode } from './zupcBdr'
 // Convention-cadre nationale CNAM taxi (arrêté 29 juillet 2025, en vigueur 01/11/2025)
 const FORFAIT = 13
 const KM_INCLUS = 4
-// Tarif km BDR à confirmer auprès de CPAM 13 (Annexe 2 convention-type locale).
-// En attendant on garde 1,22 (exemple Isère) conservatif pour le chauffeur.
-const TARIF_KM_BDR = 1.22
+// Tarif km BDR officiel — vérifié sur calcul-taxi-conventionne.fr (2026).
+const TARIF_KM_BDR = 1.38
 const BIG_CITY_SURCHARGE = 15
 const MAJORATION = 1.5
 const TPMR_SUPPLEMENT = 30
@@ -108,15 +107,17 @@ export function estimateCpamFare({
   if (isMajoredPeriod(d, hour, minute, durationMin)) socle *= MAJORATION
 
   // Abattement transport partagé (patients ≥ 2 dans le même véhicule).
-  const nbPatients = passengers ?? 1
+  // Chaque patient est facturé à la CPAM séparément avec son abattement.
+  const nbPatients = Math.max(1, passengers ?? 1)
   const discount = nbPatients >= 4 ? SHARED_DISCOUNTS[4]
     : SHARED_DISCOUNTS[nbPatients] ?? 0
-  socle *= (1 - discount)
+  const perPatient = socle * (1 - discount)
 
-  // Supplément TPMR (fauteuil roulant) — hors majorations/abattements.
-  const tpmr = transportType === 'WHEELCHAIR' ? TPMR_SUPPLEMENT : 0
+  // Supplément TPMR (fauteuil roulant) — par patient TPMR, hors majo/abattement.
+  const tpmrPerPatient = transportType === 'WHEELCHAIR' ? TPMR_SUPPLEMENT : 0
 
-  const oneWay = socle + tpmr
+  // Total chauffeur = somme des facturations CPAM de chaque patient.
+  const oneWay = (perPatient + tpmrPerPatient) * nbPatients
   const total = returnTrip ? oneWay * 2 : oneWay
   return Math.round(total)
 }
