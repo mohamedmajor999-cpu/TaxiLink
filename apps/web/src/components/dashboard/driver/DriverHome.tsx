@@ -43,7 +43,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100dvh-60px)] md:h-screen overflow-hidden" style={{ backgroundColor: '#FFFFFF' }}>
+    <div className={`flex flex-col md:flex-row md:h-screen overflow-hidden ${mapFullscreen ? 'h-[100dvh]' : 'h-[calc(100dvh-60px)]'}`} style={{ backgroundColor: '#FFFFFF' }}>
       {h.showConfetti && <MissionAcceptedCelebration onDone={h.clearConfetti} />}
       <ToastContainer toasts={h.toasts} onDismiss={h.dismissToast} />
 

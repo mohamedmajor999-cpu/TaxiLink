@@ -81,7 +81,7 @@ export function DriverHomeSheet({
       </div>
 
       <div ref={listRef} className="flex-1 overflow-y-auto px-4 pb-3 hide-scrollbar space-y-2">
-        {banner && <div className="mb-2">{banner}</div>}
+        {banner}
         {loading && <SheetSkeleton />}
         {!loading && missions.length === 0 && <SheetEmpty onPostCourse={onPostCourse} />}
         {!loading && missions.map((m) => (
