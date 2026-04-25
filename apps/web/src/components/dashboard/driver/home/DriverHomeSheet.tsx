@@ -36,7 +36,7 @@ export function DriverHomeSheet({
 }: Props) {
   const listRef = useRef<HTMLDivElement | null>(null)
   const dragHandleRef = useSheetDrag(snap, onSnapChange)
-  const isCollapsed = snap === 'collapsed'
+  const isCollapsed = snap === 'one'
   useEffect(() => {
     if (!selectedId || !listRef.current) return
     const el = listRef.current.querySelector<HTMLElement>(`[data-mission="${selectedId}"]`)
@@ -50,18 +50,15 @@ export function DriverHomeSheet({
     >
       <div
         ref={dragHandleRef}
-        className="md:hidden h-10 flex flex-col items-center justify-center touch-none cursor-grab active:cursor-grabbing select-none gap-1 pt-2"
+        className="md:hidden h-9 flex items-center justify-center touch-none cursor-grab active:cursor-grabbing select-none"
         role="slider"
-        aria-label="Redimensionner la feuille : glissez vers le haut pour agrandir, vers le bas pour réduire"
-        aria-valuemin={0}
-        aria-valuemax={2}
-        aria-valuenow={snap === 'collapsed' ? 0 : snap === 'default' ? 1 : 2}
+        aria-label="Redimensionner la feuille"
+        aria-valuemin={1}
+        aria-valuemax={4}
+        aria-valuenow={snap === 'one' ? 1 : snap === 'two' ? 2 : snap === 'three' ? 3 : 4}
         style={{ touchAction: 'none' }}
       >
-        <span className="w-14 h-1.5 rounded-full bg-warm-500" />
-        <span className="text-[10px] font-semibold text-warm-500 leading-none">
-          {snap === 'collapsed' ? 'Glissez vers le haut' : snap === 'expanded' ? 'Glissez vers le bas' : 'Glissez ↕'}
-        </span>
+        <span className="w-16 h-2 rounded-full bg-warm-700" />
       </div>
       <div className="hidden md:block pt-4" />
       <div className={isCollapsed ? 'hidden md:block' : 'block'}>

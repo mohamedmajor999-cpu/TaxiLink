@@ -3,9 +3,19 @@ import { AlertTriangle, MapPin, Route } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { computeDisplayFare } from '@/lib/missionFare'
 import { getMinutesUntil } from '@/lib/dateUtils'
+import { formatDuration } from '@/lib/formatDuration'
 import { haversineKm } from '@/lib/geoDistance'
 
 const URGENT_THRESHOLD_MIN = 10
+
+// Code couleur de l'imminence de la course :
+// rouge < 10 min, orange < 1h, noir < 24h, gris au-dela.
+function delayColorClass(minutes: number): string {
+  if (minutes <= URGENT_THRESHOLD_MIN) return 'text-[#EF4444]'
+  if (minutes < 60) return 'text-[#F59E0B]'
+  if (minutes < 1440) return 'text-ink'
+  return 'text-warm-500'
+}
 
 interface Props {
   mission: Mission
@@ -62,8 +72,8 @@ export function MissionSheetItem({ mission, selected, userCoords, onSelect }: Pr
             <span className={`px-1.5 py-[2px] rounded text-[10px] font-extrabold uppercase tracking-[0.04em] ${badgeClass}`}>
               {typeLabel}
             </span>
-            <span className="text-[11px] font-semibold text-warm-500">
-              · {minutesUntil <= 0 ? 'Maintenant' : `Dans ${minutesUntil} min`}
+            <span className={`text-[11px] font-bold ${delayColorClass(minutesUntil)}`}>
+              · {minutesUntil <= 0 ? 'Maintenant' : `Dans ${formatDuration(minutesUntil)}`}
               {mission.return_trip ? ' · A/R' : ''}
             </span>
             {urgent && (

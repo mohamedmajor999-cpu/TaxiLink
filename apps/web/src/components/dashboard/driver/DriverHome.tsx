@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { MissionAcceptedCelebration } from '@/components/ui/MissionAcceptedCelebration'
 import { ToastContainer } from '@/components/ui/Toast'
@@ -9,18 +9,12 @@ import { DriverHomeSheet } from './home/DriverHomeSheet'
 import { DriverHomeAcceptBar } from './home/DriverHomeAcceptBar'
 import { DriverHomeTopOverlay } from './home/DriverHomeTopOverlay'
 import { DriverHomeFilterChips } from './home/DriverHomeFilterChips'
-import type { SheetSnap } from './home/useSheetDrag'
+import { SHEET_FRACTION, type SheetSnap } from './home/useSheetDrag'
 
 const DriverHomeMap = dynamic(
   () => import('./home/DriverHomeMap').then((m) => m.DriverHomeMap),
   { ssr: false, loading: () => <MapFallback /> },
 )
-
-const SHEET_PX: Record<SheetSnap, number> = {
-  collapsed: 160,
-  default: 400,
-  expanded: 620,
-}
 
 interface Props {
   onPostCourse: () => void
@@ -30,7 +24,16 @@ interface Props {
 
 export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }: Props) {
   const h = useDriverHome()
-  const [snap, setSnap] = useState<SheetSnap>('default')
+  const [snap, setSnap] = useState<SheetSnap>('two')
+  const [vh, setVh] = useState(0)
+  useEffect(() => {
+    const update = () => setVh(window.innerHeight)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+  // Sheet = fraction de la hauteur d'ecran (vh) ; fallback 320px avant mount.
+  const sheetHeightPx = vh > 0 ? Math.round(vh * SHEET_FRACTION[snap]) : 320
 
   const onAccept = async () => {
     try { await h.acceptSelected() } catch { /* toast déjà géré par acceptMission */ }
@@ -58,7 +61,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
             onProfile={onGoToProfile}
             onRequestLocation={h.hasUserCoords ? undefined : h.requestLocation}
           />
-          {snap === 'collapsed' && (
+          {snap === 'one' && (
             <div className="md:hidden absolute top-16 left-0 right-0 z-[500] pointer-events-auto">
               <DriverHomeFilterChips
                 filter={h.filter}
@@ -79,7 +82,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
       <div className="shrink-0 flex flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200">
         <div
           className="relative shrink-0 -mt-6 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 bg-paper rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none flex flex-col transition-[height] duration-300 ease-out"
-          style={{ height: `${SHEET_PX[snap]}px` }}
+          style={{ height: `${sheetHeightPx}px` }}
         >
           <DriverHomeSheet
             missions={h.filteredMissions}
