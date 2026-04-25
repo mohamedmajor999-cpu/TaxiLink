@@ -9,6 +9,7 @@ import { DriverHomeSheet } from './home/DriverHomeSheet'
 import { DriverHomeAcceptBar } from './home/DriverHomeAcceptBar'
 import { DriverHomeTopOverlay } from './home/DriverHomeTopOverlay'
 import { DriverHomeFilterChips } from './home/DriverHomeFilterChips'
+import { MissionMapPopup } from './home/MissionMapPopup'
 import { SHEET_FRACTION, type SheetSnap } from './home/useSheetDrag'
 
 const DriverHomeMap = dynamic(
@@ -26,6 +27,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
   const h = useDriverHome()
   const [snap, setSnap] = useState<SheetSnap>('two')
   const [vh, setVh] = useState(0)
+  const [mapFullscreen, setMapFullscreen] = useState(false)
   useEffect(() => {
     const update = () => setVh(window.innerHeight)
     update()
@@ -52,6 +54,8 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
             userAccuracy={h.userAccuracy}
             selectedId={h.selectedMissionId}
             onSelect={h.toggleMission}
+            fullscreen={mapFullscreen}
+            onToggleFullscreen={() => setMapFullscreen((v) => !v)}
           />
           <DriverHomeTopOverlay
             isOnline={h.driver.isOnline}
@@ -61,7 +65,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
             onProfile={onGoToProfile}
             onRequestLocation={h.hasUserCoords ? undefined : h.requestLocation}
           />
-          {snap === 'one' && (
+          {(snap === 'one' || mapFullscreen) && (
             <div className="md:hidden absolute top-16 left-0 right-0 z-[500] pointer-events-auto">
               <DriverHomeFilterChips
                 filter={h.filter}
@@ -76,10 +80,21 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
               />
             </div>
           )}
+          {h.selectedMission && (
+            <div className="md:hidden">
+              <MissionMapPopup
+                mission={h.selectedMission}
+                userCoords={h.userCoords}
+                onAccept={onAccept}
+                onShowDetail={() => h.selectedMissionId && onShowMissionDetail(h.selectedMissionId)}
+                onClose={() => h.selectedMissionId && h.toggleMission(h.selectedMissionId)}
+              />
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="shrink-0 flex flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200">
+      <div className={`shrink-0 flex flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200 ${mapFullscreen ? 'hidden md:flex' : ''}`}>
         <div
           className="relative shrink-0 -mt-6 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 bg-paper rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none flex flex-col transition-[height] duration-300 ease-out"
           style={{ height: `${sheetHeightPx}px` }}
@@ -115,11 +130,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
           />
         </div>
 
-        <div
-          className={`shrink-0 h-20 px-3 py-2.5 bg-paper border-t border-warm-200 ${
-            h.selectedMission ? '' : 'hidden md:block'
-          }`}
-        >
+        <div className="hidden md:block shrink-0 h-20 px-3 py-2.5 bg-paper border-t border-warm-200">
           <DriverHomeAcceptBar
             disabled={!h.selectedMission}
             onAccept={onAccept}
