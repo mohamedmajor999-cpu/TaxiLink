@@ -14,6 +14,7 @@ import { DriverHome } from './DriverHome'
 import { DriverCoursesScreen } from './DriverCoursesScreen'
 import { DriverGroupesScreen } from './DriverGroupesScreen'
 import { DriverProfilScreen } from './DriverProfilScreen'
+import { DocumentsScreen } from './profil/DocumentsScreen'
 import { MissionDetailScreen } from './MissionDetailScreen'
 import { PartagerMissionModal } from './PartagerMissionModal'
 import { PostedMissionAcceptPopup } from './PostedMissionAcceptPopup'
@@ -29,6 +30,8 @@ export function DriverDashboard() {
     setShowCreer,
     detailMissionId,
     setDetailMissionId,
+    profilSub,
+    setProfilSub,
   } = useDriverDashboard()
   const { driver } = useDriverStore()
   const availableCount = useMissionStore((s) => s.missions.length)
@@ -106,7 +109,14 @@ export function DriverDashboard() {
             )}
             {activeTab === 'profil' && (
               <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
-                <DriverProfilScreen driverName={driverName} />
+                {profilSub === 'documents' ? (
+                  <DocumentsScreen onBack={() => setProfilSub(null)} />
+                ) : (
+                  <DriverProfilScreen
+                    driverName={driverName}
+                    onOpenDocuments={() => setProfilSub('documents')}
+                  />
+                )}
               </div>
             )}
           </>

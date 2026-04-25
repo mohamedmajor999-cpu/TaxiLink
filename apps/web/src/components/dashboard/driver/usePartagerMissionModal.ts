@@ -5,6 +5,7 @@ import { groupService } from '@/services/groupService'
 import { missionGroupsService } from '@/services/missionGroupsService'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
+import { usePublishedFeedbackStore } from '@/store/publishedFeedbackStore'
 import type { Mission } from '@/lib/supabase/types'
 import type { Group } from '@taxilink/core'
 import type { AddressSuggestion } from '@/services/addressService'
@@ -14,10 +15,11 @@ import { useMissionFormState } from './useMissionFormState'
 import { submitMission } from './submitMission'
 import { useMissionPricing } from './useMissionPricing'
 
-export function usePartagerMissionModal(_onClose: () => void, mission?: Mission) {
+export function usePartagerMissionModal(onClose: () => void, mission?: Mission) {
   const isEdit = Boolean(mission)
   const driverId = useDriverStore((s) => s.driver.id)
   const form = useMissionFormState(mission)
+  const publishFeedback = usePublishedFeedbackStore((s) => s.publish)
 
   const [myGroups, setMyGroups] = useState<Group[]>([])
   const [preview, setPreview] = useState(false)
@@ -124,6 +126,15 @@ export function usePartagerMissionModal(_onClose: () => void, mission?: Mission)
       if (driverId) await useMissionStore.getState().load(driverId)
       setPreview(false)
       setPublished(true)
+      if (!isEdit) {
+        const priceValue = previewFare.value
+        publishFeedback({
+          type: form.type,
+          destination: form.destination,
+          priceLabel: priceValue ? `${priceValue.toFixed(2).replace('.', ',')} €` : '—',
+        })
+      }
+      onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : isEdit ? 'Erreur lors de la mise à jour' : 'Erreur lors de la publication')
     } finally {

@@ -5,55 +5,39 @@ import { ThumbsUp } from 'lucide-react'
 import { ConfettiOverlay } from './ConfettiOverlay'
 
 const KEYFRAMES = `
-@keyframes celebration-pop {
-  0%   { transform: scale(0.6); opacity: 0; }
-  60%  { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+@keyframes celebration-thumb-pop {
+  0%   { transform: rotate(-20deg) scale(0.4); opacity: 0; }
+  55%  { transform: rotate(8deg) scale(1.12); opacity: 1; }
+  100% { transform: rotate(0deg) scale(1); opacity: 1; }
 }
-@keyframes celebration-thumb {
-  0%   { transform: rotate(-20deg) scale(0.5); }
-  50%  { transform: rotate(10deg) scale(1.15); }
-  100% { transform: rotate(0deg) scale(1); }
-}
-@keyframes celebration-fade-out {
-  0%, 85% { opacity: 1; }
-  100%    { opacity: 0; }
+@keyframes celebration-thumb-fade-out {
+  0%, 75% { opacity: 1; }
+  100%    { opacity: 0; transform: scale(0.9); }
 }
 `
 
 export function MissionAcceptedCelebration({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(onDone, 4200)
+    const timer = setTimeout(onDone, 3200)
     return () => clearTimeout(timer)
   }, [onDone])
 
   return (
     <>
       <style>{KEYFRAMES}</style>
-      <ConfettiOverlay onDone={() => { /* geré par ce composant */ }} />
+      <ConfettiOverlay onDone={() => { /* géré par ce composant */ }} />
       <div
         role="status"
         aria-live="polite"
-        className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none px-6"
+        className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none"
       >
         <div
-          className="pointer-events-auto bg-paper rounded-3xl shadow-2xl border border-warm-200 px-8 py-7 flex flex-col items-center text-center max-w-sm w-full"
+          className="w-[120px] h-[120px] rounded-full bg-emerald-500 flex items-center justify-center shadow-[0_12px_36px_rgba(16,185,129,0.45),0_0_0_6px_rgba(16,185,129,0.18)]"
           style={{
-            animation: 'celebration-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both, celebration-fade-out 4200ms ease-in both',
+            animation: 'celebration-thumb-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both, celebration-thumb-fade-out 3200ms ease-in both',
           }}
         >
-          <div
-            className="w-20 h-20 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-4"
-            style={{ animation: 'celebration-thumb 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms both' }}
-          >
-            <ThumbsUp className="w-9 h-9 text-emerald-600" strokeWidth={2} />
-          </div>
-          <h2 className="text-[22px] font-bold text-ink leading-tight tracking-tight">
-            Félicitations&nbsp;!
-          </h2>
-          <p className="text-[14px] text-warm-600 mt-1.5">
-            Vous avez accepté une course. Bonne route&nbsp;!
-          </p>
+          <ThumbsUp className="w-16 h-16 text-white" strokeWidth={2.4} fill="currentColor" />
         </div>
       </div>
     </>

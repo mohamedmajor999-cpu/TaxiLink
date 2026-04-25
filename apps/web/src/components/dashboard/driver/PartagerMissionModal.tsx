@@ -6,7 +6,6 @@ import { usePartagerMissionModal } from './usePartagerMissionModal'
 import { buildScheduledAt } from './missionFormHelpers'
 import { buildPreviewCard, findGroupName } from './missionPreview'
 import { MissionPreviewStep } from './MissionPreviewStep'
-import { MissionPublishedStep } from './MissionPublishedStep'
 import { MissionFormLibre, getLibreFieldAnchor } from './MissionFormLibre'
 import { MissionFormVocal } from './MissionFormVocal'
 import { MissionModeToggle, type MissionCreationMode } from './MissionModeToggle'
@@ -43,8 +42,6 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
     () => getVisibleQuestions({ type: f.type, returnTrip: f.returnTrip, visibility: f.visibility }),
     [f.type, f.returnTrip, f.visibility],
   )
-
-  if (f.published) return <MissionPublishedStep isEdit={f.isEdit} onClose={onClose} />
 
   const groupLabel =
     f.visibility === 'GROUP' && f.groupIds.length > 0

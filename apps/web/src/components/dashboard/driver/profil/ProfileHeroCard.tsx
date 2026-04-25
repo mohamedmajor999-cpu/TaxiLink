@@ -10,7 +10,7 @@ interface Props {
   onEdit?: () => void
 }
 
-export function ProfileHero({
+export function ProfileHeroCard({
   fullName, initials, licenseNumber, city, mainDepartement, onEdit,
 }: Props) {
   const subtitleLine1 = ['Chauffeur taxi', licenseNumber ? `Licence n° ${licenseNumber}` : null]

@@ -7,7 +7,8 @@ export type ToastData = {
   id: string
   message: string
   sub?: string
-  type?: 'success' | 'info' | 'warning'
+  trailing?: string
+  type?: 'success' | 'info' | 'warning' | 'publish'
 }
 
 type Props = {
@@ -16,15 +17,17 @@ type Props = {
 }
 
 const COLORS = {
-  success: 'bg-green-600',
-  info: 'bg-secondary',
-  warning: 'bg-primary',
+  success: 'bg-green-600 text-white',
+  info: 'bg-secondary text-white',
+  warning: 'bg-primary text-white',
+  publish: 'bg-secondary text-primary',
 }
 
 const ICONS = {
   success: 'check_circle',
   info: 'notifications',
   warning: 'warning',
+  publish: 'check_circle',
 }
 
 export function ToastContainer({ toasts, onDismiss }: Props) {
@@ -40,21 +43,27 @@ export function ToastContainer({ toasts, onDismiss }: Props) {
 function ToastItem({ toast, onDismiss }: { toast: ToastData; onDismiss: (id: string) => void }) {
   const { visible, dismiss } = useToastItem(toast.id, onDismiss)
   const type = toast.type ?? 'info'
+  const isPublish = type === 'publish'
+  const subClass = isPublish ? 'text-primary/80' : 'text-white/70'
+  const closeClass = isPublish ? 'text-primary/60 hover:text-primary' : 'text-white/60 hover:text-white'
 
   return (
     <div
-      className={`pointer-events-auto flex items-start gap-3 px-4 py-3 rounded-2xl shadow-card text-white max-w-sm transition-all duration-300 ${COLORS[type]} ${
+      className={`pointer-events-auto flex items-start gap-3 px-4 py-3 rounded-2xl shadow-card max-w-sm transition-all duration-300 ${COLORS[type]} ${
         visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
       }`}
     >
       <Icon name={ICONS[type]} size={20} className="flex-shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold leading-snug">{toast.message}</p>
-        {toast.sub && <p className="text-xs text-white/70 mt-0.5 truncate">{toast.sub}</p>}
+        {toast.sub && <p className={`text-xs mt-0.5 truncate ${subClass}`}>{toast.sub}</p>}
       </div>
+      {toast.trailing && (
+        <span className="text-[15px] font-black flex-shrink-0 ml-1 mt-0.5">{toast.trailing}</span>
+      )}
       <button
         onClick={dismiss}
-        className="text-white/60 hover:text-white transition-colors"
+        className={`transition-colors ${closeClass}`}
         aria-label="Fermer"
       >
         <Icon name="close" size={16} />

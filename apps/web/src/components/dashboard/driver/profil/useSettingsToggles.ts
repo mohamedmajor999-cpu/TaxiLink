@@ -6,9 +6,10 @@ const STORAGE_KEY = 'taxilink:driver:prefs'
 interface Prefs {
   notifications: boolean
   autoDarkMode: boolean
+  voiceDictation: boolean
 }
 
-const defaults: Prefs = { notifications: true, autoDarkMode: true }
+const defaults: Prefs = { notifications: true, autoDarkMode: true, voiceDictation: true }
 
 function loadPrefs(): Prefs {
   if (typeof window === 'undefined') return defaults
@@ -34,7 +35,9 @@ export function useSettingsToggles() {
   return {
     notifications: prefs.notifications,
     autoDarkMode: prefs.autoDarkMode,
+    voiceDictation: prefs.voiceDictation,
     setNotifications: (v: boolean) => set('notifications', v),
     setAutoDarkMode: (v: boolean) => set('autoDarkMode', v),
+    setVoiceDictation: (v: boolean) => set('voiceDictation', v),
   }
 }

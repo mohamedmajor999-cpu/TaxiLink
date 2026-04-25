@@ -16,7 +16,7 @@ function formatRating(value: number | null): string {
   return value.toFixed(1).replace('.', ',')
 }
 
-export function ProfileStatsCard({ revenue, courseCount, rating }: Props) {
+export function ProfileStatsTiles({ revenue, courseCount, rating }: Props) {
   return (
     <section className="grid grid-cols-3 gap-3 mb-6">
       <Tile label="Ce mois" value={formatRevenue(revenue)} />

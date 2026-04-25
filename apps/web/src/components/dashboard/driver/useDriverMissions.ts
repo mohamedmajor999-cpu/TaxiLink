@@ -6,6 +6,13 @@ import { useDeptPreferences } from '@/hooks/useDeptPreferences'
 import { missionService } from '@/services/missionService'
 import { type MissionTypeFilter } from '@/constants/missionTypes'
 import type { Mission } from '@/lib/supabase/types'
+import { usePublishedFeedbackStore } from '@/store/publishedFeedbackStore'
+
+const TYPE_LABEL: Record<'CPAM' | 'PRIVE' | 'PRESCRIPTION', string> = {
+  CPAM: 'CPAM',
+  PRIVE: 'Privé',
+  PRESCRIPTION: 'Prescription',
+}
 
 export function useDriverMissions() {
   const { user } = useAuth()
@@ -41,6 +48,19 @@ export function useDriverMissions() {
   useEffect(() => {
     if (!deptsLoading) loadMissions()
   }, [deptsLoading, loadMissions])
+
+  const publishedFeedback = usePublishedFeedbackStore((s) => s.feedback)
+  const consumePublishedFeedback = usePublishedFeedbackStore((s) => s.consume)
+  useEffect(() => {
+    if (!publishedFeedback) return
+    addToast({
+      message: `Annonce publiée · ${TYPE_LABEL[publishedFeedback.type]}`,
+      sub: `→ ${publishedFeedback.destination}`,
+      trailing: publishedFeedback.priceLabel,
+      type: 'publish',
+    })
+    consumePublishedFeedback()
+  }, [publishedFeedback, addToast, consumePublishedFeedback])
 
   // Si les prefs sont vides, on ne filtre rien (comportement legacy).
   const matchesDeptPref = (m: Mission) => depts.length === 0 || (!!m.departement && depts.includes(m.departement))

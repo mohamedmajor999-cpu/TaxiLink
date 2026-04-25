@@ -14,6 +14,7 @@ export function useDriverDashboard() {
   const activeTab: Tab = tabParam && (VALID_TABS as string[]).includes(tabParam) ? (tabParam as Tab) : 'home'
   const detailMissionId = searchParams.get('mission')
   const showCreer = searchParams.get('creer') === '1'
+  const profilSub = searchParams.get('profilSub')
 
   const pushParams = (patch: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -25,13 +26,15 @@ export function useDriverDashboard() {
     router.push(qs ? `${pathname}?${qs}` : pathname)
   }
 
-  const setActiveTab = (tab: Tab) => pushParams({ tab: tab === 'home' ? null : tab, mission: null, creer: null })
+  const setActiveTab = (tab: Tab) => pushParams({ tab: tab === 'home' ? null : tab, mission: null, creer: null, profilSub: null })
   const setDetailMissionId = (id: string | null) => pushParams({ mission: id })
   const setShowCreer = (open: boolean) => pushParams({ creer: open ? '1' : null })
+  const setProfilSub = (sub: string | null) => pushParams({ profilSub: sub })
 
   return {
     activeTab, setActiveTab,
     showCreer, setShowCreer,
     detailMissionId, setDetailMissionId,
+    profilSub, setProfilSub,
   }
 }

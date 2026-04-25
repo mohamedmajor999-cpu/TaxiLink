@@ -3,27 +3,47 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDriverStore } from '@/store/driverStore'
 import { useAuth } from '@/hooks/useAuth'
 import { driverService } from '@/services/driverService'
+import { documentService } from '@/services/documentService'
+import { useDeptPreferences } from '@/hooks/useDeptPreferences'
 import { useDriverStats } from '../useDriverStats'
+import type { Document } from '@/lib/supabase/types'
+import { computeStatus, MANDATORY_DOCS } from './documentStatus'
 
-const MONTHS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
+const DEPT_TO_CITY: Record<string, string> = {
+  '13': 'Marseille',
+  '75': 'Paris',
+  '69': 'Lyon',
+  '31': 'Toulouse',
+  '06': 'Nice',
+  '33': 'Bordeaux',
+  '44': 'Nantes',
+  '67': 'Strasbourg',
+  '34': 'Montpellier',
+  '59': 'Lille',
+  '35': 'Rennes',
+}
 
 export function useDriverProfilScreen(driverName: string) {
   const { driver } = useDriverStore()
   const { user } = useAuth()
-  const { missions, loading } = useDriverStats()
+  const { missions } = useDriverStats()
+  const { depts } = useDeptPreferences()
   const [proNumber, setProNumber] = useState<string | null>(null)
-  const [isVerified, setIsVerified] = useState(false)
+  const [docs, setDocs] = useState<Document[]>([])
 
   useEffect(() => {
     if (!user) return
     let cancelled = false
-    driverService.getDriver(user.id)
-      .then((d) => {
-        if (cancelled || !d) return
-        setProNumber(d.pro_number)
-        setIsVerified(d.is_verified)
+    Promise.all([
+      driverService.getDriver(user.id),
+      documentService.getDocuments(user.id),
+    ])
+      .then(([d, docList]) => {
+        if (cancelled) return
+        if (d) setProNumber(d.pro_number)
+        setDocs(docList)
       })
-      .catch(() => { /* silencieux : hero retombe sur valeurs par défaut */ })
+      .catch(() => { /* silencieux : valeurs par défaut */ })
     return () => { cancelled = true }
   }, [user])
 
@@ -31,41 +51,41 @@ export function useDriverProfilScreen(driverName: string) {
     return driverName.split(' ').map((p) => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'YB'
   }, [driverName])
 
-  const monthlyStats = useMemo(() => {
+  const monthlyRevenue = useMemo(() => {
     const now = new Date()
-    const year = now.getFullYear()
-    const month = now.getMonth()
-
-    const thisMonth = missions.filter((m) => {
-      const d = new Date(m.completed_at ?? m.scheduled_at)
-      return d.getFullYear() === year && d.getMonth() === month
-    })
-    const lastMonthDate = new Date(year, month - 1, 1)
-    const lastMonth = missions.filter((m) => {
-      const d = new Date(m.completed_at ?? m.scheduled_at)
-      return d.getFullYear() === lastMonthDate.getFullYear() && d.getMonth() === lastMonthDate.getMonth()
-    })
-
-    const revenue = thisMonth.reduce((s, m) => s + Number(m.price_eur ?? 0), 0)
-    const lastRevenue = lastMonth.reduce((s, m) => s + Number(m.price_eur ?? 0), 0)
-    const delta = lastRevenue > 0 ? Math.round(((revenue - lastRevenue) / lastRevenue) * 100) : null
-
-    return {
-      monthLabel: `${MONTHS_FR[month]} ${year}`,
-      previousMonthLabel: MONTHS_FR[lastMonthDate.getMonth()],
-      revenue,
-      delta,
-      courseCount: thisMonth.length,
-    }
+    return missions
+      .filter((m) => {
+        const d = new Date(m.completed_at ?? m.scheduled_at)
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+      })
+      .reduce((s, m) => s + Number(m.price_eur ?? 0), 0)
   }, [missions])
 
+  const documentsWarning = useMemo(() => {
+    const byType = new Map(docs.map((d) => [d.type, d]))
+    const toRenew = MANDATORY_DOCS.filter((slot) => {
+      const status = computeStatus(byType.get(slot.type) ?? null)
+      return status === 'expiring' || status === 'expired' || status === 'missing' || status === 'invalid'
+    }).length
+    if (toRenew === 0) return null
+    return `${toRenew} document${toRenew > 1 ? 's' : ''} à renouveler`
+  }, [docs])
+
+  const mainDept = depts[0] ?? null
+  const city = mainDept ? (DEPT_TO_CITY[mainDept] ?? null) : null
+
   return {
-    loading,
-    driver,
-    initials,
     fullName: driverName || 'Chauffeur',
-    monthlyStats,
+    email: driver.email ?? user?.email ?? '',
+    phone: driver.phone ?? '',
+    initials,
     proNumber,
-    isVerified,
+    rating: driver.rating ?? null,
+    courseCount: missions.length,
+    monthlyRevenue,
+    documentsWarning,
+    departements: depts,
+    city,
+    mainDepartement: mainDept,
   }
 }

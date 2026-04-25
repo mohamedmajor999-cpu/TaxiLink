@@ -1,11 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 
-// ─── Mocks ───────────────────────────────────────────────────────────────────
-const mockDriver = { id: 'd1', name: 'Jean Dupont', email: 'jean@test.fr', cpamEnabled: true, rating: 4.8, totalRides: 120, isOnline: false, createdAt: '2024-01-01' }
+const mockDriver = {
+  id: 'd1', name: 'Jean Dupont', email: 'jean@test.fr', phone: '0612345678',
+  cpamEnabled: true, rating: 4.8, totalRides: 120, isOnline: false, createdAt: '2024-01-01',
+}
 
 vi.mock('@/store/driverStore', () => ({
-  useDriverStore: vi.fn((sel: (s: { driver: typeof mockDriver }) => unknown) =>
+  useDriverStore: vi.fn((sel?: (s: { driver: typeof mockDriver }) => unknown) =>
     sel ? sel({ driver: mockDriver }) : { driver: mockDriver }
   ),
 }))
@@ -22,14 +24,23 @@ vi.mock('@/components/dashboard/driver/useDriverStats', () => ({
   useDriverStats: () => ({ missions: mockMissions, loading: false }),
 }))
 
+vi.mock('@/hooks/useDeptPreferences', () => ({
+  useDeptPreferences: () => ({ depts: ['13', '84'], loading: false, save: vi.fn() }),
+}))
+
 const mockGetDriver = vi.fn()
+const mockGetDocuments = vi.fn()
 vi.mock('@/services/driverService', () => ({
   driverService: { getDriver: (...a: unknown[]) => mockGetDriver(...a) },
+}))
+vi.mock('@/services/documentService', () => ({
+  documentService: { getDocuments: (...a: unknown[]) => mockGetDocuments(...a) },
 }))
 
 beforeEach(() => {
   vi.clearAllMocks()
   mockGetDriver.mockResolvedValue({ pro_number: 'PRO-123', is_verified: true })
+  mockGetDocuments.mockResolvedValue([])
 })
 
 describe('useDriverProfilScreen', () => {
@@ -51,17 +62,31 @@ describe('useDriverProfilScreen', () => {
     expect(result.current.fullName).toBe('Chauffeur')
   })
 
-  it('charge proNumber et isVerified depuis driverService', async () => {
+  it('charge proNumber depuis driverService', async () => {
     const { useDriverProfilScreen } = await import('@/components/dashboard/driver/profil/useDriverProfilScreen')
     const { result } = renderHook(() => useDriverProfilScreen('Jean Dupont'))
     await waitFor(() => expect(result.current.proNumber).toBe('PRO-123'))
-    expect(result.current.isVerified).toBe(true)
   })
 
-  it('monthlyStats.revenue = somme des missions du mois courant', async () => {
+  it('monthlyRevenue = somme des missions du mois courant', async () => {
     const { useDriverProfilScreen } = await import('@/components/dashboard/driver/profil/useDriverProfilScreen')
     const { result } = renderHook(() => useDriverProfilScreen('Jean Dupont'))
-    expect(result.current.monthlyStats.revenue).toBe(80)
-    expect(result.current.monthlyStats.courseCount).toBe(2)
+    expect(result.current.monthlyRevenue).toBe(80)
+    expect(result.current.courseCount).toBe(2)
+  })
+
+  it('expose departements et déduit la ville depuis le département principal', async () => {
+    const { useDriverProfilScreen } = await import('@/components/dashboard/driver/profil/useDriverProfilScreen')
+    const { result } = renderHook(() => useDriverProfilScreen('Jean Dupont'))
+    expect(result.current.departements).toEqual(['13', '84'])
+    expect(result.current.mainDepartement).toBe('13')
+    expect(result.current.city).toBe('Marseille')
+  })
+
+  it("documentsWarning indique le nombre de documents à renouveler", async () => {
+    mockGetDocuments.mockResolvedValue([])
+    const { useDriverProfilScreen } = await import('@/components/dashboard/driver/profil/useDriverProfilScreen')
+    const { result } = renderHook(() => useDriverProfilScreen('Jean Dupont'))
+    await waitFor(() => expect(result.current.documentsWarning).toMatch(/document/))
   })
 })
