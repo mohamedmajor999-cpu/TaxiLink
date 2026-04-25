@@ -2,6 +2,7 @@
 import { LocateFixed } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { useDriverHomeMap } from './useDriverHomeMap'
+import { useMissionMarkers } from './useMissionMarkers'
 
 interface Props {
   missions: Mission[]
@@ -13,7 +14,8 @@ interface Props {
 }
 
 export function DriverHomeMap({ missions, userCoords, userAccuracy, selectedId, onSelect, className }: Props) {
-  const { containerRef, recenter } = useDriverHomeMap({ missions, userCoords, userAccuracy, selectedId, onSelect })
+  const { containerRef, recenter, mapRef } = useDriverHomeMap({ userCoords, userAccuracy })
+  useMissionMarkers({ mapRef, missions, selectedId, onSelect })
   return (
     <div className={`relative ${className ?? 'w-full h-full'}`}>
       <div

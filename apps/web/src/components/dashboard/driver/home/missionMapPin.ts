@@ -1,4 +1,6 @@
 import type { DivIcon } from 'leaflet'
+import type { Mission } from '@/lib/supabase/types'
+import { computeDisplayFare } from '@/lib/missionFare'
 
 interface PinOptions {
   priceLabel: string
@@ -27,4 +29,12 @@ export async function createMeMarkerIcon() {
     iconAnchor: [18, 48],
     className: 'me-marker-taxi',
   })
+}
+
+export function formatMissionPriceLabel(m: Mission): string {
+  const value = computeDisplayFare(m).value
+  const rounded = Number.isInteger(value)
+    ? value.toFixed(0)
+    : value.toFixed(2).replace(/0$/, '').replace(/\.$/, '')
+  return `${rounded.replace('.', ',')} €`
 }

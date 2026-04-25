@@ -147,7 +147,11 @@ body {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
+  transition: transform 400ms linear;
+  will-change: transform;
 }
+/* Desactive la transition pendant le zoom Leaflet (sinon le marqueur "vole" vers sa nouvelle projection) */
+.leaflet-zoom-anim .me-marker-taxi { transition: none; }
 
 /* PWA standalone : safe-areas iOS (notch) + contenu au ras des bords système */
 @media (display-mode: standalone) {

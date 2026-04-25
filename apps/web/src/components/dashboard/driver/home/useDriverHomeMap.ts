@@ -1,32 +1,22 @@
 'use client'
 import { useCallback, useEffect, useRef } from 'react'
 import type { Map as LeafletMap, Marker, Circle } from 'leaflet'
-import type { Mission } from '@/lib/supabase/types'
-import { computeDisplayFare } from '@/lib/missionFare'
-import { getMinutesUntil } from '@/lib/dateUtils'
-import { createMissionPinIcon, createMeMarkerIcon } from './missionMapPin'
+import { createMeMarkerIcon } from './missionMapPin'
 
 const MARSEILLE_FALLBACK: [number, number] = [43.2965, 5.3698]
-const URGENT_THRESHOLD_MIN = 10
 const MAPBOX_STYLE = 'streets-v12'
 const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
 interface Params {
-  missions: Mission[]
   userCoords: { lat: number; lng: number } | null
   userAccuracy: number | null
-  selectedId: string | null
-  onSelect: (id: string) => void
 }
 
-export function useDriverHomeMap({ missions, userCoords, userAccuracy, selectedId, onSelect }: Params) {
+export function useDriverHomeMap({ userCoords, userAccuracy }: Params) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<LeafletMap | null>(null)
-  const markersRef = useRef<Map<string, Marker>>(new Map())
   const meMarkerRef = useRef<Marker | null>(null)
   const accuracyCircleRef = useRef<Circle | null>(null)
-  const onSelectRef = useRef(onSelect)
-  onSelectRef.current = onSelect
   const userCoordsRef = useRef(userCoords)
   userCoordsRef.current = userCoords
 
@@ -67,7 +57,6 @@ export function useDriverHomeMap({ missions, userCoords, userAccuracy, selectedI
       cancelled = true
       mapRef.current?.remove()
       mapRef.current = null
-      markersRef.current.clear()
       meMarkerRef.current = null
     }
   }, [])
@@ -115,56 +104,5 @@ export function useDriverHomeMap({ missions, userCoords, userAccuracy, selectedI
     return () => { cancelled = true }
   }, [userCoords, userAccuracy])
 
-  useEffect(() => {
-    const map = mapRef.current
-    if (!map) return
-    let cancelled = false
-    ;(async () => {
-      const L = (await import('leaflet')).default
-      if (cancelled) return
-      const seen = new Set<string>()
-      for (const m of missions) {
-        if (m.departure_lat == null || m.departure_lng == null) continue
-        seen.add(m.id)
-        const priceLabel = formatPriceLabel(m)
-        const urgent = getMinutesUntil(m.scheduled_at) <= URGENT_THRESHOLD_MIN
-        const icon = await createMissionPinIcon({ priceLabel, selected: m.id === selectedId, urgent })
-        if (cancelled) return
-        const existing = markersRef.current.get(m.id)
-        if (existing) {
-          existing.setLatLng([m.departure_lat, m.departure_lng])
-          existing.setIcon(icon)
-        } else {
-          const marker = L.marker([m.departure_lat, m.departure_lng], { icon, riseOnHover: true })
-            .on('click', () => onSelectRef.current(m.id))
-            .addTo(map)
-          markersRef.current.set(m.id, marker)
-        }
-      }
-      markersRef.current.forEach((marker, id) => {
-        if (!seen.has(id)) {
-          marker.remove()
-          markersRef.current.delete(id)
-        }
-      })
-    })()
-    return () => { cancelled = true }
-  }, [missions, selectedId])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!map || !selectedId) return
-    const mission = missions.find((x) => x.id === selectedId)
-    if (!mission || mission.departure_lat == null || mission.departure_lng == null) return
-    map.flyTo([mission.departure_lat, mission.departure_lng], Math.max(map.getZoom(), 14), { duration: 0.5 })
-  }, [selectedId, missions])
-
-  return { containerRef, recenter }
-}
-
-function formatPriceLabel(m: Mission): string {
-  const fare = computeDisplayFare(m)
-  const value = fare.value
-  const rounded = Number.isInteger(value) ? value.toFixed(0) : value.toFixed(2).replace(/0$/, '').replace(/\.$/, '')
-  return `${rounded.replace('.', ',')} €`
+  return { containerRef, recenter, mapRef }
 }
