@@ -65,9 +65,22 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
             onToggleOnline={() => h.setOnline(!h.driver.isOnline)}
             onProfile={onGoToProfile}
             onRequestLocation={h.hasUserCoords ? undefined : h.requestLocation}
+            middle={mapFullscreen ? (
+              <DriverHomeFilterChips
+                filter={h.filter}
+                counts={h.counts}
+                urgentOnly={h.urgentOnly}
+                nearbyOnly={h.nearbyOnly}
+                hasUserCoords={h.hasUserCoords}
+                onFilterChange={h.setFilter}
+                onUrgentToggle={() => h.setUrgentOnly(!h.urgentOnly)}
+                onNearbyToggle={() => h.setNearbyOnly(!h.nearbyOnly)}
+                floating
+              />
+            ) : null}
           />
           {(snap === 'one' || mapFullscreen) && (
-            <div className="md:hidden absolute top-16 left-0 right-0 z-[500] pointer-events-auto">
+            <div className={`md:hidden absolute top-16 left-0 right-0 z-[500] pointer-events-auto ${mapFullscreen ? 'landscape:hidden' : ''}`}>
               <DriverHomeFilterChips
                 filter={h.filter}
                 counts={h.counts}

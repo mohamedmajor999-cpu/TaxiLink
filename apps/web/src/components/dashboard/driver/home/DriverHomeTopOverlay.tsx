@@ -1,4 +1,5 @@
 'use client'
+import type { ReactNode } from 'react'
 import { MapPin } from 'lucide-react'
 
 interface Props {
@@ -8,14 +9,15 @@ interface Props {
   onToggleOnline: () => void
   onProfile: () => void
   onRequestLocation?: () => void
+  middle?: ReactNode
 }
 
 export function DriverHomeTopOverlay({
   isOnline, count, initials,
-  onToggleOnline, onProfile, onRequestLocation,
+  onToggleOnline, onProfile, onRequestLocation, middle,
 }: Props) {
   return (
-    <div className="absolute top-3 left-0 right-0 px-4 z-[500] flex items-start justify-between gap-2 pointer-events-none">
+    <div className="absolute top-3 left-0 right-0 px-4 z-[500] flex items-center justify-between gap-2 pointer-events-none">
       <button
         type="button"
         onClick={onToggleOnline}
@@ -31,6 +33,12 @@ export function DriverHomeTopOverlay({
         <span className="text-warm-500 font-semibold">·</span>
         <span className="text-warm-500 font-semibold">{count} annonce{count > 1 ? 's' : ''}</span>
       </button>
+
+      {middle && (
+        <div className="pointer-events-auto flex-1 min-w-0 hidden landscape:flex items-center">
+          {middle}
+        </div>
+      )}
 
       <div className="pointer-events-auto flex items-center gap-2">
         {onRequestLocation && (
