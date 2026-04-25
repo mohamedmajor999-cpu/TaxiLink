@@ -69,7 +69,7 @@ export function ConfettiOverlay({ onDone }: { onDone: () => void }) {
         style={{
           position: 'fixed',
           inset: 0,
-          zIndex: 50,
+          zIndex: 9999,
           pointerEvents: 'none',
           overflow: 'hidden',
         }}

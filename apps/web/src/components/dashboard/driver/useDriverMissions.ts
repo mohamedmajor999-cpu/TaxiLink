@@ -101,7 +101,6 @@ export function useDriverMissions() {
     try {
       await missionService.accept(id, user.id)
       setShowConfetti(true)
-      addToast({ message: 'Mission acceptée !', type: 'warning' })
       await loadMissions()
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Impossible d'accepter la mission"
