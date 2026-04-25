@@ -30,6 +30,7 @@ export function useDriverHomeMap({ userCoords, userAccuracy }: Params) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
     let cancelled = false
+    let observer: ResizeObserver | null = null
     ;(async () => {
       const L = (await import('leaflet')).default
       if (cancelled || !containerRef.current) return
@@ -52,9 +53,14 @@ export function useDriverHomeMap({ userCoords, userAccuracy }: Params) {
       mapRef.current = map
       setTimeout(() => map.invalidateSize(), 50)
       setTimeout(() => map.invalidateSize(), 300)
+      // Suit les changements de taille du conteneur (drag du sheet sur mobile, resize fenetre)
+      // pour eviter les zones grises (tuiles non chargees) quand la carte grandit.
+      observer = new ResizeObserver(() => map.invalidateSize())
+      observer.observe(containerRef.current!)
     })()
     return () => {
       cancelled = true
+      observer?.disconnect()
       mapRef.current?.remove()
       mapRef.current = null
       meMarkerRef.current = null
