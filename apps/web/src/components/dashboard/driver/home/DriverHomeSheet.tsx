@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 import type { ReactNode } from 'react'
 import type { Mission } from '@/lib/supabase/types'
 import { type HomeTypeFilter } from './useDriverHomeFilters'
@@ -26,6 +26,8 @@ interface Props {
   banner?: ReactNode
   snap: SheetSnap
   onSnapChange: (s: SheetSnap) => void
+  sheetRef: RefObject<HTMLDivElement | null>
+  vh: number
 }
 
 export function DriverHomeSheet({
@@ -33,9 +35,10 @@ export function DriverHomeSheet({
   urgentOnly, nearbyOnly, hasUserCoords,
   onSelect, onFilterChange, onUrgentToggle, onNearbyToggle,
   onPostCourse, scopeLabel, loading, banner, snap, onSnapChange,
+  sheetRef, vh,
 }: Props) {
   const listRef = useRef<HTMLDivElement | null>(null)
-  const dragHandleRef = useSheetDrag(snap, onSnapChange)
+  const dragHandleRef = useSheetDrag(snap, onSnapChange, sheetRef, vh)
   const isCollapsed = snap === 'one'
   useEffect(() => {
     if (!selectedId || !listRef.current) return

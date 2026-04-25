@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { MissionAcceptedCelebration } from '@/components/ui/MissionAcceptedCelebration'
 import { ToastContainer } from '@/components/ui/Toast'
@@ -29,6 +29,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
   const h = useDriverHome()
   const [snap, setSnap] = useState<SheetSnap>('three')
   const [vh, setVh] = useState(0)
+  const sheetRef = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
     const update = () => setVh(window.innerHeight)
     update()
@@ -110,6 +111,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
 
       <div className={`shrink-0 flex flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200 ${mapFullscreen ? 'hidden md:flex' : ''}`}>
         <div
+          ref={sheetRef}
           className="relative shrink-0 -mt-6 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 bg-paper rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none flex flex-col transition-[height] duration-300 ease-out"
           style={{ height: `${sheetHeightPx}px` }}
         >
@@ -131,6 +133,8 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
             loading={h.loading}
             snap={snap}
             onSnapChange={setSnap}
+            sheetRef={sheetRef}
+            vh={vh}
             banner={
               h.currentMission ? (
                 <NextMissionBanner
