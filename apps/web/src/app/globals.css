@@ -91,7 +91,8 @@ body {
 .leaflet-control-attribution { font-size: 10px !important; background: rgba(255,255,255,0.8) !important; }
 .leaflet-popup-content-wrapper { border-radius: 12px; }
 
-/* Mode nuit : controles zoom +/- harmonises avec la palette night */
+/* Mode nuit : fond Leaflet pendant le chargement et controles zoom +/- */
+.dark .leaflet-container { background: #2C2C2A; }
 .dark .leaflet-bar a,
 .dark .leaflet-bar a:hover {
   background-color: #1E2026;
@@ -163,6 +164,43 @@ body {
 }
 /* Desactive la transition pendant le zoom Leaflet (sinon le marqueur "vole" vers sa nouvelle projection) */
 .leaflet-zoom-anim .me-marker-taxi { transition: none; }
+
+/* === Mode nuit global ===
+ * Couleurs des tokens (cf. tailwind.config.ts) : ink #000, paper #FFF,
+ * warm.50 #F7F5EF, warm.100 #F1EFE8, warm.200 #E8E6DF, warm.300 #D3D1C7,
+ * warm.500 #888780, warm.600 #5F5E5A, warm.800 #2C2C2A, brand #FFD11A.
+ *
+ * On flippe les classes courantes utilisees dans tout le dashboard chauffeur
+ * (67+ fichiers) pour eviter d'ajouter `dark:` sur chacune. Les composants
+ * qui ont deja un `dark:` explicite (DriverHome, sheet, popup, navbar)
+ * gagnent grace a la specificite egale + ordre source identique. */
+.dark body { background-color: #2C2C2A; color: #F1EFE8; }
+
+/* Surfaces */
+.dark .bg-paper { background-color: #2C2C2A; }
+.dark .bg-white { background-color: #2C2C2A; }
+.dark .bg-warm-50 { background-color: #2C2C2A; }
+.dark .bg-warm-100 { background-color: #383735; }
+
+/* Textes : ink (noir) -> paper, warm-* -> teintes claires */
+.dark .text-ink { color: #F1EFE8; }
+.dark .text-warm-400 { color: #D3D1C7; }
+.dark .text-warm-500 { color: #D3D1C7; }
+.dark .text-warm-600 { color: #E8E6DF; }
+.dark .text-warm-700 { color: #E8E6DF; }
+.dark .text-warm-800 { color: #F1EFE8; }
+
+/* Bordures et rings */
+.dark .border-warm-100 { border-color: #5F5E5A; }
+.dark .border-warm-200 { border-color: #5F5E5A; }
+.dark .border-warm-300 { border-color: #5F5E5A; }
+.dark .ring-paper { --tw-ring-color: #2C2C2A; }
+.dark .ring-warm-200 { --tw-ring-color: #5F5E5A; }
+
+/* Hover surfaces (chips, lignes liste) */
+.dark .hover\:bg-warm-50:hover { background-color: #383735; }
+.dark .hover\:bg-warm-100:hover { background-color: #5F5E5A; }
+.dark .hover\:border-warm-300:hover { border-color: #888780; }
 
 /* PWA standalone : safe-areas iOS (notch) + contenu au ras des bords système */
 @media (display-mode: standalone) {
