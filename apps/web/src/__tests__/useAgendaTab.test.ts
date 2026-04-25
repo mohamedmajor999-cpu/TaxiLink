@@ -77,30 +77,25 @@ describe('useAgendaTab — chargement', () => {
   })
 })
 
-// ─── Pilules de jours ─────────────────────────────────────────────────────────
-describe('useAgendaTab — dayPills', () => {
-  it('expose 7 pilules de jour (hier + 5 jours)', async () => {
+// ─── Strip de la semaine ──────────────────────────────────────────────────────
+describe('useAgendaTab — weekDays', () => {
+  it('expose 7 jours pour la semaine courante', async () => {
     const { result } = renderHook(() => useAgendaTab())
     await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.dayPills).toHaveLength(7)
+    expect(result.current.weekDays).toHaveLength(7)
   })
 
-  it('la première pilule est labellée "Hier"', async () => {
+  it('la semaine commence par lundi (LUN) et finit par dimanche (DIM)', async () => {
     const { result } = renderHook(() => useAgendaTab())
     await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.dayPills[0].label).toBe('Hier')
+    expect(result.current.weekDays[0].dayShort).toBe('LUN')
+    expect(result.current.weekDays[6].dayShort).toBe('DIM')
   })
 
-  it("la deuxième pilule est labellée \"Aujourd'hui\"", async () => {
+  it('weekRangeLabel commence par "Semaine du"', async () => {
     const { result } = renderHook(() => useAgendaTab())
     await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.dayPills[1].label).toBe("Aujourd'hui")
-  })
-
-  it('la troisième pilule est labellée "Demain"', async () => {
-    const { result } = renderHook(() => useAgendaTab())
-    await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.dayPills[2].label).toBe('Demain')
+    expect(result.current.weekRangeLabel.startsWith('Semaine du ')).toBe(true)
   })
 })
 

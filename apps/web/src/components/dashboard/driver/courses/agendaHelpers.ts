@@ -12,6 +12,8 @@ export interface AgendaEvent {
   to: string
   priceEur: number
   isManual: boolean
+  patientName: string | null
+  returnTrip: boolean
 }
 
 export function sameDay(a: Date, b: Date) {
@@ -46,5 +48,7 @@ export function toEvent(m: Mission, _userId: string): AgendaEvent | null {
     to: m.destination,
     priceEur: Number(m.price_eur ?? 0),
     isManual,
+    patientName: m.patient_name,
+    returnTrip: m.return_trip,
   }
 }

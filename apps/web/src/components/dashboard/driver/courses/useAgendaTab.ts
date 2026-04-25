@@ -9,6 +9,17 @@ import { sameDay, addDays, toEvent } from './agendaHelpers'
 
 export type { AgendaEvent, AgendaEventStatus } from './agendaHelpers'
 
+const FR_DAY_SHORT = ['DIM', 'LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM']
+
+function startOfWeek(d: Date): Date {
+  const r = new Date(d)
+  const day = r.getDay()
+  const diff = day === 0 ? -6 : 1 - day // ramene au lundi
+  r.setDate(r.getDate() + diff)
+  r.setHours(0, 0, 0, 0)
+  return r
+}
+
 export function useAgendaTab() {
   const { user } = useAuth()
   const router = useRouter()
@@ -54,18 +65,28 @@ export function useAgendaTab() {
     router.push(`/dashboard/chauffeur/mission/${id}`)
   }
 
-  const today = new Date()
-  const dayPills = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = addDays(today, i - 1)
-      const label = i === 0 ? 'Hier'
-        : i === 1 ? "Aujourd'hui"
-        : i === 2 ? 'Demain'
-        : d.toLocaleDateString('fr-FR', { weekday: 'long' })
-      const subLabel = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-      return { date: d, label, subLabel, key: d.toDateString() }
-    })
-  }, [today])
+  const weekStart = useMemo(() => startOfWeek(selected), [selected])
+  const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => {
+    const d = addDays(weekStart, i)
+    const count = missions.filter((m) => sameDay(new Date(m.scheduled_at), d)).length
+    return { date: d, dayShort: FR_DAY_SHORT[d.getDay()], count, key: d.toDateString() }
+  }), [weekStart, missions])
+
+  const weekRangeLabel = useMemo(() => {
+    const start = weekDays[0].date
+    const end = weekDays[6].date
+    if (start.getMonth() === end.getMonth()) {
+      const month = end.toLocaleDateString('fr-FR', { month: 'long' })
+      return `Semaine du ${start.getDate()} au ${end.getDate()} ${month}`
+    }
+    const ms = start.toLocaleDateString('fr-FR', { month: 'long' })
+    const me = end.toLocaleDateString('fr-FR', { month: 'long' })
+    return `Semaine du ${start.getDate()} ${ms} au ${end.getDate()} ${me}`
+  }, [weekDays])
+
+  const planningTitle = useMemo(() => selected
+    .toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' })
+    .toUpperCase(), [selected])
 
   const events = useMemo(() => {
     if (!user) return []
@@ -84,12 +105,11 @@ export function useAgendaTab() {
       .reduce((s, m) => s + Number(m.distance_km ?? 0), 0),
   }), [events, missions, selected])
 
-  const title = selected.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
-
   return {
     loading, error,
     selected, setSelected,
-    dayPills, events, stats, title,
+    weekDays, weekRangeLabel, planningTitle,
+    events, stats,
     showAddModal, setShowAddModal,
     openDetails, addMission,
   }
