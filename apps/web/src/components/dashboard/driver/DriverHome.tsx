@@ -21,13 +21,14 @@ interface Props {
   onPostCourse: () => void
   onShowMissionDetail: (id: string) => void
   onGoToProfile: () => void
+  mapFullscreen: boolean
+  onMapFullscreenChange: (v: boolean) => void
 }
 
-export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }: Props) {
+export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, mapFullscreen, onMapFullscreenChange }: Props) {
   const h = useDriverHome()
-  const [snap, setSnap] = useState<SheetSnap>('two')
+  const [snap, setSnap] = useState<SheetSnap>('three')
   const [vh, setVh] = useState(0)
-  const [mapFullscreen, setMapFullscreen] = useState(false)
   useEffect(() => {
     const update = () => setVh(window.innerHeight)
     update()
@@ -55,7 +56,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
             selectedId={h.selectedMissionId}
             onSelect={h.toggleMission}
             fullscreen={mapFullscreen}
-            onToggleFullscreen={() => setMapFullscreen((v) => !v)}
+            onToggleFullscreen={() => onMapFullscreenChange(!mapFullscreen)}
           />
           <DriverHomeTopOverlay
             isOnline={h.driver.isOnline}
@@ -80,7 +81,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
               />
             </div>
           )}
-          {h.selectedMission && (
+          {h.selectedMission && mapFullscreen && (
             <div className="md:hidden">
               <MissionMapPopup
                 mission={h.selectedMission}
@@ -130,7 +131,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile }:
           />
         </div>
 
-        <div className="hidden md:block shrink-0 h-20 px-3 py-2.5 bg-paper border-t border-warm-200">
+        <div className={`${h.selectedMission ? 'block' : 'hidden'} md:block shrink-0 h-20 px-3 py-2.5 bg-paper border-t border-warm-200`}>
           <DriverHomeAcceptBar
             disabled={!h.selectedMission}
             onAccept={onAccept}

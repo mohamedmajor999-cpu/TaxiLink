@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
@@ -39,6 +39,7 @@ export function DriverDashboard() {
   const clearEdit = useMissionEditStore((s) => s.clearEdit)
   usePostedMissionAcceptNotifier()
   const unseenAcceptCount = useUnseenAcceptCount()
+  const [mapFullscreen, setMapFullscreen] = useState(false)
   const isEditerUrl = searchParams.get('editer') === '1'
   // Sync URL → store : si l'URL perd ?editer=1 (Precedent) alors que le store a
   // encore une mission en edition, on vide le store pour fermer la modal.
@@ -100,7 +101,7 @@ export function DriverDashboard() {
           <MissionDetailScreen missionId={detailMissionId} onBack={() => router.back()} />
         ) : (
           <>
-            {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowMissionDetail={setDetailMissionId} onGoToProfile={() => handleTabChange('profil')} />}
+            {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowMissionDetail={setDetailMissionId} onGoToProfile={() => handleTabChange('profil')} mapFullscreen={mapFullscreen} onMapFullscreenChange={setMapFullscreen} />}
             {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={() => setShowCreer(true)} />}
             {activeTab === 'groupes' && (
               <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
@@ -123,13 +124,15 @@ export function DriverDashboard() {
         )}
       </main>
 
-      <MobileBottomNav
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        onPostCourse={() => setShowCreer(true)}
-        coursesBadge={availableCount}
-        coursesNotif={unseenAcceptCount}
-      />
+      {!mapFullscreen && (
+        <MobileBottomNav
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          onPostCourse={() => setShowCreer(true)}
+          coursesBadge={availableCount}
+          coursesNotif={unseenAcceptCount}
+        />
+      )}
 
       <PostedMissionAcceptPopup onViewPosted={goToPostedTab} />
     </div>

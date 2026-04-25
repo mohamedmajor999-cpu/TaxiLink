@@ -34,7 +34,7 @@ export function DriverHomeMap({
           type="button"
           onClick={onToggleFullscreen}
           aria-label={fullscreen ? 'Quitter le plein écran' : 'Carte en plein écran'}
-          className="md:hidden absolute bottom-[76px] right-3 z-[500] w-11 h-11 rounded-full bg-white border border-warm-200 shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink hover:bg-warm-50 active:scale-95 transition-transform"
+          className="md:hidden absolute bottom-[124px] right-3 z-[500] w-11 h-11 rounded-full bg-white border border-warm-200 shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink hover:bg-warm-50 active:scale-95 transition-transform"
         >
           {fullscreen
             ? <Minimize2 className="w-5 h-5" strokeWidth={2} />
