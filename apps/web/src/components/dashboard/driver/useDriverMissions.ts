@@ -14,7 +14,11 @@ const TYPE_LABEL: Record<'CPAM' | 'PRIVE' | 'PRESCRIPTION', string> = {
   PRESCRIPTION: 'Prescription',
 }
 
-export function useDriverMissions() {
+interface UseDriverMissionsOptions {
+  onShowMissionDetail?: (id: string) => void
+}
+
+export function useDriverMissions({ onShowMissionDetail }: UseDriverMissionsOptions = {}) {
   const { user } = useAuth()
   const { toasts, addToast, dismissToast } = useToasts()
   const { depts, loading: deptsLoading } = useDeptPreferences()
@@ -69,9 +73,11 @@ export function useDriverMissions() {
     onInsert: (m) => {
       if (!matchesDeptPref(m)) return
       addToast({
-        message: 'Nouvelle mission disponible !',
+        message: `Nouvelle ${TYPE_LABEL[m.type as 'CPAM' | 'PRIVE' | 'PRESCRIPTION'] ?? 'mission'}`,
         sub: `${m.departure} → ${m.destination}`,
-        type: 'warning',
+        type: 'mission',
+        duration: 6000,
+        onClick: onShowMissionDetail ? () => onShowMissionDetail(m.id) : undefined,
       })
       setMissions((prev) => (prev.some((x) => x.id === m.id) ? prev : [m, ...prev]))
     },

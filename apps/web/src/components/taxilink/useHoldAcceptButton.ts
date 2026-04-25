@@ -16,16 +16,11 @@ export function useHoldAcceptButton({
 }: Options) {
   const [state, setState] = useState<HoldState>('idle')
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearTimers = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current)
       timerRef.current = null
-    }
-    if (navTimerRef.current) {
-      clearTimeout(navTimerRef.current)
-      navTimerRef.current = null
     }
   }
 
@@ -36,9 +31,9 @@ export function useHoldAcceptButton({
     timerRef.current = setTimeout(() => {
       setState('confirmed')
       if (typeof navigator !== 'undefined') navigator.vibrate?.(50)
-      navTimerRef.current = setTimeout(() => {
-        void onConfirm()
-      }, 600)
+      // Déclenche onConfirm immédiatement : la pop-up de célébration (pouce + confettis)
+      // démarre tout de suite. L'état 'confirmed' reste visible en parallèle.
+      void onConfirm()
     }, duration)
   }, [state, duration, onConfirm, disabled])
 

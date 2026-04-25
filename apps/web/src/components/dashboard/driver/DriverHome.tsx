@@ -27,7 +27,7 @@ interface Props {
 }
 
 export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, mapFullscreen, onMapFullscreenChange }: Props) {
-  const h = useDriverHome()
+  const h = useDriverHome({ onShowMissionDetail })
   const night = useNightMode()
   const [snap, setSnap] = useState<SheetSnap>('three')
   const [vh, setVh] = useState(0)

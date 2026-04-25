@@ -17,11 +17,15 @@ export {
   type HomeGroupSelection,
 } from './home/useDriverHomeFilters'
 
-export function useDriverHome() {
+interface UseDriverHomeOptions {
+  onShowMissionDetail?: (id: string) => void
+}
+
+export function useDriverHome({ onShowMissionDetail }: UseDriverHomeOptions = {}) {
   const driver = useDriverStore((s) => s.driver)
   const setOnline = useDriverStore((s) => s.setOnline)
   const { user } = useAuth()
-  const m = useDriverMissions()
+  const m = useDriverMissions({ onShowMissionDetail })
   const notif = useNextMissionNotification(m.currentMission)
 
   const [groups, setGroups] = useState<Group[]>([])

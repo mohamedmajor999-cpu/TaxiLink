@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 
-export function useToastItem(id: string, onDismiss: (id: string) => void) {
+const DEFAULT_DURATION_MS = 4000
+
+export function useToastItem(id: string, onDismiss: (id: string) => void, duration?: number) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -8,9 +10,9 @@ export function useToastItem(id: string, onDismiss: (id: string) => void) {
     const timer = setTimeout(() => {
       setVisible(false)
       setTimeout(() => onDismiss(id), 300)
-    }, 4000)
+    }, duration ?? DEFAULT_DURATION_MS)
     return () => clearTimeout(timer)
-  }, [id, onDismiss])
+  }, [id, onDismiss, duration])
 
   const dismiss = () => {
     setVisible(false)
