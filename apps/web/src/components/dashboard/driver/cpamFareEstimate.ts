@@ -6,13 +6,16 @@ import { extractCommune, determineReturnMode } from './zupcBdr'
 const FORFAIT = 13
 const KM_INCLUS = 4
 // Tarif km BDR officiel — vérifié sur calcul-taxi-conventionne.fr (2026).
-const TARIF_KM_BDR = 1.38
+const TARIF_KM_BDR = 1.10
 const BIG_CITY_SURCHARGE = 15
 const MAJORATION = 1.5
 const TPMR_SUPPLEMENT = 30
 const EMPTY_RETURN_SHORT = 0.25
 const EMPTY_RETURN_LONG = 0.50
 const EMPTY_RETURN_THRESHOLD_KM = 50
+// Abattement solo longue distance (≥ 30 km, 1 patient).
+const SOLO_LONG_DISTANCE_KM = 30
+const SOLO_LONG_DISTANCE_DISCOUNT = 0.05
 
 const BIG_CITIES = [
   'marseille', 'paris', 'lyon', 'nice', 'toulouse', 'strasbourg',
@@ -92,8 +95,8 @@ export function estimateCpamFare({
   // Km facturables (au-delà des 4 km inclus dans le forfait).
   const kmBillable = Math.max(0, distanceKm - KM_INCLUS)
 
-  // Retour à vide : uniquement pour HDJ (hospitalisation ambulatoire), et hors intra-ZUPC.
-  const eligibleRetourVide = medicalMotif === 'HDJ' && !sameZupc
+  // Retour à vide HDJ : s'applique aussi en intra-ZUPC depuis convention CNAM 2025.
+  const eligibleRetourVide = medicalMotif === 'HDJ'
   const emptyReturnMult = eligibleRetourVide
     ? (distanceKm >= EMPTY_RETURN_THRESHOLD_KM ? EMPTY_RETURN_LONG : EMPTY_RETURN_SHORT)
     : 0
@@ -106,18 +109,22 @@ export function estimateCpamFare({
   // Majoration nuit/WE/férié sur le socle complet.
   if (isMajoredPeriod(d, hour, minute, durationMin)) socle *= MAJORATION
 
-  // Abattement transport partagé (patients ≥ 2 dans le même véhicule).
-  // Chaque patient est facturé à la CPAM séparément avec son abattement.
+  // Abattement : transport partagé (≥ 2 patients) OU solo longue distance (≥ 30 km).
   const nbPatients = Math.max(1, passengers ?? 1)
-  const discount = nbPatients >= 4 ? SHARED_DISCOUNTS[4]
-    : SHARED_DISCOUNTS[nbPatients] ?? 0
+  let discount = 0
+  if (nbPatients >= 2) {
+    discount = nbPatients >= 4 ? SHARED_DISCOUNTS[4] : SHARED_DISCOUNTS[nbPatients] ?? 0
+  } else if (distanceKm >= SOLO_LONG_DISTANCE_KM) {
+    discount = SOLO_LONG_DISTANCE_DISCOUNT
+  }
   const perPatient = socle * (1 - discount)
 
-  // Supplément TPMR (fauteuil roulant) — par patient TPMR, hors majo/abattement.
-  const tpmrPerPatient = transportType === 'WHEELCHAIR' ? TPMR_SUPPLEMENT : 0
+  // Total facturation patients (×2 si aller-retour patient).
+  const passengerTotal = perPatient * nbPatients
+  const passengerTotalAR = returnTrip ? passengerTotal * 2 : passengerTotal
 
-  // Total chauffeur = somme des facturations CPAM de chaque patient.
-  const oneWay = (perPatient + tpmrPerPatient) * nbPatients
-  const total = returnTrip ? oneWay * 2 : oneWay
-  return Math.round(total)
+  // Supplément TPMR (fauteuil roulant) — par véhicule, ×2 si AR (montée + descente).
+  const tpmr = transportType === 'WHEELCHAIR' ? TPMR_SUPPLEMENT * (returnTrip ? 2 : 1) : 0
+
+  return Math.round(passengerTotalAR + tpmr)
 }
