@@ -76,10 +76,14 @@ function NavBtn({
       type="button"
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
-      className={`h-[60px] flex flex-col items-center justify-center gap-0.5 ${active ? 'text-brand' : 'text-warm-400'}`}
+      className={`h-[60px] flex flex-col items-center justify-center gap-0.5 ${active ? 'text-ink' : 'text-warm-400'}`}
     >
-      <span className="relative inline-flex">
-        <Icon className="w-5 h-5" strokeWidth={active ? 2.2 : 1.8} fill={active ? 'currentColor' : 'none'} />
+      <span
+        className={`relative inline-flex items-center justify-center transition-colors ${
+          active ? 'bg-brand rounded-full px-4 py-0.5' : ''
+        }`}
+      >
+        <Icon className="w-5 h-5" strokeWidth={active ? 2 : 1.8} fill="none" />
         {hasBadge && (
           <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-ink text-[10px] font-bold flex items-center justify-center ring-2 ring-paper">
             {item.badge! > 99 ? '99+' : item.badge}
