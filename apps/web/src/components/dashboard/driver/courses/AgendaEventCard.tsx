@@ -26,9 +26,9 @@ export function AgendaEventCard({ event, onTap }: Props) {
             Indisponible
           </span>
         </div>
-        <div className="inline-flex items-center gap-1.5 text-[13px] text-warm-600 font-medium">
-          <Utensils className="w-3.5 h-3.5" strokeWidth={1.8} />
-          {event.from}
+        <div className="flex items-center gap-1.5 text-[13px] text-warm-600 font-medium min-w-0">
+          <Utensils className="w-3.5 h-3.5 shrink-0" strokeWidth={1.8} />
+          <span className="truncate">{event.from}</span>
         </div>
       </button>
     )
@@ -59,9 +59,9 @@ export function AgendaEventCard({ event, onTap }: Props) {
           {typeLabel}
         </span>
       </div>
-      <div className="inline-flex items-center gap-1.5 text-[13px] text-warm-600 font-medium">
+      <div className="flex items-center gap-1.5 text-[13px] text-warm-600 font-medium min-w-0">
         <User className="w-3.5 h-3.5 shrink-0" strokeWidth={1.8} />
-        <span className="truncate">
+        <span className="truncate min-w-0">
           {event.patientName ? `${event.patientName} · ${route}` : route}
         </span>
       </div>

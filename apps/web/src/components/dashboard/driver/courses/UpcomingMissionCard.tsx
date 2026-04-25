@@ -41,9 +41,9 @@ export function UpcomingMissionCard({ mission, dayPrefix, onShowDetails }: Props
         </span>
       </div>
       {mission.patient_name && (
-        <div className="inline-flex items-center gap-1.5 text-[13px] text-ink font-semibold mb-1">
-          <User className="w-3.5 h-3.5" strokeWidth={1.8} />
-          {mission.patient_name}
+        <div className="flex items-center gap-1.5 text-[13px] text-ink font-semibold mb-1 min-w-0">
+          <User className="w-3.5 h-3.5 shrink-0" strokeWidth={1.8} />
+          <span className="truncate">{mission.patient_name}</span>
         </div>
       )}
       <p className="text-[13.5px] font-semibold text-ink leading-[1.3] truncate">{mission.departure}</p>
