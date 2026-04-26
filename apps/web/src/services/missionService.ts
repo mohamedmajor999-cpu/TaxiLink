@@ -86,6 +86,27 @@ const missionMutations = {
     await api.delete<{ ok: true }>(`/api/missions/${id}`)
   },
 
+  /** Booster le prix d'une mission AVAILABLE postée par soi-meme (RLS verifie shared_by). */
+  async boostPrice(id: string, deltaEur: number): Promise<Mission> {
+    const supabase = createClient()
+    const { data: cur, error: rErr } = await supabase
+      .from('missions')
+      .select('price_eur')
+      .eq('id', id)
+      .single()
+    if (rErr) throw new Error(rErr.message)
+    const newPrice = Number(cur?.price_eur ?? 0) + deltaEur
+    const { data, error } = await supabase
+      .from('missions')
+      .update({ price_eur: newPrice })
+      .eq('id', id)
+      .eq('status', 'AVAILABLE')
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return data as Mission
+  },
+
   /** Créer une course manuellement dans l'agenda (saisie chauffeur) */
   async createManual(driverId: string, data: {
     departure: string

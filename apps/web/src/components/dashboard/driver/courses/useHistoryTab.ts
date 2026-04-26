@@ -5,7 +5,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
 import type { Mission } from '@/lib/supabase/types'
 
-export type Period = 'week' | 'month' | 'all'
+export type Period = 'week' | 'month' | 'quarter' | 'all'
+export type HistoryTypeFilter = 'ALL' | 'CPAM' | 'PRIVE'
 
 export interface MonthGroup {
   key: string
@@ -19,11 +20,17 @@ const MONTHS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juill
 function filterByPeriod(missions: Mission[], period: Period): Mission[] {
   if (period === 'all') return missions
   const now = Date.now()
-  const ms = period === 'week' ? 7 * 24 * 3600 * 1000 : 30 * 24 * 3600 * 1000
+  const days = period === 'week' ? 7 : period === 'month' ? 30 : 90
+  const ms = days * 24 * 3600 * 1000
   return missions.filter((m) => {
     const d = new Date(m.completed_at ?? m.scheduled_at).getTime()
     return now - d <= ms
   })
+}
+
+function filterByType(missions: Mission[], type: HistoryTypeFilter): Mission[] {
+  if (type === 'ALL') return missions
+  return missions.filter((m) => m.type === type)
 }
 
 function exportCsv(missions: Mission[]) {
@@ -77,6 +84,7 @@ export function useHistoryTab() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [period, setPeriod] = useState<Period>('all')
+  const [typeFilter, setTypeFilter] = useState<HistoryTypeFilter>('ALL')
 
   useEffect(() => {
     if (!user) return
@@ -87,7 +95,8 @@ export function useHistoryTab() {
       .finally(() => setLoading(false))
   }, [user])
 
-  const filtered = useMemo(() => filterByPeriod(missions, period), [missions, period])
+  const periodFiltered = useMemo(() => filterByPeriod(missions, period), [missions, period])
+  const filtered = useMemo(() => filterByType(periodFiltered, typeFilter), [periodFiltered, typeFilter])
 
   const stats = useMemo(
     () => ({
@@ -97,6 +106,13 @@ export function useHistoryTab() {
     }),
     [filtered]
   )
+
+  const kpi = useMemo(() => {
+    const cpamCount = filtered.filter((m) => m.type === 'CPAM').length
+    const avg = filtered.length > 0 ? stats.total / filtered.length : 0
+    const cpamRatio = filtered.length > 0 ? Math.round((cpamCount / filtered.length) * 100) : 0
+    return { total: stats.total, count: stats.count, avgPerRide: avg, cpamRatioPct: cpamRatio }
+  }, [filtered, stats])
 
   // Groups are only used for the 'all' view
   const groups = useMemo(() => buildGroups(filtered), [filtered])
@@ -108,5 +124,5 @@ export function useHistoryTab() {
     [router]
   )
 
-  return { loading, error, period, setPeriod, filtered, stats, groups, handleExportCsv, openDetail }
+  return { loading, error, period, setPeriod, typeFilter, setTypeFilter, filtered, stats, kpi, groups, handleExportCsv, openDetail }
 }

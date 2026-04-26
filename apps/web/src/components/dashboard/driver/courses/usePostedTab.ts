@@ -87,6 +87,33 @@ export function usePostedTab() {
     },
   })
 
+  const [boostingId, setBoostingId] = useState<string | null>(null)
+  const boostPrice = useCallback(async (id: string) => {
+    if (!user) return
+    setBoostingId(id)
+    try {
+      await missionService.boostPrice(id, 5)
+      await load(user.id)
+      addToast({ message: 'Prix augmenté de 5 €', type: 'success' })
+    } catch (err) {
+      addToast({
+        message: 'Boost impossible',
+        sub: err instanceof Error ? err.message : undefined,
+        type: 'warning',
+      })
+    } finally {
+      setBoostingId(null)
+    }
+  }, [user, load, addToast])
+
+  const expandGroups = useCallback(() => {
+    addToast({
+      message: 'Élargissement en préparation',
+      sub: 'Cette fonctionnalité arrive bientôt.',
+      type: 'info',
+    })
+  }, [addToast])
+
   const remove = useCallback(async (id: string) => {
     if (!user) return
     if (typeof window !== 'undefined'
@@ -118,5 +145,5 @@ export function usePostedTab() {
     [missions, profilesById]
   )
 
-  return { loading, error, items, remove, deletingId, toasts, dismissToast }
+  return { loading, error, items, remove, deletingId, boostPrice, expandGroups, boostingId, toasts, dismissToast }
 }

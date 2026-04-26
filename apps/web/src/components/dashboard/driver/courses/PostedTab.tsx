@@ -6,8 +6,11 @@ import { ToastContainer } from '@/components/ui/Toast'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedTab, type PostedMissionView } from './usePostedTab'
 import { AcceptedBanner } from './AcceptedBanner'
+import { PostedBoostStrip } from './PostedBoostStrip'
 import { computeDisplayFare } from '@/lib/missionFare'
 import type { Mission } from '@/lib/supabase/types'
+
+const BOOST_THRESHOLD_HOURS = 24
 
 export function PostedTab() {
   const p = usePostedTab()
@@ -65,8 +68,11 @@ export function PostedTab() {
             <PostedCard
               item={item}
               deleting={p.deletingId === item.mission.id}
+              boosting={p.boostingId === item.mission.id}
               onEdit={() => openEdit(item.mission)}
               onDelete={() => p.remove(item.mission.id)}
+              onBoostPrice={() => p.boostPrice(item.mission.id)}
+              onExpandGroups={p.expandGroups}
             />
           </li>
         ))}
@@ -76,16 +82,23 @@ export function PostedTab() {
 }
 
 function PostedCard({
-  item, deleting, onEdit, onDelete,
+  item, deleting, boosting, onEdit, onDelete, onBoostPrice, onExpandGroups,
 }: {
   item: PostedMissionView
   deleting: boolean
+  boosting: boolean
   onEdit: () => void
   onDelete: () => void
+  onBoostPrice: () => void
+  onExpandGroups: () => void
 }) {
   const { mission, status, driverProfile } = item
   const isWaiting = status === 'waiting'
   const fare = computeDisplayFare(mission)
+  const hoursWaiting = mission.created_at
+    ? Math.floor((Date.now() - new Date(mission.created_at).getTime()) / 3_600_000)
+    : 0
+  const showBoost = isWaiting && hoursWaiting >= BOOST_THRESHOLD_HOURS
 
   const cardStyle = isWaiting
     ? 'h-full flex flex-col bg-paper border-2 border-dashed border-warm-300 rounded-xl overflow-hidden'
@@ -139,7 +152,18 @@ function PostedCard({
         <AcceptedBanner profile={driverProfile} acceptedAt={mission.accepted_at} />
       )}
 
-      <div className="px-4 pb-3 flex items-center justify-between gap-2">
+      {showBoost && (
+        <div className="px-4">
+          <PostedBoostStrip
+            hoursWaiting={hoursWaiting}
+            busy={boosting}
+            onBoostPrice={onBoostPrice}
+            onExpandGroups={onExpandGroups}
+          />
+        </div>
+      )}
+
+      <div className="px-4 pt-3 pb-3 flex items-center justify-between gap-2">
         <span className="text-[11px] text-warm-500">Postée par vous</span>
         {isWaiting && (
           <div className="flex gap-2">

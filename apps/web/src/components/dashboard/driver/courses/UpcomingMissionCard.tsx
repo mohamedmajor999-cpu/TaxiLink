@@ -1,7 +1,11 @@
 'use client'
-import { Clock, User, Phone, ChevronRight } from 'lucide-react'
+import { Clock, User, Phone, ChevronRight, AlertTriangle } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { formatMissionPrice } from '@/lib/formatMissionPrice'
+import { getMinutesUntil } from '@/lib/dateUtils'
+
+const URGENT_THRESHOLD_MIN = 15
+const VERY_URGENT_THRESHOLD_MIN = 5
 
 interface Props {
   mission: Mission
@@ -14,6 +18,9 @@ export function UpcomingMissionCard({ mission, dayPrefix, onShowDetails }: Props
     hour: '2-digit',
     minute: '2-digit',
   })
+  const minutesUntil = getMinutesUntil(mission.scheduled_at)
+  const veryUrgent = minutesUntil <= VERY_URGENT_THRESHOLD_MIN && minutesUntil >= 0
+  const urgent = !veryUrgent && minutesUntil <= URGENT_THRESHOLD_MIN && minutesUntil >= 0
   const isCpam = mission.type === 'CPAM'
   const typeLabel = isCpam ? 'CPAM' : 'Privé'
   const badgeClass = isCpam
@@ -29,16 +36,30 @@ export function UpcomingMissionCard({ mission, dayPrefix, onShowDetails }: Props
   ].filter(Boolean).join(' · ')
   const timeLabel = dayPrefix ? `${dayPrefix} ${time}` : time
 
+  const cardClass = veryUrgent
+    ? 'rounded-2xl border-2 border-[#EF4444] bg-[#FEF2F2] p-4 motion-safe:animate-[urgent-pulse_1.4s_ease-in-out_infinite]'
+    : urgent
+      ? 'rounded-2xl border-2 border-[#F59E0B] bg-[#FFFBEB] p-4'
+      : 'rounded-2xl border border-warm-200 bg-paper p-4'
+
   return (
-    <article className="rounded-2xl border border-warm-200 bg-paper p-4">
+    <article className={cardClass}>
+      <style>{`@keyframes urgent-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }`}</style>
       <div className="flex items-center justify-between mb-2">
         <span className={`px-2 py-0.5 rounded text-[11px] font-extrabold uppercase tracking-[0.04em] ${badgeClass}`}>
           {typeLabel}
         </span>
-        <span className="inline-flex items-center gap-1 text-[12px] text-warm-500 font-semibold tabular-nums">
-          <Clock className="w-3.5 h-3.5" strokeWidth={1.8} />
-          {timeLabel}
-        </span>
+        {(veryUrgent || urgent) ? (
+          <span className={`inline-flex items-center gap-1 text-[12px] font-extrabold tabular-nums ${veryUrgent ? 'text-[#EF4444]' : 'text-[#B45309]'}`}>
+            <AlertTriangle className="w-3.5 h-3.5" strokeWidth={2.2} />
+            Dans {minutesUntil} min
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-[12px] text-warm-500 font-semibold tabular-nums">
+            <Clock className="w-3.5 h-3.5" strokeWidth={1.8} />
+            {timeLabel}
+          </span>
+        )}
       </div>
       {mission.patient_name && (
         <div className="flex items-center gap-1.5 text-[13px] text-ink font-semibold mb-1 min-w-0">

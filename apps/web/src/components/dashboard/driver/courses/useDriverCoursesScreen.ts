@@ -3,8 +3,8 @@ import { useEffect } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { usePostedAcceptStore, useUnseenAcceptCount } from '@/store/postedAcceptStore'
 
-export type CoursesTab = 'upcoming' | 'agenda' | 'posted' | 'history'
-const VALID_SUBTABS: CoursesTab[] = ['upcoming', 'agenda', 'posted', 'history']
+export type CoursesTab = 'upcoming' | 'posted' | 'history'
+const VALID_SUBTABS: CoursesTab[] = ['upcoming', 'posted', 'history']
 
 export function useDriverCoursesScreen() {
   const router = useRouter()
@@ -37,7 +37,6 @@ export function useDriverCoursesScreen() {
   const subTabs: { id: CoursesTab; label: string; icon?: string; badge?: number }[] = [
     { id: 'upcoming', label: 'À venir' },
     { id: 'posted', label: 'Postées', badge: unseenAccepts },
-    { id: 'agenda', label: 'Agenda', icon: '📅' },
     { id: 'history', label: 'Historique' },
   ]
 

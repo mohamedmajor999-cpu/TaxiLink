@@ -3,9 +3,9 @@ import Image from 'next/image'
 import { Calendar, Download, Plus } from 'lucide-react'
 import { useDriverCoursesScreen, type CoursesTab } from './courses/useDriverCoursesScreen'
 import { UpcomingTab } from './courses/UpcomingTab'
-import { AgendaTab } from './courses/AgendaTab'
 import { PostedTab } from './courses/PostedTab'
 import { HistoryTab } from './courses/HistoryTab'
+import { CoursesEarningsHero } from './courses/CoursesEarningsHero'
 
 interface Props {
   onPostCourse: () => void
@@ -15,7 +15,7 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
   const { active, setActive, subTabs, dateLabel } = useDriverCoursesScreen()
 
   return (
-    <div className="px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-5xl mx-auto pb-24 md:pb-6">
+    <div className="relative px-4 md:px-8 py-4 md:py-6 max-w-2xl md:max-w-5xl mx-auto pb-24 md:pb-6">
       <header className="flex items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-3 min-w-0">
           <Image src="/brand/icon.svg" alt="TaxiLink" width={40} height={40} className="w-9 h-9 md:w-10 md:h-10 shrink-0" />
@@ -56,16 +56,26 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
         </div>
       </header>
 
-      <nav className="grid grid-cols-4 gap-2 mb-5 md:max-w-2xl">
+      <CoursesEarningsHero />
+
+      <nav className="grid grid-cols-3 gap-2 mb-5 md:max-w-2xl">
         {subTabs.map((t) => <TabPill key={t.id} tab={t} active={active} onClick={setActive} />)}
       </nav>
 
       <div className="transition-opacity">
         {active === 'upcoming' && <UpcomingTab />}
-        {active === 'agenda' && <AgendaTab />}
         {active === 'posted' && <PostedTab />}
         {active === 'history' && <HistoryTab />}
       </div>
+
+      <button
+        type="button"
+        onClick={onPostCourse}
+        aria-label="Nouvelle course"
+        className="md:hidden fixed bottom-20 right-4 w-14 h-14 rounded-full bg-ink text-brand shadow-fab hover:shadow-fab-hover flex items-center justify-center active:scale-95 transition-all z-30"
+      >
+        <Plus className="w-6 h-6" strokeWidth={2.6} />
+      </button>
     </div>
   )
 }

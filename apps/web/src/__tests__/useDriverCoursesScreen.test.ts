@@ -65,9 +65,10 @@ describe('useDriverCoursesScreen — setActive (push URL)', () => {
 })
 
 describe('useDriverCoursesScreen — subTabs + badge', () => {
-  it('subTabs contient 4 entrées', () => {
+  it('subTabs contient 3 entrées (À venir, Postées, Historique — agenda fusionné dans À venir)', () => {
     const { result } = renderHook(() => useDriverCoursesScreen())
-    expect(result.current.subTabs).toHaveLength(4)
+    expect(result.current.subTabs).toHaveLength(3)
+    expect(result.current.subTabs.map((t) => t.id)).toEqual(['upcoming', 'posted', 'history'])
   })
 
   it('dateLabel est une chaine non vide', () => {

@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink — Maquettes Mes Courses (refonte)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+<style>
+  :root {
+    --primary: #FFD23F;
+    --secondary: #1A1A1A;
+    --accent: #3B82F6;
+    --bgsoft: #F7F7F5;
+    --line: #E8E6E1;
+    --muted: #8A8780;
+    --success: #10B981;
+    --danger: #EF4444;
+    --cpam: #DBEAFE;
+    --cpam-text: #1E40AF;
+    --prive: #F3E8FF;
+    --prive-text: #6B21A8;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #EDE9E2;
+    color: var(--secondary);
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+
+  .page { max-width: 1500px; margin: 0 auto; padding: 32px 24px 80px; }
+  .page h1 { font-size: 24px; font-weight: 800; margin: 0 0 6px; }
+  .page p.lead { color: #5c5a54; margin: 0 0 28px; font-size: 14px; max-width: 800px; }
+  .variants {
+    display: grid; gap: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
+    justify-content: center;
+  }
+  .variant-label {
+    text-align: center; font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 8px; color: #3a3833;
+  }
+  .variant-sub {
+    text-align: center; font-size: 12px;
+    color: #6e6b63; margin: -2px 0 14px;
+    max-width: 380px; margin-left: auto; margin-right: auto;
+  }
+
+  /* phone frame */
+  .phone {
+    width: 390px; margin: 0 auto;
+    background: #fff; border-radius: 44px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.25), 0 0 0 8px #111 inset, 0 0 0 14px #111;
+    overflow: hidden; position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute; top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 28px;
+    background: #111; border-radius: 20px; z-index: 40;
+  }
+  .screen {
+    height: 810px; position: relative;
+    background: #fff; overflow-y: auto; overflow-x: hidden;
+    padding-top: 44px;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 4px;
+    background: #111; border-radius: 2px;
+    opacity: .3; z-index: 40;
+  }
+
+  /* Status bar */
+  .statusbar {
+    height: 44px; position: absolute; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 28px 0 32px;
+    font-size: 14px; font-weight: 700;
+    z-index: 30; background: #fff;
+  }
+  .statusbar .icons { display: flex; gap: 6px; align-items: center; }
+  .statusbar .icons .material-symbols-rounded { font-size: 16px; }
+
+  /* Page content */
+  .content { padding: 12px 18px 90px; }
+
+  /* Header */
+  .h-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .h-header h2 { font-size: 18px; font-weight: 800; margin: 0; line-height: 1.2; }
+  .h-header .date { font-size: 11.5px; color: var(--muted); margin-top: 2px; text-transform: capitalize; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: #fff; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--secondary);
+  }
+  .icon-btn .material-symbols-rounded { font-size: 18px; }
+
+  /* HERO EARNINGS — proposition phare */
+  .earnings-hero {
+    background: linear-gradient(135deg, #1A1A1A 0%, #0E0E0E 100%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 16px 18px 14px;
+    margin-bottom: 16px;
+    position: relative; overflow: hidden;
+  }
+  .earnings-hero::before {
+    content: ""; position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(255,210,63,0.18) 0%, rgba(255,210,63,0) 70%);
+  }
+  .earnings-hero .label {
+    font-size: 11px; font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .earnings-hero .label .material-symbols-rounded { font-size: 14px; }
+  .earnings-hero .amount {
+    font-size: 32px; font-weight: 900; letter-spacing: -0.02em;
+    line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .earnings-hero .amount .euro { font-size: 22px; font-weight: 800; opacity: .8; margin-left: 4px; }
+  .earnings-hero .meta {
+    margin-top: 6px;
+    font-size: 12px; color: rgba(255,255,255,0.7);
+    display: flex; gap: 10px; align-items: center;
+  }
+  .earnings-hero .meta .delta {
+    color: var(--success); font-weight: 700;
+    display: inline-flex; align-items: center; gap: 2px;
+  }
+  .earnings-hero .meta .delta .material-symbols-rounded { font-size: 14px; }
+  .earnings-hero .sparkline {
+    margin-top: 10px;
+    height: 32px; display: flex; gap: 3px; align-items: flex-end;
+    position: relative;
+  }
+  .earnings-hero .sparkline .bar {
+    flex: 1; background: rgba(255,210,63,0.4); border-radius: 2px 2px 0 0;
+  }
+  .earnings-hero .sparkline .bar.today { background: var(--primary); }
+  .earnings-hero .objective {
+    margin-top: 8px;
+    font-size: 11px;
+    display: flex; justify-content: space-between;
+    color: rgba(255,255,255,0.65);
+  }
+  .earnings-hero .progress {
+    height: 4px; background: rgba(255,255,255,0.12); border-radius: 2px;
+    margin-top: 4px; overflow: hidden;
+  }
+  .earnings-hero .progress .fill {
+    height: 100%; background: var(--primary); border-radius: 2px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: grid; gap: 6px;
+    margin-bottom: 16px;
+  }
+  .tabs.three { grid-template-columns: repeat(3, 1fr); }
+  .tabs.four  { grid-template-columns: repeat(4, 1fr); }
+  .tab {
+    height: 38px; border-radius: 999px;
+    border: 1px solid var(--line); background: #fff;
+    font-size: 12.5px; font-weight: 700; color: var(--secondary);
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 4px; cursor: pointer; position: relative;
+  }
+  .tab.active { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+  .tab .badge {
+    min-width: 18px; height: 18px; padding: 0 5px;
+    background: var(--primary); color: var(--secondary);
+    border-radius: 999px; font-size: 10px; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .tabs.four .tab { font-size: 11.5px; padding: 0 6px; }
+
+  /* Section heading */
+  .section-h {
+    font-size: 10.5px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 16px 0 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .section-h .meta { font-size: 11px; font-weight: 700; color: var(--muted); }
+
+  /* Mission card — variant upcoming */
+  .mission-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex; gap: 12px;
+    position: relative;
+  }
+  .mission-card.urgent {
+    border-color: var(--danger);
+    background: #FEF2F2;
+  }
+  .mission-card.urgent::before {
+    content: ""; position: absolute;
+    inset: -2px; border-radius: 16px;
+    border: 2px solid var(--danger);
+    animation: pulse-urgent 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse-urgent {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.005); }
+  }
+  .mission-card .when {
+    width: 56px; flex-shrink: 0;
+    text-align: center;
+    border-right: 1px dashed var(--line);
+    padding-right: 8px;
+  }
+  .mission-card .when .time {
+    font-size: 17px; font-weight: 800; color: var(--secondary); line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .mission-card .when .delay {
+    font-size: 10px; font-weight: 700;
+    color: var(--muted); margin-top: 4px;
+  }
+  .mission-card.urgent .when .delay { color: var(--danger); }
+  .mission-card .body { flex: 1; min-width: 0; }
+  .mission-card .addresses { display: grid; grid-template-columns: 12px 1fr; gap: 0 10px; align-items: center; }
+  .mission-card .addresses .d1 { width: 8px; height: 8px; border-radius: 50%; background: var(--secondary); justify-self: center; }
+  .mission-card .addresses .d2 { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); border: 2px solid var(--secondary); justify-self: center; }
+  .mission-card .addresses .line { width: 2px; height: 8px; background: var(--line); justify-self: center; margin: 1px 0; }
+  .mission-card .addresses p { margin: 0; font-size: 12.5px; line-height: 1.3; }
+  .mission-card .addresses .from { color: var(--secondary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mission-card .addresses .to { color: var(--muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mission-card .meta-row {
+    margin-top: 6px;
+    display: flex; gap: 5px; align-items: center; flex-wrap: nowrap;
+    font-size: 10.5px; font-weight: 600; color: var(--muted);
+    overflow: hidden;
+  }
+  .badge {
+    flex-shrink: 0;
+    padding: 2px 6px; border-radius: 5px;
+    font-size: 9.5px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .badge.cpam { background: var(--cpam); color: var(--cpam-text); }
+  .badge.prive { background: var(--prive); color: var(--prive-text); }
+  .mission-card .price-col {
+    text-align: right; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: flex-end;
+    justify-content: center;
+  }
+  .mission-card .price {
+    font-size: 18px; font-weight: 900; color: var(--secondary);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .mission-card .price .euro { font-size: 13px; font-weight: 800; }
+
+  /* Hero "next mission" — full card with patient info + actions */
+  .next-card {
+    background: #1A1A1A; color: #fff;
+    border-radius: 20px;
+    padding: 14px 16px 12px;
+    margin-bottom: 14px;
+    position: relative; overflow: hidden;
+  }
+  .next-card::before {
+    content: ""; position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(255,210,63,0.08) 100%);
+    pointer-events: none;
+  }
+  .next-card .top-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 10.5px; font-weight: 800;
+    color: var(--primary);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .next-card .countdown {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: #fff; opacity: .9;
+    font-size: 11px;
+  }
+  .next-card .patient {
+    font-size: 18px; font-weight: 800; line-height: 1.2;
+  }
+  .next-card .triplet {
+    margin-top: 8px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .next-card .triplet .cell {
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 6px 8px;
+  }
+  .next-card .triplet .cell .k {
+    font-size: 9px; font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .next-card .triplet .cell .v {
+    font-size: 12.5px; font-weight: 700; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .next-card .actions {
+    margin-top: 10px;
+    display: flex; gap: 6px;
+  }
+  .next-card .btn-nav {
+    flex: 1; height: 44px;
+    background: var(--primary); color: var(--secondary);
+    border-radius: 12px; border: none;
+    font-weight: 800; font-size: 13px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .next-card .btn-call {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.1); color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* Posted card (poste par moi) */
+  .posted-card {
+    background: #fff; border-radius: 14px;
+    padding: 12px 14px; margin-bottom: 8px;
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .posted-card.waiting {
+    border-style: dashed; border-color: #C7C5BA;
+  }
+  .posted-card .head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px;
+  }
+  .posted-card .head .left { display: flex; gap: 5px; align-items: center; }
+  .posted-card .pill {
+    padding: 3px 8px; border-radius: 999px;
+    font-size: 10px; font-weight: 800;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .posted-card .pill .material-symbols-rounded { font-size: 12px; }
+  .posted-card .pill.waiting { background: var(--primary); color: var(--secondary); }
+  .posted-card .pill.accepted { background: var(--secondary); color: #fff; }
+  .posted-card .date { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+  .posted-card .addresses { display: flex; flex-direction: column; gap: 1px; margin-bottom: 6px; }
+  .posted-card .addresses .from { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .posted-card .addresses .arr { font-size: 10px; color: #ccc; line-height: 1; }
+  .posted-card .addresses .to { font-size: 12.5px; font-weight: 700; color: var(--secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .posted-card .footer {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--line);
+    padding-top: 8px; margin-top: 6px;
+  }
+  .posted-card .footer.no-border { border-top: none; padding-top: 0; }
+  .posted-card .accept-info {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px;
+  }
+  .posted-card .avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, #FFD23F, #FF8C42);
+    color: var(--secondary);
+    font-weight: 800; font-size: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .posted-card .actions { display: flex; gap: 6px; }
+  .posted-card .actions button {
+    height: 28px; padding: 0 10px;
+    border-radius: 8px; border: none; cursor: pointer;
+    font-size: 11px; font-weight: 700;
+  }
+  .posted-card .actions .ghost { background: transparent; color: var(--muted); }
+  .posted-card .actions .danger { background: transparent; color: var(--danger); }
+  .posted-card .actions .primary { background: var(--secondary); color: #fff; }
+
+  /* Posted — boost actions when waiting > 24h */
+  .boost-strip {
+    background: #FFFAEB; border: 1px solid #FCD34D;
+    border-radius: 10px; padding: 8px 10px;
+    margin-top: 8px;
+    display: flex; gap: 6px; align-items: center;
+    font-size: 11px;
+  }
+  .boost-strip .material-symbols-rounded { font-size: 16px; color: #B45309; }
+  .boost-strip .text { flex: 1; color: #92400E; font-weight: 600; }
+  .boost-strip button {
+    background: var(--secondary); color: #fff;
+    border: none; border-radius: 8px;
+    height: 26px; padding: 0 10px;
+    font-size: 10.5px; font-weight: 800;
+    cursor: pointer;
+  }
+
+  /* Timeline (mission detail) */
+  .timeline {
+    background: var(--bgsoft);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-top: 8px;
+  }
+  .timeline .step {
+    display: flex; gap: 10px;
+    padding: 4px 0;
+    align-items: center;
+  }
+  .timeline .step .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--line); flex-shrink: 0;
+  }
+  .timeline .step.done .dot { background: var(--success); }
+  .timeline .step.current .dot { background: var(--primary); box-shadow: 0 0 0 3px rgba(255,210,63,0.3); }
+  .timeline .step .label { flex: 1; font-size: 11.5px; font-weight: 600; color: var(--secondary); }
+  .timeline .step.done .label { color: var(--muted); text-decoration: line-through; }
+  .timeline .step .when { font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* History — KPI tiles */
+  .kpi-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .kpi {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 12px;
+  }
+  .kpi .k { font-size: 10.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .kpi .v { font-size: 18px; font-weight: 800; color: var(--secondary); margin-top: 2px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .kpi .v .unit { font-size: 13px; opacity: 0.7; }
+  .kpi .delta { font-size: 10.5px; font-weight: 700; margin-top: 4px; display: inline-flex; align-items: center; gap: 2px; }
+  .kpi .delta.up { color: var(--success); }
+  .kpi .delta.down { color: var(--danger); }
+
+  /* Filters chips */
+  .filter-bar {
+    display: flex; gap: 6px; margin-bottom: 10px;
+    overflow-x: auto;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; height: 30px; padding: 0 12px;
+    border-radius: 999px; font-size: 11.5px; font-weight: 700;
+    background: var(--bgsoft); color: var(--secondary);
+    border: 1px solid var(--line);
+    display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+  .chip.active { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+  .chip .material-symbols-rounded { font-size: 13px; }
+
+  /* History rows */
+  .history-list {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .history-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .history-row:last-child { border-bottom: none; }
+  .history-row .date { width: 38px; flex-shrink: 0; color: var(--muted); font-size: 11px; }
+  .history-row .badge { flex-shrink: 0; }
+  .history-row .trip { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--secondary); font-weight: 500; }
+  .history-row .price { font-weight: 800; font-size: 13px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+  /* Trimestre summary card */
+  .quarter-card {
+    background: linear-gradient(135deg, #FFFFFF 0%, #F7F5EF 100%);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .quarter-card .head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .quarter-card .title { font-size: 13px; font-weight: 800; }
+  .quarter-card .pdf-btn {
+    background: var(--primary); color: var(--secondary);
+    border: none; border-radius: 8px;
+    height: 28px; padding: 0 12px;
+    font-size: 11px; font-weight: 800;
+    display: inline-flex; align-items: center; gap: 4px;
+    cursor: pointer;
+  }
+  .quarter-card .pdf-btn .material-symbols-rounded { font-size: 14px; }
+  .quarter-card .grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .quarter-card .cell .k { font-size: 9.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .quarter-card .cell .v { font-size: 15px; font-weight: 800; line-height: 1.2; }
+
+  /* Empty state with onboarding */
+  .empty-onboard {
+    padding: 30px 14px;
+    text-align: center;
+  }
+  .empty-onboard .hero-illu {
+    width: 80px; height: 80px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #FFAA00);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .empty-onboard .hero-illu .material-symbols-rounded { font-size: 40px; color: var(--secondary); }
+  .empty-onboard h3 { font-size: 18px; font-weight: 800; margin: 0 0 6px; }
+  .empty-onboard p { font-size: 13px; color: var(--muted); margin: 0 0 18px; line-height: 1.5; }
+  .onboard-cards { display: flex; flex-direction: column; gap: 8px; }
+  .onboard-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+    display: flex; gap: 10px; align-items: center;
+    text-align: left;
+  }
+  .onboard-card .icon-wrap {
+    width: 40px; height: 40px; flex-shrink: 0;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .onboard-card .icon-wrap.a { background: #FEF3C7; color: #92400E; }
+  .onboard-card .icon-wrap.b { background: #DBEAFE; color: var(--cpam-text); }
+  .onboard-card .icon-wrap.c { background: #D1FAE5; color: #065F46; }
+  .onboard-card .icon-wrap .material-symbols-rounded { font-size: 22px; }
+  .onboard-card .text .t { font-size: 12.5px; font-weight: 800; }
+  .onboard-card .text .s { font-size: 10.5px; color: var(--muted); margin-top: 1px; line-height: 1.3; }
+
+  /* FAB on mobile */
+  .fab {
+    position: absolute; bottom: 80px; right: 16px;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--secondary); color: var(--primary);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 20;
+  }
+  .fab .material-symbols-rounded { font-size: 28px; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 60px; background: #fff;
+    border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    align-items: center;
+    z-index: 25;
+  }
+  .bottom-nav .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: #B0AFA5; font-size: 10px; font-weight: 600;
+  }
+  .bottom-nav .nav-item.active { color: var(--secondary); font-weight: 700; }
+  .bottom-nav .nav-item.active .material-symbols-rounded { color: var(--primary); font-variation-settings: 'FILL' 1, 'wght' 600; }
+  .bottom-nav .nav-item .material-symbols-rounded { font-size: 22px; }
+  .bottom-nav .plus-btn {
+    transform: translateY(-12px);
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--secondary); color: var(--primary);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Legend */
+  .legend {
+    background: #fff; border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    max-width: 800px; margin: 0 auto 32px;
+    font-size: 13px; line-height: 1.6; color: #333;
+  }
+  .legend h2 { margin: 0 0 8px; font-size: 14px; font-weight: 800; }
+  .legend ul { margin: 0; padding-left: 18px; }
+  .legend li { margin-bottom: 5px; }
+  .legend code { background: var(--bgsoft); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  .legend .pill-tag {
+    display: inline-block; padding: 1px 6px;
+    border-radius: 4px; font-size: 11px; font-weight: 800;
+    background: #FEF3C7; color: #92400E;
+    margin-right: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Mes courses — refonte (3 onglets + Hero Earnings + cards améliorées)</h1>
+  <p class="lead">
+    Maquettes statiques pour valider la direction avant le code.
+    Audit complet de la page actuelle, propositions priorisées : Hero Earnings permanent en haut,
+    fusion Agenda/À&nbsp;venir, cards d&rsquo;urgence pulsantes, filtres avancés Historique,
+    facture PDF par trimestre, empty state éducatif.
+  </p>
+
+  <div class="legend">
+    <h2>Décisions de design retenues</h2>
+    <ul>
+      <li><span class="pill-tag">A</span> <b>Hero Earnings permanent</b> au-dessus des onglets — gain du jour, sparkline 7j, objectif quotidien. Tap → historique filtré aujourd&rsquo;hui.</li>
+      <li><span class="pill-tag">B</span> <b>3 onglets au lieu de 4</b> : « À venir », « Postées », « Historique ». L&rsquo;Agenda devient un toggle d&rsquo;affichage dans À&nbsp;venir (Liste / Semaine / Mois).</li>
+      <li><span class="pill-tag">C</span> <b>Card prochaine course enrichie</b> : nom patient + heure + trajet + 2 boutons (Naviguer / Appeler) en un coup d&rsquo;œil.</li>
+      <li><span class="pill-tag">D</span> <b>Pulse rouge</b> sur courses &lt; 15 min, position épinglée en haut.</li>
+      <li><span class="pill-tag">E</span> <b>Postée &gt; 24h sans preneur</b> : strip d&rsquo;action (élargir aux groupes voisins / +5 € sur le prix).</li>
+      <li><span class="pill-tag">F</span> <b>Historique enrichi</b> : 4 KPI tiles, filtres type+groupe+période, summary trimestre avec bouton « Facture PDF ».</li>
+      <li><span class="pill-tag">G</span> <b>Empty state éducatif</b> sur premier login : 3 cards explicatives.</li>
+    </ul>
+  </div>
+
+  <div class="variants">
+
+    <!-- ============================================== -->
+    <!-- VARIANTE 1 — À VENIR avec Hero Earnings + tabs 3 -->
+    <!-- ============================================== -->
+    <div>
+      <div class="variant-label">Variante 1 — Onglet « À venir »</div>
+      <div class="variant-sub">Hero Earnings + Prochaine course enrichie + course imminente avec pulse rouge.</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>14:32</span>
+            <span class="icons">
+              <span class="material-symbols-rounded">signal_cellular_alt</span>
+              <span class="material-symbols-rounded">wifi</span>
+              <span class="material-symbols-rounded">battery_5_bar</span>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="h-header">
+              <div>
+                <h2>Mes courses</h2>
+                <div class="date">jeudi 26 avril 2026</div>
+              </div>
+              <button class="icon-btn"><span class="material-symbols-rounded">file_download</span></button>
+            </div>
+
+            <!-- Hero Earnings -->
+            <div class="earnings-hero">
+              <div class="label"><span class="material-symbols-rounded">payments</span>Gagné aujourd&rsquo;hui</div>
+              <div class="amount">247<span class="euro">€</span></div>
+              <div class="meta">
+                <span>8 courses</span>
+                <span class="delta"><span class="material-symbols-rounded">trending_up</span>+18% vs hier</span>
+              </div>
+              <div class="sparkline">
+                <div class="bar" style="height: 35%"></div>
+                <div class="bar" style="height: 55%"></div>
+                <div class="bar" style="height: 42%"></div>
+                <div class="bar" style="height: 60%"></div>
+                <div class="bar" style="height: 75%"></div>
+                <div class="bar" style="height: 50%"></div>
+                <div class="bar today" style="height: 80%"></div>
+              </div>
+              <div class="objective">
+                <span>Objectif 300 €</span>
+                <span>82%</span>
+              </div>
+              <div class="progress"><div class="fill" style="width: 82%"></div></div>
+            </div>
+
+            <!-- Tabs 3 -->
+            <div class="tabs three">
+              <button class="tab active">À venir</button>
+              <button class="tab">Postées <span class="badge">2</span></button>
+              <button class="tab">Historique</button>
+            </div>
+
+            <!-- Toggle vue (l'agenda devient un mode) -->
+            <div class="filter-bar">
+              <button class="chip active"><span class="material-symbols-rounded">view_list</span>Liste</button>
+              <button class="chip"><span class="material-symbols-rounded">date_range</span>Semaine</button>
+              <button class="chip"><span class="material-symbols-rounded">calendar_month</span>Mois</button>
+            </div>
+
+            <!-- Hero Prochaine course enrichie -->
+            <div class="next-card">
+              <div class="top-row">
+                <span>★ Prochaine course</span>
+                <span class="countdown"><span class="material-symbols-rounded" style="font-size:13px;">schedule</span>Dans 12 min</span>
+              </div>
+              <div class="patient">Mme Bernard, 78 ans</div>
+              <div class="triplet">
+                <div class="cell">
+                  <div class="k">Heure</div>
+                  <div class="v">14:45</div>
+                </div>
+                <div class="cell">
+                  <div class="k">Départ</div>
+                  <div class="v">12 rue Paradis</div>
+                </div>
+                <div class="cell">
+                  <div class="k">Arrivée</div>
+                  <div class="v">Hôpital Nord</div>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn-nav"><span class="material-symbols-rounded">navigation</span>Démarrer</button>
+                <button class="btn-call"><span class="material-symbols-rounded" style="font-size:20px;">call</span></button>
+              </div>
+            </div>
+
+            <!-- Plus tard aujourd'hui -->
+            <div class="section-h">
+              <span>Plus tard aujourd&rsquo;hui</span>
+              <span class="meta">3 · 78 €</span>
+            </div>
+
+            <div class="mission-card urgent">
+              <div class="when">
+                <div class="time">14:55</div>
+                <div class="delay">⚠ 23 min</div>
+              </div>
+              <div class="body">
+                <div class="addresses">
+                  <span class="d1"></span>
+                  <p class="from">8 Bd Michelet</p>
+                  <span class="line"></span><span></span>
+                  <span class="d2"></span>
+                  <p class="to">Centre dialyse Prado</p>
+                </div>
+                <div class="meta-row">
+                  <span class="badge cpam">CPAM</span>
+                  <span>· 14 min · A/R</span>
+                </div>
+              </div>
+              <div class="price-col">
+                <div class="price">28<span class="euro">€</span></div>
+              </div>
+            </div>
+
+            <div class="mission-card">
+              <div class="when">
+                <div class="time">16:30</div>
+                <div class="delay">2h</div>
+              </div>
+              <div class="body">
+                <div class="addresses">
+                  <span class="d1"></span>
+                  <p class="from">Place Castellane</p>
+                  <span class="line"></span><span></span>
+                  <span class="d2"></span>
+                  <p class="to">CHU Timone</p>
+                </div>
+                <div class="meta-row">
+                  <span class="badge cpam">CPAM</span>
+                  <span>· 12 min</span>
+                </div>
+              </div>
+              <div class="price-col">
+                <div class="price">15<span class="euro">€</span></div>
+              </div>
+            </div>
+
+            <div class="mission-card">
+              <div class="when">
+                <div class="time">18:00</div>
+                <div class="delay">3h30</div>
+              </div>
+              <div class="body">
+                <div class="addresses">
+                  <span class="d1"></span>
+                  <p class="from">Gare Saint-Charles</p>
+                  <span class="line"></span><span></span>
+                  <span class="d2"></span>
+                  <p class="to">Aéroport Marignane</p>
+                </div>
+                <div class="meta-row">
+                  <span class="badge prive">Privé</span>
+                  <span>· 32 min</span>
+                </div>
+              </div>
+              <div class="price-col">
+                <div class="price">42<span class="euro">€</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAB Nouvelle course visible mobile -->
+          <div class="fab"><span class="material-symbols-rounded">add</span></div>
+
+          <!-- Bottom nav -->
+          <div class="bottom-nav">
+            <div class="nav-item"><span class="material-symbols-rounded">home</span>Accueil</div>
+            <div class="nav-item active"><span class="material-symbols-rounded">wallet</span>Courses</div>
+            <div></div>
+            <div class="nav-item"><span class="material-symbols-rounded">groups</span>Groupes</div>
+            <div class="nav-item"><span class="material-symbols-rounded">person</span>Profil</div>
+            <div class="plus-btn" style="position: absolute; left: 50%; transform: translateX(-50%) translateY(-12px);"><span class="material-symbols-rounded">add</span></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VARIANTE 2 — POSTÉES avec actions boost -->
+    <!-- ============================================== -->
+    <div>
+      <div class="variant-label">Variante 2 — Onglet « Postées »</div>
+      <div class="variant-sub">Cards waiting/accepted distinctes, strip de boost si &gt; 24h sans preneur.</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>14:32</span>
+            <span class="icons">
+              <span class="material-symbols-rounded">signal_cellular_alt</span>
+              <span class="material-symbols-rounded">wifi</span>
+              <span class="material-symbols-rounded">battery_5_bar</span>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="h-header">
+              <div>
+                <h2>Mes courses</h2>
+                <div class="date">jeudi 26 avril 2026</div>
+              </div>
+              <button class="icon-btn"><span class="material-symbols-rounded">file_download</span></button>
+            </div>
+
+            <div class="earnings-hero">
+              <div class="label"><span class="material-symbols-rounded">payments</span>Gagné aujourd&rsquo;hui</div>
+              <div class="amount">247<span class="euro">€</span></div>
+              <div class="meta">
+                <span>8 courses</span>
+                <span class="delta"><span class="material-symbols-rounded">trending_up</span>+18% vs hier</span>
+              </div>
+              <div class="sparkline">
+                <div class="bar" style="height: 35%"></div>
+                <div class="bar" style="height: 55%"></div>
+                <div class="bar" style="height: 42%"></div>
+                <div class="bar" style="height: 60%"></div>
+                <div class="bar" style="height: 75%"></div>
+                <div class="bar" style="height: 50%"></div>
+                <div class="bar today" style="height: 80%"></div>
+              </div>
+              <div class="objective">
+                <span>Objectif 300 €</span>
+                <span>82%</span>
+              </div>
+              <div class="progress"><div class="fill" style="width: 82%"></div></div>
+            </div>
+
+            <div class="tabs three">
+              <button class="tab">À venir</button>
+              <button class="tab active">Postées <span class="badge">2</span></button>
+              <button class="tab">Historique</button>
+            </div>
+
+            <div class="section-h">
+              <span>2 en attente · 1 acceptée</span>
+              <span class="meta">total 87 €</span>
+            </div>
+
+            <!-- Postée acceptée -->
+            <div class="posted-card">
+              <div class="head">
+                <div class="left">
+                  <span class="pill accepted"><span class="material-symbols-rounded">check_circle</span>Acceptée</span>
+                  <span class="badge cpam">CPAM</span>
+                </div>
+                <span class="date">26 avr · 09:30</span>
+              </div>
+              <div class="addresses">
+                <p class="from">8 rue Paradis, Marseille</p>
+                <p class="arr">↓</p>
+                <p class="to">Hôpital Conception</p>
+              </div>
+              <div class="footer">
+                <div class="accept-info">
+                  <span class="avatar">YL</span>
+                  <span><b>Youssef L.</b> · Taxi13 — il y a 12 min</span>
+                </div>
+                <div class="price" style="font-weight: 800; font-size: 16px;">22<span style="font-size:11px;">€</span></div>
+              </div>
+            </div>
+
+            <!-- Postée en attente — sans boost (récente) -->
+            <div class="posted-card waiting">
+              <div class="head">
+                <div class="left">
+                  <span class="pill waiting"><span class="material-symbols-rounded">schedule</span>En attente</span>
+                  <span class="badge cpam">CPAM</span>
+                </div>
+                <span class="date">26 avr · 16:00</span>
+              </div>
+              <div class="addresses">
+                <p class="from">15 av Foch, Marseille</p>
+                <p class="arr">↓</p>
+                <p class="to">Hôpital Saint-Joseph</p>
+              </div>
+              <div class="footer">
+                <span style="font-size: 11px; color: var(--muted);">Postée il y a 2h · 4 chauffeurs notifiés</span>
+                <div class="price" style="font-weight: 800; font-size: 16px;">18<span style="font-size:11px;">€</span></div>
+              </div>
+              <div class="footer no-border" style="margin-top: 4px;">
+                <span></span>
+                <div class="actions">
+                  <button class="ghost">Modifier</button>
+                  <button class="danger">Supprimer</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Postée en attente DEPUIS &gt; 24h — strip de boost -->
+            <div class="posted-card waiting">
+              <div class="head">
+                <div class="left">
+                  <span class="pill waiting"><span class="material-symbols-rounded">schedule</span>En attente</span>
+                  <span class="badge prive">Privé</span>
+                </div>
+                <span class="date">27 avr · 06:00</span>
+              </div>
+              <div class="addresses">
+                <p class="from">Aix-en-Provence</p>
+                <p class="arr">↓</p>
+                <p class="to">Aéroport Marignane</p>
+              </div>
+              <div class="footer">
+                <span style="font-size: 11px; color: var(--muted);">Postée il y a 26h · 2 chauffeurs notifiés</span>
+                <div class="price" style="font-weight: 800; font-size: 16px;">47<span style="font-size:11px;">€</span></div>
+              </div>
+
+              <div class="boost-strip">
+                <span class="material-symbols-rounded">campaign</span>
+                <span class="text">Toujours pas de preneur. Boostez votre course.</span>
+              </div>
+              <div style="display: flex; gap: 6px; margin-top: 6px;">
+                <button style="flex: 1; height: 32px; border-radius: 8px; background: var(--primary); color: var(--secondary); border: none; font-size: 11px; font-weight: 800; cursor: pointer;">Élargir aux groupes voisins</button>
+                <button style="flex: 1; height: 32px; border-radius: 8px; background: var(--secondary); color: #fff; border: none; font-size: 11px; font-weight: 800; cursor: pointer;">+5 € sur le prix</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="fab"><span class="material-symbols-rounded">add</span></div>
+          <div class="bottom-nav">
+            <div class="nav-item"><span class="material-symbols-rounded">home</span>Accueil</div>
+            <div class="nav-item active"><span class="material-symbols-rounded">wallet</span>Courses</div>
+            <div></div>
+            <div class="nav-item"><span class="material-symbols-rounded">groups</span>Groupes</div>
+            <div class="nav-item"><span class="material-symbols-rounded">person</span>Profil</div>
+            <div class="plus-btn" style="position: absolute; left: 50%; transform: translateX(-50%) translateY(-12px);"><span class="material-symbols-rounded">add</span></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VARIANTE 3 — HISTORIQUE enrichi avec KPI + filtres + facture trimestre -->
+    <!-- ============================================== -->
+    <div>
+      <div class="variant-label">Variante 3 — Onglet « Historique »</div>
+      <div class="variant-sub">4 KPI tiles, filtres type/groupe/période, summary trimestre avec bouton facture PDF.</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>14:32</span>
+            <span class="icons">
+              <span class="material-symbols-rounded">signal_cellular_alt</span>
+              <span class="material-symbols-rounded">wifi</span>
+              <span class="material-symbols-rounded">battery_5_bar</span>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="h-header">
+              <div>
+                <h2>Mes courses</h2>
+                <div class="date">jeudi 26 avril 2026</div>
+              </div>
+              <button class="icon-btn"><span class="material-symbols-rounded">file_download</span></button>
+            </div>
+
+            <div class="tabs three">
+              <button class="tab">À venir</button>
+              <button class="tab">Postées <span class="badge">2</span></button>
+              <button class="tab active">Historique</button>
+            </div>
+
+            <!-- KPI tiles -->
+            <div class="kpi-grid">
+              <div class="kpi">
+                <div class="k">CE MOIS</div>
+                <div class="v">1 247<span class="unit">€</span></div>
+                <div class="delta up"><span class="material-symbols-rounded" style="font-size:13px;">trending_up</span>+12%</div>
+              </div>
+              <div class="kpi">
+                <div class="k">COURSES</div>
+                <div class="v">42</div>
+                <div class="delta up"><span class="material-symbols-rounded" style="font-size:13px;">trending_up</span>+5</div>
+              </div>
+              <div class="kpi">
+                <div class="k">€ / COURSE</div>
+                <div class="v">29,7<span class="unit">€</span></div>
+                <div class="delta down"><span class="material-symbols-rounded" style="font-size:13px;">trending_down</span>-2,1€</div>
+              </div>
+              <div class="kpi">
+                <div class="k">RATIO CPAM</div>
+                <div class="v">67<span class="unit">%</span></div>
+                <div class="delta up"><span class="material-symbols-rounded" style="font-size:13px;">trending_up</span>+8pt</div>
+              </div>
+            </div>
+
+            <!-- Filters period -->
+            <div class="filter-bar">
+              <button class="chip">7j</button>
+              <button class="chip active">30j</button>
+              <button class="chip">90j</button>
+              <button class="chip">Tout</button>
+            </div>
+
+            <!-- Filters type/groupe -->
+            <div class="filter-bar">
+              <button class="chip"><span class="material-symbols-rounded">tune</span>Filtres (2)</button>
+              <button class="chip active">CPAM</button>
+              <button class="chip">Privé</button>
+              <button class="chip active">Taxi13</button>
+            </div>
+
+            <!-- Quarter summary with PDF button -->
+            <div class="quarter-card">
+              <div class="head">
+                <div>
+                  <div class="title">Trimestre Q2 2026</div>
+                  <div style="font-size: 10.5px; color: var(--muted); margin-top: 2px;">avril → juin · 142 courses</div>
+                </div>
+                <button class="pdf-btn"><span class="material-symbols-rounded">picture_as_pdf</span>Facture PDF</button>
+              </div>
+              <div class="grid">
+                <div class="cell">
+                  <div class="k">CHIFFRE D&rsquo;AFFAIRES</div>
+                  <div class="v">4 230 €</div>
+                </div>
+                <div class="cell">
+                  <div class="k">CPAM</div>
+                  <div class="v">2 833 €</div>
+                </div>
+                <div class="cell">
+                  <div class="k">PRIVÉ</div>
+                  <div class="v">1 397 €</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- History list -->
+            <div class="section-h">
+              <span>Avril 2026</span>
+              <span class="meta">42 courses · 1 247 €</span>
+            </div>
+
+            <div class="history-list">
+              <div class="history-row">
+                <span class="date">26 avr</span>
+                <span class="badge cpam">Médical</span>
+                <span class="trip">Marseille → Aix-en-Provence</span>
+                <span class="price">67€</span>
+              </div>
+              <div class="history-row">
+                <span class="date">25 avr</span>
+                <span class="badge cpam">Médical</span>
+                <span class="trip">Castellane → CHU Timone</span>
+                <span class="price">15€</span>
+              </div>
+              <div class="history-row">
+                <span class="date">25 avr</span>
+                <span class="badge prive">Privé</span>
+                <span class="trip">Gare Saint-Charles → Cassis</span>
+                <span class="price">42€</span>
+              </div>
+              <div class="history-row">
+                <span class="date">24 avr</span>
+                <span class="badge cpam">Médical</span>
+                <span class="trip">Hôpital Nord → Domicile</span>
+                <span class="price">22€</span>
+              </div>
+              <div class="history-row">
+                <span class="date">24 avr</span>
+                <span class="badge cpam">Médical</span>
+                <span class="trip">Domicile → Centre Dialyse</span>
+                <span class="price">28€</span>
+              </div>
+              <div class="history-row">
+                <span class="date">23 avr</span>
+                <span class="badge prive">Privé</span>
+                <span class="trip">Marignane → Marseille centre</span>
+                <span class="price">38€</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="fab"><span class="material-symbols-rounded">add</span></div>
+          <div class="bottom-nav">
+            <div class="nav-item"><span class="material-symbols-rounded">home</span>Accueil</div>
+            <div class="nav-item active"><span class="material-symbols-rounded">wallet</span>Courses</div>
+            <div></div>
+            <div class="nav-item"><span class="material-symbols-rounded">groups</span>Groupes</div>
+            <div class="nav-item"><span class="material-symbols-rounded">person</span>Profil</div>
+            <div class="plus-btn" style="position: absolute; left: 50%; transform: translateX(-50%) translateY(-12px);"><span class="material-symbols-rounded">add</span></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VARIANTE 4 — EMPTY STATE éducatif premier login -->
+    <!-- ============================================== -->
+    <div>
+      <div class="variant-label">Variante 4 — Empty state premier login</div>
+      <div class="variant-sub">Au lieu d&rsquo;un message vide, on éduque sur les 3 onglets et on guide vers la 1ère action.</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>14:32</span>
+            <span class="icons">
+              <span class="material-symbols-rounded">signal_cellular_alt</span>
+              <span class="material-symbols-rounded">wifi</span>
+              <span class="material-symbols-rounded">battery_5_bar</span>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="h-header">
+              <div>
+                <h2>Mes courses</h2>
+                <div class="date">jeudi 26 avril 2026</div>
+              </div>
+            </div>
+
+            <!-- Hero earnings VIDE pour 1er login -->
+            <div class="earnings-hero" style="opacity: 0.85;">
+              <div class="label"><span class="material-symbols-rounded">payments</span>Gagné aujourd&rsquo;hui</div>
+              <div class="amount">0<span class="euro">€</span></div>
+              <div class="meta">
+                <span>Démarrez votre première course pour voir vos gains</span>
+              </div>
+            </div>
+
+            <div class="tabs three">
+              <button class="tab active">À venir</button>
+              <button class="tab">Postées</button>
+              <button class="tab">Historique</button>
+            </div>
+
+            <div class="empty-onboard">
+              <div class="hero-illu">
+                <span class="material-symbols-rounded">local_taxi</span>
+              </div>
+              <h3>Bienvenue sur TaxiLink&nbsp;!</h3>
+              <p>Voici comment fonctionne votre espace courses :</p>
+
+              <div class="onboard-cards">
+                <div class="onboard-card">
+                  <div class="icon-wrap a">
+                    <span class="material-symbols-rounded">today</span>
+                  </div>
+                  <div class="text">
+                    <div class="t">À venir</div>
+                    <div class="s">Vos courses acceptées du jour, triées par heure. Une carte mise en avant pour la prochaine.</div>
+                  </div>
+                </div>
+
+                <div class="onboard-card">
+                  <div class="icon-wrap b">
+                    <span class="material-symbols-rounded">share</span>
+                  </div>
+                  <div class="text">
+                    <div class="t">Postées</div>
+                    <div class="s">Les courses que vous publiez à votre réseau (Taxi13, etc.) pour qu&rsquo;un confrère les prenne quand vous êtes occupé.</div>
+                  </div>
+                </div>
+
+                <div class="onboard-card">
+                  <div class="icon-wrap c">
+                    <span class="material-symbols-rounded">history</span>
+                  </div>
+                  <div class="text">
+                    <div class="t">Historique</div>
+                    <div class="s">Toutes vos courses terminées avec stats, filtres CPAM/Privé et facture PDF trimestrielle pour la compta.</div>
+                  </div>
+                </div>
+              </div>
+
+              <button style="margin-top: 18px; height: 44px; padding: 0 20px; border-radius: 12px; background: var(--secondary); color: var(--primary); border: none; font-size: 13.5px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="material-symbols-rounded" style="font-size: 18px;">add</span>
+                Poster ma 1<sup>re</sup> course
+              </button>
+            </div>
+          </div>
+
+          <div class="bottom-nav">
+            <div class="nav-item"><span class="material-symbols-rounded">home</span>Accueil</div>
+            <div class="nav-item active"><span class="material-symbols-rounded">wallet</span>Courses</div>
+            <div></div>
+            <div class="nav-item"><span class="material-symbols-rounded">groups</span>Groupes</div>
+            <div class="nav-item"><span class="material-symbols-rounded">person</span>Profil</div>
+            <div class="plus-btn" style="position: absolute; left: 50%; transform: translateX(-50%) translateY(-12px);"><span class="material-symbols-rounded">add</span></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="legend" style="margin-top: 40px;">
+    <h2>Détails techniques à valider en parallèle</h2>
+    <ul>
+      <li><b>Hero Earnings</b> : nouveau composant <code>CoursesEarningsHero.tsx</code> alimenté par un nouveau service <code>earningsService.getDailyStats()</code>. Calculé depuis <code>missions WHERE status='COMPLETED' AND completed_at &gt;= today</code>. Sparkline = 7 jours derniers, agrégés côté serveur (vue Postgres ou requête).</li>
+      <li><b>Mode Liste/Semaine/Mois</b> sur À venir : on garde la logique <code>useAgendaTab</code> mais on supprime l&rsquo;onglet dédié. Le toggle de vue est dans <code>useUpcomingTab</code>. Migration douce (3 onglets actuels → 4 onglets pendant 2 semaines avec banner d&rsquo;info, puis 3 onglets).</li>
+      <li><b>Pulse rouge urgent</b> : déjà animation <code>pulse-urgent</code> dans le mockup. À porter dans <code>UpcomingMissionCard</code> avec condition <code>minutesUntil &lt;= 15</code>.</li>
+      <li><b>Strip boost</b> : nouveau widget visible sur <code>PostedCard</code> si <code>posted_at &lt; now() - 24h && status === 'AVAILABLE'</code>. Actions : élargir = ajouter d&rsquo;autres groupes, +5 € = update <code>price_eur</code>.</li>
+      <li><b>Filtres type/groupe historique</b> : <code>useHistoryTab</code> accepte 2 nouveaux filtres optionnels (<code>type</code>, <code>groupId</code>). Reste compatible avec l&rsquo;existant.</li>
+      <li><b>Facture PDF</b> : nouvelle API route <code>/api/missions/invoice</code> qui génère un PDF avec <code>pdfkit</code> ou <code>@react-pdf/renderer</code>. Inclut TVA, n° SIREN du chauffeur, tampon TaxiLink. Quart calculé depuis le mois courant.</li>
+      <li><b>FAB mobile</b> : déplacer le FAB de l&rsquo;Agenda vers le niveau page (toujours visible). Cohérent avec l&rsquo;Accueil qui n&rsquo;en a pas.</li>
+      <li><b>Empty state éducatif</b> : composant <code>CoursesEmptyOnboarding.tsx</code> affiché si <code>missions.length === 0 && completed.length === 0 && posted.length === 0</code>. Disparaît dès la 1<sup>re</sup> action.</li>
+    </ul>
+  </div>
+
+  <div class="legend">
+    <h2>Si tu valides ces directions, plan d&rsquo;exécution</h2>
+    <ul>
+      <li><b>Sprint 1 (3-4h)</b> — Hero Earnings + nouveau service stats + sparkline. C&rsquo;est le truc à plus gros impact perçu.</li>
+      <li><b>Sprint 2 (2-3h)</b> — Pulse rouge urgent + Hero prochaine course enrichi (patient + heure + appel) + FAB mobile global.</li>
+      <li><b>Sprint 3 (3-4h)</b> — Fusion onglet Agenda dans À venir avec toggle Liste/Semaine/Mois. Migration douce.</li>
+      <li><b>Sprint 4 (2-3h)</b> — Filtres type/groupe historique + KPI tiles + summary trimestre.</li>
+      <li><b>Sprint 5 (4-5h)</b> — Facture PDF (nouvelle API route + pdf lib).</li>
+      <li><b>Sprint 6 (1-2h)</b> — Empty state éducatif + strip boost Postées &gt; 24h.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

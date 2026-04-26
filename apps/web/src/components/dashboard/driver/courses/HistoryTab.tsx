@@ -1,14 +1,23 @@
 'use client'
 import { RideBadge } from '@/components/taxilink/RideBadge'
-import { useHistoryTab, type MonthGroup, type Period } from './useHistoryTab'
-import { HistoryStatsHeader } from './HistoryStatsHeader'
+import { useHistoryTab, type MonthGroup, type Period, type HistoryTypeFilter } from './useHistoryTab'
+import { HistoryKpiTiles } from './HistoryKpiTiles'
+import { HistoryQuarterCard } from './HistoryQuarterCard'
+import { useInvoiceGenerator } from './useInvoiceGenerator'
 import type { Mission } from '@/lib/supabase/types'
 import { formatMissionPrice } from '@/lib/formatMissionPrice'
 
 const PERIOD_OPTIONS: { value: Period; label: string }[] = [
-  { value: 'week', label: '7 jours' },
-  { value: 'month', label: '30 jours' },
+  { value: 'week', label: '7j' },
+  { value: 'month', label: '30j' },
+  { value: 'quarter', label: '90j' },
   { value: 'all', label: 'Tout' },
+]
+
+const TYPE_OPTIONS: { value: HistoryTypeFilter; label: string }[] = [
+  { value: 'ALL', label: 'Tous' },
+  { value: 'CPAM', label: 'CPAM' },
+  { value: 'PRIVE', label: 'Privé' },
 ]
 
 function HistoryRow({
@@ -76,6 +85,7 @@ function MonthSection({
 
 export function HistoryTab() {
   const h = useHistoryTab()
+  const invoice = useInvoiceGenerator()
 
   if (h.loading) {
     return (
@@ -95,26 +105,62 @@ export function HistoryTab() {
   }
 
   return (
-    <div className="mt-6 space-y-4">
-      <HistoryStatsHeader stats={h.stats} onExport={h.handleExportCsv} />
+    <div className="mt-2 space-y-4">
+      <HistoryKpiTiles
+        total={h.kpi.total}
+        count={h.kpi.count}
+        avgPerRide={h.kpi.avgPerRide}
+        cpamRatioPct={h.kpi.cpamRatioPct}
+      />
 
-      <div className="flex gap-2">
+      <div className="flex gap-1.5 overflow-x-auto hide-scrollbar">
         {PERIOD_OPTIONS.map(({ value, label }) => (
           <button
             key={value}
             type="button"
             onClick={() => h.setPeriod(value)}
             className={[
-              'rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors',
+              'shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-bold transition-colors border',
               h.period === value
-                ? 'bg-ink text-paper'
-                : 'bg-warm-100 text-ink hover:bg-warm-200',
+                ? 'bg-ink text-paper border-ink'
+                : 'bg-paper text-ink border-warm-200 hover:bg-warm-50',
             ].join(' ')}
           >
             {label}
           </button>
         ))}
       </div>
+
+      <div className="flex gap-1.5 overflow-x-auto hide-scrollbar">
+        {TYPE_OPTIONS.map(({ value, label }) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => h.setTypeFilter(value)}
+            className={[
+              'shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-bold transition-colors border',
+              h.typeFilter === value
+                ? 'bg-ink text-paper border-ink'
+                : 'bg-paper text-ink border-warm-200 hover:bg-warm-50',
+            ].join(' ')}
+          >
+            {label}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={h.handleExportCsv}
+          className="shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-bold text-warm-600 border border-warm-200 hover:bg-warm-50 ml-auto"
+        >
+          Export CSV
+        </button>
+      </div>
+
+      <HistoryQuarterCard
+        missions={h.filtered}
+        generating={invoice.generating}
+        onGenerateInvoice={(year, quarter) => invoice.generate(h.filtered, year, quarter)}
+      />
 
       {h.filtered.length === 0 && (
         <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
