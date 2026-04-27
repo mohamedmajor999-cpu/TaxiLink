@@ -14,16 +14,18 @@ vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }))
 
-vi.mock('@/store/driverStore', () => ({
-  useDriverStore: vi.fn(),
-}))
+// Le hook utilise un selecteur (useDriverStore(s => ...)) ET un acces statique
+// (useDriverStore.getState()). vi.mock est hoiste, donc on declare la fabrique
+// du store via vi.hoisted() pour rester accessible dans la factory.
+const { storeMock } = vi.hoisted(() => {
+  const fn: any = vi.fn()
+  fn.getState = vi.fn()
+  return { storeMock: fn }
+})
+vi.mock('@/store/driverStore', () => ({ useDriverStore: storeMock }))
 
 vi.mock('@/services/profileService', () => ({
   profileService: { getProfile: (...a: unknown[]) => mockGetProfile(...a) },
-}))
-
-vi.mock('@/services/authService', () => ({
-  authService: { signOut: (...a: unknown[]) => mockSignOut(...a) },
 }))
 
 import { useAuth } from '@/hooks/useAuth'
@@ -35,6 +37,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   mockLoad.mockResolvedValue(undefined)
   mockUseDriverStore.mockReturnValue({ load: mockLoad, driver: { name: 'Chauffeur Test' } } as ReturnType<typeof useDriverStore>)
+  ;(storeMock.getState as ReturnType<typeof vi.fn>).mockReturnValue({ signOut: mockSignOut })
 })
 
 // ─── Auth guards ──────────────────────────────────────────────────────────────

@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { authService } from '@/services/authService'
 import { useDriverStore } from '@/store/driverStore'
 import { useNightModeStore, type NightModePref } from '@/store/nightModeStore'
 import { useSettingsToggles } from './useSettingsToggles'
@@ -39,20 +38,7 @@ export function useProfileSectionApp() {
     setError(null)
     setLoggingOut(true)
     try {
-      await authService.signOut()
-      useDriverStore.setState({
-        driver: {
-          id: '',
-          name: 'Chauffeur',
-          email: '',
-          cpamEnabled: false,
-          rating: 0,
-          totalRides: 0,
-          isOnline: false,
-          createdAt: new Date().toISOString(),
-        },
-        isLoading: false,
-      })
+      await useDriverStore.getState().signOut()
       router.push('/auth/login')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Erreur lors de la déconnexion')

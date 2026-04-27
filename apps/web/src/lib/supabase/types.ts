@@ -135,6 +135,7 @@ export type Database = {
           id: string
           is_online: boolean
           is_verified: boolean
+          last_seen_at: string | null
           pro_number: string | null
           rating: number
           total_rides: number
@@ -150,6 +151,7 @@ export type Database = {
           id: string
           is_online?: boolean
           is_verified?: boolean
+          last_seen_at?: string | null
           pro_number?: string | null
           rating?: number
           total_rides?: number
@@ -165,6 +167,7 @@ export type Database = {
           id?: string
           is_online?: boolean
           is_verified?: boolean
+          last_seen_at?: string | null
           pro_number?: string | null
           rating?: number
           total_rides?: number

@@ -7,17 +7,19 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockRouterPush }),
 }))
 
+// Le logout passe maintenant par useDriverStore.getState().signOut() qui
+// flippe is_online cote serveur avant l'auth signOut. On mock le store avec
+// une fonction signOut() qu'on observe.
 const mockSignOut = vi.fn()
-vi.mock('@/services/authService', () => ({
-  authService: { signOut: () => mockSignOut() },
-}))
-
-// Zustand crée useDriverStore avec une méthode statique setState via create()
-// On la remplace par un objet doté de setState pour éviter les conflits entre tests
 const mockSetState = vi.fn()
 const fakeUseDriverStore = Object.assign(
   vi.fn((sel?: (s: unknown) => unknown) => (sel ? sel({}) : {})),
-  { setState: mockSetState, getState: vi.fn(() => ({})), subscribe: vi.fn(), destroy: vi.fn() },
+  {
+    setState: mockSetState,
+    getState: vi.fn(() => ({ signOut: mockSignOut })),
+    subscribe: vi.fn(),
+    destroy: vi.fn(),
+  },
 )
 vi.mock('@/store/driverStore', () => ({ useDriverStore: fakeUseDriverStore }))
 
@@ -34,7 +36,7 @@ describe('useSettingsApp', () => {
     expect(result.current.error).toBeNull()
   })
 
-  it('logout appelle authService.signOut et router.push', async () => {
+  it('logout appelle driverStore.signOut et router.push', async () => {
     const { useSettingsApp } = await import('@/components/dashboard/driver/profil/useSettingsApp')
     const { result } = renderHook(() => useSettingsApp())
     await act(async () => { await result.current.logout() })

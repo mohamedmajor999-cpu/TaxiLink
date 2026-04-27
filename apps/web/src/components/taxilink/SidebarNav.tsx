@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Home, List, Plus, Users, User, LogOut } from 'lucide-react'
 import { OnlineDot } from './OnlineDot'
-import { authService } from '@/services/authService'
+import { useDriverStore } from '@/store/driverStore'
 import type { DriverTab, NavBadge } from './navTypes'
 
 interface Props {
@@ -37,7 +37,7 @@ export function SidebarNav({
   const router = useRouter()
   const handleSignOut = async () => {
     try {
-      await authService.signOut()
+      await useDriverStore.getState().signOut()
       router.replace('/auth/login')
     } catch { /* ignore : onAuthStateChange redirigera au prochain refresh */ }
   }

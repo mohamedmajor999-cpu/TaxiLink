@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { Driver } from '@taxilink/core'
 import { profileService } from '@/services/profileService'
 import { driverService } from '@/services/driverService'
+import { authService } from '@/services/authService'
 
 interface DriverState {
   driver: Driver
@@ -10,6 +11,7 @@ interface DriverState {
   setOnline: (online: boolean) => void
   updateDriver: (patch: Partial<Driver>) => void
   incrementTodayStats: (rides: number, km: number, earnings: number) => void
+  signOut: () => Promise<void>
 }
 
 const defaultDriver: Driver = {
@@ -78,4 +80,17 @@ export const useDriverStore = create<DriverState>((set, get) => ({
         todayEarnings: (state.driver.todayEarnings ?? 0) + earnings,
       },
     })),
+
+  // Bascule serveur is_online=false avant le signOut pour ne pas laisser le
+  // chauffeur indique en ligne dans les groupes apres deconnexion volontaire.
+  // Le best-effort silencieux (catch) couvre le cas reseau down : on ne bloque
+  // jamais la sortie de session pour autant.
+  signOut: async () => {
+    const { driver } = get()
+    if (driver.id) {
+      await driverService.setOnline(driver.id, false).catch(() => { /* best-effort */ })
+    }
+    await authService.signOut()
+    set({ driver: defaultDriver, isLoading: false })
+  },
 }))

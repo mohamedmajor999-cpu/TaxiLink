@@ -63,14 +63,39 @@ describe('driverService.updateDriver', () => {
 
 // ─── setOnline ────────────────────────────────────────────────────────────────
 describe('driverService.setOnline', () => {
-  it('passe le chauffeur en ligne sans erreur', async () => {
+  it('passe le chauffeur en ligne et seed last_seen_at', async () => {
     mockEq.mockResolvedValue({ error: null })
     await expect(driverService.setOnline('d1', true)).resolves.toBeUndefined()
-    expect(mockUpdate).toHaveBeenCalledWith({ is_online: true })
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      is_online: true,
+      last_seen_at: expect.any(String),
+    }))
+  })
+
+  it('passe hors ligne sans toucher last_seen_at', async () => {
+    mockEq.mockResolvedValue({ error: null })
+    await expect(driverService.setOnline('d1', false)).resolves.toBeUndefined()
+    expect(mockUpdate).toHaveBeenCalledWith({ is_online: false })
   })
 
   it('leve une erreur si Supabase echoue', async () => {
     mockEq.mockResolvedValue({ error: { message: 'Reseau indisponible' } })
     await expect(driverService.setOnline('d1', false)).rejects.toThrow('Reseau indisponible')
+  })
+})
+
+// ─── heartbeat ────────────────────────────────────────────────────────────────
+describe('driverService.heartbeat', () => {
+  it('met a jour last_seen_at', async () => {
+    mockEq.mockResolvedValue({ error: null })
+    await expect(driverService.heartbeat('d1')).resolves.toBeUndefined()
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      last_seen_at: expect.any(String),
+    }))
+  })
+
+  it('leve une erreur si Supabase echoue', async () => {
+    mockEq.mockResolvedValue({ error: { message: 'Reseau down' } })
+    await expect(driverService.heartbeat('d1')).rejects.toThrow('Reseau down')
   })
 })

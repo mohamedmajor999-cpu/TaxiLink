@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { authService } from '@/services/authService'
 import { useDriverStore } from '@/store/driverStore'
 
 interface State {
@@ -20,21 +19,7 @@ export function useSettingsApp(): State {
     setError(null)
     setLoggingOut(true)
     try {
-      await authService.signOut()
-      // Reset local driver store pour éviter les fuites d'état
-      useDriverStore.setState({
-        driver: {
-          id: '',
-          name: 'Chauffeur',
-          email: '',
-          cpamEnabled: false,
-          rating: 0,
-          totalRides: 0,
-          isOnline: false,
-          createdAt: new Date().toISOString(),
-        },
-        isLoading: false,
-      })
+      await useDriverStore.getState().signOut()
       router.push('/auth/login')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Erreur lors de la déconnexion')

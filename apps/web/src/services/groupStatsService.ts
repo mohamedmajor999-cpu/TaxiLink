@@ -3,6 +3,17 @@ import type { GroupMember, GroupMemberStats } from '@taxilink/core'
 
 const supabase = createClient()
 
+// TTL de presence : un chauffeur compte comme "en ligne" uniquement si son
+// last_seen_at est < ONLINE_TTL_MS. Le client ping toutes les 60s
+// (useDriverHeartbeat) ; on tolere donc un retard d'un cycle.
+const ONLINE_TTL_MS = 120_000
+
+function isFreshlyOnline(isOnline: boolean | undefined, lastSeenAt: string | null | undefined): boolean {
+  if (!isOnline) return false
+  if (!lastSeenAt) return false
+  return Date.now() - new Date(lastSeenAt).getTime() < ONLINE_TTL_MS
+}
+
 export interface GroupActivitySummary {
   available:      number
   exchanged7d:    number
@@ -34,7 +45,7 @@ export const groupStatsService = {
   async getMemberStats(groupId: string, since: string): Promise<GroupMemberStats[]> {
     const [membersRes, missionsRes] = await Promise.all([
       supabase.from('group_members')
-        .select('driver_id, role, drivers(profiles(full_name, first_name, last_name, department), is_online)')
+        .select('driver_id, role, drivers(profiles(full_name, first_name, last_name, department), is_online, last_seen_at)')
         .eq('group_id', groupId),
       supabase.from('mission_groups')
         .select('missions!inner(shared_by, driver_id, created_at)')
@@ -58,7 +69,7 @@ export const groupStatsService = {
         firstName:    row.drivers?.profiles?.first_name ?? null,
         lastName:     row.drivers?.profiles?.last_name  ?? null,
         department:   row.drivers?.profiles?.department ?? null,
-        isOnline:     row.drivers?.is_online ?? false,
+        isOnline:     isFreshlyOnline(row.drivers?.is_online, row.drivers?.last_seen_at),
         role:         row.role,
         sharedCount:  shared[row.driver_id]   ?? 0,
         acceptedCount: accepted[row.driver_id] ?? 0,
@@ -71,7 +82,7 @@ export const groupStatsService = {
     const since = new Date(Date.now() - 7 * 86_400_000).toISOString()
     const [onlineRes, exchangedRes, availableRes] = await Promise.all([
       supabase.from('group_members')
-        .select('drivers(is_online)')
+        .select('drivers(is_online, last_seen_at)')
         .eq('group_id', groupId),
       supabase.from('mission_groups')
         .select('missions!inner(driver_id, created_at)')
@@ -82,7 +93,7 @@ export const groupStatsService = {
         .eq('group_id', groupId)
         .eq('missions.status', 'OFFERED'),
     ])
-    const onlineCount   = ((onlineRes.data   ?? []) as any[]).filter((r) => r.drivers?.is_online).length
+    const onlineCount   = ((onlineRes.data   ?? []) as any[]).filter((r) => isFreshlyOnline(r.drivers?.is_online, r.drivers?.last_seen_at)).length
     const rows          = ((exchangedRes.data ?? []) as Array<{ missions: { driver_id: string | null } | null }>)
     const exchanged7d   = rows.length
     const accepted7d    = rows.filter((r) => !!r.missions?.driver_id).length

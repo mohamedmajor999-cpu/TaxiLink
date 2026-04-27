@@ -3,7 +3,6 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useDriverStore } from '@/store/driverStore'
 import { profileService } from '@/services/profileService'
-import { authService } from '@/services/authService'
 
 export function useDriverAuth() {
   const router              = useRouter()
@@ -31,7 +30,7 @@ export function useDriverAuth() {
 
   const handleLogout = async () => {
     loggingOut.current = true
-    await authService.signOut()
+    await useDriverStore.getState().signOut()
     router.push('/')
   }
 

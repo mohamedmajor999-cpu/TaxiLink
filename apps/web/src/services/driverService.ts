@@ -27,9 +27,24 @@ export const driverService = {
 
   async setOnline(driverId: string, isOnline: boolean): Promise<void> {
     const supabase = createClient()
+    // Quand on passe en ligne, on seed `last_seen_at` immediatement pour eviter
+    // qu'un timing entre la bascule et le premier heartbeat ne fasse apparaitre
+    // le chauffeur "offline" pendant 60s.
+    const update = isOnline
+      ? { is_online: true, last_seen_at: new Date().toISOString() }
+      : { is_online: false }
     const { error } = await supabase
       .from('drivers')
-      .update({ is_online: isOnline })
+      .update(update)
+      .eq('id', driverId)
+    if (error) throw new Error(error.message)
+  },
+
+  async heartbeat(driverId: string): Promise<void> {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('drivers')
+      .update({ last_seen_at: new Date().toISOString() })
       .eq('id', driverId)
     if (error) throw new Error(error.message)
   },

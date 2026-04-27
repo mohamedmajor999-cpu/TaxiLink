@@ -5,6 +5,7 @@ import { useDriverStore } from '@/store/driverStore'
 const mockGetProfile = vi.fn()
 const mockGetDriver  = vi.fn()
 const mockSetOnline  = vi.fn()
+const mockAuthSignOut = vi.fn()
 
 vi.mock('@/services/profileService', () => ({
   profileService: { getProfile: (...a: unknown[]) => mockGetProfile(...a) },
@@ -15,6 +16,10 @@ vi.mock('@/services/driverService', () => ({
     getDriver:  (...a: unknown[]) => mockGetDriver(...a),
     setOnline:  (...a: unknown[]) => mockSetOnline(...a),
   },
+}))
+
+vi.mock('@/services/authService', () => ({
+  authService: { signOut: (...a: unknown[]) => mockAuthSignOut(...a) },
 }))
 
 const defaultDriver = {
@@ -161,6 +166,46 @@ describe('driverStore — updateDriver()', () => {
     })
     useDriverStore.getState().updateDriver({ name: 'Nouveau' })
     expect(useDriverStore.getState().driver.cpamEnabled).toBe(true)
+  })
+})
+
+// ─── signOut() ────────────────────────────────────────────────────────────────
+describe('driverStore — signOut()', () => {
+  it('flippe is_online a false cote serveur AVANT auth signOut', async () => {
+    useDriverStore.setState({ driver: { ...useDriverStore.getState().driver, id: 'drv-9', isOnline: true } })
+    mockSetOnline.mockResolvedValue(undefined)
+    mockAuthSignOut.mockResolvedValue(undefined)
+
+    await useDriverStore.getState().signOut()
+
+    expect(mockSetOnline).toHaveBeenCalledWith('drv-9', false)
+    expect(mockAuthSignOut).toHaveBeenCalled()
+  })
+
+  it('reset le driver a l\'etat par defaut apres signOut', async () => {
+    useDriverStore.setState({ driver: { ...useDriverStore.getState().driver, id: 'drv-9', name: 'Pierre' } })
+    mockSetOnline.mockResolvedValue(undefined)
+    mockAuthSignOut.mockResolvedValue(undefined)
+
+    await useDriverStore.getState().signOut()
+
+    expect(useDriverStore.getState().driver).toEqual(defaultDriver)
+  })
+
+  it('continue le signOut meme si le flip serveur echoue (best-effort)', async () => {
+    useDriverStore.setState({ driver: { ...useDriverStore.getState().driver, id: 'drv-net' } })
+    mockSetOnline.mockRejectedValue(new Error('reseau down'))
+    mockAuthSignOut.mockResolvedValue(undefined)
+
+    await expect(useDriverStore.getState().signOut()).resolves.toBeUndefined()
+    expect(mockAuthSignOut).toHaveBeenCalled()
+  })
+
+  it('skip le flip serveur si pas de driverId', async () => {
+    mockAuthSignOut.mockResolvedValue(undefined)
+    await useDriverStore.getState().signOut()
+    expect(mockSetOnline).not.toHaveBeenCalled()
+    expect(mockAuthSignOut).toHaveBeenCalled()
   })
 })
 
