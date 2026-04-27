@@ -9,8 +9,9 @@ import { useNightMode } from '@/hooks/useNightMode'
 import { useDriverHeartbeat } from '@/hooks/useDriverHeartbeat'
 import { useDriverOfflineBeacon } from '@/hooks/useDriverOfflineBeacon'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
+import { Menu, Plus } from 'lucide-react'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
-import { MobileBottomNav } from '@/components/taxilink/MobileBottomNav'
+import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
 import { useDriverAuth } from './useDriverAuth'
 import { useDriverDashboard } from './useDriverDashboard'
 import { DriverHome } from './DriverHome'
@@ -51,6 +52,7 @@ export function DriverDashboard() {
   useDriverOfflineBeacon()
   const unseenAcceptCount = useUnseenAcceptCount()
   const [mapFullscreen, setMapFullscreen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const isEditerUrl = searchParams.get('editer') === '1'
   // Sync URL → store : si l'URL perd ?editer=1 (Precedent) alors que le store a
   // encore une mission en edition, on vide le store pour fermer la modal.
@@ -150,15 +152,40 @@ export function DriverDashboard() {
         )}
       </main>
 
-      {!mapFullscreen && (
-        <MobileBottomNav
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          onPostCourse={() => setShowCreer(true)}
-          coursesBadge={availableCount}
-          coursesNotif={unseenAcceptCount}
-        />
-      )}
+      <button
+        type="button"
+        onClick={() => setDrawerOpen(true)}
+        aria-label="Ouvrir le menu"
+        className="md:hidden fixed top-3 left-3 z-[600] w-11 h-11 rounded-full bg-paper dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.12)] flex items-center justify-center text-ink dark:text-night-text active:scale-95 transition-transform"
+        style={{ marginTop: 'env(safe-area-inset-top)' }}
+      >
+        <Menu className="w-5 h-5" strokeWidth={2} />
+        {unseenAcceptCount > 0 && (
+          <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-danger ring-2 ring-paper dark:ring-night-surface" aria-hidden="true" />
+        )}
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setShowCreer(true)}
+        aria-label="Poster une course"
+        className="md:hidden fixed bottom-[140px] right-4 z-[510] w-14 h-14 rounded-full bg-brand text-ink shadow-fab hover:shadow-fab-hover active:scale-95 transition-all flex items-center justify-center"
+        style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <Plus className="w-7 h-7" strokeWidth={2.6} />
+      </button>
+
+      <MobileNavDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        driverName={driverName || 'Chauffeur'}
+        driverInitials={initials}
+        groupName="Taxi13"
+        isOnline={driver.isOnline}
+        badges={{ courses: availableCount, coursesNotif: unseenAcceptCount }}
+      />
 
       <PostedMissionAcceptPopup onViewPosted={goToPostedTab} />
     </div>

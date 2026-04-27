@@ -29,7 +29,7 @@ interface Props {
 export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, mapFullscreen, onMapFullscreenChange }: Props) {
   const h = useDriverHome({ onShowMissionDetail })
   const night = useNightMode()
-  const [snap, setSnap] = useState<SheetSnap>('three')
+  const [snap, setSnap] = useState<SheetSnap>('one')
   const [vh, setVh] = useState(0)
   const sheetRef = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
@@ -46,7 +46,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
   }
 
   return (
-    <div className={`flex flex-col md:flex-row md:h-screen overflow-hidden bg-paper dark:bg-night-bg ${mapFullscreen ? 'h-[100dvh]' : 'h-[calc(100dvh-60px)]'}`}>
+    <div className="flex flex-col md:flex-row md:h-screen h-[100dvh] overflow-hidden bg-paper dark:bg-night-bg">
       {h.showConfetti && <MissionAcceptedCelebration onDone={h.clearConfetti} />}
       <ToastContainer toasts={h.toasts} onDismiss={h.dismissToast} />
 

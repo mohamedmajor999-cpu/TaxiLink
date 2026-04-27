@@ -26,7 +26,7 @@ export function DriverHomeTopOverlay({
     ? `Mode auto (${nightActive ? 'nuit' : 'jour'})`
     : nightActive ? 'Mode nuit' : 'Mode jour'
   return (
-    <div className="absolute top-3 left-0 right-0 px-4 z-[500] flex items-center justify-between gap-2 pointer-events-none">
+    <div className="absolute top-3 left-0 right-0 pl-[64px] pr-4 md:px-4 z-[500] flex items-center justify-between gap-2 pointer-events-none">
       <button
         type="button"
         onClick={onToggleOnline}
