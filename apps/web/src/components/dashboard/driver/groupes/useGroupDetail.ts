@@ -64,8 +64,30 @@ export function useGroupDetail(groupId: string) {
   // On atterrit donc sur la flow standard ; le pré-remplissage par groupId viendra plus tard.
   const postCourse = () => router.push('/dashboard/chauffeur?creer=1')
 
+  // Stats personnelles du chauffeur courant dans ce groupe — visible uniquement
+  // par lui (privé par design : pas de leaderboard public, cf. revue produit).
+  // Position calculée sur l'agrégat (sharedCount + acceptedCount).
+  const myStats = (() => {
+    if (!user?.id || members.length === 0) return null
+    const sortedActivity = [...members].sort(
+      (a, b) => (b.sharedCount + b.acceptedCount) - (a.sharedCount + a.acceptedCount)
+    )
+    const myIndex = sortedActivity.findIndex((m) => m.driverId === user.id)
+    if (myIndex === -1) return null
+    const me = sortedActivity[myIndex]
+    const totalMembers = sortedActivity.length
+    // Pourcentage = position parmi les actifs (1er = top, dernier = bottom)
+    const percentile = Math.round(((myIndex + 1) / totalMembers) * 100)
+    return {
+      shared: me.sharedCount,
+      accepted: me.acceptedCount,
+      percentile,
+      totalMembers,
+    }
+  })()
+
   return {
-    group, summary, daily, members,
+    group, summary, daily, members, myStats,
     loading, error, leaving, isAdmin,
     leave, back, postCourse,
   }

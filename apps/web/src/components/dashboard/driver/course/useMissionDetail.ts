@@ -6,6 +6,7 @@ import { useDriverStore } from '@/store/driverStore'
 import { missionService } from '@/services/missionService'
 import { fetchOsrmRoute, type OsrmRoute } from '@/lib/osrmRoute'
 import { fetchGoogleRoutesTraffic, type TrafficEstimate } from '@/lib/googleRoutes'
+import { maskMissionForViewer, canSeeFullMission } from '@/lib/missionMask'
 
 interface Coords { lat: number; lng: number }
 
@@ -25,11 +26,10 @@ export function useMissionDetail(missionId: string) {
     missionService.getById(missionId)
       .then((m) => {
         if (cancelled) return
-        setMission(m)
+        // Masque les donnees patient avant rendu pour les viewers qui ne sont
+        // ni auteur, ni driver assigne, ni client (Article 9 RGPD).
+        setMission(m ? maskMissionForViewer(m, driver.id || null) : null)
         setLoading(false)
-        // Enregistre la vue (best-effort, idempotent par viewer grâce à la
-        // contrainte UNIQUE). On le fait uniquement si le viewer n'est pas
-        // l'auteur de la mission — l'auteur ne doit pas se compter lui-même.
         if (m && driver.id && m.shared_by !== driver.id) {
           void missionService.recordView(m.id, driver.id)
         }
@@ -37,6 +37,8 @@ export function useMissionDetail(missionId: string) {
       .catch(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [missionId, driver.id])
+
+  const isMasked = mission ? !canSeeFullMission(mission, driver.id || null) : false
 
   const from: Coords | null = useMemo(() => (
     mission?.departure_lat != null && mission.departure_lng != null
@@ -100,7 +102,7 @@ export function useMissionDetail(missionId: string) {
   const gmapsHref = buildGmapsHref(to, mission?.destination)
 
   return {
-    loading, mission, from, to, route, traffic,
+    loading, mission, isMasked, from, to, route, traffic,
     smsHref, wazeHref, gmapsHref,
     cancel, cancelling, cancelOpen, setCancelOpen,
     complete, completing,

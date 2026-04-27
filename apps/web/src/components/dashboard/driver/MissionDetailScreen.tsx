@@ -1,7 +1,7 @@
 'use client'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Lock } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
@@ -61,6 +61,16 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
 
   return (
     <Shell onBack={onBack}>
+      {c.isMasked && mission.type === 'CPAM' && (
+        <div className="mb-3 flex items-start gap-3 rounded-2xl border border-warm-200 bg-warm-50 p-3">
+          <Lock className="w-4 h-4 text-warm-600 shrink-0 mt-0.5" strokeWidth={2} />
+          <p className="text-[12.5px] text-warm-700 leading-snug">
+            <strong>Données patient masquées.</strong> Les coordonnées complètes
+            (nom, téléphone, notes) seront visibles uniquement après acceptation de
+            la course, conformément à la protection des données de santé (RGPD Art. 9).
+          </p>
+        </div>
+      )}
       <article className="rounded-3xl border border-warm-200 bg-paper overflow-hidden shadow-soft mb-3">
         <CourseTopStats scheduledAt={mission.scheduled_at} />
         <div className="relative h-[268px] md:h-[364px] bg-warm-50">
