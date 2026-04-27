@@ -1,22 +1,24 @@
 'use client'
 
-import { MoreVertical, Users, Copy, MessageSquare, Share2, LogOut, Trash2, ChevronRight } from 'lucide-react'
+import { Users, ChevronRight, Pin, PinOff } from 'lucide-react'
 import type { Group } from '@taxilink/core'
 import type { GroupActivitySummary } from '@/services/groupStatsService'
 import { useGroupCard } from './useGroupCard'
 import { ConfirmWithPasswordModal } from './ConfirmWithPasswordModal'
+import { GroupCardMenu } from './GroupCardMenu'
 
 interface Props {
-  group:     Group
-  isAdmin:   boolean
-  summary?:  GroupActivitySummary | null
-  isActive?: boolean
-  onOpen:    (group: Group) => void
-  onLeave:   (groupId: string) => void
-  onDelete:  (groupId: string) => void
+  group:        Group
+  isAdmin:      boolean
+  summary?:     GroupActivitySummary | null
+  isActive?:    boolean
+  onOpen:       (group: Group) => void
+  onLeave:      (groupId: string) => void
+  onDelete:     (groupId: string) => void
+  onTogglePin?: () => void
 }
 
-export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, onLeave, onDelete }: Props) {
+export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, onLeave, onDelete, onTogglePin }: Props) {
   const {
     menuOpen, setMenuOpen, menuRef,
     copied, copyId,
@@ -26,6 +28,8 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
 
   const members = group.memberCount ?? 0
   const online  = summary?.onlineCount ?? 0
+  const available = summary?.available ?? 0
+  const isAlive = available > 0
 
   return (
     <>
@@ -35,39 +39,36 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
         }`}
       >
         <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
-          {isActive && (
-            <span className="inline-flex items-center h-6 px-2.5 rounded-full bg-brand text-ink text-[10px] font-bold uppercase tracking-wider">
-              Actif
-            </span>
-          )}
-          <div className="relative" ref={menuRef}>
-            {copied && (
-              <span className="absolute -top-8 right-0 bg-ink text-brand text-[10px] font-bold px-2 py-1 rounded-lg whitespace-nowrap">
-                ID copié !
-              </span>
-            )}
+          {onTogglePin && (
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v) }}
-              aria-label="Options du groupe"
-              className="w-8 h-8 rounded-full border border-warm-200 bg-paper flex items-center justify-center text-warm-600 hover:bg-warm-50 transition-colors"
+              onClick={(e) => { e.stopPropagation(); onTogglePin() }}
+              aria-label={isActive ? 'Désépingler ce groupe' : 'Épingler ce groupe'}
+              aria-pressed={isActive}
+              title={isActive ? 'Désépingler' : 'Épingler comme actif'}
+              className={`w-8 h-8 rounded-full border flex items-center justify-center transition-colors ${
+                isActive
+                  ? 'bg-brand border-brand text-ink'
+                  : 'bg-paper border-warm-200 text-warm-500 hover:bg-warm-50'
+              }`}
             >
-              <MoreVertical className="w-4 h-4" strokeWidth={1.8} />
+              {isActive
+                ? <Pin className="w-4 h-4" strokeWidth={2} />
+                : <PinOff className="w-4 h-4" strokeWidth={1.8} />}
             </button>
-            {menuOpen && (
-              <div className="absolute right-0 top-10 z-50 w-56 bg-paper rounded-2xl shadow-float border border-warm-200 overflow-hidden">
-                <MenuItem icon={<Copy className="w-4 h-4" strokeWidth={1.8} />} label="Copier l'ID" onClick={copyId} />
-                <MenuItem icon={<MessageSquare className="w-4 h-4" strokeWidth={1.8} />} label="Envoyer par SMS" onClick={shareViaSms} />
-                <MenuItem icon={<Share2 className="w-4 h-4" strokeWidth={1.8} />} label="Partager WhatsApp" onClick={shareViaWhatsApp} />
-                <div className="border-t border-warm-100" />
-                {isAdmin ? (
-                  <MenuItem icon={<Trash2 className="w-4 h-4" strokeWidth={1.8} />} label="Supprimer le groupe" onClick={triggerDelete} danger />
-                ) : (
-                  <MenuItem icon={<LogOut className="w-4 h-4" strokeWidth={1.8} />} label="Quitter le groupe" onClick={triggerLeave} danger />
-                )}
-              </div>
-            )}
-          </div>
+          )}
+          <GroupCardMenu
+            menuRef={menuRef}
+            menuOpen={menuOpen}
+            toggleMenu={() => setMenuOpen((v) => !v)}
+            copied={copied}
+            copyId={copyId}
+            shareViaSms={shareViaSms}
+            shareViaWhatsApp={shareViaWhatsApp}
+            isAdmin={isAdmin}
+            triggerDelete={triggerDelete}
+            triggerLeave={triggerLeave}
+          />
         </div>
 
         <button
@@ -76,17 +77,26 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
           className="w-full flex items-start gap-3 p-4 text-left pr-20"
           aria-label={`Ouvrir le groupe ${group.name}`}
         >
-          <div className="w-12 h-12 rounded-2xl bg-ink flex items-center justify-center flex-shrink-0">
-            <span className="text-brand text-[20px] font-bold">
-              {group.name.charAt(0).toUpperCase()}
-            </span>
+          <div className="relative shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-ink flex items-center justify-center">
+              <span className="text-brand text-[20px] font-bold">
+                {group.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <span
+              aria-hidden
+              title={isAlive ? `${available} course${available > 1 ? 's' : ''} disponible${available > 1 ? 's' : ''}` : 'Aucune course en ce moment'}
+              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-paper ${
+                isAlive ? 'bg-emerald-500 motion-safe:animate-pulse' : 'bg-warm-300'
+              }`}
+            />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[15px] font-bold text-ink truncate">{group.name}</p>
             {group.description && (
               <p className="text-[12.5px] text-warm-500 mt-0.5 truncate">{group.description}</p>
             )}
-            <div className="mt-2 flex items-center gap-2 text-[12px] text-warm-600">
+            <div className="mt-2 flex items-center gap-2 text-[12px] text-warm-600 flex-wrap">
               <Users className="w-3.5 h-3.5 text-warm-500" strokeWidth={1.8} />
               <span>{members} membre{members > 1 ? 's' : ''}</span>
               {online > 0 && (
@@ -95,6 +105,14 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
                   <span className="inline-flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                     {online} en ligne
+                  </span>
+                </>
+              )}
+              {isAlive && (
+                <>
+                  <span className="text-warm-300">·</span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-ink">
+                    {available} course{available > 1 ? 's' : ''} dispo
                   </span>
                 </>
               )}
@@ -110,8 +128,12 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
             <div className="h-px bg-warm-100 mx-4" />
             <div className="grid grid-cols-3 px-4 py-3 gap-2">
               <Stat value={`${summary.available}`}       label="Courses dispo" />
-              <Stat value={`${summary.exchanged7d}`}     label="Échangées (7j)" />
-              <Stat value={`${summary.reprisePercent}%`} label="Taux de reprise" />
+              <Stat value={`${summary.exchanged7d}`}     label="Partagées (7j)" />
+              <Stat
+                value={`${summary.reprisePercent}%`}
+                label="Acceptées"
+                hint="Part des courses partagées qui ont été acceptées par un membre du groupe."
+              />
             </div>
           </>
         )}
@@ -140,31 +162,11 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
   )
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
+function Stat({ value, label, hint }: { value: string; label: string; hint?: string }) {
   return (
-    <div className="text-center">
+    <div className="text-center" title={hint}>
       <p className="text-[20px] font-bold text-ink leading-none tabular-nums">{value}</p>
       <p className="text-[10px] text-warm-500 mt-1 leading-tight">{label}</p>
     </div>
-  )
-}
-
-function MenuItem({ icon, label, onClick, danger = false }: {
-  icon: React.ReactNode
-  label: string
-  onClick: () => void
-  danger?: boolean
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors ${
-        danger ? 'text-danger hover:bg-danger-soft' : 'text-ink hover:bg-warm-50'
-      }`}
-    >
-      <span className={danger ? 'text-danger' : 'text-warm-600'}>{icon}</span>
-      {label}
-    </button>
   )
 }

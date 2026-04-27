@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Plus, Download, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Plus, ChevronRight } from 'lucide-react'
 import type { GroupMemberStats } from '@taxilink/core'
 import type { GroupDailyActivity } from '@/services/groupStatsService'
 import { useGroupDetail } from './useGroupDetail'
@@ -45,20 +45,14 @@ export function GroupDetailScreen({ groupId }: Props) {
         </div>
       </section>
 
-      <div className="flex items-center gap-2 mb-3">
+      <div className="mb-3">
         <button
           type="button"
-          className="flex-1 h-14 rounded-2xl bg-ink text-paper text-[15px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+          onClick={c.postCourse}
+          className="w-full h-14 rounded-2xl bg-ink text-paper text-[15px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
         >
           <Plus className="w-5 h-5 text-brand" strokeWidth={2.5} />
           Poster une course
-        </button>
-        <button
-          type="button"
-          aria-label="Télécharger"
-          className="w-14 h-14 rounded-2xl border border-warm-200 bg-paper flex items-center justify-center text-ink hover:bg-warm-50 transition-colors"
-        >
-          <Download className="w-5 h-5" strokeWidth={1.8} />
         </button>
       </div>
 

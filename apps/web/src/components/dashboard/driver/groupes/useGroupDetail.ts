@@ -60,9 +60,13 @@ export function useGroupDetail(groupId: string) {
 
   const back = () => router.back()
 
+  // Le partage à un groupe précis se fait dans la modal de création (sélecteur visibilité).
+  // On atterrit donc sur la flow standard ; le pré-remplissage par groupId viendra plus tard.
+  const postCourse = () => router.push('/dashboard/chauffeur?creer=1')
+
   return {
     group, summary, daily, members,
     loading, error, leaving, isAdmin,
-    leave, back,
+    leave, back, postCourse,
   }
 }
