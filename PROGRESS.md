@@ -6,6 +6,16 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ## ✅ Terminé
 
+### Vague B — pages légales (mentions, confidentialité, CGU, RGPD) (2026-04-27)
+4 pages légales créées + composant partagé [`LegalPageShell.tsx`](apps/web/src/components/legal/LegalPageShell.tsx). Élimine les 11 liens `href="#"` qui violaient l'obligation d'affichage des mentions légales (Art. 6 LCEN) et des informations RGPD.
+- **`/mentions-legales`** : éditeur (placeholders), hébergement (Supabase Inc. / AWS Paris eu-west-3), propriété intellectuelle, cookies fonctionnels uniquement
+- **`/confidentialite`** : catégorisation des données collectées **extraite du code réel** (compte/profil, documents, missions avec données de santé pour CPAM, paiements IBAN, géolocalisation `is_online`/`last_seen_at`, logs), bases légales (Art. 6 RGPD), durées de conservation (factures 6 ans), destinataires (CNAM en tiers-payant CPAM), transferts UE encadrés CCT, sécurité (TLS 1.3, RLS Postgres, bcrypt), droits utilisateur
+- **`/cgu`** : nature du service positionné comme **intermédiaire technique** (pas transporteur, pas employeur), conditions d'inscription chauffeur (carte pro, ADS, assurance, conventionnement CPAM), tarification (arrêté préfectoral 13-2026 pour privé Marseille, CNAM 2025 pour CPAM), obligations chauffeur, limitation de responsabilité, juridiction française, médiateur conso
+- **`/rgpd`** : récap des 7 droits + procédure CNIL (3 place de Fontenoy) + DPO + notification de violation 72 h
+- **Branchements** : LoginForm CGU+confidentialité, Footer legacy 4 légaux + Contact mailto, LandingFooter ajout 4 légaux + suppression Blog/Statut morts, Centre d'aide → mailto support
+- **Bandeau jaune visible « Version provisoire en cours de validation juridique »** sur chaque page, avec lien email contact et placeholders italiques `[À COMPLÉTER]` sur les champs réels (raison sociale, SIRET, adresse, médiateur, DPO)
+- **Hors scope (action éditeur requise avant prod)** : remplir les placeholders, faire valider par un avocat, formaliser la procédure de recueil de consentement patient pour les courses CPAM (Art. 9 RGPD), évaluer obligation de désigner un DPO (Art. 37 RGPD)
+
 ### Vague A — nettoyage UI : retrait des boutons morts et liens menteurs (2026-04-27)
 Suite à un audit produit transverse (mêmes patterns que le nettoyage Groupes), retrait de tous les éléments d'interface qui prétendent fonctionner mais ne font rien :
 - **DriverCoursesScreen** : retrait du bouton **Agenda** mobile (sans `onClick`) et du bouton **Exporter** desktop (`disabled` + tooltip « Bientôt disponible »)
