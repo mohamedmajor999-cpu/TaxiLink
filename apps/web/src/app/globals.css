@@ -209,3 +209,11 @@ body {
   /* En PWA la nav marketing est inutile : on la masque pour donner la priorité au contenu */
   .pwa-hide { display: none !important; }
 }
+
+/* Impression : seul l'élément .print-only est visible (utilisé pour les reçus). */
+@media print {
+  body * { visibility: hidden !important; }
+  .print-only, .print-only * { visibility: visible !important; }
+  .print-only { position: absolute; inset: 0; padding: 16mm; background: #fff !important; }
+  .print-hide { display: none !important; }
+}

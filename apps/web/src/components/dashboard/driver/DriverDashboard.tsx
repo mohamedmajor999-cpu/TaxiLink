@@ -16,6 +16,11 @@ import { DriverCoursesScreen } from './DriverCoursesScreen'
 import { DriverGroupesScreen } from './DriverGroupesScreen'
 import { DriverProfilScreen } from './DriverProfilScreen'
 import { DocumentsScreen } from './profil/DocumentsScreen'
+import { PersonalInfoScreen } from './profil/PersonalInfoScreen'
+import { DepartementsScreen } from './profil/DepartementsScreen'
+import { BankAccountScreen } from './profil/BankAccountScreen'
+import { InvoicesScreen } from './profil/InvoicesScreen'
+import { SupportScreen } from './profil/SupportScreen'
 import { MissionDetailScreen } from './MissionDetailScreen'
 import { PartagerMissionModal } from './PartagerMissionModal'
 import { PostedMissionAcceptPopup } from './PostedMissionAcceptPopup'
@@ -114,10 +119,25 @@ export function DriverDashboard() {
               <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
                 {profilSub === 'documents' ? (
                   <DocumentsScreen onBack={() => setProfilSub(null)} />
+                ) : profilSub === 'infos' ? (
+                  <PersonalInfoScreen onBack={() => setProfilSub(null)} />
+                ) : profilSub === 'departements' ? (
+                  <DepartementsScreen onBack={() => setProfilSub(null)} />
+                ) : profilSub === 'bank' ? (
+                  <BankAccountScreen onBack={() => setProfilSub(null)} />
+                ) : profilSub === 'invoices' ? (
+                  <InvoicesScreen onBack={() => setProfilSub(null)} />
+                ) : profilSub === 'support' ? (
+                  <SupportScreen onBack={() => setProfilSub(null)} />
                 ) : (
                   <DriverProfilScreen
                     driverName={driverName}
                     onOpenDocuments={() => setProfilSub('documents')}
+                    onOpenInfos={() => setProfilSub('infos')}
+                    onOpenDepartements={() => setProfilSub('departements')}
+                    onOpenBank={() => setProfilSub('bank')}
+                    onOpenInvoices={() => setProfilSub('invoices')}
+                    onOpenSupport={() => setProfilSub('support')}
                   />
                 )}
               </div>
