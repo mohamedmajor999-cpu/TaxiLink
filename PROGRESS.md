@@ -6,6 +6,50 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ## ✅ Terminé
 
+### Wave 5 — RGPD + observabilité + temps réel + accessibilité (2026-04-27)
+Suite à un audit produit transverse qui a remonté 8 chantiers, tous shippés en 5 commits sur master. Bilan : 877/877 tests verts (+19 nouveaux), 3 migrations Supabase appliquées via MCP, type-check propre, 0 fonctionnalité cassée.
+
+**Item 2 — pg_cron cleanup `is_online` stale** (commit `9c6bd57`)
+- Migration `20260427_drivers_presence_cron.sql` : extension `pg_cron` activée + job `driver_presence_cleanup` qui passe `is_online=false` toutes les minutes pour les drivers dont `last_seen_at < now() - 120s` ou NULL.
+- Vérifié actif sur prod via MCP, 0 fantôme restant. Sans ce cron, le filtre côté requête masquait les fantômes à l'affichage mais la table `drivers` restait sale (3 fantômes constatés).
+
+**Item 6 — Audit Sentry + capture des catches silencieux** (commit `9752ab0`)
+- Sentry était déjà câblé (client / server / edge configs + global error boundary + instrumentation Next.js) mais 3 catches en best-effort jetaient les erreurs : POST `/api/driver/offline`, `driverStore.signOut` flip offline, heartbeat ping. Tagging des erreurs par contexte pour faciliter le tri Sentry.
+
+**Item 7 — Tests heartbeat** (commit `9752ab0`)
+- 6 cas sur `useDriverHeartbeat` : mount/unmount, intervalle 60s, pas de ping si offline ou sans driverId, swallow d'erreur. Pas de test sur les pages légales (Server Components statiques avec contenu textuel — un test de rendu n'apporte rien).
+
+**Item 3 — Real-time courses dans les groupes** (commit `efb10f8`)
+- Canal Supabase dans `useDriverGroupesScreen` qui écoute `mission_groups` (insert/update/delete) et `missions` (update) ; debounce 600 ms ; refetch des `summaries`. Filtrage par `groupIds` côté client (Supabase realtime ne filtre que sur une colonne).
+- Résultat : la pastille verte/grise + compteur « N courses dispo » sur chaque GroupCard réagit en live aux INSERT/UPDATE de missions des groupes du chauffeur. Avant : snapshot HTTP figé au mount.
+
+**Item 4 — Compteur de vues sur missions postées** (commit `efb10f8`)
+- Migration `20260427_mission_views.sql` : table `mission_views` (mission_id, viewer_id, viewed_at, UNIQUE) + colonne `missions.view_count` + trigger d'incrémentation + RLS INSERT pour authenticated, **pas de SELECT** (compteur agrégé uniquement, conforme décision UX/RGPD vue en revue produit — pas de fuite « qui a vu quand »).
+- `missionViewsService.record(missionId, viewerId)` — best-effort, swallow ON CONFLICT et erreurs RLS bénignes.
+- `useMissionDetail` enregistre la vue au mount (sauf si viewer = author).
+- `PostedTab` affiche « N vues » inline dans la barre footer de la card quand mission en attente avec `view_count > 0`. Résout le problème pointé par Salim en revue produit : « sans les vus de WhatsApp, je ne sais pas si c'est lu, je retourne sur WhatsApp ».
+
+**Item 5 — Stats individuelles privées par membre** (commit `3c1cf7a`)
+- `useGroupDetail.myStats` : agrégat `sharedCount` + `acceptedCount` + percentile pour le chauffeur courant, calculé côté client à partir de `getMemberStats` (déjà câblé).
+- `MyGroupStatsPanel` (composant extrait) : affichage **uniquement à soi**, jamais en leaderboard public. Mention « Top X% » uniquement si percentile ≤ 30 pour ne pas humilier les bas de classement (cf. décision Yohan en revue produit : « humilier les bas du tableau = churn »).
+
+**Item 1 — Floutage RGPD données patient (Article 9)** (commit `3c1cf7a`) ⭐
+- `lib/missionMask.ts` : helpers `maskMissionForViewer` / `canSeeFullMission` / `maskName`. Masque `patient_name` (initiales `J. D.`), `phone` (null), `notes` (null) sauf si viewer ∈ {`shared_by`, `driver_id`, `client_id`}.
+- `useMissionDetail` applique le mask au mount avant exposition au composant ; expose `isMasked`.
+- `MissionDetailScreen` affiche un bandeau RGPD « Données patient masquées, visibles après acceptation, conformément à la protection des données de santé (RGPD Art. 9) » quand mission CPAM + viewer non autorisé.
+- 13 tests sur les helpers (initiales, viewers autorisés, champs préservés).
+- **Limitation actuelle** : masking côté application uniquement. Hardening RLS-level (vue `missions_safe` + policies excluant colonnes sensibles) reste à faire pour passer compliance prod CPAM. Voir section « 🟡 À faire » ci-dessous.
+
+**Item 8 — Audit accessibilité (passes ciblées)** (commit `755ed35`)
+- `ToastContainer` wrappé en `role="status"` + `aria-live="polite"` → annonce des toasts par les lecteurs d'écran.
+- `SidebarNav` `<aside>` aria-label « Barre latérale », `<nav>` aria-label « Navigation principale » → désambiguation des landmarks pour utilisateurs de NVDA/VoiceOver.
+- Audit complet WCAG (contraste, focus management dans modals, skip-to-content) reste hors scope — à faire sur une vague dédiée si demandé par client/loi.
+
+**Refactor pour respecter les seuils de fichier** (commit `755ed35`)
+- Extraction de `MyGroupStatsPanel` hors `GroupDetailScreen` (225 → 192 lignes).
+- Extraction de `missionViewsService` hors `missionService` (161 → 146 lignes).
+- Mock `createClient` ajouté dans `useDriverGroupesScreen.test` (le hook s'abonne maintenant à un canal Supabase realtime au mount).
+
 ### Vague B — pages légales (mentions, confidentialité, CGU, RGPD) (2026-04-27)
 4 pages légales créées + composant partagé [`LegalPageShell.tsx`](apps/web/src/components/legal/LegalPageShell.tsx). Élimine les 11 liens `href="#"` qui violaient l'obligation d'affichage des mentions légales (Art. 6 LCEN) et des informations RGPD.
 - **`/mentions-legales`** : éditeur (placeholders), hébergement (Supabase Inc. / AWS Paris eu-west-3), propriété intellectuelle, cookies fonctionnels uniquement
@@ -222,12 +266,18 @@ Header fixe · 4 sections (problème / chauffeurs / patrons / CTA) · Bouton fix
 
 | Tâche | Priorité |
 |---|---|
+| **RLS hardening masking patient** — aujourd'hui `maskMissionForViewer` est appliqué côté app uniquement. Pour passer compliance prod CPAM, créer une vue Postgres `missions_safe` qui exclut `patient_name`/`phone`/`notes` + policy RLS donnant accès à cette vue aux non-acceptants, et accès à la vue complète aux `shared_by`/`driver_id`/`client_id`. Sinon un attaquant qui s'authentifie peut bypasser le masking via requête directe Supabase. | P0 légal |
+| **Remplir les `[À COMPLÉTER]` des pages légales** (raison sociale, SIRET, siège, médiateur conso, DPO) — ~15 min de saisie | P0 |
+| **Faire valider les pages légales par un avocat** — particulièrement la procédure de recueil de consentement patient (Art. 9 RGPD) | P0 |
+| **Évaluer obligation DPO** — TaxiLink traite des données de santé à grande échelle au sens Art. 37 RGPD ; un DPO est probablement obligatoire | P0 |
 | Tester course privée heure de pointe + retour à vide en prod (vérifier Routes API activé côté Google Cloud) | P1 |
+| Audit a11y WCAG complet (contraste, focus management dans modals, skip-to-content, navigation clavier) — vague dédiée | P2 |
 | **Dashboard patron de flotte** — décision archi : monorepo + multi-tenancy via `organizations` + RLS Supabase + Stripe Billing B2B (~49 €/mois/véhicule). Validation marché préalable : trouver 5 patrons prêts à pré-payer avant de coder | P2 |
 | Migration SQL `organizations` + `organization_id` sur missions/drivers/factures + RLS — pré-requis du dashboard patron | P2 |
 | Étendre `useAuth`/middleware pour rôle `patron` + connecter maquette aux vraies données | P2 |
 | Stripe Billing B2B + webhooks + portail self-service | P2 |
 | Sortir site marketing dans `apps/marketing` (séparation B2B/B2C, SEO) | P3 |
+| **Hors scope identifié sur Groupes** : opt-in « groupe découvrable » + listing public par département, page d'accueil publique sur lien d'invitation, co-admin + succession d'ownership | P3 |
 
 > Tâches soldées (2026-04-21) :
 > - ~~`driverStore.load()` dans `DriverDashboard`~~ — déjà connecté via `useDriverAuth` (ligne 23)
