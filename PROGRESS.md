@@ -6,6 +6,86 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ## ✅ Terminé
 
+### Page Groupes — nettoyage P0 + indicateur de vie + pin utilisateur (2026-04-27)
+- **UX page Mes groupes** : placeholder de search honnête (« Rechercher dans mes groupes » au lieu de « rechercher ou rejoindre » qui ne marchait pas) · suppression de la carte pointillée dupliquée « Créer votre groupe » · suppression de la mention paywall fantôme « Gratuit jusqu'à 10 membres » · 1 seul CTA « Créer » dans le header (au lieu de 3) · lien discret « Rejoindre un autre groupe avec un code » en bas
+- **Empty state** : 2 CTA équivalents (« J'ai un code » prioritaire pour le cas dominant + « Créer un groupe »)
+- **Pin utilisateur** : le « groupe actif » n'est plus le premier de la liste auto-sélectionné (UX trompeuse) mais celui que l'utilisateur épingle via icône `Pin` sur la carte · persisté en `localStorage` clé `taxilink:driver:pinnedGroupId`
+- **Indicateur de vie** : pastille verte pulsante (motion-safe) ou grise sur l'avatar selon `summary.available > 0` · compteur inline « N courses dispo » sur **chaque** carte (plus seulement le pin) · fetch parallèle des `getActivitySummary()` pour tous les groupes via `Promise.allSettled`
+- **Renommage stats** : « Taux de reprise » → « Acceptées » + tooltip explicatif au survol (`Stat` accepte un prop `hint`) · « Échangées (7j) » → « Partagées (7j) »
+- **GroupDetailScreen** : bouton « Poster une course » branché sur `router.push('/dashboard/chauffeur?creer=1')` au lieu d'être un placeholder mort · suppression du bouton Téléchargement non implémenté
+- **Refactor** : extraction du dropdown menu kebab dans `GroupCardMenu.tsx` pour respecter le seuil 200 lignes
+- **Fichiers** : `DriverGroupesScreen.tsx`, `useDriverGroupesScreen.ts`, `GroupCard.tsx`, `GroupCardMenu.tsx` (nouveau), `groupes/GroupDetailScreen.tsx`, `groupes/useGroupDetail.ts`
+- **Hors scope** (identifié en revue produit, à faire ensuite) : floutage RGPD avant acceptation (P0 légal CPAM, ~2 semaines), real-time canal `missions` filtré par groupes du chauffeur, opt-in « groupe découvrable » + listing public par département, page d'accueil publique sur lien d'invitation, stats individuelles privées (partagées/acceptées par membre), co-admin + succession d'ownership
+
+### Profil chauffeur — complétion des écrans (infos, départements, IBAN, factures, support) (2026-04-27)
+- **PersonalInfoScreen** : formulaire prénom / nom / téléphone (email read-only) · réutilise `useSettingsCompte` qui gère `profileService.updateProfile` + validation téléphone
+- **DepartementsScreen** : wrap autour du `DeptPreferencesCard` existant avec back nav
+- **BankAccountScreen** + `useBankAccountScreen` : saisie IBAN avec auto-format par blocs de 4 caractères et validation modulo 97 ISO 7064 · persistance via le `paymentService.updateIBAN` existant · affichage du dernier IBAN enregistré (•••XXXX) avec badge « Actif »
+- **InvoicesScreen** + `useInvoicesScreen` + `InvoiceReceipt` : historique des courses terminées groupées par mois avec total annuel · modal de reçu détaillé (chauffeur, n° professionnel, trajet, distance, durée, motif CPAM, mention « TVA non applicable, art. 293 B ») · bouton « Imprimer / PDF » déclenchant `window.print()` · classes `print-only` / `print-hide` ajoutées dans `globals.css` (`@media print` masque tout sauf le reçu)
+- **SupportScreen** : 3 contacts (`mailto:` / `tel:` / `wa.me`) + 6 questions FAQ avec accordéon (recevoir des missions, paiement, télécharger reçu, document expirant, partager mission, changer IBAN)
+- **`isValidIban` / `formatIban`** ajoutés à `lib/authValidators.ts`
+- **Routing** : tous les sub-screens du profil branchés via le query param `?profilSub=infos|departements|bank|invoices|support|documents` dans `DriverDashboard.tsx` · handlers passés à `DriverProfilScreen` qui les distribue à `ProfileSectionCompte` / `ProfileSectionPaiements` / `ProfileSectionApp`
+
+### Profil chauffeur — sélecteur Auto / Clair / Sombre (2026-04-27)
+- **`ThemeModeRow`** : segmented control 3 états (Auto / Clair / Sombre) avec icônes `SunMoon` / `Sun` / `Moon` · libellé « Apparence » + sous-titre « Auto · 20 h–8 h en sombre » · branché sur `useNightModeStore` existant (déjà persistant via `localStorage` clé `taxilink-night-mode`)
+- **`useProfileSectionApp`** : expose `themePref` + `setThemePref(NightModePref)`
+- **`useNightMode()` monté au niveau de `DriverDashboard`** (orchestrateur) au lieu de seulement `DriverHome` → la classe `.dark` s'applique maintenant sur tous les onglets (home / courses / groupes / profil), plus seulement sur l'écran d'accueil
+- **Fichiers** : `ProfileSectionApp.tsx`, `useProfileSectionApp.ts`, `ThemeModeRow.tsx` (nouveau), `DriverDashboard.tsx`
+
+### Maquette dashboard patron de flotte (2026-04-26, non committée)
+- **Route** `/dashboard/patron-mockup` · 5 onglets : Vue d'ensemble · Courses · Agenda · Chauffeurs · Finances
+- **Sidebar desktop** + **bottom nav mobile** avec bouton FAB `+` central (style driver app)
+- **Vue d'ensemble** : KPIs (chauffeurs en ligne, courses en cours, CA jour, alertes) · carte flotte temps réel (pins stylisés) · top chauffeurs · activité en direct · alertes documents
+- **Courses** : section « À attribuer » (pool 4 missions) avec modal Assigner (diffuser ou assigner à un chauffeur précis) + table filtrable
+- **Agenda** : vue gantt 6h→21h, 1 ligne par chauffeur, blocs colorés par statut (terminé/en cours/planifié)
+- **Finances** : KPIs CA jour/semaine/mois + CPAM en attente · graphique CA 30j en barres · liste factures CPAM avec délai et statut
+- Tous composants en `night.*` palette + dark mode supporté
+- Stub modal « Poster une course » qui réutilisera `PartagerMissionModal` à l'intégration réelle
+- **Statut** : maquette navigable, **pas de backend ni d'auth patron** — discussion en cours sur l'intégration (multi-tenancy via `organizations` + RLS Supabase + Stripe Billing pour B2B)
+
+### Mode nuit + harmonisation palette (2026-04-25/26)
+- **Hook** `useNightMode` + store persisté Zustand (`nightModeStore.ts`) — préférence `auto` (20h-8h) / `on` / `off`
+- **Toggle** dans `DriverHomeTopOverlay` (icône Clock/Moon/Sun selon état)
+- **Palette nuit dédiée** dans `tailwind.config.ts` : `night.bg` (#15171C) / `surface` (#1E2026) / `elevated` (#292B32) / `border` (#383A42) / `text` (#E5E2DA warm off-white) / `text-soft` (#9A9890) / `brand` (#D9A923 amber-gold désaturé qui remplace le `#FFD11A` éblouissant)
+- Tous les `dark:` variants des composants home migrent : DriverHome · DriverDashboard · DriverHomeSheet · DriverHomeTopOverlay · DriverHomeAcceptBar · DriverHomeFilterChips · DriverHomeMap · MissionMapPopup · MissionSheetItem · NextMissionBanner · HoldAcceptButton
+- Contrôles Leaflet (zoom +/-, attribution) stylisés en nuit via `globals.css`
+- **Bug fix** : popup `MissionMapPopup` z-[600] → z-[1100] pour passer devant les contrôles Leaflet (z-index 1000) en plein écran
+- **Bug fix** : textes `text-ink` sans variants (carte course en cours blanche, prix, distances) corrigés sur 5 composants
+
+### Refonte accueil chauffeur — carte + sheet draggable (2026-04-25)
+- **DriverHome** mobile : carte plein écran + sheet draggable façon Uber, snap 4 fractions (1/5, 2/5, 3/5, 4/5)
+- **useSheetDrag** : drag fluide en temps réel (mutation directe `style.height`, pas via React state) puis snap à la fraction la plus proche au relâchement avec transition CSS
+- **Grabber** iOS-style : 56×6px gris-warm, zone tactile h-10 (40px min), stable sans animation grow/shrink
+- **DriverHomeTopOverlay** + middle slot : filtres sur la même ligne que le statut En ligne en plein écran paysage
+- **markerOffset** : annonces partageant la même adresse (hôpital, gare) placées sur cercle ~40m (ordre stable par id) — avant elles se superposaient et certaines étaient inaccessibles même zoom max
+- **Popup pin** + bouton plein écran avec animation `popup-in` cubic-bezier (déjà existant)
+
+### Tarification — CPAM v2026 (CNAM 2025) + privé Marseille v2026 (2026-04-24/25)
+- **CPAM** : alignement complet convention CNAM 2025 (arrêté 29 juillet 2025, en vigueur 01/11/2025) après reverse-engineering du JS de calcul-taxi-conventionne.fr
+  - `TARIF_KM_BDR = 1.10` (avant 1.38, qui était 1.10 × 1.25 hospi mal interprété)
+  - Retour à vide HDJ s'applique aussi en intra-ZUPC (avant exclu)
+  - TPMR : +30 € par véhicule × (returnTrip ? 2 : 1), pas par patient
+  - Abattement solo longue distance : -5% si 1 patient et distance ≥ 30 km
+  - Tests : 17 cas dont validation `5 km HDJ 2 patients = 22,14 €` matchant pile le simulateur
+- **Privé Marseille** : tarifs préfectoraux v2026 (arrêté 13-2026-02-03-00010) — 2,40€ prise en charge / 1,12-2,90 €/km / 35,60 €/h
+  - 10 ZUPC distinctes en BDR (Marseille+Allauch+Plan-de-Cuques+Septèmes / Aix / Aubagne / Aéroport=Marignane+Vitrolles / etc.) au lieu d'une zone commune
+  - `extractCommune()` corrigé pour ignorer le segment « , France » final
+  - Détection auto tarif A/B/C/D + retour à vide selon ZUPC départ/destination
+- **Google Routes API** étendu avec `staticDuration` (FieldMask) → bascule tarif horaire si plus avantageux que la circulaire BDR (cf. `useMissionRoute`, `computeRouteGoogle`)
+- Propagation `staticDurationMin` + `passengers` + `transport_type` + `return_trip` dans toute la chaîne (`computeDisplayFare`, `computeEffectivePrice`, `useMissionPricing`, `usePartagerMissionModal`, `MissionFormLibre`, `FareEstimateButton`, `PriceFields`)
+
+### Filtrage missions par département + préférences chauffeur (2026-04-24)
+- Migration `20260423_mission_departement.sql` : colonne TEXT calculée depuis CP (`lib/departement.ts`) — formats `"01"`–`"95"` (sauf `"20"`), `"2A"/"2B"` Corse, `"971"`–`"978"` DROM-COM
+- À l'inscription : `RegisterStep2` force le choix d'un département → `authService.finalizeSignUp` seed `dept_preferences: [department]`
+- Profil : `DeptPreferencesCard` pour ajouter/retirer après coup (stocké dans `auth.users.raw_user_meta_data.dept_preferences: string[]`)
+- `missionQueries.getAvailable(departments?)` filtre serveur via `.in('departement', ...)` si liste non vide
+- Tolérance 24h sur `scheduled_at` pour missions disponibles (avant filtrait trop strict)
+
+### URL state synchronisé partout dans le dashboard (2026-04-23/24)
+- Onglets · sous-onglets · modals (créer / éditer mission · groupes Créer/Rejoindre · détail mission) tous synchronisés avec `?tab=`/`?subtab=`/`?modal=`/`?editer=1`/`?missionId=` pour que **Précédent navigateur** fonctionne proprement
+- Boutons « Retour » utilisent `router.back()` au lieu de re-pousser l'URL → pas d'historique pollué
+- Avatar dashboard cliquable vers profil + `BackButton` uniforme
+
 ### Auth Google OAuth + complétion profil (2026-04-23)
 - **Google OAuth activé** : Google Cloud Console OAuth client configuré (app publiée en prod, pas testeurs) · redirect URI Supabase `https://ivumykufinlniffxqlud.supabase.co/auth/v1/callback` · Client ID + Secret injectés dans Supabase provider · Site URL + Redirect URLs configurés
 - **Complétion profil obligatoire** : Google fournit prénom/nom mais jamais le téléphone → middleware intercepte les profils incomplets avant tout accès dashboard
@@ -64,7 +144,7 @@ Header fixe · 4 sections (problème / chauffeurs / patrons / CTA) · Bouton fix
 - Prompt caching testé puis retiré (Haiku exige 2048 tok min · prompt système ~1200 tok)
 
 ### Services & tests
-- **723 tests au total** ✅ · 93 fichiers · 0 erreur TS · 0 erreur ESLint
+- **848 tests au total** ✅ · 101 fichiers · 0 erreur TS · 0 erreur ESLint
 - Couverture atteinte (2026-04-22) : **Statements 84.7% · Functions 87.1% · Lines 89.9%** (cible 80% ✅)
 - Services testés : mission, auth, driver, profile, payment, document, groupStats, userPrefs, address/routing
 - Hooks P1 testés : login, driverStats/Missions/Profile/Payments/Agenda, groupActions/Stats/Card, reservation, voice, install/download, navbar, confirmWithPassword, courseMap, guidedVoicePrompt/Answer/Applier, missionVoiceFiller, guidedMissionScreen, nextMissionBanner, missionRoute, historyTab, agendaTab, ttsAnnouncer, cancelMissionDialog, missionPricing, courseTopStats
@@ -99,6 +179,11 @@ Header fixe · 4 sections (problème / chauffeurs / patrons / CTA) · Bouton fix
 | Tâche | Priorité |
 |---|---|
 | Tester course privée heure de pointe + retour à vide en prod (vérifier Routes API activé côté Google Cloud) | P1 |
+| **Dashboard patron de flotte** — décision archi : monorepo + multi-tenancy via `organizations` + RLS Supabase + Stripe Billing B2B (~49 €/mois/véhicule). Validation marché préalable : trouver 5 patrons prêts à pré-payer avant de coder | P2 |
+| Migration SQL `organizations` + `organization_id` sur missions/drivers/factures + RLS — pré-requis du dashboard patron | P2 |
+| Étendre `useAuth`/middleware pour rôle `patron` + connecter maquette aux vraies données | P2 |
+| Stripe Billing B2B + webhooks + portail self-service | P2 |
+| Sortir site marketing dans `apps/marketing` (séparation B2B/B2C, SEO) | P3 |
 
 > Tâches soldées (2026-04-21) :
 > - ~~`driverStore.load()` dans `DriverDashboard`~~ — déjà connecté via `useDriverAuth` (ligne 23)
