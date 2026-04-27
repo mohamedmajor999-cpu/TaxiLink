@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import * as Sentry from '@sentry/nextjs'
 import type { Driver } from '@taxilink/core'
 import { profileService } from '@/services/profileService'
 import { driverService } from '@/services/driverService'
@@ -88,7 +89,12 @@ export const useDriverStore = create<DriverState>((set, get) => ({
   signOut: async () => {
     const { driver } = get()
     if (driver.id) {
-      await driverService.setOnline(driver.id, false).catch(() => { /* best-effort */ })
+      await driverService.setOnline(driver.id, false).catch((err) => {
+        // best-effort : on ne bloque jamais le signOut. On capture tout de
+        // meme dans Sentry pour ne pas perdre le signal en cas de probleme
+        // recurrent (chauffeurs fantomes recurrents = symptome).
+        Sentry.captureException(err, { tags: { context: 'signOut.flipOffline' } })
+      })
     }
     await authService.signOut()
     set({ driver: defaultDriver, isLoading: false })

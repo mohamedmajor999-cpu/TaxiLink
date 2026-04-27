@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createServerSupabaseClient as createClient } from '@/lib/supabase/server'
 
 // Endpoint appele par navigator.sendBeacon() quand le chauffeur ferme son
@@ -18,9 +19,10 @@ export async function POST() {
       .eq('id', user.id)
 
     return new NextResponse(null, { status: 204 })
-  } catch {
-    // sendBeacon ignore la reponse : on echoue silencieusement plutot que
-    // de polluer les logs avec des stack traces sur des onglets fermes.
+  } catch (err) {
+    // sendBeacon ignore la reponse, mais on capture quand meme dans Sentry —
+    // un echec ici signifie qu'un chauffeur reste fantome jusqu'au TTL 120s.
+    Sentry.captureException(err, { tags: { route: 'driver-offline-beacon' } })
     return new NextResponse(null, { status: 204 })
   }
 }

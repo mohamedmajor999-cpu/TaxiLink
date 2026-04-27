@@ -1,5 +1,6 @@
 'use client'
 import { useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 import { useDriverStore } from '@/store/driverStore'
 import { driverService } from '@/services/driverService'
 
@@ -17,12 +18,17 @@ export function useDriverHeartbeat() {
 
   useEffect(() => {
     if (!driverId || !isOnline) return
+    const ping = () => {
+      driverService.heartbeat(driverId).catch((err) => {
+        // best-effort : un echec ponctuel est attendu (offline transitoire).
+        // On laisse Sentry deduire les patterns recurrents si problematique.
+        Sentry.captureException(err, { tags: { context: 'heartbeat' } })
+      })
+    }
     // Ping immediat pour rafraichir last_seen_at apres un retour de focus
     // (le tab a pu rester ouvert sans heartbeat pendant la mise en veille).
-    driverService.heartbeat(driverId).catch(() => { /* best-effort */ })
-    const id = setInterval(() => {
-      driverService.heartbeat(driverId).catch(() => { /* best-effort */ })
-    }, HEARTBEAT_INTERVAL_MS)
+    ping()
+    const id = setInterval(ping, HEARTBEAT_INTERVAL_MS)
     return () => clearInterval(id)
   }, [driverId, isOnline])
 }
