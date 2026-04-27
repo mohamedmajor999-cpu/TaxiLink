@@ -71,6 +71,10 @@ export function DriverDashboard() {
     clearEdit()
     setActiveTab(tab)
   }
+  // TEMPORAIRE : pendant la validation du redesign v4, le bouton "+" pointe sur
+  // /dashboard/poster-mockup. Pour rebrancher l'ancien modal, remplacer
+  // `handlePostCourse` par `() => setShowCreer(true)` dans les 4 callsites ci-dessous.
+  const handlePostCourse = () => router.push('/dashboard/poster-mockup')
   const goToPostedTab = () => {
     clearEdit()
     router.push('/dashboard/chauffeur?tab=courses&subtab=posted')
@@ -99,7 +103,7 @@ export function DriverDashboard() {
       <SidebarNav
         activeTab={activeTab}
         onTabChange={handleTabChange}
-        onPostCourse={() => setShowCreer(true)}
+        onPostCourse={handlePostCourse}
         driverName={driverName || 'Chauffeur'}
         driverInitials={initials}
         groupName="Taxi13"
@@ -114,8 +118,8 @@ export function DriverDashboard() {
           <MissionDetailScreen missionId={detailMissionId} onBack={() => router.back()} />
         ) : (
           <>
-            {activeTab === 'home' && <DriverHome onPostCourse={() => setShowCreer(true)} onShowMissionDetail={setDetailMissionId} onGoToProfile={() => handleTabChange('profil')} mapFullscreen={mapFullscreen} onMapFullscreenChange={setMapFullscreen} />}
-            {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={() => setShowCreer(true)} />}
+            {activeTab === 'home' && <DriverHome onPostCourse={handlePostCourse} onShowMissionDetail={setDetailMissionId} onGoToProfile={() => handleTabChange('profil')} mapFullscreen={mapFullscreen} onMapFullscreenChange={setMapFullscreen} />}
+            {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={handlePostCourse} />}
             {activeTab === 'groupes' && (
               <div className="px-4 md:px-8 py-4 md:py-6 max-w-6xl mx-auto pb-24 md:pb-6">
                 <DriverGroupesScreen />
@@ -167,7 +171,7 @@ export function DriverDashboard() {
 
       <button
         type="button"
-        onClick={() => setShowCreer(true)}
+        onClick={handlePostCourse}
         aria-label="Poster une course"
         className="md:hidden fixed bottom-[140px] right-4 z-[510] w-14 h-14 rounded-full bg-brand text-ink shadow-fab hover:shadow-fab-hover active:scale-95 transition-all flex items-center justify-center"
         style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
