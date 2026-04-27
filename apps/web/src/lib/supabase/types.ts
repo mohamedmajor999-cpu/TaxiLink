@@ -221,6 +221,7 @@ export type Database = {
           transport_type: string | null
           type: string
           updated_at: string
+          view_count: number
           visibility: string
         }
         Insert: {
@@ -257,6 +258,7 @@ export type Database = {
           transport_type?: string | null
           type?: string
           updated_at?: string
+          view_count?: number
           visibility?: string
         }
         Update: {
@@ -293,6 +295,7 @@ export type Database = {
           transport_type?: string | null
           type?: string
           updated_at?: string
+          view_count?: number
           visibility?: string
         }
         Relationships: [
@@ -341,6 +344,35 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_views: {
+        Row: {
+          id: string
+          mission_id: string
+          viewer_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          mission_id: string
+          viewer_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          mission_id?: string
+          viewer_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_views_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
             referencedColumns: ["id"]
           },
         ]

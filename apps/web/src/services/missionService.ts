@@ -86,6 +86,20 @@ const missionMutations = {
     await api.delete<{ ok: true }>(`/api/missions/${id}`)
   },
 
+  /**
+   * Enregistre une vue de la mission par le chauffeur courant. La contrainte
+   * UNIQUE (mission_id, viewer_id) garantit qu'on ne compte qu'une fois par
+   * personne ; un trigger met à jour `missions.view_count`. On ignore les
+   * erreurs (best-effort, vue qui rate ne doit pas bloquer l'UX).
+   */
+  async recordView(missionId: string, viewerId: string): Promise<void> {
+    const supabase = createClient()
+    await supabase
+      .from('mission_views')
+      .insert({ mission_id: missionId, viewer_id: viewerId })
+      .then(() => undefined, () => undefined) // swallow ON CONFLICT et erreurs RLS bénignes
+  },
+
   /** Booster le prix d'une mission AVAILABLE postée par soi-meme (RLS verifie shared_by). */
   async boostPrice(id: string, deltaEur: number): Promise<Mission> {
     const supabase = createClient()

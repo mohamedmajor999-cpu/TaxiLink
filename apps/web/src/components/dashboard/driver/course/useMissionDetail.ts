@@ -23,10 +23,20 @@ export function useMissionDetail(missionId: string) {
   useEffect(() => {
     let cancelled = false
     missionService.getById(missionId)
-      .then((m) => { if (!cancelled) { setMission(m); setLoading(false) } })
+      .then((m) => {
+        if (cancelled) return
+        setMission(m)
+        setLoading(false)
+        // Enregistre la vue (best-effort, idempotent par viewer grâce à la
+        // contrainte UNIQUE). On le fait uniquement si le viewer n'est pas
+        // l'auteur de la mission — l'auteur ne doit pas se compter lui-même.
+        if (m && driver.id && m.shared_by !== driver.id) {
+          void missionService.recordView(m.id, driver.id)
+        }
+      })
       .catch(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [missionId])
+  }, [missionId, driver.id])
 
   const from: Coords | null = useMemo(() => (
     mission?.departure_lat != null && mission.departure_lng != null

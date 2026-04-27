@@ -38,6 +38,7 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     transport_type: null,
     companion: false,
     passengers: null,
+    view_count: 0,
     ...overrides,
   }
 }

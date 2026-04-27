@@ -1,5 +1,5 @@
 'use client'
-import { Clock, CheckCircle2, Loader2 } from 'lucide-react'
+import { Clock, CheckCircle2, Loader2, Eye } from 'lucide-react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { RideBadge } from '@/components/taxilink/RideBadge'
 import { ToastContainer } from '@/components/ui/Toast'
@@ -161,7 +161,15 @@ function PostedCard({
       )}
 
       <div className="px-4 pt-3 pb-3 flex items-center justify-between gap-2">
-        <span className="text-[11px] text-warm-500">Postée par vous</span>
+        <span className="text-[11px] text-warm-500 inline-flex items-center gap-2">
+          <span>Postée par vous</span>
+          {isWaiting && (mission.view_count ?? 0) > 0 && (
+            <span className="inline-flex items-center gap-1 text-warm-600 font-semibold" title={`${mission.view_count} chauffeur${mission.view_count! > 1 ? 's ont' : ' a'} vu cette course`}>
+              <Eye className="w-3 h-3" strokeWidth={2} />
+              {mission.view_count}
+            </span>
+          )}
+        </span>
         {isWaiting && (
           <div className="flex gap-2">
             <button
