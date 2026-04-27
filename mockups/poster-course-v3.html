@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>TaxiLink — Poster une course (v3 esprit app)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+<style>
+  :root {
+    --primary: #FFD23F;
+    --secondary: #1A1A1A;
+    --accent: #3B82F6;
+    --bgsoft: #F7F7F5;
+    --bgpaper: #FFFFFF;
+    --bgcanvas: #EDE9E2;
+    --line: #E8E6E1;
+    --line-strong: #D6D3CC;
+    --muted: #8A8780;
+    --ink-soft: #3A3833;
+    --success: #10B981;
+    --danger: #EF4444;
+    --cpam: #1E40AF;
+    --cpam-soft: #DBEAFE;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bgcanvas); color: var(--secondary); -webkit-font-smoothing: antialiased; }
+  .material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+
+  .page { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+  .page h1 { font-size: 22px; font-weight: 800; margin: 0 0 6px; }
+  .page p.lead { color: #5c5a54; margin: 0 0 28px; font-size: 14px; }
+
+  /* Phone frame — repris du style maquette accueil */
+  .phone {
+    width: 390px; margin: 0 auto;
+    background: #fff;
+    border-radius: 44px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.25), 0 0 0 8px #111 inset, 0 0 0 14px #111;
+    overflow: hidden; position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 28px; background: #111; border-radius: 20px; z-index: 40;
+  }
+  .screen { height: 854px; position: relative; background: var(--bgsoft); overflow: hidden; display: flex; flex-direction: column; }
+
+  /* Status bar */
+  .statusbar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 28px 0 32px; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .statusbar .icons { display: flex; gap: 6px; align-items: center; }
+  .statusbar .icons .material-symbols-rounded { font-size: 16px; }
+
+  /* Header */
+  .hdr { padding: 4px 16px 16px; display: flex; align-items: center; gap: 12px; background: var(--bgsoft); flex-shrink: 0; }
+  .hdr .ic-btn {
+    width: 40px; height: 40px; border-radius: 14px;
+    background: var(--bgpaper); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .hdr .ic-btn .material-symbols-rounded { font-size: 22px; color: var(--secondary); }
+  .hdr .titles { flex: 1; min-width: 0; }
+  .hdr .titles .t1 { font-size: 17px; font-weight: 800; line-height: 1.1; letter-spacing: -.01em; }
+  .hdr .titles .t2 { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+
+  /* Voice CTA — pleine largeur, dramatique mais pas criard */
+  .voice-cta {
+    margin: 0 16px 18px;
+    background: linear-gradient(135deg, var(--secondary) 0%, #2a2a2a 100%);
+    color: #fff;
+    border-radius: 22px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 10px 24px -10px rgba(0,0,0,.4);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .voice-cta::before {
+    content: ""; position: absolute; right: -40px; top: -40px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(255,210,63,.18) 0%, transparent 70%);
+  }
+  .voice-cta .mic {
+    position: relative;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--primary); color: var(--secondary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(255,210,63,.7);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,210,63,.5); }
+    50%      { box-shadow: 0 0 0 12px rgba(255,210,63,0); }
+  }
+  .voice-cta .mic .material-symbols-rounded { font-size: 22px; }
+  .voice-cta .text { position: relative; flex: 1; min-width: 0; }
+  .voice-cta .text .l1 { font-size: 13.5px; font-weight: 800; letter-spacing: -.005em; }
+  .voice-cta .text .l2 { font-size: 11px; color: rgba(255,255,255,.65); margin-top: 2px; font-weight: 500; }
+  .voice-cta .arrow { position: relative; opacity: .6; }
+  .voice-cta .arrow .material-symbols-rounded { font-size: 20px; }
+
+  /* Body scroll */
+  .body { flex: 1; overflow-y: auto; padding: 0 16px 100px; }
+
+  /* Section */
+  .sec { margin-bottom: 18px; }
+  .sec-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px; padding-left: 4px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sec-label .hint { color: var(--ink-soft); text-transform: none; letter-spacing: .02em; font-weight: 600; font-size: 11px; }
+
+  /* Card glassy */
+  .card { background: var(--bgpaper); border-radius: 20px; border: 1px solid var(--line); }
+  .card.flat { box-shadow: none; }
+
+  /* Type toggle (segmented) */
+  .seg {
+    background: var(--bgpaper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 4px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    position: relative;
+  }
+  .seg button {
+    height: 44px; border: none; background: transparent; cursor: pointer;
+    border-radius: 12px;
+    font-size: 13.5px; font-weight: 700;
+    color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: inherit;
+    transition: all .2s ease;
+  }
+  .seg button.active { background: var(--secondary); color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
+  .seg button .material-symbols-rounded { font-size: 17px; }
+
+  /* Trajet — carte unifiée avec timeline verticale */
+  .trip-card { background: var(--bgpaper); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
+  .trip-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center; padding: 0 14px; }
+  .trip-row + .trip-row { border-top: 1px solid var(--line); }
+  .trip-row.h { height: 60px; }
+
+  .trip-icon { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; }
+  .trip-icon .pin {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--success); box-shadow: 0 0 0 4px rgba(16,185,129,.18);
+  }
+  .trip-icon .pin.dest { background: var(--secondary); border-radius: 4px; box-shadow: 0 0 0 4px rgba(26,26,26,.10); }
+  .trip-link {
+    height: 12px; width: 2px; background: var(--line-strong);
+    margin: -6px auto -6px; grid-column: 1; place-self: center;
+  }
+
+  .trip-input { width: 100%; border: none; outline: none; font-size: 14px; font-weight: 600; color: var(--secondary); background: transparent; height: 100%; padding: 0; font-family: inherit; }
+  .trip-input::placeholder { color: var(--muted); font-weight: 500; }
+
+  .trip-mic {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: var(--bgsoft);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .trip-mic:hover { background: var(--primary); }
+  .trip-mic .material-symbols-rounded { font-size: 18px; color: var(--ink-soft); }
+
+  .trip-divider { height: 1px; background: var(--line); margin-left: 50px; }
+
+  /* Heure : 2 boutons */
+  .when { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .when button {
+    height: 50px; border-radius: 14px;
+    background: var(--bgpaper); border: 1px solid var(--line);
+    font-size: 13px; font-weight: 700; color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; font-family: inherit;
+  }
+  .when button .material-symbols-rounded { font-size: 18px; }
+  .when button.active { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+
+  /* Téléphone — carte dédiée */
+  .phone-row {
+    background: var(--bgpaper); border: 1px solid var(--line); border-radius: 20px;
+    padding: 4px 14px;
+    display: grid; grid-template-columns: 28px 1fr auto;
+    gap: 8px; align-items: center; height: 60px;
+  }
+  .phone-row .ic { width: 28px; height: 28px; border-radius: 8px; background: var(--bgsoft); display: flex; align-items: center; justify-content: center; }
+  .phone-row .ic .material-symbols-rounded { font-size: 16px; color: var(--ink-soft); }
+  .phone-row .lbl { font-size: 13.5px; font-weight: 600; }
+  .phone-row .lbl input {
+    border: none; outline: none; background: transparent; font-family: inherit;
+    font-size: 14px; font-weight: 600; width: 100%; padding: 4px 0;
+  }
+  .phone-row .lbl input::placeholder { color: var(--muted); font-weight: 500; }
+  .phone-row .lbl small { display: block; color: var(--muted); font-size: 11px; font-weight: 500; }
+
+  /* CPAM panel — encadré jaune mais subtil */
+  .cpam {
+    background: #FFFCF0;
+    border: 1.5px solid var(--primary);
+    border-radius: 20px;
+    padding: 14px;
+    margin-top: 4px;
+  }
+  .cpam-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .cpam-hd .badge {
+    background: var(--secondary); color: var(--primary);
+    border-radius: 8px; padding: 3px 8px;
+    font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  }
+  .cpam-hd .ttl { font-size: 13.5px; font-weight: 800; }
+
+  .cpam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .cpam-grid .full { grid-column: 1 / -1; }
+
+  .cpam .field-lbl { font-size: 11.5px; font-weight: 700; color: var(--ink-soft); margin-bottom: 5px; padding-left: 2px; }
+
+  .seg-mini {
+    background: var(--bgpaper); border: 1px solid var(--line);
+    border-radius: 12px; padding: 3px;
+    display: grid; gap: 3px;
+  }
+  .seg-mini.c2 { grid-template-columns: 1fr 1fr; }
+  .seg-mini button {
+    height: 36px; border: none; background: transparent;
+    font-size: 12.5px; font-weight: 700; color: var(--ink-soft);
+    border-radius: 9px; cursor: pointer; font-family: inherit;
+  }
+  .seg-mini button.active { background: var(--secondary); color: #fff; }
+
+  .stepper {
+    background: var(--bgpaper); border: 1px solid var(--line);
+    border-radius: 12px; height: 42px;
+    display: flex; align-items: center; padding: 0 4px;
+  }
+  .stepper button {
+    width: 34px; height: 34px; border: none; background: transparent;
+    border-radius: 8px; cursor: pointer; color: var(--ink-soft);
+    font-size: 16px; font-weight: 700; font-family: inherit;
+  }
+  .stepper button:hover { background: var(--bgsoft); }
+  .stepper .v { flex: 1; text-align: center; font-size: 14.5px; font-weight: 800; }
+
+  .cpam-input {
+    width: 100%; height: 42px; padding: 0 12px;
+    border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bgpaper);
+    font-size: 13.5px; font-weight: 600; color: var(--secondary);
+    font-family: inherit; outline: none;
+    transition: border-color .15s ease;
+  }
+  .cpam-input:focus { border-color: var(--secondary); }
+  .cpam-input::placeholder { color: var(--muted); font-weight: 500; }
+
+  .check-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 4px 0; cursor: pointer;
+  }
+  .check-row .box {
+    width: 22px; height: 22px; border-radius: 7px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--bgpaper);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .check-row.on .box {
+    background: var(--secondary); border-color: var(--secondary);
+  }
+  .check-row.on .box::after {
+    content: "✓"; color: var(--primary); font-size: 13px; font-weight: 900;
+  }
+  .check-row .lbl { font-size: 13px; font-weight: 600; }
+  .check-row .lbl small { color: var(--muted); font-weight: 600; margin-left: 4px; }
+
+  /* Visibility */
+  .vis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .vis-card {
+    background: var(--bgpaper); border: 1.5px solid var(--line);
+    border-radius: 16px; padding: 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    cursor: pointer; transition: all .15s ease;
+  }
+  .vis-card.active { border-color: var(--secondary); box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+  .vis-card .ic { width: 32px; height: 32px; border-radius: 10px; background: var(--bgsoft); display: flex; align-items: center; justify-content: center; }
+  .vis-card.active .ic { background: var(--primary); }
+  .vis-card .ic .material-symbols-rounded { font-size: 18px; color: var(--secondary); }
+  .vis-card .ttl { font-size: 13px; font-weight: 800; margin-top: 6px; }
+  .vis-card .sub { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+  .group-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .group-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px;
+    background: var(--bgpaper); border: 1px solid var(--line);
+    border-radius: 14px; cursor: pointer;
+  }
+  .group-item.on { border-color: var(--secondary); background: #fffef5; }
+  .group-item .box {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--bgpaper);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .group-item.on .box { background: var(--secondary); border-color: var(--secondary); }
+  .group-item.on .box::after { content: "✓"; color: var(--primary); font-size: 11px; font-weight: 900; }
+  .group-item .name { flex: 1; font-size: 13px; font-weight: 700; }
+  .group-item .meta { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+  /* Plus d'options */
+  .more {
+    background: var(--bgpaper); border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+  }
+  .more .ic { width: 32px; height: 32px; border-radius: 10px; background: var(--bgsoft); display: flex; align-items: center; justify-content: center; }
+  .more .ic .material-symbols-rounded { font-size: 18px; color: var(--ink-soft); }
+  .more .lbl { flex: 1; }
+  .more .lbl .t1 { font-size: 13px; font-weight: 700; }
+  .more .lbl .t2 { font-size: 10.5px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+  .more .arr .material-symbols-rounded { font-size: 20px; color: var(--muted); }
+
+  /* Footer sticky : prix + CTA */
+  .footer {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--bgpaper);
+    border-top: 1px solid var(--line);
+    padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+    z-index: 30;
+    box-shadow: 0 -8px 24px rgba(0,0,0,.06);
+  }
+  .footer .row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 10px; }
+  .footer .price-lbl { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .footer .price-val { font-size: 28px; font-weight: 900; line-height: 1; letter-spacing: -.02em; color: var(--secondary); margin-top: 2px; }
+  .footer .price-tag { font-size: 11px; font-weight: 700; color: var(--cpam); background: var(--cpam-soft); padding: 3px 8px; border-radius: 6px; display: inline-block; margin-top: 6px; }
+  .footer .trip-meta { text-align: right; }
+  .footer .trip-meta .l1 { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .footer .trip-meta .l2 { font-size: 13px; font-weight: 800; color: var(--secondary); margin-top: 2px; }
+  .footer .cta {
+    width: 100%; height: 54px;
+    background: var(--secondary); color: #fff;
+    border: none; border-radius: 18px;
+    font-size: 14.5px; font-weight: 800; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 10px 24px -10px rgba(0,0,0,.4);
+  }
+  .footer .cta .material-symbols-rounded { font-size: 20px; color: var(--primary); }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1>Poster une course — esprit TaxiLink</h1>
+  <p class="lead">Mockup statique, non publié. Téléphone patient remonté en niveau 1 (à côté du trajet).</p>
+
+  <div class="phone">
+    <div class="screen">
+
+      <!-- Status bar -->
+      <div class="statusbar">
+        <span>9:41</span>
+        <div class="icons">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_full</span>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="hdr">
+        <div class="ic-btn"><span class="material-symbols-rounded">close</span></div>
+        <div class="titles">
+          <div class="t1">Nouvelle course</div>
+          <div class="t2">Le prix s'estime au fil de la saisie</div>
+        </div>
+      </div>
+
+      <!-- Body scrollable -->
+      <div class="body">
+
+        <!-- Voice CTA full -->
+        <div class="voice-cta">
+          <div class="mic"><span class="material-symbols-rounded">mic</span></div>
+          <div class="text">
+            <div class="l1">Dicter toute la course</div>
+            <div class="l2">"CPAM hôpital Nord vers Castellane à 14h pour M. Dupont"</div>
+          </div>
+          <div class="arrow"><span class="material-symbols-rounded">chevron_right</span></div>
+        </div>
+
+        <!-- Type -->
+        <div class="sec">
+          <div class="sec-label">Type de course</div>
+          <div class="seg">
+            <button><span class="material-symbols-rounded">local_taxi</span> Standard</button>
+            <button class="active"><span class="material-symbols-rounded">medical_services</span> CPAM</button>
+          </div>
+        </div>
+
+        <!-- Trajet -->
+        <div class="sec">
+          <div class="sec-label">Trajet</div>
+          <div class="trip-card">
+            <div class="trip-row h">
+              <div class="trip-icon"><span class="pin"></span></div>
+              <input class="trip-input" type="text" placeholder="Adresse de départ" value="Hôpital Nord, Marseille" />
+              <div class="trip-mic"><span class="material-symbols-rounded">mic</span></div>
+            </div>
+            <div class="trip-row h">
+              <div class="trip-icon"><span class="pin dest"></span></div>
+              <input class="trip-input" type="text" placeholder="Adresse d'arrivée" value="Castellane, Marseille" />
+              <div class="trip-mic"><span class="material-symbols-rounded">mic</span></div>
+            </div>
+          </div>
+
+          <!-- Heure -->
+          <div class="when">
+            <button class="active"><span class="material-symbols-rounded">bolt</span> Maintenant</button>
+            <button><span class="material-symbols-rounded">event</span> Programmer</button>
+          </div>
+        </div>
+
+        <!-- Téléphone patient — niveau 1 -->
+        <div class="sec">
+          <div class="sec-label">Patient <span class="hint">Pour le contacter à l'arrivée</span></div>
+          <div class="phone-row">
+            <div class="ic"><span class="material-symbols-rounded">person</span></div>
+            <div class="lbl">
+              <input type="text" placeholder="Nom du patient" value="M. Dupont" />
+              <small>Obligatoire pour CPAM</small>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+          <div class="phone-row">
+            <div class="ic"><span class="material-symbols-rounded">call</span></div>
+            <div class="lbl">
+              <input type="tel" placeholder="06 12 34 56 78" />
+              <small>Optionnel mais utile</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- CPAM panel (visible car type=CPAM) -->
+        <div class="sec">
+          <div class="cpam">
+            <div class="cpam-hd">
+              <span class="badge">CPAM</span>
+              <span class="ttl">Détails de la prescription</span>
+            </div>
+
+            <div class="cpam-grid">
+              <div class="full">
+                <div class="field-lbl">Motif</div>
+                <div class="seg-mini c2">
+                  <button class="active">HPJ</button>
+                  <button>Consultation</button>
+                </div>
+              </div>
+
+              <div>
+                <div class="field-lbl">Aller-retour</div>
+                <div class="seg-mini c2">
+                  <button>Non</button>
+                  <button class="active">Oui</button>
+                </div>
+              </div>
+
+              <div>
+                <div class="field-lbl">Patients</div>
+                <div class="stepper">
+                  <button>−</button>
+                  <span class="v">1</span>
+                  <button>+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="check-row" id="tpmr">
+              <span class="box"></span>
+              <span class="lbl">Patient en fauteuil roulant <small>+30 € forfait</small></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visibilité -->
+        <div class="sec">
+          <div class="sec-label">À qui envoyer</div>
+          <div class="vis-grid">
+            <div class="vis-card active">
+              <div class="ic"><span class="material-symbols-rounded">groups</span></div>
+              <div class="ttl">Mes groupes</div>
+              <div class="sub">Confrères choisis</div>
+            </div>
+            <div class="vis-card">
+              <div class="ic"><span class="material-symbols-rounded">public</span></div>
+              <div class="ttl">Tous</div>
+              <div class="sub">Marketplace publique</div>
+            </div>
+          </div>
+
+          <div class="group-list">
+            <div class="group-item on">
+              <span class="box"></span>
+              <span class="name">Taxi Marseille 13</span>
+              <span class="meta">12 chauffeurs</span>
+            </div>
+            <div class="group-item">
+              <span class="box"></span>
+              <span class="name">Conventionnés Sud 13</span>
+              <span class="meta">8 chauffeurs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plus d'options -->
+        <div class="sec">
+          <div class="more">
+            <div class="ic"><span class="material-symbols-rounded">tune</span></div>
+            <div class="lbl">
+              <div class="t1">Plus d'options</div>
+              <div class="t2">Accompagnant, notes, prix manuel</div>
+            </div>
+            <div class="arr"><span class="material-symbols-rounded">expand_more</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer prix + CTA -->
+      <div class="footer">
+        <div class="row">
+          <div>
+            <div class="price-lbl">Prix estimé</div>
+            <div class="price-val">42,80 €</div>
+            <span class="price-tag">CPAM • HPJ • A/R</span>
+          </div>
+          <div class="trip-meta">
+            <div class="l1">Trajet</div>
+            <div class="l2">14,3 km · 22 min</div>
+          </div>
+        </div>
+        <button class="cta">
+          <span class="material-symbols-rounded">arrow_forward</span>
+          Aperçu et publier
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notes design -->
+  <div style="max-width:480px; margin:32px auto 0; font-size:12px; color:#5c5a54; line-height:1.6;">
+    <div style="font-weight:800; color:#1A1A1A; text-transform:uppercase; letter-spacing:.08em; font-size:11px; margin-bottom:8px;">Évolutions vs v2</div>
+    <ul style="margin:0; padding-left:18px;">
+      <li><b>Téléphone patient</b> remonté en niveau 1, à côté du nom — plus dans "Plus d'options".</li>
+      <li>Esprit TaxiLink : Material Symbols Rounded, jaune brand #FFD23F, dark #1A1A1A, beige soft, cadres rounded-20px.</li>
+      <li>Voice CTA en gradient sombre avec micro jaune pulsant — plus premium que la version pointillés.</li>
+      <li>Trajet en carte unifiée (timeline départ → arrivée) au lieu de deux champs séparés, comme l'app Uber.</li>
+      <li>Visibilité en 2 cartes "Mes groupes / Tous" plutôt qu'un toggle plat — plus lisible.</li>
+      <li>Footer prix avec value géant (28px black) + tag de contexte (CPAM • HPJ • A/R) qui se met à jour live.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // toggle TPMR demo
+  document.getElementById('tpmr').addEventListener('click', (e) => {
+    e.currentTarget.classList.toggle('on');
+  });
+</script>
+
+</body>
+</html>

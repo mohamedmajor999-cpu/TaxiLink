@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>TaxiLink — Poster une course (v4)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #0A0A0B;
+    --ink-2:      #1F2024;
+    --ink-3:      #5A5C63;
+    --ink-4:      #8E909A;
+    --line:       #E9E8E3;
+    --line-2:     #F1EFE9;
+    --paper:      #FFFFFF;
+    --canvas:     #F4F2EC;
+    --brand:      #FFD11A;
+    --brand-deep: #F0B800;
+    --success:    #119C5A;
+    --danger:     #C8351F;
+    --info:       #1A4FD6;
+    --info-soft:  #E8EEFF;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--canvas);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "cv11", "tnum";
+  }
+  .display { font-family: 'Inter Tight', 'Inter', system-ui, sans-serif; letter-spacing: -.025em; }
+  .material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+
+  /* page wrapper */
+  .stage { max-width: 880px; margin: 0 auto; padding: 36px 20px 80px; }
+  .stage h1 { font-family: 'Inter Tight'; font-size: 24px; font-weight: 800; margin: 0 0 4px; letter-spacing: -.02em; }
+  .stage p.lead { color: var(--ink-3); margin: 0 0 28px; font-size: 13.5px; }
+
+  /* Phone frame — épuré */
+  .phone {
+    width: 390px;
+    margin: 0 auto;
+    background: #0A0A0B;
+    border-radius: 50px;
+    padding: 11px;
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,.32), 0 12px 24px -10px rgba(0,0,0,.18);
+    position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 32px; background: #0A0A0B; border-radius: 20px; z-index: 40;
+    border: 1px solid #1a1a1c;
+  }
+  .screen {
+    background: var(--paper);
+    border-radius: 40px;
+    height: 850px;
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+
+  /* Status bar */
+  .statusbar {
+    height: 54px; padding: 16px 32px 0; flex-shrink: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14.5px; font-weight: 700; letter-spacing: -.005em;
+  }
+  .statusbar .icons { display: flex; gap: 6px; align-items: center; }
+  .statusbar .icons .material-symbols-rounded { font-size: 16px; }
+
+  /* Header — minimal */
+  .head { padding: 14px 24px 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .head .close {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--line-2); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink); margin-left: -8px;
+  }
+  .head .close .material-symbols-rounded { font-size: 22px; }
+  .head .voice-pill {
+    height: 36px; padding: 0 14px 0 8px;
+    background: var(--ink); color: #fff;
+    border: none; border-radius: 999px; cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    font-family: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: -.005em;
+    box-shadow: 0 4px 12px -2px rgba(10,10,11,.25);
+  }
+  .voice-pill .dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--brand); color: var(--ink);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(255,209,26,.55);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,209,26,.55); }
+    60%      { box-shadow: 0 0 0 8px rgba(255,209,26,0); }
+  }
+  .voice-pill .dot .material-symbols-rounded { font-size: 14px; }
+
+  /* Title block */
+  .title-block { padding: 16px 24px 20px; flex-shrink: 0; }
+  .title-block .display-h {
+    font-family: 'Inter Tight'; font-size: 32px; font-weight: 800; line-height: 1.05; letter-spacing: -.025em;
+    color: var(--ink);
+  }
+  .title-block .display-h em { font-style: normal; color: var(--ink-4); font-weight: 800; }
+  .title-block .step {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* Body scroll area */
+  .body {
+    flex: 1; overflow-y: auto;
+    padding: 0 24px 110px;
+    scroll-behavior: smooth;
+  }
+  .body::-webkit-scrollbar { width: 0; }
+
+  /* Chip group (Type) — minimal tabs */
+  .chips { display: flex; gap: 8px; padding: 0 0 22px; }
+  .chip {
+    height: 36px; padding: 0 14px;
+    background: transparent; border: 1px solid var(--line);
+    border-radius: 999px; cursor: pointer;
+    font-family: inherit; font-size: 12.5px; font-weight: 700;
+    color: var(--ink-3);
+    display: flex; align-items: center; gap: 6px;
+    transition: all .15s ease;
+  }
+  .chip .material-symbols-rounded { font-size: 16px; }
+  .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .chip:not(.active):hover { border-color: var(--ink-4); color: var(--ink); }
+
+  /* Field group — hairline-separated rows, no card chrome */
+  .fields { border-top: 1px solid var(--line); }
+  .row {
+    display: grid; grid-template-columns: 24px 1fr auto;
+    gap: 14px; align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+    min-height: 64px;
+  }
+  .row .lead-icon {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3);
+  }
+  .row .lead-icon .pin {
+    width: 11px; height: 11px; border-radius: 50%; background: var(--ink);
+  }
+  .row .lead-icon .pin.dest {
+    border-radius: 3px; background: var(--brand-deep);
+  }
+  .row .lead-icon .material-symbols-rounded { font-size: 19px; }
+
+  .row .input-shell { min-width: 0; }
+  .row .input-label {
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    color: var(--ink-4); text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .row .input-shell input,
+  .row .input-shell .input-fake {
+    width: 100%;
+    border: none; outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 16px; font-weight: 700;
+    color: var(--ink);
+    padding: 0;
+    letter-spacing: -.012em;
+  }
+  .row .input-shell input::placeholder { color: var(--ink-4); font-weight: 600; }
+  .row .input-shell .input-fake { font-weight: 700; }
+  .row .input-shell .helper { display: block; margin-top: 2px; font-size: 11.5px; color: var(--ink-4); font-weight: 500; }
+
+  .row .trail {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .row .mic-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--line-2); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-2);
+    transition: all .15s ease;
+  }
+  .row .mic-btn:hover { background: var(--brand); }
+  .row .mic-btn .material-symbols-rounded { font-size: 18px; }
+
+  .row .chevron .material-symbols-rounded { font-size: 22px; color: var(--ink-4); }
+
+  /* Quand : inline pill picker */
+  .when-row {
+    display: grid; grid-template-columns: 24px 1fr auto;
+    gap: 14px; align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .when-pills { display: flex; gap: 6px; }
+  .when-pill {
+    height: 32px; padding: 0 14px; border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    font-family: inherit; font-size: 12.5px; font-weight: 700;
+    color: var(--ink-3); cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    transition: all .15s ease;
+  }
+  .when-pill .material-symbols-rounded { font-size: 14px; }
+  .when-pill.active {
+    background: var(--brand); border-color: var(--brand); color: var(--ink);
+  }
+
+  /* Section header */
+  .sec-h {
+    padding: 28px 0 12px;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .sec-h .l1 {
+    font-family: 'Inter Tight'; font-size: 18px; font-weight: 800; letter-spacing: -.015em;
+  }
+  .sec-h .l2 { font-size: 11.5px; color: var(--ink-4); font-weight: 600; }
+
+  /* CPAM block — un trait jaune sur la gauche, pas de card */
+  .cpam-block {
+    margin-top: 4px;
+    padding: 18px 18px 16px 22px;
+    background: linear-gradient(90deg, rgba(255,209,26,.12) 0%, rgba(255,209,26,.04) 100%);
+    border-left: 3px solid var(--brand);
+    border-radius: 0 16px 16px 0;
+    margin-left: -22px;
+    margin-right: -22px;
+  }
+  .cpam-block .ttl { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .cpam-block .ttl .badge {
+    background: var(--ink); color: var(--brand);
+    font-size: 9.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    padding: 3px 7px; border-radius: 5px;
+  }
+  .cpam-block .ttl .lbl { font-size: 13px; font-weight: 700; color: var(--ink-2); }
+
+  .cpam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; }
+  .cpam-grid .full { grid-column: 1 / -1; }
+
+  .micro-label {
+    font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 7px; display: block;
+  }
+  .seg-mini {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    background: rgba(255,255,255,.6);
+    border: 1px solid rgba(10,10,11,.06);
+    border-radius: 11px; padding: 3px;
+  }
+  .seg-mini button {
+    height: 34px; border: none; background: transparent;
+    border-radius: 8px; font-family: inherit;
+    font-size: 12.5px; font-weight: 700;
+    color: var(--ink-3); cursor: pointer;
+  }
+  .seg-mini button.active { background: var(--ink); color: var(--brand); }
+
+  .stepper-mini {
+    display: flex; align-items: center; height: 40px;
+    background: rgba(255,255,255,.6);
+    border: 1px solid rgba(10,10,11,.06);
+    border-radius: 11px;
+    padding: 0 4px;
+  }
+  .stepper-mini button {
+    width: 32px; height: 32px; border: none; background: transparent;
+    border-radius: 8px; cursor: pointer;
+    color: var(--ink-2); font-size: 16px; font-weight: 700; font-family: inherit;
+  }
+  .stepper-mini button:hover { background: rgba(10,10,11,.05); }
+  .stepper-mini .v { flex: 1; text-align: center; font-size: 14.5px; font-weight: 800; color: var(--ink); font-feature-settings: "tnum"; }
+
+  .checker {
+    margin-top: 14px;
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+    padding: 4px 0;
+  }
+  .checker .box {
+    width: 22px; height: 22px; border-radius: 7px;
+    border: 1.5px solid var(--ink-4); background: rgba(255,255,255,.6);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all .15s ease;
+  }
+  .checker.on .box {
+    background: var(--ink); border-color: var(--ink);
+  }
+  .checker.on .box::after {
+    content: ""; width: 11px; height: 6px;
+    border-left: 2px solid var(--brand); border-bottom: 2px solid var(--brand);
+    transform: rotate(-45deg) translate(2px, -1px);
+  }
+  .checker .lbl { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+  .checker .lbl em { font-style: normal; color: var(--ink-4); font-weight: 600; margin-left: 4px; }
+
+  /* Visibility — segmented + groupes */
+  .vis-seg {
+    background: var(--line-2);
+    border-radius: 14px;
+    padding: 4px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    margin-bottom: 12px;
+  }
+  .vis-seg button {
+    height: 44px; border: none; background: transparent;
+    border-radius: 10px; cursor: pointer; font-family: inherit;
+    font-size: 13px; font-weight: 700; color: var(--ink-3);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .vis-seg button.active {
+    background: var(--paper); color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  }
+  .vis-seg button .material-symbols-rounded { font-size: 16px; }
+
+  .grp-list { display: flex; flex-direction: column; }
+  .grp {
+    display: grid; grid-template-columns: 22px 1fr auto;
+    gap: 12px; align-items: center;
+    padding: 12px 0; border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .grp:last-child { border-bottom: none; }
+  .grp .box {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 1.5px solid var(--ink-4); background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .grp.on .box { background: var(--ink); border-color: var(--ink); }
+  .grp.on .box::after {
+    content: ""; width: 9px; height: 5px;
+    border-left: 2px solid var(--brand); border-bottom: 2px solid var(--brand);
+    transform: rotate(-45deg) translate(1px, -1px);
+  }
+  .grp .name { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .grp .meta { font-size: 11.5px; color: var(--ink-4); font-weight: 600; }
+
+  /* More options — link style */
+  .more-link {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 18px; cursor: pointer;
+    font-size: 13px; font-weight: 700; color: var(--ink-2);
+    padding: 6px 0;
+  }
+  .more-link .material-symbols-rounded { font-size: 18px; color: var(--ink-3); }
+  .more-link .ct { color: var(--ink-4); font-weight: 600; }
+
+  /* Footer — frosted, prix display */
+  .footer {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 14px 24px calc(20px + env(safe-area-inset-bottom));
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid var(--line);
+  }
+  .footer .row-top {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .footer .price-lbl {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .footer .price-val {
+    font-family: 'Inter Tight';
+    font-size: 36px; font-weight: 800; letter-spacing: -.035em;
+    color: var(--ink); line-height: .95;
+    margin-top: 4px;
+    font-feature-settings: "tnum";
+  }
+  .footer .price-tag {
+    margin-top: 6px;
+    font-size: 11px; font-weight: 700;
+    color: var(--info); display: inline-flex; align-items: center; gap: 5px;
+  }
+  .footer .price-tag::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--info);
+  }
+  .footer .trip-meta { text-align: right; }
+  .footer .trip-meta .l1 {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .footer .trip-meta .l2 {
+    font-family: 'Inter Tight';
+    font-size: 14px; font-weight: 700; color: var(--ink);
+    margin-top: 4px;
+    font-feature-settings: "tnum";
+  }
+
+  .cta {
+    width: 100%; height: 56px; border: none;
+    background: var(--ink); color: #fff;
+    border-radius: 16px; cursor: pointer; font-family: inherit;
+    font-size: 15px; font-weight: 800; letter-spacing: -.005em;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 12px 28px -8px rgba(10,10,11,.45);
+    transition: transform .12s ease;
+  }
+  .cta:active { transform: scale(.99); }
+  .cta .material-symbols-rounded { font-size: 20px; color: var(--brand); }
+
+  /* Notes */
+  .notes {
+    max-width: 480px; margin: 36px auto 0;
+    font-size: 12.5px; color: var(--ink-3); line-height: 1.65;
+  }
+  .notes h4 {
+    font-family: 'Inter Tight'; font-size: 11.5px; color: var(--ink);
+    text-transform: uppercase; letter-spacing: .1em;
+    margin: 0 0 10px;
+  }
+  .notes ul { margin: 0; padding-left: 18px; }
+  .notes li + li { margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <h1>Poster une course — v4</h1>
+  <p class="lead">Approche éditoriale : moins de boîtes, plus de respiration. Inspiré de Cash App, Linear, Stripe Express.</p>
+
+  <div class="phone">
+    <div class="screen">
+
+      <!-- Status bar -->
+      <div class="statusbar">
+        <span>9:41</span>
+        <div class="icons">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_full</span>
+        </div>
+      </div>
+
+      <!-- Header : close + voice pill -->
+      <div class="head">
+        <button class="close" aria-label="Fermer">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+        <button class="voice-pill">
+          <span class="dot"><span class="material-symbols-rounded">mic</span></span>
+          Tout dicter
+        </button>
+      </div>
+
+      <!-- Title -->
+      <div class="title-block">
+        <div class="display-h">Nouvelle<br/><em>course</em></div>
+      </div>
+
+      <!-- Body scrollable -->
+      <div class="body">
+
+        <!-- Chips type -->
+        <div class="chips">
+          <button class="chip"><span class="material-symbols-rounded">local_taxi</span>Standard</button>
+          <button class="chip active"><span class="material-symbols-rounded">medical_services</span>CPAM</button>
+        </div>
+
+        <!-- Fields : hairline-separated -->
+        <div class="fields">
+
+          <!-- Départ -->
+          <div class="row">
+            <div class="lead-icon"><span class="pin"></span></div>
+            <div class="input-shell">
+              <span class="input-label">Départ</span>
+              <input type="text" placeholder="Adresse de prise en charge" value="Hôpital Nord, Marseille" />
+            </div>
+            <div class="trail">
+              <button class="mic-btn" aria-label="Dicter départ">
+                <span class="material-symbols-rounded">mic</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Arrivée -->
+          <div class="row">
+            <div class="lead-icon"><span class="pin dest"></span></div>
+            <div class="input-shell">
+              <span class="input-label">Arrivée</span>
+              <input type="text" placeholder="Adresse de dépose" value="Castellane, Marseille" />
+            </div>
+            <div class="trail">
+              <button class="mic-btn" aria-label="Dicter arrivée">
+                <span class="material-symbols-rounded">mic</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quand -->
+          <div class="when-row">
+            <div class="lead-icon"><span class="material-symbols-rounded">schedule</span></div>
+            <div class="input-shell">
+              <span class="input-label">Quand</span>
+              <span class="input-fake">Maintenant</span>
+            </div>
+            <div class="when-pills">
+              <button class="when-pill active"><span class="material-symbols-rounded">bolt</span>Maintenant</button>
+              <button class="when-pill"><span class="material-symbols-rounded">event</span>Plus tard</button>
+            </div>
+          </div>
+
+          <!-- Patient (nom) -->
+          <div class="row">
+            <div class="lead-icon"><span class="material-symbols-rounded">person</span></div>
+            <div class="input-shell">
+              <span class="input-label">Patient</span>
+              <input type="text" placeholder="Nom du patient" value="M. Dupont" />
+              <span class="helper">Obligatoire pour CPAM</span>
+            </div>
+          </div>
+
+          <!-- Téléphone -->
+          <div class="row">
+            <div class="lead-icon"><span class="material-symbols-rounded">call</span></div>
+            <div class="input-shell">
+              <span class="input-label">Téléphone</span>
+              <input type="tel" placeholder="Pour le contacter à l'arrivée" />
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section CPAM -->
+        <div class="sec-h">
+          <span class="l1">Détails de la prescription</span>
+          <span class="l2">Pour le calcul du tarif</span>
+        </div>
+
+        <div class="cpam-block">
+          <div class="ttl">
+            <span class="badge">CPAM</span>
+            <span class="lbl">Indispensables au tarif conventionné</span>
+          </div>
+          <div class="cpam-grid">
+            <div class="full">
+              <span class="micro-label">Motif</span>
+              <div class="seg-mini">
+                <button class="active">HPJ</button>
+                <button>Consultation</button>
+              </div>
+            </div>
+            <div>
+              <span class="micro-label">Aller-retour</span>
+              <div class="seg-mini">
+                <button>Non</button>
+                <button class="active">Oui</button>
+              </div>
+            </div>
+            <div>
+              <span class="micro-label">Patients</span>
+              <div class="stepper-mini">
+                <button>−</button>
+                <span class="v">1</span>
+                <button>+</button>
+              </div>
+            </div>
+          </div>
+          <div class="checker" id="tpmr">
+            <span class="box"></span>
+            <span class="lbl">Patient en fauteuil roulant <em>+30 € forfait</em></span>
+          </div>
+        </div>
+
+        <!-- Section Diffusion -->
+        <div class="sec-h">
+          <span class="l1">À qui</span>
+          <span class="l2">Diffusion</span>
+        </div>
+        <div class="vis-seg">
+          <button class="active"><span class="material-symbols-rounded">groups</span>Mes groupes</button>
+          <button><span class="material-symbols-rounded">public</span>Tous les chauffeurs</button>
+        </div>
+        <div class="grp-list">
+          <div class="grp on">
+            <span class="box"></span>
+            <span class="name">Taxi Marseille 13</span>
+            <span class="meta">12 chauffeurs · 4 en ligne</span>
+          </div>
+          <div class="grp">
+            <span class="box"></span>
+            <span class="name">Conventionnés Sud 13</span>
+            <span class="meta">8 chauffeurs · 2 en ligne</span>
+          </div>
+        </div>
+
+        <!-- Plus d'options -->
+        <a class="more-link">
+          <span class="material-symbols-rounded">tune</span>
+          Plus d'options
+          <span class="ct">· Accompagnant, notes, prix manuel</span>
+        </a>
+
+      </div>
+
+      <!-- Footer flottant -->
+      <div class="footer">
+        <div class="row-top">
+          <div>
+            <div class="price-lbl">Prix estimé</div>
+            <div class="price-val display">42,80 €</div>
+            <span class="price-tag">CPAM HPJ · Aller-retour</span>
+          </div>
+          <div class="trip-meta">
+            <div class="l1">Trajet</div>
+            <div class="l2">14,3 km</div>
+            <div class="l2" style="margin-top:2px;color:var(--ink-3);">22 min</div>
+          </div>
+        </div>
+        <button class="cta">
+          Aperçu et publier
+          <span class="material-symbols-rounded">arrow_forward</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="notes">
+    <h4>Évolutions vs v3</h4>
+    <ul>
+      <li><b>Pas de cards empilées.</b> Chaque champ est une ligne séparée par un trait fin (hairline) — type Cash App / Apple Wallet.</li>
+      <li><b>Typographie display.</b> Inter Tight pour les titres et le prix (Inter pour le corps), avec letter-spacing négatif et tnum sur les chiffres.</li>
+      <li><b>Voice CTA en pill discret</b> en haut à droite, pas en bandeau → moins criard, plus pro.</li>
+      <li><b>Bloc CPAM</b> sans encadré : trait jaune à gauche + dégradé subtil. Plus calme visuellement.</li>
+      <li><b>Footer frosted</b> avec backdrop-blur, prix en 36px display, CTA noir avec flèche jaune.</li>
+      <li><b>Une seule couleur d'accent (jaune)</b> utilisée uniquement sur : pin destination, hover micro, CTA flèche, halo voice pill, bordure CPAM. Le reste est noir/gris/beige.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  document.getElementById('tpmr').addEventListener('click', (e) => e.currentTarget.classList.toggle('on'));
+</script>
+
+</body>
+</html>
