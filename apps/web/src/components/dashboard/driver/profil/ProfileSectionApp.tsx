@@ -3,6 +3,7 @@ import { Bell, Mic, HelpCircle, LogOut, Loader2 } from 'lucide-react'
 import { ProfileSection } from './ProfileSection'
 import { ProfileMenuRow } from './ProfileMenuRow'
 import { GreenSwitch } from './GreenSwitch'
+import { ThemeModeRow } from './ThemeModeRow'
 import { useProfileSectionApp } from './useProfileSectionApp'
 
 interface Props {
@@ -36,6 +37,7 @@ export function ProfileSectionApp({ onOpenSupport }: Props) {
           />
         }
       />
+      <ThemeModeRow pref={a.themePref} onChange={a.setThemePref} />
       <ProfileMenuRow
         icon={<HelpCircle className="w-full h-full" strokeWidth={1.8} />}
         label="Aide & support"

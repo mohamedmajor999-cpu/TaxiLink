@@ -5,6 +5,7 @@ import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedMissionAcceptNotifier } from '@/hooks/usePostedMissionAcceptNotifier'
+import { useNightMode } from '@/hooks/useNightMode'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileBottomNav } from '@/components/taxilink/MobileBottomNav'
@@ -38,6 +39,7 @@ export function DriverDashboard() {
   const editingMission = useMissionEditStore((s) => s.editing)
   const clearEdit = useMissionEditStore((s) => s.clearEdit)
   usePostedMissionAcceptNotifier()
+  useNightMode()
   const unseenAcceptCount = useUnseenAcceptCount()
   const [mapFullscreen, setMapFullscreen] = useState(false)
   const isEditerUrl = searchParams.get('editer') === '1'

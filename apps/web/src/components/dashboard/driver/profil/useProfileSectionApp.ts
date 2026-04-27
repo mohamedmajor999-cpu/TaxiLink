@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authService } from '@/services/authService'
 import { useDriverStore } from '@/store/driverStore'
+import { useNightModeStore, type NightModePref } from '@/store/nightModeStore'
 import { useSettingsToggles } from './useSettingsToggles'
 
 const VOICE_KEY = 'taxilink:driver:voiceDictation'
@@ -20,6 +21,8 @@ function loadVoice(): boolean {
 export function useProfileSectionApp() {
   const router = useRouter()
   const toggles = useSettingsToggles()
+  const themePref = useNightModeStore((s) => s.pref)
+  const setThemePref = useNightModeStore((s) => s.setPref)
   const [loggingOut, setLoggingOut] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [voiceDictation, setVoiceState] = useState(true)
@@ -62,6 +65,8 @@ export function useProfileSectionApp() {
     setNotifications: toggles.setNotifications,
     voiceDictation,
     setVoiceDictation,
+    themePref,
+    setThemePref: (p: NightModePref) => setThemePref(p),
     loggingOut,
     error,
     logout,
