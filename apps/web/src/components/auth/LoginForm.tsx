@@ -94,8 +94,8 @@ export function LoginForm() {
 
         <p className="text-center text-xs text-muted mt-6">
           En vous connectant, vous acceptez nos{' '}
-          <Link href="#" className="underline">CGU</Link> et notre{' '}
-          <Link href="#" className="underline">politique de confidentialité</Link>.
+          <Link href="/cgu" className="underline">CGU</Link> et notre{' '}
+          <Link href="/confidentialite" className="underline">politique de confidentialité</Link>.
         </p>
       </div>
     </div>

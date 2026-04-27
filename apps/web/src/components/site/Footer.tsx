@@ -29,9 +29,15 @@ export function Footer() {
           <div>
             <div className="text-xs font-bold text-secondary uppercase tracking-wider mb-4">Légal</div>
             <div className="space-y-2.5">
-              {['Mentions légales', 'CGU', 'Confidentialité', 'RGPD', 'Contact'].map(l => (
-                <Link key={l} href="#" className="block text-sm text-muted hover:text-secondary transition-colors">{l}</Link>
+              {[
+                { href: '/mentions-legales', label: 'Mentions légales' },
+                { href: '/cgu',              label: 'CGU' },
+                { href: '/confidentialite',  label: 'Confidentialité' },
+                { href: '/rgpd',             label: 'RGPD' },
+              ].map(l => (
+                <Link key={l.href} href={l.href} className="block text-sm text-muted hover:text-secondary transition-colors">{l.label}</Link>
               ))}
+              <a href="mailto:support@taxilink.fr" className="block text-sm text-muted hover:text-secondary transition-colors">Contact</a>
             </div>
           </div>
         </div>

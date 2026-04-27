@@ -7,14 +7,14 @@ const PRODUCT = [
   { label: 'Tarifs',          href: '#tarifs' },
 ]
 const RESOURCES = [
-  { label: "Centre d'aide", href: '#' },
-  { label: 'Blog',          href: '#' },
-  { label: 'Statut',        href: '#' },
+  { label: "Centre d'aide", href: 'mailto:support@taxilink.fr' },
 ]
 const COMPANY = [
-  { label: 'Contact',         href: '#' },
-  { label: 'Confidentialité', href: '#' },
-  { label: 'RGPD',            href: '#' },
+  { label: 'Contact',          href: 'mailto:support@taxilink.fr' },
+  { label: 'Mentions légales', href: '/mentions-legales' },
+  { label: 'CGU',              href: '/cgu' },
+  { label: 'Confidentialité',  href: '/confidentialite' },
+  { label: 'RGPD',             href: '/rgpd' },
 ]
 
 export function LandingFooter() {
