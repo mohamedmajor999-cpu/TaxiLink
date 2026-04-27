@@ -42,12 +42,12 @@ export function SidebarNav({
     } catch { /* ignore : onAuthStateChange redirigera au prochain refresh */ }
   }
   return (
-    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-warm-200 h-screen sticky top-0" style={{ backgroundColor: '#FFFFFF' }}>
+    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-warm-200 h-screen sticky top-0" style={{ backgroundColor: '#FFFFFF' }} aria-label="Barre latérale">
       <div className="px-5 py-6 flex items-center">
         <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={157} height={28} className="h-7 w-auto" />
       </div>
 
-      <nav className="flex-1 px-3 space-y-1">
+      <nav className="flex-1 px-3 space-y-1" aria-label="Navigation principale">
         {ITEMS.slice(0, 2).map((item) => {
           const coursesCount = (badges?.coursesNotif && badges.coursesNotif > 0)
             ? badges.coursesNotif

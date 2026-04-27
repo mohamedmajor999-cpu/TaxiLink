@@ -29,6 +29,19 @@ vi.mock('@/services/groupStatsService', () => ({
   },
 }))
 
+// Le hook s'abonne maintenant à un canal Supabase realtime au mount.
+// On mock createClient pour que les tests d'unité ne dépendent pas
+// d'une session Supabase réelle.
+vi.mock('@/lib/supabase/client', () => ({
+  createClient: () => ({
+    channel: () => ({
+      on: function () { return this },
+      subscribe: vi.fn(),
+    }),
+    removeChannel: vi.fn(),
+  }),
+}))
+
 describe('useDriverGroupesScreen', () => {
   it('filteredGroups retourne tous les groupes par défaut', async () => {
     const { useDriverGroupesScreen } = await import('@/components/dashboard/driver/useDriverGroupesScreen')

@@ -42,7 +42,6 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     ...overrides,
   }
 }
-
 describe('missionToAgendaRide', () => {
   it('mappe les champs de base correctement', () => {
     const result = missionToAgendaRide(makeMission())

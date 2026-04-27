@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import type { Mission } from '@/lib/supabase/types'
 import { useDriverStore } from '@/store/driverStore'
 import { missionService } from '@/services/missionService'
+import { missionViewsService } from '@/services/missionViewsService'
 import { fetchOsrmRoute, type OsrmRoute } from '@/lib/osrmRoute'
 import { fetchGoogleRoutesTraffic, type TrafficEstimate } from '@/lib/googleRoutes'
 import { maskMissionForViewer, canSeeFullMission } from '@/lib/missionMask'
@@ -31,7 +32,7 @@ export function useMissionDetail(missionId: string) {
         setMission(m ? maskMissionForViewer(m, driver.id || null) : null)
         setLoading(false)
         if (m && driver.id && m.shared_by !== driver.id) {
-          void missionService.recordView(m.id, driver.id)
+          void missionViewsService.record(m.id, driver.id)
         }
       })
       .catch(() => { if (!cancelled) setLoading(false) })
