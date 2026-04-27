@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 const PRODUCT = [
   { label: 'Fonctionnalités', href: '#produit' },
-  { label: 'Démo',            href: '#etapes' },
+  { label: 'Installer',       href: '#installer' },
   { label: 'Tarifs',          href: '#tarifs' },
 ]
 const RESOURCES = [

@@ -11,26 +11,16 @@ export function Footer() {
             <Link href="/" className="flex items-center mb-4" aria-label="TaxiLink Pro">
               <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={202} height={36} className="h-9 w-auto" />
             </Link>
-            <p className="text-muted text-sm leading-relaxed max-w-xs mb-4">
+            <p className="text-muted text-sm leading-relaxed max-w-xs">
               La plateforme d&apos;échange de courses entre chauffeurs professionnels. Hôpital, privé — sans WhatsApp.
             </p>
-            <div className="flex gap-3">
-              {['facebook', 'twitter', 'linkedin'].map(s => (
-                <div key={s} className="w-8 h-8 rounded-lg bg-bgsoft flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors">
-                  <Icon name="link" size={14} className="text-muted" />
-                </div>
-              ))}
-            </div>
           </div>
           <div>
             <div className="text-xs font-bold text-secondary uppercase tracking-wider mb-4">Plateforme</div>
             <div className="space-y-2.5">
               {[
-                { href: '#fonctionnalites',          label: 'Fonctionnalités'              },
-                { href: '#comment-ca-marche',        label: 'Comment ça marche'            },
                 { href: '/auth/register?role=driver', label: 'Rejoindre en tant que chauffeur' },
-                { href: '/auth/register?role=patron', label: 'Gérer ma flotte'             },
-                { href: '/telecharger',               label: 'Télécharger l\'app'          },
+                { href: '/telecharger',               label: 'Télécharger l\'app'              },
               ].map(l => (
                 <Link key={l.href} href={l.href} className="block text-sm text-muted hover:text-secondary transition-colors">{l.label}</Link>
               ))}

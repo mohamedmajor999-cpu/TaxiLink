@@ -1,5 +1,4 @@
 'use client'
-import { Settings } from 'lucide-react'
 import { useDriverProfilScreen } from './profil/useDriverProfilScreen'
 import { ProfileHeroCard } from './profil/ProfileHeroCard'
 import { ProfileStatsTiles } from './profil/ProfileStatsTiles'
@@ -15,8 +14,6 @@ interface Props {
   onOpenBank?: () => void
   onOpenInvoices?: () => void
   onOpenSupport?: () => void
-  onOpenSettings?: () => void
-  onEditHero?: () => void
 }
 
 export function DriverProfilScreen({
@@ -27,8 +24,6 @@ export function DriverProfilScreen({
   onOpenBank,
   onOpenInvoices,
   onOpenSupport,
-  onOpenSettings,
-  onEditHero,
 }: Props) {
   const s = useDriverProfilScreen(driverName)
 
@@ -38,14 +33,6 @@ export function DriverProfilScreen({
         <h1 className="text-[22px] font-bold text-ink leading-tight tracking-tight">
           Profil
         </h1>
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          aria-label="Réglages"
-          className="w-9 h-9 rounded-full grid place-items-center hover:bg-warm-100 transition-colors"
-        >
-          <Settings className="w-5 h-5 text-warm-700" strokeWidth={1.8} />
-        </button>
       </header>
 
       <ProfileHeroCard
@@ -54,7 +41,6 @@ export function DriverProfilScreen({
         licenseNumber={s.proNumber}
         city={s.city}
         mainDepartement={s.mainDepartement}
-        onEdit={onEditHero}
       />
 
       <ProfileStatsTiles

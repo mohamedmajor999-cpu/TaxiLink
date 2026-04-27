@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import { Calendar, Download, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useDriverCoursesScreen, type CoursesTab } from './courses/useDriverCoursesScreen'
 import { UpcomingTab } from './courses/UpcomingTab'
 import { PostedTab } from './courses/PostedTab'
@@ -29,22 +29,6 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            aria-label="Agenda"
-            className="w-9 h-9 md:hidden rounded-lg border border-warm-200 bg-paper flex items-center justify-center text-ink hover:bg-warm-50 transition-colors"
-          >
-            <Calendar className="w-4 h-4" strokeWidth={1.8} />
-          </button>
-          <button
-            type="button"
-            disabled
-            title="Bientôt disponible"
-            className="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-semibold text-warm-400 cursor-not-allowed"
-          >
-            <Download className="w-3.5 h-3.5" strokeWidth={1.8} />
-            Exporter
-          </button>
           <button
             type="button"
             onClick={onPostCourse}

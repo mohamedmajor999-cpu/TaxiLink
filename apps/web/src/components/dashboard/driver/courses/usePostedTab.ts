@@ -106,14 +106,6 @@ export function usePostedTab() {
     }
   }, [user, load, addToast])
 
-  const expandGroups = useCallback(() => {
-    addToast({
-      message: 'Élargissement en préparation',
-      sub: 'Cette fonctionnalité arrive bientôt.',
-      type: 'info',
-    })
-  }, [addToast])
-
   const remove = useCallback(async (id: string) => {
     if (!user) return
     if (typeof window !== 'undefined'
@@ -145,5 +137,5 @@ export function usePostedTab() {
     [missions, profilesById]
   )
 
-  return { loading, error, items, remove, deletingId, boostPrice, expandGroups, boostingId, toasts, dismissToast }
+  return { loading, error, items, remove, deletingId, boostPrice, boostingId, toasts, dismissToast }
 }

@@ -72,7 +72,6 @@ export function PostedTab() {
               onEdit={() => openEdit(item.mission)}
               onDelete={() => p.remove(item.mission.id)}
               onBoostPrice={() => p.boostPrice(item.mission.id)}
-              onExpandGroups={p.expandGroups}
             />
           </li>
         ))}
@@ -82,7 +81,7 @@ export function PostedTab() {
 }
 
 function PostedCard({
-  item, deleting, boosting, onEdit, onDelete, onBoostPrice, onExpandGroups,
+  item, deleting, boosting, onEdit, onDelete, onBoostPrice,
 }: {
   item: PostedMissionView
   deleting: boolean
@@ -90,7 +89,6 @@ function PostedCard({
   onEdit: () => void
   onDelete: () => void
   onBoostPrice: () => void
-  onExpandGroups: () => void
 }) {
   const { mission, status, driverProfile } = item
   const isWaiting = status === 'waiting'
@@ -158,7 +156,6 @@ function PostedCard({
             hoursWaiting={hoursWaiting}
             busy={boosting}
             onBoostPrice={onBoostPrice}
-            onExpandGroups={onExpandGroups}
           />
         </div>
       )}
