@@ -6,6 +6,40 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ## ✅ Terminé
 
+### Vague A — nettoyage UI : retrait des boutons morts et liens menteurs (2026-04-27)
+Suite à un audit produit transverse (mêmes patterns que le nettoyage Groupes), retrait de tous les éléments d'interface qui prétendent fonctionner mais ne font rien :
+- **DriverCoursesScreen** : retrait du bouton **Agenda** mobile (sans `onClick`) et du bouton **Exporter** desktop (`disabled` + tooltip « Bientôt disponible »)
+- **PostedBoostStrip / usePostedTab** : retrait du bouton **Élargir aux groupes** qui ouvrait un toast « fonctionnalité arrive bientôt » ; ne reste que `+5 € sur le prix` qui marche
+- **DriverProfilScreen** : retrait de l'icône engrenage **Réglages** dont le handler `onOpenSettings` n'était jamais passé par le parent (toutes les options du profil sont déjà accessibles via les rangées de section)
+- **Navbar (legacy `/telecharger`)** : retrait des 3 ancres mortes `#fonctionnalites`, `#comment-ca-marche`, `#temoignages` (IDs absents du code source)
+- **LandingFooter** : `Démo → #etapes` (ID inexistant) remplacé par `Installer → #installer`
+- **Footer (legacy)** : retrait des fausses icônes sociales (`<div>` décoratifs sans lien) et du lien **Gérer ma flotte** qui pré-remplissait un rôle `patron` qui n'existe pas dans l'inscription
+- **Bilan** : −87 lignes, +12. 858/858 tests verts. Aucun changement fonctionnel — uniquement suppression de mensonges UI.
+- **Reste hors scope (vague B identifiée)** : 11 liens légaux `href="#"` (CGU, confidentialité, mentions légales, RGPD) répartis sur LoginForm, LandingFooter et Footer ; aucune des 4 pages légales correspondantes n'existe (risque RGPD). À traiter en stub honnête (« page en construction ») ou en contenu réel validé par avocat.
+
+### Présence chauffeur — fix faux « En ligne » (logout + heartbeat + sendBeacon) (2026-04-27)
+Bug identifié sur prod : 3 chauffeurs sur 4 marqués `is_online=true` apparaissaient en ligne dans les groupes alors que leurs navigateurs étaient fermés depuis ~9 minutes. La page Groupes lisait `drivers.is_online` sans notion de fraîcheur.
+
+**Fix A — flip serveur au logout (déconnexion volontaire)** :
+- `driverStore.signOut()` centralise : flip `is_online=false` côté serveur via `driverService.setOnline(driverId, false)` (best-effort, non bloquant), puis `authService.signOut()`, puis reset du store local
+- 4 sites de logout migrés vers cette nouvelle action : `useProfileSectionApp`, `useSettingsApp`, `useDriverAuth`, `SidebarNav` (avant : 4 implémentations divergentes dont aucune ne flippait l'état serveur)
+
+**Fix B — heartbeat + TTL (fermetures brutales)** :
+- Migration `20260427_drivers_last_seen_at.sql` : colonne `TIMESTAMPTZ` + index partiel `(is_online, last_seen_at) WHERE is_online=TRUE` + backfill `last_seen_at = now()` pour les chauffeurs déjà online
+- `driverService.heartbeat(driverId)` `UPDATE last_seen_at = now()`
+- `driverService.setOnline(true)` seed `last_seen_at` immédiatement pour éviter une fenêtre de 60 s où le chauffeur apparaît offline
+- Hook `useDriverHeartbeat()` ping toutes les 60 s tant que `driver.isOnline === true` ; monté au niveau de `DriverDashboard` (orchestrateur)
+- `groupStatsService.getActivitySummary` + `getMemberStats` filtrent via `isFreshlyOnline(is_online, last_seen_at)` avec TTL 120 s
+
+**Fix C — sendBeacon offline (fermeture d'onglet quasi-instantanée)** :
+- Endpoint `POST /api/driver/offline` flippe `is_online=false` ; auth via cookie SSR (les beacons portent les cookies mais pas de headers custom) ; silencieux en erreur (l'onglet meurt, pas de log utile)
+- Hook `useDriverOfflineBeacon()` écoute `pagehide` + `beforeunload` (les deux pour couvrir Safari iOS où `beforeunload` est peu fiable)
+- Couverture : fermeture d'onglet, lock écran iOS, navigation hors dashboard → ~0 s. Crash navigateur, kill -9, perte réseau → rattrapé par TTL 120 s.
+
+**Vérifié sur prod via MCP Supabase** : avant le fix, 4 chauffeurs apparaissaient en ligne ; après le fix, 1 seul (le seul à pinguer). Les 3 fantômes (last_seen_at figé à l'heure du backfill) sont automatiquement masqués par le filtre TTL.
+
+**Tests** : +9 cas (`driverStore.signOut` 4 cas, `driverService.heartbeat` 2 cas, `setOnline` avec `last_seen_at` 2 cas, mocks adaptés), 858/858 verts.
+
 ### Page Groupes — nettoyage P0 + indicateur de vie + pin utilisateur (2026-04-27)
 - **UX page Mes groupes** : placeholder de search honnête (« Rechercher dans mes groupes » au lieu de « rechercher ou rejoindre » qui ne marchait pas) · suppression de la carte pointillée dupliquée « Créer votre groupe » · suppression de la mention paywall fantôme « Gratuit jusqu'à 10 membres » · 1 seul CTA « Créer » dans le header (au lieu de 3) · lien discret « Rejoindre un autre groupe avec un code » en bas
 - **Empty state** : 2 CTA équivalents (« J'ai un code » prioritaire pour le cas dominant + « Créer un groupe »)
