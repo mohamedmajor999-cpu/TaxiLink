@@ -31,25 +31,40 @@ export function FieldLabel({ children }: { children: ReactNode }) {
 }
 
 export function FieldInput({
-  defaultValue, placeholder, type = 'text',
-}: { defaultValue?: string; placeholder?: string; type?: string }) {
+  value, onChange, placeholder, type = 'text', inputMode, autoComplete,
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  type?: string
+  inputMode?: 'tel' | 'text' | 'numeric' | 'email' | 'search' | 'url' | 'none' | 'decimal'
+  autoComplete?: string
+}) {
   return (
     <input
       type={type}
-      defaultValue={defaultValue}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
+      inputMode={inputMode}
+      autoComplete={autoComplete}
       className="w-full bg-transparent border-0 outline-none text-[16px] font-bold tracking-[-0.012em] text-ink placeholder:text-warm-400 placeholder:font-semibold"
     />
   )
 }
 
-export function MicBtn() {
+export function MicBtn({ active, onClick, ariaLabel = 'Dicter' }: { active?: boolean; onClick?: () => void; ariaLabel?: string }) {
   return (
     <button
-      aria-label="Dicter"
-      className="w-9 h-9 rounded-full bg-warm-100 hover:bg-brand flex items-center justify-center text-ink transition-colors"
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className={`relative w-9 h-9 rounded-full flex items-center justify-center text-ink transition-colors ${
+        active ? 'bg-brand' : 'bg-warm-100 hover:bg-brand'
+      }`}
     >
-      <Icon name="mic" size={18} />
+      {active && <span className="absolute inset-0 rounded-full bg-brand/40 animate-ping" />}
+      <Icon name="mic" size={18} className="relative" />
     </button>
   )
 }
