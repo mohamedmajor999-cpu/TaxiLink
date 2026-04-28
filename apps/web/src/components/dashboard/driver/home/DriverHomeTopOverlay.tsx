@@ -84,7 +84,7 @@ export function DriverHomeTopOverlay({
           type="button"
           onClick={onProfile}
           aria-label="Mon profil"
-          className="w-10 h-10 rounded-full bg-ink dark:bg-night-brand text-paper dark:text-night-bg flex items-center justify-center text-[13px] font-extrabold shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
+          className="md:hidden w-10 h-10 rounded-full bg-ink dark:bg-night-brand text-paper dark:text-night-bg flex items-center justify-center text-[13px] font-extrabold shadow-[0_4px_14px_rgba(0,0,0,0.2)]"
         >
           {initials}
         </button>
