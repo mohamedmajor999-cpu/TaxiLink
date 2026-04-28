@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Marker chauffeur — explorations</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --ink:#0A0A0A; --paper:#FAFAF7;
+    --brand:#FFD23F; --brand-deep:#E0B400;
+    --warm-100:#F0EBE2; --warm-200:#E5DFD3; --warm-400:#A8A095; --warm-500:#7E7669;
+    --green:#34D399; --blue:#1E66F5; --danger:#E5484D;
+  }
+  body { font-family: 'Inter', system-ui, sans-serif; font-feature-settings: "tnum"; background: #F4F1EA; }
+  /* fond pseudo-carte */
+  .map-bg {
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,255,255,0.6) 0%, transparent 40%),
+      linear-gradient(135deg, #E8E2D3 0%, #D9D2BF 50%, #CABF9F 100%);
+    position: relative;
+  }
+  .map-bg::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(0deg, transparent 49.5%, rgba(0,0,0,0.04) 50%, transparent 50.5%),
+      linear-gradient(90deg, transparent 49.5%, rgba(0,0,0,0.04) 50%, transparent 50.5%),
+      linear-gradient(45deg, transparent 47%, rgba(255,210,63,0.18) 50%, transparent 53%);
+    background-size: 80px 80px, 80px 80px, 220px 220px;
+    pointer-events: none;
+  }
+  /* halo respiration */
+  @keyframes pulse-online {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50%      { transform: scale(1.45); opacity: 0; }
+  }
+  .pulse-online::before {
+    content:''; position:absolute; inset:-8px; border-radius:9999px;
+    background:#34D399; animation: pulse-online 2s ease-in-out infinite;
+  }
+  /* ombre douce sous marker */
+  .marker-shadow { filter: drop-shadow(0 4px 6px rgba(0,0,0,0.18)) drop-shadow(0 2px 2px rgba(0,0,0,0.12)); }
+  .marker-shadow-soft { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.16)); }
+</style>
+</head>
+<body class="text-[var(--ink)]">
+<div class="max-w-[1240px] mx-auto px-6 py-10">
+
+  <header class="mb-10">
+    <p class="text-[12px] font-bold tracking-[0.18em] uppercase text-[var(--warm-500)]">Maquette — TaxiLink</p>
+    <h1 class="text-[40px] font-extrabold tracking-[-0.025em] leading-[1.05] mt-2">Position du chauffeur<br/><span class="text-[var(--warm-400)]">sur la carte</span></h1>
+    <p class="mt-4 text-[14px] text-[var(--warm-500)] max-w-[640px] leading-relaxed">
+      Trois directions pour remplacer le logo actuel. Chaque option est rendue avec ses trois états
+      <strong class="text-[var(--ink)] font-bold">en ligne · hors ligne · en course</strong> sur un fond pseudo-carte.
+      Cliquable côté chauffeur pour ouvrir son profil ou voir sa course active.
+    </p>
+  </header>
+
+  <!-- Comparatif 3 colonnes -->
+  <div class="grid grid-cols-3 gap-6">
+
+    <!-- ════════════════════════════ A — TOP-DOWN ════════════════════════════ -->
+    <section class="bg-white rounded-3xl border border-[var(--warm-200)] overflow-hidden">
+      <div class="px-5 pt-5 pb-3">
+        <div class="flex items-baseline gap-2 mb-1.5">
+          <span class="text-[var(--brand-deep)] text-[11px] font-extrabold tracking-[0.18em] uppercase">Option A</span>
+          <span class="text-[10.5px] font-bold uppercase tracking-[0.1em] text-[var(--warm-400)]">Recommandé</span>
+        </div>
+        <h2 class="text-[20px] font-extrabold tracking-[-0.015em]">Top-down stylisé</h2>
+        <p class="text-[12.5px] text-[var(--warm-500)] mt-1.5 leading-relaxed">
+          Convention Uber/Bolt/Lyft. Voiture vue du dessus, signature taxi évidente, rotation selon
+          le cap GPS quand dispo.
+        </p>
+      </div>
+
+      <!-- map preview -->
+      <div class="map-bg h-[200px] flex items-center justify-center">
+        <div class="relative">
+          <span class="absolute -inset-3 rounded-full bg-[var(--brand)]/30 blur-md"></span>
+          <svg width="56" height="56" viewBox="0 0 56 56" class="marker-shadow relative">
+            <!-- ombre interne -->
+            <ellipse cx="28" cy="49" rx="18" ry="3" fill="rgba(0,0,0,0.2)"/>
+            <!-- corps voiture -->
+            <g style="transform: rotate(-25deg); transform-origin: 28px 28px;">
+              <!-- carrosserie -->
+              <path d="M14 18 Q14 12 20 12 L36 12 Q42 12 42 18 L42 38 Q42 44 36 44 L20 44 Q14 44 14 38 Z"
+                    fill="#FFD23F" stroke="#0A0A0A" stroke-width="1.5"/>
+              <!-- toit / pare-brise avant -->
+              <path d="M18 16 L20 22 L36 22 L38 16 Z" fill="#1A1A1A" opacity="0.9"/>
+              <!-- vitre arrière -->
+              <path d="M18 40 L20 34 L36 34 L38 40 Z" fill="#1A1A1A" opacity="0.9"/>
+              <!-- portières (latérales) -->
+              <line x1="28" y1="22" x2="28" y2="34" stroke="#0A0A0A" stroke-width="0.8" opacity="0.4"/>
+              <!-- phares avant -->
+              <circle cx="20" cy="14.5" r="1.2" fill="#FFFFFF" opacity="0.9"/>
+              <circle cx="36" cy="14.5" r="1.2" fill="#FFFFFF" opacity="0.9"/>
+              <!-- toit lumineux taxi -->
+              <rect x="24" y="26" width="8" height="4" rx="1" fill="#FFFFFF" stroke="#0A0A0A" stroke-width="0.8"/>
+            </g>
+          </svg>
+          <!-- pulse online -->
+          <span class="pulse-online absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[var(--green)] ring-2 ring-white"></span>
+        </div>
+      </div>
+
+      <!-- États -->
+      <div class="px-5 py-5 grid grid-cols-3 gap-3">
+        <!-- online -->
+        <div class="text-center">
+          <div class="h-16 flex items-center justify-center">
+            <div class="relative">
+              <svg width="40" height="40" viewBox="0 0 56 56" class="marker-shadow-soft">
+                <ellipse cx="28" cy="49" rx="14" ry="2.5" fill="rgba(0,0,0,0.15)"/>
+                <g style="transform: rotate(-25deg); transform-origin: 28px 28px;">
+                  <path d="M14 18 Q14 12 20 12 L36 12 Q42 12 42 18 L42 38 Q42 44 36 44 L20 44 Q14 44 14 38 Z" fill="#FFD23F" stroke="#0A0A0A" stroke-width="1.5"/>
+                  <path d="M18 16 L20 22 L36 22 L38 16 Z" fill="#1A1A1A" opacity="0.9"/>
+                  <path d="M18 40 L20 34 L36 34 L38 40 Z" fill="#1A1A1A" opacity="0.9"/>
+                  <rect x="24" y="26" width="8" height="4" rx="1" fill="#FFFFFF" stroke="#0A0A0A" stroke-width="0.8"/>
+                </g>
+              </svg>
+              <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--green)] ring-2 ring-white"></span>
+            </div>
+          </div>
+          <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--warm-500)] mt-1.5">En ligne</p>
+        </div>
+        <!-- offline -->
+        <div class="text-center">
+          <div class="h-16 flex items-center justify-center">
+            <svg width="40" height="40" viewBox="0 0 56 56" class="marker-shadow-soft" style="filter: grayscale(0.85) opacity(0.55);">
+              <ellipse cx="28" cy="49" rx="14" ry="2.5" fill="rgba(0,0,0,0.12)"/>
+              <g style="transform: rotate(-25deg); transform-origin: 28px 28px;">
+                <path d="M14 18 Q14 12 20 12 L36 12 Q42 12 42 18 L42 38 Q42 44 36 44 L20 44 Q14 44 14 38 Z" fill="#A8A095" stroke="#3A3A3A" stroke-width="1.5"/>
+                <path d="M18 16 L20 22 L36 22 L38 16 Z" fill="#3A3A3A"/>
+                <path d="M18 40 L20 34 L36 34 L38 40 Z" fill="#3A3A3A"/>
+                <rect x="24" y="26" width="8" height="4" rx="1" fill="#E5DFD3"/>
+              </g>
+            </svg>
+          </div>
+          <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--warm-400)] mt-1.5">Hors ligne</p>
+        </div>
+        <!-- busy -->
+        <div class="text-center">
+          <div class="h-16 flex items-center justify-center">
+            <div class="relative">
+              <svg width="40" height="40" viewBox="0 0 56 56" class="marker-shadow-soft">
+                <ellipse cx="28" cy="49" rx="14" ry="2.5" fill="rgba(0,0,0,0.15)"/>
+                <g style="transform: rotate(-25deg); transform-origin: 28px 28px;">
+                  <path d="M14 18 Q14 12 20 12 L36 12 Q42 12 42 18 L42 38 Q42 44 36 44 L20 44 Q14 44 14 38 Z" fill="#FFD23F" stroke="#0A0A0A" stroke-width="1.5"/>
+                  <path d="M18 16 L20 22 L36 22 L38 16 Z" fill="#1A1A1A" opacity="0.9"/>
+                  <path d="M18 40 L20 34 L36 34 L38 40 Z" fill="#1A1A1A" opacity="0.9"/>
+                  <rect x="24" y="26" width="8" height="4" rx="1" fill="#FFFFFF" stroke="#0A0A0A" stroke-width="0.8"/>
+                </g>
+              </svg>
+              <span class="absolute -bottom-1 -right-3 px-1.5 py-0.5 rounded-full bg-[var(--blue)] text-white text-[7.5px] font-extrabold tracking-wider">EN COURSE</span>
+            </div>
+          </div>
+          <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--warm-500)] mt-1.5">En course</p>
+        </div>
+      </div>
+
+      <div class="px-5 pt-3 pb-5 border-t border-[var(--warm-200)] text-[11.5px] text-[var(--warm-500)] leading-relaxed">
+        <strong class="text-[var(--ink)]">Pourquoi :</strong> code visuel des apps de mobilité, lisible à
+        tous les zooms. <strong class="text-[var(--ink)]">À noter :</strong> demande une géoloc avec heading
+        pour la rotation (sinon orientation fixe vers le nord).
+      </div>
+    </section>
+
+    <!-- ════════════════════════════ B — DISQUE TAXI ════════════════════════════ -->
+    <section class="bg-white rounded-3xl border border-[var(--warm-200)] overflow-hidden">
+      <div class="px-5 pt-5 pb-3">
+        <div class="flex items-baseline gap-2 mb-1.5">
+          <span class="text-[var(--warm-500)] text-[11px] font-extrabold tracking-[0.18em] uppercase">Option B</span>
+          <span class="text-[10.5px] font-bold uppercase tracking-[0.1em] text-[var(--warm-400)]">Statique</span>
+        </div>
+        <h2 class="text-[20px] font-extrabold tracking-[-0.015em]">Disque + glyphe taxi</h2>
+        <p class="text-[12.5px] text-[var(--warm-500)] mt-1.5 leading-relaxed">
+          Pastille circulaire avec pictogramme « TAXI ». Pas de cap nécessaire, scale bien quand
+          on zoom-out, parfait pour identifier d'autres chauffeurs en ligne.
+        </p>
+      </div>
+
+      <div class="map-bg h-[200px] flex items-center justify-center">
+        <div class="relative">
+          <span class="pulse-online absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[var(--green)] ring-2 ring-white z-10"></span>
+          <div class="relative w-12 h-12 rounded-full bg-[var(--brand)] border-2 border-[var(--ink)] flex items-center justify-center marker-shadow">
+            <span class="text-[var(--ink)] text-[10px] font-extrabold tracking-[0.06em]">TAXI</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-5 grid grid-cols-3 gap-3">
+        <div class="text-center">
+          <div class="h-16 flex items-center justify-center">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-full bg-[var(--brand)] border-2 border-[var(--ink)] flex items-center justify-center marker-shadow-soft">
+                <span class="text-[var(--ink)] text-[8px] font-extrabold tracking-[0.05em]">TAXI</span>
+              </div>
+              <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--green)] ring-2 ring-white"></span>
+            </div>
+          </div>
+          <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--warm-500)] mt-1.5">En ligne</p>
+        </div>
+        <div class="text-center">
+          <div class="h-16 flex items-center justify-center">
+            <div class="w-9 h-9 rounded-full bg-white border-2 border-[var(--warm-400)] flex items-center justify-center marker-shadow-soft">
+              <span class="text-[var(--warm-400)] text-[8px] font-extrabold tracking-[0.05em]">TAXI</span>
+            </div>
+          </div>
+          <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--warm-400)] mt-1.5">Hors ligne</p>
+        </div>
+        <div class="text-center">
+          <div class="h-16 flex items-center justify-center">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-full bg-[var(--blue)] border-2 border-[var(--ink)] flex items-center justify-center marker-shadow-soft">
+                <span class="text-white text-[8px] font-extrabold tracking-[0.05em]">TAXI</span>
+              </div>
+              <span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-white border-2 border-[var(--blue)]"></span>
+            </div>
+          </div>
+          <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--warm-500)] mt-1.5">En course</p>
+        </div>
+      </div>
+
+      <div class="px-5 pt-3 pb-5 border-t border-[var(--warm-200)] text-[11.5px] text-[var(--warm-500)] leading-relaxed">
+        <strong class="text-[var(--ink)]">Pourquoi :</strong> compact, identifiable instantanément, parfait
+        en zoom-out. <strong class="text-[var(--ink)]">À noter :</strong> moins « pro » que le top-down — sera
+        confondu avec un POI si plusieurs apps coexistent.
+      </div>
+    </section>
+
+    <!-- ════════════════════════════ C — AVATAR + BADGE ════════════════════════════ -->
+    <section class="bg-white rounded-3xl border border-[var(--warm-200)] overflow-hidden">
+      <div class="px-5 pt-5 pb-3">
+        <div class="flex items-baseline gap-2 mb-1.5">
+          <span class="text-[var(--warm-500)] text-[11px] font-extrabold tracking-[0.18em] uppercase">Option C</span>
+          <span class="text-[10.5px] font-bold uppercase tracking-[0.1em] text-[var(--warm-400)]">Identité</span>
+        </div>
+        <h2 class="text-[20px] font-extrabold tracking-[-0.015em]">Avatar + badge taxi</h2>
+        <p class="text-[12.5px] text-[var(--warm-500)] mt-1.5 leading-relaxed">
+          Initiales chauffeur dans un disque ink + micro-pastille jaune en bas-droit avec glyphe
+          taxi. Identifie <em>qui</em>, utile pour les groupes et le patron de flotte.
+        </p>
+      </div>
+
+      <div class="map-bg h-[200px] flex items-center justify-center">
+        <div class="relative">
+          <div class="w-12 h-12 rounded-full bg-[var(--ink)] text-[var(--brand)] flex items-center justify-center text-[14px] font-extrabold marker-shadow">
+            MM
+          </div>
+          <!-- badge taxi -->
+          <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[var(--brand)] border-2 border-white flex items-center justify-center">
+            <svg width="10" height="10" viewBox="0 0 16 16">
+              <rect x="2" y="6" width="12" height="6" rx="1.5" fill="#0A0A0A"/>
+              <rect x="4" y="3" width="8" height="3" rx="1" fill="#0A0A0A"/>
+              <circle cx="5" cy="12.5" r="1.2" fill="#0A0A0A" stroke="#FFD23F" stroke-width="0.5"/>
+              <circle cx="11" cy="12.5" r="1.2" fill="#0A0A0A" stroke="#FFD23F" stroke-width="0.5"/>
+            </svg>
+          </div>
+          <span class="pulse-online absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--green)] ring-2 ring-white"></span>
+        </div>
+      </div>
+
+      <div class="px-5 py-5 grid grid-cols-3 gap-3">
+        <div class="text-center">
+          <div class="h-16 flex items-center justify-center">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-full bg-[var(--ink)] text-[var(--brand)] flex items-center justify-center text-[10.5px] font-extrabold marker-shadow-soft">MM</div>
+              <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--brand)] border-[1.5px] border-white flex items-center justify-center">
+                <svg width="7" height="7" viewBox="0 0 16 16">
+                  <rect x="2" y="6" width="12" height="6" rx="1.5" fill="#0A0A0A"/>
+                  <rect x="4" y="3" width="8" height="3" rx="1" fill="#0A0A0A"/>
+                </svg>
+              </div>
+              <span class="absolute -top-0.5 -left-0.5 w-2 h-2 rounded-full bg-[var(--green)] ring-[1.5px] ring-white"></span>
+            </div>
+          </div>
+          <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--warm-500)] mt-1.5">En ligne</p>
+        </div>
+        <div class="text-center">
+          <div class="h-16 flex items-center justify-center">
+            <div class="relative" style="opacity:0.55;">
+              <div class="w-9 h-9 rounded-full bg-[var(--warm-400)] text-white flex items-center justify-center text-[10.5px] font-extrabold marker-shadow-soft">MM</div>
+              <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--warm-200)] border-[1.5px] border-white flex items-center justify-center">
+                <svg width="7" height="7" viewBox="0 0 16 16"><rect x="2" y="6" width="12" height="6" rx="1.5" fill="#7E7669"/><rect x="4" y="3" width="8" height="3" rx="1" fill="#7E7669"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--warm-400)] mt-1.5">Hors ligne</p>
+        </div>
+        <div class="text-center">
+          <div class="h-16 flex items-center justify-center">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-full bg-[var(--ink)] text-[var(--brand)] flex items-center justify-center text-[10.5px] font-extrabold marker-shadow-soft ring-2 ring-[var(--blue)]">MM</div>
+              <div class="absolute -bottom-1 -right-2 px-1 py-0.5 rounded-full bg-[var(--blue)] text-white text-[7px] font-extrabold tracking-wider">COURSE</div>
+            </div>
+          </div>
+          <p class="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--warm-500)] mt-1.5">En course</p>
+        </div>
+      </div>
+
+      <div class="px-5 pt-3 pb-5 border-t border-[var(--warm-200)] text-[11.5px] text-[var(--warm-500)] leading-relaxed">
+        <strong class="text-[var(--ink)]">Pourquoi :</strong> distingue les chauffeurs entre eux dans un groupe,
+        social. <strong class="text-[var(--ink)]">À noter :</strong> moins « voiture » au premier regard, demande
+        un nom court par chauffeur.
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       Hybride recommandé : A + bascule selon l'usage
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="mt-12 bg-[var(--ink)] rounded-3xl overflow-hidden">
+    <div class="px-8 pt-8 pb-6">
+      <span class="text-[var(--brand)] text-[11px] font-extrabold tracking-[0.18em] uppercase">Recommandation</span>
+      <h2 class="text-[28px] font-extrabold tracking-[-0.015em] text-white mt-2">Top-down par défaut, bascule contextuelle</h2>
+      <p class="text-[13.5px] text-[var(--warm-400)] mt-3 max-w-[720px] leading-relaxed">
+        Sur sa propre carte le chauffeur voit la <strong class="text-white">silhouette taxi top-down</strong> jaune brand.
+        Quand un patron de flotte regarde l'ensemble de ses chauffeurs, on bascule sur la
+        <strong class="text-white">variante avatar+badge</strong> pour distinguer qui est qui — la signature taxi reste
+        présente via le badge jaune.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-px bg-[var(--warm-500)]/20">
+      <!-- Vue chauffeur -->
+      <div class="bg-[var(--ink)] p-8">
+        <p class="text-[11px] font-extrabold tracking-[0.18em] uppercase text-[var(--brand)] mb-3">Vue chauffeur</p>
+        <p class="text-[13.5px] text-white font-bold mb-4">« Où suis-je sur la carte ? »</p>
+        <div class="map-bg rounded-2xl h-[180px] flex items-center justify-center">
+          <div class="relative">
+            <span class="absolute -inset-3 rounded-full bg-[var(--brand)]/30 blur-md"></span>
+            <svg width="56" height="56" viewBox="0 0 56 56" class="marker-shadow relative">
+              <ellipse cx="28" cy="49" rx="18" ry="3" fill="rgba(0,0,0,0.2)"/>
+              <g style="transform: rotate(-25deg); transform-origin: 28px 28px;">
+                <path d="M14 18 Q14 12 20 12 L36 12 Q42 12 42 18 L42 38 Q42 44 36 44 L20 44 Q14 44 14 38 Z" fill="#FFD23F" stroke="#0A0A0A" stroke-width="1.5"/>
+                <path d="M18 16 L20 22 L36 22 L38 16 Z" fill="#1A1A1A" opacity="0.9"/>
+                <path d="M18 40 L20 34 L36 34 L38 40 Z" fill="#1A1A1A" opacity="0.9"/>
+                <line x1="28" y1="22" x2="28" y2="34" stroke="#0A0A0A" stroke-width="0.8" opacity="0.4"/>
+                <circle cx="20" cy="14.5" r="1.2" fill="#FFFFFF" opacity="0.9"/>
+                <circle cx="36" cy="14.5" r="1.2" fill="#FFFFFF" opacity="0.9"/>
+                <rect x="24" y="26" width="8" height="4" rx="1" fill="#FFFFFF" stroke="#0A0A0A" stroke-width="0.8"/>
+              </g>
+            </svg>
+            <span class="pulse-online absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[var(--green)] ring-2 ring-white"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vue patron / groupe -->
+      <div class="bg-[var(--ink)] p-8">
+        <p class="text-[11px] font-extrabold tracking-[0.18em] uppercase text-[var(--brand)] mb-3">Vue groupe / patron</p>
+        <p class="text-[13.5px] text-white font-bold mb-4">« Qui est en ligne maintenant ? »</p>
+        <div class="map-bg rounded-2xl h-[180px] relative">
+          <!-- 3 chauffeurs dispatchés -->
+          <div class="absolute top-[28%] left-[22%]">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-full bg-[var(--ink)] text-[var(--brand)] flex items-center justify-center text-[12px] font-extrabold marker-shadow-soft">MM</div>
+              <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--brand)] border-2 border-white flex items-center justify-center">
+                <svg width="8" height="8" viewBox="0 0 16 16"><rect x="2" y="6" width="12" height="6" rx="1.5" fill="#0A0A0A"/><rect x="4" y="3" width="8" height="3" rx="1" fill="#0A0A0A"/></svg>
+              </div>
+              <span class="absolute -top-0.5 -left-0.5 w-2.5 h-2.5 rounded-full bg-[var(--green)] ring-2 ring-white"></span>
+            </div>
+          </div>
+          <div class="absolute top-[55%] left-[58%]">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-full bg-[var(--ink)] text-[var(--brand)] flex items-center justify-center text-[12px] font-extrabold marker-shadow-soft ring-2 ring-[var(--blue)]">YB</div>
+              <div class="absolute -bottom-1 -right-2 px-1 py-0.5 rounded-full bg-[var(--blue)] text-white text-[7px] font-extrabold tracking-wider">COURSE</div>
+            </div>
+          </div>
+          <div class="absolute top-[15%] left-[68%]">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-full bg-[var(--ink)] text-[var(--brand)] flex items-center justify-center text-[12px] font-extrabold marker-shadow-soft">SF</div>
+              <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--brand)] border-2 border-white flex items-center justify-center">
+                <svg width="8" height="8" viewBox="0 0 16 16"><rect x="2" y="6" width="12" height="6" rx="1.5" fill="#0A0A0A"/><rect x="4" y="3" width="8" height="3" rx="1" fill="#0A0A0A"/></svg>
+              </div>
+              <span class="absolute -top-0.5 -left-0.5 w-2.5 h-2.5 rounded-full bg-[var(--green)] ring-2 ring-white"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- specs techniques -->
+  <section class="mt-12 grid grid-cols-3 gap-6">
+    <div class="bg-white rounded-2xl border border-[var(--warm-200)] p-5">
+      <p class="text-[10.5px] font-extrabold tracking-[0.18em] uppercase text-[var(--warm-500)]">Dimensions</p>
+      <p class="text-[15px] font-bold mt-1.5">40 × 40 px</p>
+      <p class="text-[12px] text-[var(--warm-500)] mt-1.5 leading-relaxed">Légèrement plus dense que l'icône logo actuelle (36×51), mais plus lisible.</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-[var(--warm-200)] p-5">
+      <p class="text-[10.5px] font-extrabold tracking-[0.18em] uppercase text-[var(--warm-500)]">Couleurs</p>
+      <div class="flex items-center gap-3 mt-2">
+        <span class="w-6 h-6 rounded-full bg-[var(--brand)] border border-[var(--ink)]"></span>
+        <span class="w-6 h-6 rounded-full bg-[var(--ink)]"></span>
+        <span class="w-6 h-6 rounded-full bg-[var(--green)] border border-white shadow"></span>
+        <span class="w-6 h-6 rounded-full bg-[var(--blue)] border border-white shadow"></span>
+      </div>
+      <p class="text-[12px] text-[var(--warm-500)] mt-2 leading-relaxed">Brand jaune, ink, signal vert online, bleu en course.</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-[var(--warm-200)] p-5">
+      <p class="text-[10.5px] font-extrabold tracking-[0.18em] uppercase text-[var(--warm-500)]">Implémentation</p>
+      <p class="text-[12px] text-[var(--warm-500)] mt-1.5 leading-relaxed">
+        SVG inline dans une <code class="bg-[var(--warm-100)] px-1 py-0.5 rounded text-[11px]">L.divIcon</code>
+        — pas de cache HTTP, classes CSS pour les états.
+      </p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

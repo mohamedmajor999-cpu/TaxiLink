@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Marker chauffeur — explorations v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --ink:#0A0A0A; --ink-soft:#1A1A1A;
+    --paper:#FAFAF7;
+    --brand:#FFD23F; --brand-deep:#E0B400;
+    --warm-100:#F0EBE2; --warm-200:#E5DFD3; --warm-400:#A8A095; --warm-500:#7E7669; --warm-700:#3A3631;
+    --green:#34D399; --blue:#1E66F5;
+  }
+  body { font-family:'Inter',system-ui,sans-serif; font-feature-settings:"tnum"; background:#EDE8DD; color:var(--ink); }
+
+  /* — fond pseudo-carte premium — */
+  .map-bg {
+    background:
+      radial-gradient(circle at 25% 15%, rgba(255,255,255,0.45) 0%, transparent 35%),
+      linear-gradient(135deg, #ECE6D6 0%, #DAD2BC 50%, #C2B791 100%);
+    position:relative; overflow:hidden;
+  }
+  .map-bg::before {
+    content:''; position:absolute; inset:0;
+    background-image:
+      linear-gradient(0deg, transparent 49.5%, rgba(0,0,0,0.05) 50%, transparent 50.5%),
+      linear-gradient(90deg, transparent 49.5%, rgba(0,0,0,0.05) 50%, transparent 50.5%);
+    background-size:60px 60px;
+    opacity:0.6; pointer-events:none;
+  }
+  .map-bg.dark {
+    background:
+      radial-gradient(circle at 25% 15%, rgba(255,255,255,0.04) 0%, transparent 35%),
+      linear-gradient(135deg, #1B1A18 0%, #14130F 50%, #0B0A08 100%);
+  }
+  .map-bg.dark::before {
+    background-image:
+      linear-gradient(0deg, transparent 49.5%, rgba(255,210,63,0.07) 50%, transparent 50.5%),
+      linear-gradient(90deg, transparent 49.5%, rgba(255,210,63,0.07) 50%, transparent 50.5%);
+  }
+
+  /* — ombres marker — */
+  .drop-deep   { filter: drop-shadow(0 8px 14px rgba(0,0,0,0.32)) drop-shadow(0 3px 4px rgba(0,0,0,0.2)); }
+  .drop-medium { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.24)) drop-shadow(0 2px 3px rgba(0,0,0,0.14)); }
+
+  /* — pulse online — */
+  @keyframes pulse-online {
+    0%,100% { transform:scale(1); opacity:0.55; }
+    50%     { transform:scale(1.55); opacity:0; }
+  }
+  .pulse-dot::before {
+    content:''; position:absolute; inset:0; border-radius:9999px;
+    background:#34D399; animation:pulse-online 2s ease-in-out infinite;
+  }
+
+  /* — spotlight au sol pour iso — */
+  @keyframes pulse-spot {
+    0%,100% { opacity:0.7; transform:translate(-50%,-50%) scale(1); }
+    50%     { opacity:0.35; transform:translate(-50%,-50%) scale(1.25); }
+  }
+  .ground-spot { animation:pulse-spot 2.6s ease-in-out infinite; }
+
+  /* — capsule glassmorphism — */
+  .glass {
+    background:rgba(255,255,255,0.78);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    backdrop-filter:blur(20px) saturate(180%);
+    border:1px solid rgba(0,0,0,0.08);
+  }
+  .glass-dark {
+    background:rgba(20,20,20,0.65);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    backdrop-filter:blur(20px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.12);
+  }
+
+  code { font-family:'JetBrains Mono','SF Mono',Menlo,monospace; font-size:11px; }
+</style>
+</head>
+<body>
+<div class="max-w-[1280px] mx-auto px-6 py-12">
+
+  <header class="mb-12">
+    <p class="text-[12px] font-bold tracking-[0.18em] uppercase text-[var(--warm-500)]">Maquette v2 — Marker chauffeur</p>
+    <h1 class="text-[44px] font-extrabold tracking-[-0.025em] leading-[1.02] mt-3">Trois directions design<br/><span class="text-[var(--warm-400)]">plus radicales</span></h1>
+    <p class="mt-5 text-[14.5px] text-[var(--warm-500)] max-w-[640px] leading-relaxed">
+      On laisse le top-down classique. Ces trois propositions cherchent une signature plus
+      affirmée — entre 3D iso premium, pin sculptural haute-couture, et capsule éditoriale.
+    </p>
+  </header>
+
+  <!-- ════════════════ D — ISO 3D PREMIUM ════════════════ -->
+  <section class="mb-12 bg-white rounded-[28px] border border-[var(--warm-200)] overflow-hidden">
+    <div class="grid grid-cols-[1fr_2fr]">
+      <div class="px-8 py-8">
+        <div class="flex items-baseline gap-2.5 mb-3">
+          <span class="text-[var(--brand-deep)] text-[11px] font-extrabold tracking-[0.2em] uppercase">D — Iso 3D</span>
+          <span class="text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full bg-[var(--brand)] text-[var(--ink)]">Premium</span>
+        </div>
+        <h2 class="text-[26px] font-extrabold tracking-[-0.018em] leading-[1.1]">Voiture isométrique 3D</h2>
+        <p class="text-[13.5px] text-[var(--warm-500)] mt-3 leading-relaxed">
+          Vue 3/4 perspective, carrosserie jaune brand laquée, vitres teintées ink,
+          roues détaillées. Spotlight au sol qui pulse pour signaler « en ligne ».
+        </p>
+        <p class="text-[13.5px] text-[var(--warm-500)] mt-4 leading-relaxed">
+          <strong class="text-[var(--ink)]">Inspiration :</strong> Apple Maps iOS 17, Nothing OS, Bolt Pro.
+          <br/>
+          <strong class="text-[var(--ink)] mt-2 inline-block">Avantage :</strong> instantanément reconnaissable comme « voiture haut de gamme »,
+          la perspective donne un sentiment de présence physique sur la carte.
+        </p>
+        <p class="text-[12.5px] text-[var(--warm-400)] mt-4 leading-relaxed italic">
+          Note technique : SVG ~120 lignes mais cacheable. Pas de rotation (la perspective fixe
+          fait partie de la signature — comme Apple Maps).
+        </p>
+      </div>
+
+      <div class="map-bg p-10 flex items-center justify-center min-h-[340px]">
+        <div class="relative">
+          <!-- spotlight au sol -->
+          <span class="ground-spot absolute left-1/2 top-[80%] w-[100px] h-[20px] rounded-full"
+                style="background:radial-gradient(ellipse,rgba(52,211,153,0.55) 0%,transparent 70%); transform:translate(-50%,-50%);"></span>
+          <!-- ombre voiture -->
+          <span class="absolute left-1/2 top-[88%] w-[68px] h-[14px] rounded-full"
+                style="background:radial-gradient(ellipse,rgba(0,0,0,0.45) 0%,transparent 70%); transform:translate(-50%,-50%);"></span>
+
+          <!-- voiture isométrique -->
+          <svg width="160" height="160" viewBox="0 0 160 160" class="drop-deep relative">
+            <defs>
+              <linearGradient id="bodyD" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FFE57A"/>
+                <stop offset="55%" stop-color="#FFD23F"/>
+                <stop offset="100%" stop-color="#D9B129"/>
+              </linearGradient>
+              <linearGradient id="roofD" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FFEA85"/>
+                <stop offset="100%" stop-color="#FFCB30"/>
+              </linearGradient>
+              <linearGradient id="windowD" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3A3631"/>
+                <stop offset="100%" stop-color="#0A0A0A"/>
+              </linearGradient>
+            </defs>
+
+            <!-- côté arrière (face longue 3/4) -->
+            <path d="M30 95 L62 75 L62 110 L30 130 Z" fill="#D9B129"/>
+            <!-- toit -->
+            <path d="M50 70 L100 65 L120 75 L62 80 Z" fill="url(#roofD)" stroke="#0A0A0A" stroke-width="1"/>
+            <!-- corps principal (face avant 3/4) -->
+            <path d="M50 70 L62 80 L62 110 L130 100 L130 80 L100 65 Z" fill="url(#bodyD)" stroke="#0A0A0A" stroke-width="1.2"/>
+            <!-- vitre arrière -->
+            <path d="M55 73 L65 78 L78 75 L72 70 Z" fill="url(#windowD)"/>
+            <!-- vitre latérale -->
+            <path d="M68 78 L70 92 L92 88 L92 73 Z" fill="url(#windowD)" opacity="0.92"/>
+            <!-- pare-brise -->
+            <path d="M95 72 L98 88 L120 84 L114 70 Z" fill="url(#windowD)" opacity="0.92"/>
+            <!-- bandeau-ceinture -->
+            <line x1="62" y1="80" x2="130" y2="80" stroke="#0A0A0A" stroke-width="0.8" opacity="0.5"/>
+            <!-- séparateurs portières -->
+            <line x1="80" y1="80" x2="80" y2="92" stroke="#0A0A0A" stroke-width="0.8" opacity="0.5"/>
+            <line x1="95" y1="80" x2="95" y2="90" stroke="#0A0A0A" stroke-width="0.8" opacity="0.5"/>
+            <!-- toit lumineux taxi (rooftop sign) -->
+            <path d="M75 67 L92 65.5 L92 60 L77 61.5 Z" fill="#FFFFFF" stroke="#0A0A0A" stroke-width="1"/>
+            <text x="84" y="65" text-anchor="middle" font-size="6" font-weight="900" fill="#0A0A0A" font-family="Inter">TAXI</text>
+            <!-- phares avant -->
+            <ellipse cx="123" cy="86" rx="3.5" ry="2" fill="#FFFFFF" stroke="#0A0A0A" stroke-width="0.6"/>
+            <ellipse cx="105" cy="91" rx="3" ry="1.6" fill="#FFFFFF" opacity="0.85"/>
+            <!-- roue avant -->
+            <ellipse cx="118" cy="106" rx="6" ry="3.5" fill="#0A0A0A"/>
+            <ellipse cx="118" cy="106" rx="3.5" ry="2" fill="#3A3631"/>
+            <ellipse cx="118" cy="105" rx="1.5" ry="0.8" fill="#A8A095"/>
+            <!-- roue arrière -->
+            <ellipse cx="74" cy="115" rx="6" ry="3.5" fill="#0A0A0A"/>
+            <ellipse cx="74" cy="115" rx="3.5" ry="2" fill="#3A3631"/>
+            <ellipse cx="74" cy="114" rx="1.5" ry="0.8" fill="#A8A095"/>
+          </svg>
+
+          <!-- badge online (en haut, plus design qu'un dot) -->
+          <div class="absolute -top-1 -right-2 flex items-center gap-1.5 px-2 py-1 rounded-full bg-white border border-[var(--ink)]/15 shadow-sm">
+            <span class="relative w-1.5 h-1.5 rounded-full bg-[var(--green)]">
+              <span class="pulse-dot"></span>
+            </span>
+            <span class="text-[9.5px] font-extrabold uppercase tracking-[0.1em]">En ligne</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ E — PIN SCULPTURAL ════════════════ -->
+  <section class="mb-12 bg-[var(--ink)] rounded-[28px] overflow-hidden">
+    <div class="grid grid-cols-[1fr_2fr]">
+      <div class="px-8 py-8 text-white">
+        <div class="flex items-baseline gap-2.5 mb-3">
+          <span class="text-[var(--brand)] text-[11px] font-extrabold tracking-[0.2em] uppercase">E — Pin sculptural</span>
+          <span class="text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full bg-white text-[var(--ink)]">Signature</span>
+        </div>
+        <h2 class="text-[26px] font-extrabold tracking-[-0.018em] leading-[1.1]">Tear-drop ink + voiture jaune sculptée</h2>
+        <p class="text-[13.5px] text-[var(--warm-200)] mt-3 leading-relaxed">
+          Un pin tear-drop noir mat avec gradient subtil, la voiture est <em>sculptée à
+          l'intérieur</em> en jaune brand. La pointe ancre précisément la position GPS.
+        </p>
+        <p class="text-[13.5px] text-[var(--warm-200)] mt-4 leading-relaxed">
+          <strong class="text-white">Inspiration :</strong> Issey Miyake, Off-White, packaging Aesop.
+          <br/>
+          <strong class="text-white mt-2 inline-block">Avantage :</strong> identité unique, ne ressemble à aucune autre app.
+          Reste lisible en zoom-out (pin = silhouette compacte qui tient son ancre).
+        </p>
+        <p class="text-[12.5px] text-[var(--warm-400)] mt-4 leading-relaxed italic">
+          Note : haut de gamme, design « Made in France ». Convient bien à la posture
+          haut-de-gamme face à Uber/Heetch (positionnement « entre pros »).
+        </p>
+      </div>
+
+      <div class="map-bg dark p-10 flex items-center justify-center min-h-[340px]">
+        <div class="relative">
+          <!-- ombre projection au sol (plus diffuse, plus soft) -->
+          <span class="absolute left-1/2 -bottom-3 w-[60px] h-[14px] rounded-full"
+                style="background:radial-gradient(ellipse,rgba(0,0,0,0.7) 0%,transparent 70%); transform:translateX(-50%);"></span>
+
+          <!-- pin tear-drop avec voiture intégrée -->
+          <svg width="120" height="160" viewBox="0 0 120 160" class="drop-deep relative">
+            <defs>
+              <linearGradient id="pinE" x1="0.5" y1="0" x2="0.5" y2="1">
+                <stop offset="0%" stop-color="#252321"/>
+                <stop offset="55%" stop-color="#0F0E0C"/>
+                <stop offset="100%" stop-color="#000000"/>
+              </linearGradient>
+              <radialGradient id="discE" cx="0.5" cy="0.4" r="0.6">
+                <stop offset="0%" stop-color="#FFE57A"/>
+                <stop offset="60%" stop-color="#FFD23F"/>
+                <stop offset="100%" stop-color="#D9B129"/>
+              </radialGradient>
+            </defs>
+
+            <!-- corps tear-drop -->
+            <path d="M60 8 C28 8 12 32 12 56 C12 84 60 152 60 152 C60 152 108 84 108 56 C108 32 92 8 60 8 Z"
+                  fill="url(#pinE)"/>
+            <!-- highlight bordure haut (effet matière) -->
+            <path d="M60 12 C32 12 16 34 16 56 C16 60 16 64 17 68" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+
+            <!-- disque jaune intérieur (cuvette dans laquelle vit la voiture) -->
+            <circle cx="60" cy="55" r="33" fill="url(#discE)" stroke="#000000" stroke-width="1.5"/>
+
+            <!-- voiture top-down sculptée à l'intérieur (rotation -20°) -->
+            <g style="transform: rotate(-20deg); transform-origin: 60px 55px;">
+              <!-- carrosserie -->
+              <path d="M48 38 Q48 32 54 32 L66 32 Q72 32 72 38 L72 72 Q72 78 66 78 L54 78 Q48 78 48 72 Z"
+                    fill="#000000" opacity="0.92"/>
+              <!-- pare-brise -->
+              <path d="M52 36 L54 44 L66 44 L68 36 Z" fill="rgba(255,255,255,0.4)"/>
+              <!-- vitre arrière -->
+              <path d="M52 74 L54 64 L66 64 L68 74 Z" fill="rgba(255,255,255,0.4)"/>
+              <!-- toit lumineux taxi -->
+              <rect x="56" y="50" width="8" height="4" rx="1" fill="#FFFFFF"/>
+              <text x="60" y="53.5" text-anchor="middle" font-size="3" font-weight="900" fill="#000000" font-family="Inter">T</text>
+            </g>
+
+            <!-- micro indicator online -->
+            <circle cx="92" cy="34" r="6" fill="#34D399" stroke="#FFFFFF" stroke-width="1.8"/>
+          </svg>
+
+          <!-- secondaire : variante hors ligne et en course -->
+          <div class="absolute -right-32 top-2 flex flex-col gap-4">
+            <div class="text-center">
+              <svg width="60" height="80" viewBox="0 0 120 160" class="drop-medium" style="opacity:0.55;">
+                <path d="M60 8 C28 8 12 32 12 56 C12 84 60 152 60 152 C60 152 108 84 108 56 C108 32 92 8 60 8 Z" fill="#1A1A1A"/>
+                <circle cx="60" cy="55" r="33" fill="#7E7669"/>
+                <g style="transform: rotate(-20deg); transform-origin: 60px 55px;">
+                  <path d="M48 38 Q48 32 54 32 L66 32 Q72 32 72 38 L72 72 Q72 78 66 78 L54 78 Q48 78 48 72 Z" fill="#3A3631"/>
+                  <rect x="56" y="50" width="8" height="4" rx="1" fill="#A8A095"/>
+                </g>
+              </svg>
+              <p class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-[var(--warm-400)] mt-1">Hors ligne</p>
+            </div>
+            <div class="text-center">
+              <div class="relative inline-block">
+                <svg width="60" height="80" viewBox="0 0 120 160" class="drop-medium">
+                  <path d="M60 8 C28 8 12 32 12 56 C12 84 60 152 60 152 C60 152 108 84 108 56 C108 32 92 8 60 8 Z" fill="#0A0A0A"/>
+                  <circle cx="60" cy="55" r="33" fill="#FFD23F" stroke="#000" stroke-width="1.5"/>
+                  <g style="transform: rotate(-20deg); transform-origin: 60px 55px;">
+                    <path d="M48 38 Q48 32 54 32 L66 32 Q72 32 72 38 L72 72 Q72 78 66 78 L54 78 Q48 78 48 72 Z" fill="#000" opacity="0.92"/>
+                    <rect x="56" y="50" width="8" height="4" rx="1" fill="#FFF"/>
+                  </g>
+                  <circle cx="92" cy="34" r="6" fill="#1E66F5" stroke="#FFF" stroke-width="1.8"/>
+                </svg>
+                <span class="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full bg-[var(--blue)] text-white text-[7px] font-extrabold tracking-wider whitespace-nowrap">EN COURSE</span>
+              </div>
+              <p class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-[var(--warm-400)] mt-1">En course</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ F — CAPSULE ÉDITORIALE ════════════════ -->
+  <section class="mb-12 bg-white rounded-[28px] border border-[var(--warm-200)] overflow-hidden">
+    <div class="grid grid-cols-[1fr_2fr]">
+      <div class="px-8 py-8">
+        <div class="flex items-baseline gap-2.5 mb-3">
+          <span class="text-[var(--brand-deep)] text-[11px] font-extrabold tracking-[0.2em] uppercase">F — Capsule</span>
+          <span class="text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full bg-[var(--ink)] text-[var(--brand)]">Éditorial</span>
+        </div>
+        <h2 class="text-[26px] font-extrabold tracking-[-0.018em] leading-[1.1]">Pill glassmorphism + voiture micro</h2>
+        <p class="text-[13.5px] text-[var(--warm-500)] mt-3 leading-relaxed">
+          Une capsule horizontale en glass blur avec mini-voiture jaune à gauche et
+          info contextuelle à droite : nom court, ETA, ou statut. Plus dense, plus
+          informatif, ne ressemble à rien de ce qu'utilisent les concurrents.
+        </p>
+        <p class="text-[13.5px] text-[var(--warm-500)] mt-4 leading-relaxed">
+          <strong class="text-[var(--ink)]">Inspiration :</strong> Linear, Vercel, Cash App, Apple Pencil Hover.
+          <br/>
+          <strong class="text-[var(--ink)] mt-2 inline-block">Avantage :</strong> ajoute de l'info utile
+          (ETA, distance, nom) directement sur la carte sans avoir à cliquer.
+          Ressort en mode jour comme en nuit.
+        </p>
+        <p class="text-[12.5px] text-[var(--warm-400)] mt-4 leading-relaxed italic">
+          Note : la capsule est plus large (~110×38 px). À petit zoom, le texte disparaît
+          et seule la voiture reste — dégradation gracieuse.
+        </p>
+      </div>
+
+      <div class="map-bg p-10 flex items-center justify-center min-h-[340px] gap-12 flex-wrap">
+        <!-- Capsule : moi en ligne -->
+        <div class="text-center">
+          <div class="relative inline-flex items-center gap-2 px-2 py-1.5 rounded-full glass drop-medium">
+            <!-- mini voiture top-down -->
+            <span class="relative w-7 h-7 rounded-full bg-[var(--brand)] border border-[var(--ink)] flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 16 16">
+                <path d="M5 3 Q5 1.5 6.5 1.5 L9.5 1.5 Q11 1.5 11 3 L11 13 Q11 14.5 9.5 14.5 L6.5 14.5 Q5 14.5 5 13 Z" fill="#0A0A0A"/>
+                <rect x="6" y="2" width="4" height="3" rx="0.5" fill="rgba(255,255,255,0.55)"/>
+                <rect x="6" y="11" width="4" height="3" rx="0.5" fill="rgba(255,255,255,0.55)"/>
+                <rect x="7" y="7" width="2" height="1.5" rx="0.3" fill="#FFD23F"/>
+              </svg>
+            </span>
+            <span class="pr-1 text-[12.5px] font-bold tracking-tight text-[var(--ink)]">Moi</span>
+            <span class="relative flex items-center justify-center w-2 h-2 rounded-full bg-[var(--green)] mr-0.5">
+              <span class="pulse-dot"></span>
+            </span>
+          </div>
+          <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--warm-500)] mt-3">En ligne</p>
+        </div>
+
+        <!-- Capsule avec ETA (autre chauffeur du groupe) -->
+        <div class="text-center">
+          <div class="relative inline-flex items-center gap-2 px-2 py-1.5 rounded-full glass drop-medium">
+            <span class="relative w-7 h-7 rounded-full bg-[var(--brand)] border border-[var(--ink)] flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 16 16">
+                <path d="M5 3 Q5 1.5 6.5 1.5 L9.5 1.5 Q11 1.5 11 3 L11 13 Q11 14.5 9.5 14.5 L6.5 14.5 Q5 14.5 5 13 Z" fill="#0A0A0A"/>
+                <rect x="6" y="2" width="4" height="3" rx="0.5" fill="rgba(255,255,255,0.55)"/>
+                <rect x="6" y="11" width="4" height="3" rx="0.5" fill="rgba(255,255,255,0.55)"/>
+                <rect x="7" y="7" width="2" height="1.5" rx="0.3" fill="#FFD23F"/>
+              </svg>
+            </span>
+            <span class="text-[12.5px] font-bold tracking-tight text-[var(--ink)]">YB</span>
+            <span class="text-[11px] font-bold tabular-nums text-[var(--warm-500)] pr-1.5">5 min</span>
+          </div>
+          <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--warm-500)] mt-3">ETA visible</p>
+        </div>
+
+        <!-- Capsule en course -->
+        <div class="text-center">
+          <div class="relative inline-flex items-center gap-2 px-2 py-1.5 rounded-full drop-medium"
+               style="background:#0A0A0A; border:1px solid rgba(255,255,255,0.08);">
+            <span class="relative w-7 h-7 rounded-full bg-[var(--blue)] border border-white/30 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 16 16">
+                <path d="M5 3 Q5 1.5 6.5 1.5 L9.5 1.5 Q11 1.5 11 3 L11 13 Q11 14.5 9.5 14.5 L6.5 14.5 Q5 14.5 5 13 Z" fill="#FFF"/>
+                <rect x="6" y="2" width="4" height="3" rx="0.5" fill="rgba(0,0,0,0.4)"/>
+                <rect x="6" y="11" width="4" height="3" rx="0.5" fill="rgba(0,0,0,0.4)"/>
+                <rect x="7" y="7" width="2" height="1.5" rx="0.3" fill="#1E66F5"/>
+              </svg>
+            </span>
+            <span class="text-[10.5px] font-extrabold uppercase tracking-[0.12em] text-[var(--brand)] pr-1.5">En course</span>
+          </div>
+          <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--warm-500)] mt-3">Course active</p>
+        </div>
+
+        <!-- Capsule hors ligne -->
+        <div class="text-center">
+          <div class="relative inline-flex items-center gap-2 px-2 py-1.5 rounded-full drop-medium"
+               style="background:rgba(255,255,255,0.6); border:1px solid rgba(0,0,0,0.06);">
+            <span class="relative w-7 h-7 rounded-full bg-[var(--warm-200)] border border-[var(--warm-400)] flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 16 16">
+                <path d="M5 3 Q5 1.5 6.5 1.5 L9.5 1.5 Q11 1.5 11 3 L11 13 Q11 14.5 9.5 14.5 L6.5 14.5 Q5 14.5 5 13 Z" fill="#7E7669"/>
+                <rect x="7" y="7" width="2" height="1.5" rx="0.3" fill="#FFF" opacity="0.5"/>
+              </svg>
+            </span>
+            <span class="text-[12.5px] font-bold tracking-tight text-[var(--warm-400)] pr-1.5">Moi</span>
+          </div>
+          <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--warm-400)] mt-3">Hors ligne</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ Comparatif synthèse ════════════════ -->
+  <section class="bg-white rounded-3xl border border-[var(--warm-200)] overflow-hidden">
+    <div class="px-8 py-7 border-b border-[var(--warm-200)]">
+      <h2 class="text-[22px] font-extrabold tracking-[-0.015em]">Comment trancher ?</h2>
+    </div>
+    <div class="grid grid-cols-3 divide-x divide-[var(--warm-200)]">
+      <div class="px-7 py-6">
+        <p class="text-[11px] font-extrabold tracking-[0.18em] uppercase text-[var(--brand-deep)]">D — Iso 3D</p>
+        <p class="text-[13px] mt-2.5 leading-relaxed">
+          <strong>Choisis ça si</strong> tu veux un rendu « premium-mobilité » immédiatement
+          identifiable comme une voiture. C'est la voie sûre, le standard haut de gamme.
+        </p>
+        <p class="text-[12px] mt-3 text-[var(--warm-500)]">
+          Inconvénient : rendu fixe, perspective non-orientable au heading GPS.
+        </p>
+      </div>
+      <div class="px-7 py-6">
+        <p class="text-[11px] font-extrabold tracking-[0.18em] uppercase text-[var(--ink)]">E — Pin sculptural</p>
+        <p class="text-[13px] mt-2.5 leading-relaxed">
+          <strong>Choisis ça si</strong> tu veux une signature visuelle <em>unique</em> qui
+          devient un asset de marque. Ça raconte « entre pros, entre nous », pas Uber.
+        </p>
+        <p class="text-[12px] mt-3 text-[var(--warm-500)]">
+          Inconvénient : moins « voiture » au premier regard, plus iconique que littéral.
+        </p>
+      </div>
+      <div class="px-7 py-6">
+        <p class="text-[11px] font-extrabold tracking-[0.18em] uppercase text-[var(--brand-deep)]">F — Capsule</p>
+        <p class="text-[13px] mt-2.5 leading-relaxed">
+          <strong>Choisis ça si</strong> tu veux densité d'info sur la carte (ETA, nom, statut)
+          sans clic. Forte valeur pour le mode « groupe » avec plusieurs chauffeurs visibles.
+        </p>
+        <p class="text-[12px] mt-3 text-[var(--warm-500)]">
+          Inconvénient : moins compact, peut encombrer si beaucoup de markers proches.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

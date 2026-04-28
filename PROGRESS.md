@@ -6,6 +6,78 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ## ✅ Terminé
 
+### Câblage v4 « Poster une course » sur le backend réel (2026-04-28)
+Le design v4 a été validé. Remplacement du state local de la maquette `/dashboard/poster-mockup` par un vrai hook orchestrateur qui réutilise toute l'infra existante.
+
+**Livré (commits `f99af5a` câblage initial, `bcfabdb` voice flow + drawer)** sur la branche `accueil-carte-annonce` (preview Vercel) :
+- [`usePosterCourse`](apps/web/src/components/dashboard/poster-mockup/usePosterCourse.ts) : oriente `useMissionFormState` + `useMissionRoute` (Google Routes API + OSRM fallback) + `useMissionPricing` (calcul CPAM/privé live) + `useMissionVoiceFiller` (Anthropic API) + `groupService.getMyGroups` + `submitMission`. Mappage interne : STD→PRIVE, HPJ→HDJ, CONS→CONSULTATION, tpmr→`transportType:WHEELCHAIR`.
+- [`AddressLineInput`](apps/web/src/components/dashboard/poster-mockup/AddressLineInput.tsx) : champ adresse hairline qui réutilise `useAddressField` (autocomplete Google Places + cache session) + `useAddressFieldVoice` (smart lookup BAN/Photon/Mapbox), sans le chrome card pour matcher le design éditorial.
+- [`PosterCpamBlock`](apps/web/src/components/dashboard/poster-mockup/PosterCpamBlock.tsx) + [`PosterFooter`](apps/web/src/components/dashboard/poster-mockup/PosterFooter.tsx) : extraits pour respecter le seuil 200 lignes.
+- Tous les champs contrôlés, picker date/heure inline si « Plus tard », footer avec prix + km + min en live, bouton « Tout dicter » câblé sur Anthropic API, dictée par champ via mics ciblés.
+
+**Voice flow in-page** (commit `bcfabdb`) :
+- [`usePosterVoiceFlow`](apps/web/src/components/dashboard/poster-mockup/usePosterVoiceFlow.ts) : machine d'état (idle / listening / processing / asking) qui orchestre la dictée sans changer d'écran. Détecte les champs critiques manquants après parse et enchaîne une question de relance via `parseVoiceAnswer`.
+- [`PosterVoiceBanner`](apps/web/src/components/dashboard/poster-mockup/PosterVoiceBanner.tsx) : bannière sous le header qui rend l'état courant (transcription, analyse, relance, erreur).
+- [`posterMissingFields`](apps/web/src/components/dashboard/poster-mockup/posterMissingFields.ts) : helper qui extrait la liste des champs critiques manquants (départ, arrivée, motif CPAM, patient, date) pour piloter les questions de relance.
+
+**Hamburger + nav drawer dans la page poster** (commit `bcfabdb`) :
+- Le bouton retour (← arrow_back) est remplacé par un **hamburger** qui ouvre le `MobileNavDrawer` — même menu que le dashboard, plus cohérent qu'un `router.back` qui pouvait sortir de l'app si on arrivait depuis un lien externe.
+- Navigation vers les onglets via `router.push('/dashboard/chauffeur?tab=…')` ; pastille rouge sur le burger si acceptations non vues.
+
+**Reste à faire** (après validation prod) :
+- Refacto réel du [`PartagerMissionModal`](apps/web/src/components/dashboard/driver/PartagerMissionModal.tsx) en réutilisant ces mêmes hooks
+- Suppression des modes Guidé / Vocal historiques (`MissionFormVocal`, `GuidedMissionFlow`, `MissionModeToggle`)
+- Migration du « + » de la sidebar/FAB définitivement sur la nouvelle page (le rebranchement actuel est temporaire — voir [DriverDashboard.tsx:77](apps/web/src/components/dashboard/driver/DriverDashboard.tsx#L77))
+
+### Mise en ligne fiable + topbar/FAB mobile uniformes (2026-04-28)
+Deux chantiers cohérents qui partagent la même cause : le toggle « En ligne » était fragile (fire-and-forget, `load()` relisait au remount) et la barre haute mobile dupliquait des boutons inline dans `DriverDashboard`.
+
+**Mise en ligne** (commit `3baec43`) :
+- `setOnline` devient async et rollback l'optimistic-update si l'écriture DB échoue. Sans ça, le local pouvait diverger silencieusement de la DB (cf. bug Fontaine Samsung Browser).
+- `load()` devient idempotent par userId : un remount du `DriverDashboard` (ex. retour depuis `/dashboard/poster-mockup`) ne refetch plus et n'écrase plus `isOnline` par une lecture potentiellement obsolète (écriture en vol, cron qui flippe entre-temps).
+- [`DriverHome`](apps/web/src/components/dashboard/driver/DriverHome.tsx) attend la promesse et catch silencieux (rollback géré dans le store).
+- 4 cas de tests ajoutés sur `driverStore` (rollback erreur, idempotence load, refetch sur changement d'userId).
+
+**Sidebar / topbar mobile** (commit `3baec43`) :
+- Nouveau composant [`MobileTopbar`](apps/web/src/components/taxilink/MobileTopbar.tsx) avec deux variants : `floating` (home, par-dessus la carte) et `bar` (autres onglets, barre 56 px).
+- `DriverDashboard` délègue à `MobileTopbar` au lieu d'inliner deux boutons + un FAB. Le **FAB +** migre dans [`DriverHomeMap`](apps/web/src/components/dashboard/driver/home/DriverHomeMap.tsx) (au-dessus de la carte) où il a vraiment du sens, et disparaît des autres onglets.
+- `DriverCoursesScreen` / Groupes / Profil : `pt-[calc(56px+safe-area)]` pour laisser la place à la topbar.
+- `MobileNavDrawer` : z-index 700→1100 pour passer au-dessus des contrôles Leaflet plein-écran.
+
+### Polish drawer + avatar accueil + initiales (2026-04-28)
+Trois petits fixes UX cohérents :
+- **Initiales accueil masquées sur desktop** (commit `be1eae5`) : sur desktop la `SidebarNav` affiche déjà l'avatar+initiales en bas — le bouton sur la carte était redondant. Sur mobile (`md:hidden`), il reste comme raccourci 1-clic vers le profil (le `MobileTopbar` n'expose qu'un burger). Une seule ligne touchée dans [`DriverHomeTopOverlay.tsx`](apps/web/src/components/dashboard/driver/home/DriverHomeTopOverlay.tsx).
+- **Avatar drawer cliquable vers profil** (commit `12e406d`) : le bloc avatar+nom dans le `MobileNavDrawer` est maintenant un bouton qui ouvre l'onglet Profil et ferme le drawer. Avant, il fallait passer par l'item « Mon profil » de la liste.
+- **Bottom sheet « one » à 5%** (commit `774b16e`) : la position basse de la sheet draggable est descendue de 7% → 5% pour donner encore plus de place à la carte.
+
+### Marker chauffeur sur la carte — exploration design (2026-04-28, **en cours**)
+Le marker actuel pour la position du chauffeur utilise [`/brand/icon.svg`](apps/web/public/brand/icon.svg) (le logo TaxiLink) via [`createMeMarkerIcon`](apps/web/src/components/dashboard/driver/home/missionMapPin.ts#L24-L32). Décision UX : le remplacer par une **voiture top-down style Mapbox / Uber / Bolt**.
+
+**Itérations design** (3 maquettes HTML rejetées une à une avant convergence) :
+- [`mockups/taxi-marker.html`](mockups/taxi-marker.html) — 3 directions classiques (top-down stylisé / disque taxi / avatar+badge) — rejeté
+- [`mockups/taxi-marker-v2.html`](mockups/taxi-marker-v2.html) — 3 directions plus radicales (iso 3D / pin sculptural / capsule glassmorphism) — rejeté
+- [`mockups/taxi-marker-v3.html`](mockups/taxi-marker-v3.html) — focus pure top-down Uber-like (SVG fait main, 2 variantes pure noir + bande jaune signature) — SVG jugé catastrophique
+
+**Référence visuelle finale** : screenshot Mapbox partagé par le user — Tesla Model S top-down, halo blanc diffus, cone de phares projetant vers l'avant, carrosserie blanche toit en verre noir teinté.
+
+**Décision** : utiliser un **asset PNG photoréaliste** (pas un SVG fait main, qui ne tient pas le niveau) + halo + cone codés en CSS par-dessus + rotation `coords.heading` GPS.
+
+**Statut au 28/04 soir** :
+- Vecteezy Pro asset trouvé (4928×3712 AI-generated) mais subscription requise → écarté
+- Pivot Bing Image Creator (DALL-E 3 gratuit) : 3 images générées par le user — toutes en vue 3/4 oblique, **pas en top-down strict**
+- Choix laissé au user pour demain :
+  - **A** : regénérer sur Bing avec un prompt insistant sur « 90° / strict overhead view » → permettra rotation GPS
+  - **B** : accepter une vue iso 3/4 fixe (image 2 Bing — Tesla blanc toit noir) → marker fixe orienté nord, plus premium mais sans rotation
+
+**Reste à faire** (demain) :
+- Choix A vs B
+- Si A : nouvelles images Bing top-down strict
+- Téléchargement de l'asset retenu → `apps/web/public/brand/car-top.png`
+- Modification de [`missionMapPin.ts:24-32`](apps/web/src/components/dashboard/driver/home/missionMapPin.ts#L24-L32) pour utiliser le nouveau PNG
+- Halo blanc (radial-gradient CSS) + cone phares (linear-gradient + clip-path) en overlay
+- Si choix A : câblage `navigator.geolocation.watchPosition` → `coords.heading` → `transform:rotate()` sur le SVG/PNG
+- États `is_online` / `en course` (halo vert pulsant / halo bleu fixe)
+
 ### Fix presence — beacon offline trop agressif sur mobile (2026-04-27, soir)
 Bug remonté en test prod sur compte Fontaine (Samsung Browser Android) : « je me mets en ligne, je change de tab vers Mes courses ou Groupes, je repasse hors ligne ». Diagnostic via Supabase MCP : `is_online=false` mais `last_seen_at` < 120 s — quelque chose flippait `is_online` sans toucher `last_seen_at`.
 
