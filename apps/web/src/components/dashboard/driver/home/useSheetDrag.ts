@@ -5,7 +5,7 @@ import { useEffect, useRef, type RefObject } from 'react'
 // on ne laisse que la barre de drag visible (~handle 40px + petit margin),
 // l'utilisateur tire vers le haut pour deployer la liste. Default = one.
 export type SheetSnap = 'one' | 'two' | 'three' | 'four'
-export const SHEET_FRACTION: Record<SheetSnap, number> = { one: 0.07, two: 0.4, three: 0.6, four: 0.8 }
+export const SHEET_FRACTION: Record<SheetSnap, number> = { one: 0.05, two: 0.4, three: 0.6, four: 0.8 }
 const TAP_THRESHOLD_PX = 6
 
 const TAP_CYCLE: Record<SheetSnap, SheetSnap> = { two: 'three', three: 'four', four: 'one', one: 'two' }
