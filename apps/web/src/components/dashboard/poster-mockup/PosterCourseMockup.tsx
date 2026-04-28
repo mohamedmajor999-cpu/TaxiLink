@@ -51,7 +51,7 @@ export function PosterCourseMockup() {
           <Chip active={form.type === 'CPAM'} onClick={() => form.setType('CPAM')} icon="medical_services" label="CPAM" />
         </div>
 
-        <div className="border-t border-warm-200">
+        <div className="mt-[5px] border-t border-warm-200">
           <FieldRow leadIcon={<span className="w-3 h-3 rounded-full bg-ink" />}>
             <AddressLineInput
               label="Départ" placeholder="Adresse de prise en charge"
