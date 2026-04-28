@@ -63,6 +63,8 @@ export function useMissionVoiceFiller(args: Args) {
     add(parsed.type, 'type'); add(parsed.medical_motif, 'medicalMotif')
     add(parsed.date, 'date'); add(parsed.time, 'time')
     add(parsed.departure, 'departure'); add(parsed.destination, 'destination')
+    add(parsed.phone, 'phone'); add(parsed.return_trip, 'returnTrip')
+    add(parsed.passengers != null, 'passengers')
     parsedFieldsRef.current = fields
     setParsedFields(fields)
 

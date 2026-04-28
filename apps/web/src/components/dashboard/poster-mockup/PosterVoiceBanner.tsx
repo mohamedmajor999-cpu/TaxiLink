@@ -44,9 +44,9 @@ export function PosterVoiceBanner({ flow }: Props) {
         <div className="flex-1 min-w-0">
           <div className="text-[11.5px] font-bold uppercase tracking-[0.04em] opacity-80">
             {title}
-            {flow.relanceCount > 0 && tone === 'asking' && (
+            {tone === 'asking' && flow.currentAttempt > 0 && (
               <span className="ml-2 opacity-70 normal-case tracking-normal">
-                {flow.relanceCount}/{flow.maxRelances}
+                Tentative {flow.currentAttempt}/{flow.maxAttempts}
               </span>
             )}
           </div>
