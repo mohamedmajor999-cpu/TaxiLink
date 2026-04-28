@@ -1,7 +1,6 @@
 'use client'
 import type { ReactNode } from 'react'
-import { MapPin, Moon, Sun, Clock } from 'lucide-react'
-import type { NightModePref } from '@/store/nightModeStore'
+import { MapPin, Moon, Sun } from 'lucide-react'
 
 interface Props {
   isOnline: boolean
@@ -11,7 +10,6 @@ interface Props {
   onProfile: () => void
   onRequestLocation?: () => void
   middle?: ReactNode
-  nightPref?: NightModePref
   nightActive?: boolean
   onToggleNight?: () => void
 }
@@ -19,12 +17,10 @@ interface Props {
 export function DriverHomeTopOverlay({
   isOnline, count, initials,
   onToggleOnline, onProfile, onRequestLocation, middle,
-  nightPref, nightActive, onToggleNight,
+  nightActive, onToggleNight,
 }: Props) {
-  const NightIcon = nightPref === 'auto' ? Clock : nightActive ? Moon : Sun
-  const nightLabel = nightPref === 'auto'
-    ? `Mode auto (${nightActive ? 'nuit' : 'jour'})`
-    : nightActive ? 'Mode nuit' : 'Mode jour'
+  const NightIcon = nightActive ? Moon : Sun
+  const nightLabel = nightActive ? 'Mode nuit' : 'Mode jour'
   return (
     <div className="absolute top-3 left-0 right-0 pl-[64px] pr-4 md:px-4 z-[500] flex items-center justify-between gap-2 pointer-events-none">
       <button

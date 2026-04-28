@@ -1,5 +1,5 @@
 'use client'
-import { LocateFixed, Maximize2, Minimize2, Plus } from 'lucide-react'
+import { LocateFixed, Maximize2, Minimize2 } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { useDriverHomeMap } from './useDriverHomeMap'
 import { useMissionMarkers } from './useMissionMarkers'
@@ -14,12 +14,11 @@ interface Props {
   fullscreen?: boolean
   onToggleFullscreen?: () => void
   night?: boolean
-  onPostCourse?: () => void
 }
 
 export function DriverHomeMap({
   missions, userCoords, userAccuracy, selectedId, onSelect, className,
-  fullscreen, onToggleFullscreen, night, onPostCourse,
+  fullscreen, onToggleFullscreen, night,
 }: Props) {
   const { containerRef, recenter, mapRef } = useDriverHomeMap({ userCoords, userAccuracy, night })
   useMissionMarkers({ mapRef, missions, selectedId, onSelect })
@@ -36,7 +35,7 @@ export function DriverHomeMap({
           type="button"
           onClick={onToggleFullscreen}
           aria-label={fullscreen ? 'Quitter le plein écran' : 'Carte en plein écran'}
-          className="md:hidden absolute bottom-[148px] right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
+          className="md:hidden absolute bottom-[64px] right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
         >
           {fullscreen
             ? <Minimize2 className="w-5 h-5" strokeWidth={2} />
@@ -48,19 +47,9 @@ export function DriverHomeMap({
           type="button"
           onClick={recenter}
           aria-label="Recentrer sur ma position"
-          className="absolute bottom-[88px] right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
+          className="absolute bottom-3 right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
         >
           <LocateFixed className="w-5 h-5" strokeWidth={2} />
-        </button>
-      )}
-      {onPostCourse && (
-        <button
-          type="button"
-          onClick={onPostCourse}
-          aria-label="Poster une course"
-          className="md:hidden absolute bottom-3 right-3 z-[500] w-14 h-14 rounded-full bg-brand text-ink shadow-fab hover:shadow-fab-hover active:scale-95 transition-all flex items-center justify-center"
-        >
-          <Plus className="w-7 h-7" strokeWidth={2.6} />
         </button>
       )}
     </div>

@@ -62,7 +62,6 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
             fullscreen={mapFullscreen}
             onToggleFullscreen={() => onMapFullscreenChange(!mapFullscreen)}
             night={night.active}
-            onPostCourse={onPostCourse}
           />
           <DriverHomeTopOverlay
             isOnline={h.driver.isOnline}
@@ -71,7 +70,6 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
             onToggleOnline={() => { h.setOnline(!h.driver.isOnline).catch(() => { /* rollback gere dans le store */ }) }}
             onProfile={onGoToProfile}
             onRequestLocation={h.hasUserCoords ? undefined : h.requestLocation}
-            nightPref={night.pref}
             nightActive={night.active}
             onToggleNight={night.toggle}
             middle={mapFullscreen ? (

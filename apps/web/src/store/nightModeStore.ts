@@ -1,6 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+// 'auto' est conserve dans le type pour ne pas casser la deserialisation des
+// valeurs persistees avant l'abandon du switch horaire ; il est traite comme
+// 'off' partout (clair, pas de bascule sur l'horloge).
 export type NightModePref = 'auto' | 'on' | 'off'
 
 interface NightModeState {
@@ -12,24 +15,17 @@ interface NightModeState {
 export const useNightModeStore = create<NightModeState>()(
   persist(
     (set, get) => ({
-      pref: 'auto',
+      pref: 'off',
       setPref: (pref) => set({ pref }),
       toggle: () => {
         const cur = get().pref
-        set({ pref: cur === 'on' ? 'off' : cur === 'off' ? 'auto' : 'on' })
+        set({ pref: cur === 'on' ? 'off' : 'on' })
       },
     }),
     { name: 'taxilink-night-mode' },
   ),
 )
 
-export function isNightHour(now: Date = new Date()): boolean {
-  const h = now.getHours()
-  return h >= 20 || h < 8
-}
-
-export function nightModeActive(pref: NightModePref, now: Date = new Date()): boolean {
-  if (pref === 'on') return true
-  if (pref === 'off') return false
-  return isNightHour(now)
+export function nightModeActive(pref: NightModePref): boolean {
+  return pref === 'on'
 }
