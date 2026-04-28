@@ -1,37 +1,50 @@
 'use client'
 import { Icon } from '@/components/ui/Icon'
+import type { usePosterVoiceFlow } from './usePosterVoiceFlow'
 
 interface Props {
-  onBack: () => void
-  onStartVocal: () => void
-  voiceSupported: boolean
+  onMenu: () => void
+  hasNotif?: boolean
+  flow: ReturnType<typeof usePosterVoiceFlow>
 }
 
 /**
- * Barre supérieure de la page « Nouvelle course » : retour façon page native +
- * bouton « Tout dicter » qui ouvre l'écran immersif Mains libres.
- * Le détail de l'enregistrement (pulse rouge, transcript, relances TTS) est
- * géré par MissionFormVocal sur l'écran dédié.
+ * Barre supérieure : burger qui ouvre le drawer de navigation app + bouton
+ * « Tout dicter » qui démarre/arrête la dictée IN-PAGE. L'état complet du
+ * micro (listening / processing / asking) est rendu dans PosterVoiceBanner
+ * sous ce header.
  */
-export function PosterHeader({ onBack, onStartVocal, voiceSupported }: Props) {
+export function PosterHeader({ onMenu, hasNotif, flow }: Props) {
+  const listening = flow.status === 'listening'
   return (
     <div className="px-6 pt-4 pb-1 flex items-center justify-between">
       <button
-        type="button" aria-label="Retour" onClick={onBack}
-        className="w-9 h-9 rounded-full hover:bg-warm-100 flex items-center justify-center -ml-2 text-ink"
+        type="button" aria-label="Ouvrir le menu" onClick={onMenu}
+        className="relative w-9 h-9 rounded-full hover:bg-warm-100 flex items-center justify-center -ml-2 text-ink"
       >
-        <Icon name="arrow_back" size={24} />
+        <Icon name="menu" size={24} />
+        {hasNotif && (
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-danger ring-2 ring-paper" aria-hidden="true" />
+        )}
       </button>
       <button
         type="button"
-        onClick={onStartVocal}
-        disabled={!voiceSupported}
-        className="h-10 pl-1.5 pr-4 rounded-full bg-ink text-paper flex items-center gap-2 text-[12.5px] font-bold shadow-[0_4px_12px_-2px_rgba(0,0,0,0.25)] disabled:opacity-50"
+        onClick={flow.toggle}
+        disabled={!flow.isSupported}
+        aria-pressed={flow.isActive}
+        className={`relative h-10 pl-1.5 pr-4 rounded-full flex items-center gap-2 text-[12.5px] font-bold shadow-[0_4px_12px_-2px_rgba(0,0,0,0.25)] disabled:opacity-50 transition-colors ${
+          listening ? 'bg-danger text-paper' : flow.isActive ? 'bg-warm-700 text-paper' : 'bg-ink text-paper'
+        }`}
       >
-        <span className="w-7 h-7 rounded-full flex items-center justify-center bg-brand text-ink">
-          <Icon name="mic" size={15} />
+        {listening && <span className="absolute inset-0 rounded-full ring-2 ring-danger/50 motion-safe:animate-ping" aria-hidden="true" />}
+        <span className={`relative w-7 h-7 rounded-full flex items-center justify-center ${
+          listening ? 'bg-paper text-danger' : 'bg-brand text-ink'
+        }`}>
+          <Icon name="mic" size={15} className="relative" />
         </span>
-        Tout dicter
+        <span className="relative">
+          {flow.isActive ? 'Arrêter' : 'Tout dicter'}
+        </span>
       </button>
     </div>
   )

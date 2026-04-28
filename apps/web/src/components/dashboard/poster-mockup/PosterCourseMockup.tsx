@@ -1,6 +1,11 @@
 'use client'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Icon } from '@/components/ui/Icon'
+import { useDriverStore } from '@/store/driverStore'
+import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
+import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
+import type { DriverTab } from '@/components/taxilink/navTypes'
 import {
   Chip, FieldRow, FieldLabel, FieldInput, WhenPill, VisBtn, Checkbox,
 } from './posterMockupParts'
@@ -8,38 +13,31 @@ import { AddressLineInput } from './AddressLineInput'
 import { PosterCpamBlock } from './PosterCpamBlock'
 import { PosterFooter } from './PosterFooter'
 import { PosterHeader } from './PosterHeader'
+import { PosterVoiceBanner } from './PosterVoiceBanner'
 import { usePosterCourse } from './usePosterCourse'
-import { MissionFormVocal } from '@/components/dashboard/driver/MissionFormVocal'
+
+function computeInitials(name: string): string {
+  return name.split(' ').map((p) => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'YB'
+}
 
 export function PosterCourseMockup() {
   const router = useRouter()
   const c = usePosterCourse()
   const { form } = c
-
-  if (c.vocalMode) {
-    return (
-      <div className="bg-paper min-h-[100dvh] max-w-[480px] mx-auto" style={{ fontFeatureSettings: '"tnum"' }}>
-        <div className="px-6 pt-4 pb-1 flex items-center justify-between">
-          <button
-            type="button" aria-label="Revenir au formulaire" onClick={c.exitVocalMode}
-            className="w-9 h-9 rounded-full hover:bg-warm-100 flex items-center justify-center -ml-2 text-ink"
-          >
-            <Icon name="arrow_back" size={24} />
-          </button>
-          <span className="text-[12px] font-semibold text-warm-500">Mains libres</span>
-        </div>
-        <MissionFormVocal
-          filler={c.voice}
-          snapshot={c.vocalSnapshot}
-          onComplete={c.exitVocalMode}
-        />
-      </div>
-    )
-  }
+  const { driver } = useDriverStore()
+  const unseenAcceptCount = useUnseenAcceptCount()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const initials = computeInitials(driver.name || '')
+  const goToTab = (tab: DriverTab) => router.push(`/dashboard/chauffeur?tab=${tab}`)
 
   return (
     <div className="bg-paper min-h-[100dvh] pb-[200px] max-w-[480px] mx-auto" style={{ fontFeatureSettings: '"tnum"' }}>
-      <PosterHeader onBack={() => router.back()} onStartVocal={c.enterVocalMode} voiceSupported={c.voice.isSupported} />
+      <PosterHeader
+        onMenu={() => setDrawerOpen(true)}
+        hasNotif={unseenAcceptCount > 0}
+        flow={c.voiceFlow}
+      />
+      <PosterVoiceBanner flow={c.voiceFlow} />
 
       <div className="px-6 pt-4 pb-5">
         <div className="text-[34px] font-extrabold leading-[1.05] tracking-[-0.025em]">
@@ -154,6 +152,17 @@ export function PosterCourseMockup() {
         {form.visibility === 'GROUP' && c.myGroups.length === 0 && (
           <p className="py-3 text-[12.5px] text-warm-500">Vous n&apos;êtes encore dans aucun groupe. Choisissez « Tous les chauffeurs » pour publier.</p>
         )}
+
+        <div className="pt-7 pb-3 flex items-baseline justify-between">
+          <h2 className="text-[18px] font-extrabold tracking-[-0.015em]">Remarques</h2>
+          <span className="text-[11.5px] text-warm-400 font-semibold">Facultatif</span>
+        </div>
+        <textarea
+          value={form.notes} onChange={(e) => form.setNotes(e.target.value)}
+          placeholder="Étage, code, particularité du patient, instructions pour le chauffeur…"
+          rows={3}
+          className="w-full bg-warm-100/60 border border-warm-200 rounded-[14px] px-3.5 py-3 text-[14px] font-medium text-ink placeholder:text-warm-400 placeholder:font-normal focus:outline-none focus:border-ink resize-none"
+        />
       </div>
 
       <PosterFooter
@@ -161,6 +170,19 @@ export function PosterCourseMockup() {
         previewFare={c.previewFare} distanceKm={c.distanceKm} durationMin={c.durationMin}
         loadingRoute={c.loadingRoute} saving={c.saving} canSubmit={c.canSubmit} error={c.error}
         onSubmit={c.submit}
+      />
+
+      <MobileNavDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        activeTab={'home' as DriverTab}
+        onTabChange={goToTab}
+        onPostCourse={() => setDrawerOpen(false)}
+        driverName={driver.name || 'Chauffeur'}
+        driverInitials={initials}
+        groupName="Taxi13"
+        isOnline={driver.isOnline}
+        badges={{ coursesNotif: unseenAcceptCount }}
       />
     </div>
   )
