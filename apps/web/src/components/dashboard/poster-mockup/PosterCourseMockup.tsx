@@ -7,34 +7,41 @@ import {
 import { AddressLineInput } from './AddressLineInput'
 import { PosterCpamBlock } from './PosterCpamBlock'
 import { PosterFooter } from './PosterFooter'
+import { PosterHeader } from './PosterHeader'
 import { usePosterCourse } from './usePosterCourse'
+import { GuidedMissionFlow } from '@/components/dashboard/driver/guided/GuidedMissionFlow'
 
 export function PosterCourseMockup() {
   const router = useRouter()
   const c = usePosterCourse()
   const { form } = c
 
+  if (c.completerIds) {
+    return (
+      <div className="bg-paper min-h-[100dvh] max-w-[480px] mx-auto" style={{ fontFeatureSettings: '"tnum"' }}>
+        <div className="px-6 pt-4 pb-1 flex items-center justify-between">
+          <button
+            type="button" aria-label="Revenir au formulaire" onClick={c.closeCompleter}
+            className="w-9 h-9 rounded-full bg-warm-100 flex items-center justify-center -ml-2"
+          >
+            <Icon name="arrow_back" size={22} />
+          </button>
+          <span className="text-[12px] font-semibold text-warm-500">Compléter par la voix</span>
+        </div>
+        <GuidedMissionFlow
+          form={c.form}
+          myGroups={c.myGroups}
+          setters={c.guidedSetters}
+          restrictToIds={c.completerIds}
+          onComplete={c.closeCompleter}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="bg-paper min-h-[100dvh] pb-[200px] max-w-[480px] mx-auto" style={{ fontFeatureSettings: '"tnum"' }}>
-      <div className="px-6 pt-4 pb-1 flex items-center justify-between">
-        <button
-          type="button" aria-label="Fermer" onClick={() => router.back()}
-          className="w-9 h-9 rounded-full bg-warm-100 flex items-center justify-center -ml-2"
-        >
-          <Icon name="close" size={22} />
-        </button>
-        <button
-          type="button"
-          onClick={() => (c.voice.isListening ? c.voice.stop() : c.voice.start())}
-          disabled={!c.voice.isSupported || c.voice.isProcessing}
-          className="h-9 pl-1.5 pr-3.5 rounded-full bg-ink text-paper flex items-center gap-2 text-[12.5px] font-bold shadow-[0_4px_12px_-2px_rgba(0,0,0,0.25)] disabled:opacity-50"
-        >
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center bg-brand text-ink ${c.voice.isListening ? 'motion-safe:animate-pulse' : ''}`}>
-            <Icon name="mic" size={14} />
-          </span>
-          {c.voice.isListening ? 'Arrêter' : c.voice.isProcessing ? 'Analyse…' : 'Tout dicter'}
-        </button>
-      </div>
+      <PosterHeader onBack={() => router.back()} voice={c.voice} />
 
       <div className="px-6 pt-4 pb-5">
         <div className="text-[34px] font-extrabold leading-[1.05] tracking-[-0.025em]">
@@ -75,17 +82,31 @@ export function PosterCourseMockup() {
             }
           >
             <FieldLabel>Quand</FieldLabel>
-            {c.when === 'now' ? (
-              <div className="text-[16px] font-bold tracking-tight">Maintenant</div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <input type="date" value={form.date} onChange={(e) => form.setDate(e.target.value)}
-                  className="bg-transparent border-0 outline-none text-[15px] font-bold tracking-[-0.012em] text-ink" />
-                <input type="time" value={form.time} onChange={(e) => form.setTime(e.target.value)}
-                  className="bg-transparent border-0 outline-none text-[15px] font-bold tracking-[-0.012em] text-ink" />
-              </div>
-            )}
+            <div className="text-[16px] font-bold tracking-tight">
+              {c.when === 'now' ? 'Maintenant' : 'À une date précise'}
+            </div>
           </FieldRow>
+          {c.when === 'later' && (
+            <div className="grid grid-cols-[24px_1fr] gap-3.5 items-center pt-3 pb-4 border-b border-warm-200">
+              <span aria-hidden="true" />
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <label className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold tracking-[0.04em] uppercase text-warm-400">Date</span>
+                  <input
+                    type="date" value={form.date} onChange={(e) => form.setDate(e.target.value)}
+                    className="bg-transparent border-0 outline-none text-[15px] font-bold tracking-[-0.012em] text-ink"
+                  />
+                </label>
+                <label className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold tracking-[0.04em] uppercase text-warm-400">Heure</span>
+                  <input
+                    type="time" value={form.time} onChange={(e) => form.setTime(e.target.value)}
+                    className="bg-transparent border-0 outline-none text-[15px] font-bold tracking-[-0.012em] text-ink"
+                  />
+                </label>
+              </div>
+            </div>
+          )}
 
           <FieldRow leadIcon={<Icon name="person" size={19} className="text-warm-500" />}>
             <FieldLabel>Patient</FieldLabel>

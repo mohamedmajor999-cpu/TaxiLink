@@ -19,14 +19,16 @@ interface Props {
   /** Id de question ciblée par le bouton "modifier" du récap (aperçu). */
   editFieldId?: string | null
   onEditHandled?: () => void
+  /** Si fourni, ne pose que les questions listées (utilisé après dictée pour les champs manquants). */
+  restrictToIds?: string[]
 }
 
 const ALL_IDS = GUIDED_QUESTIONS.map((q) => q.id)
 
-export function GuidedMissionFlow({ form, myGroups, setters, onComplete, editFieldId, onEditHandled }: Props) {
+export function GuidedMissionFlow({ form, myGroups, setters, onComplete, editFieldId, onEditHandled, restrictToIds }: Props) {
   const [voiceAutoSpeak, setVoiceAutoSpeak] = useState(true)
   const s = useGuidedMissionScreen({
-    form, myGroups, setters, allQuestionIds: ALL_IDS, voiceAutoSpeak, onComplete,
+    form, myGroups, setters, allQuestionIds: ALL_IDS, voiceAutoSpeak, onComplete, restrictToIds,
   })
   const editRef = useRef(false)
 

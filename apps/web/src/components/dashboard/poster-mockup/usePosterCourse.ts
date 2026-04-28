@@ -16,6 +16,7 @@ import { useMissionRoute } from '@/components/dashboard/driver/useMissionRoute'
 import { useMissionPricing } from '@/components/dashboard/driver/useMissionPricing'
 import { useMissionVoiceFiller } from '@/components/dashboard/driver/useMissionVoiceFiller'
 import { submitMission } from '@/components/dashboard/driver/submitMission'
+import { usePosterCompleter } from './usePosterCompleter'
 
 export type WhenMode = 'now' | 'later'
 
@@ -104,6 +105,10 @@ export function usePosterCourse() {
     setDestinationCoords: route.setDestinationCoords,
   })
 
+  const { completerIds, guidedSetters, closeCompleter } = usePosterCompleter({
+    form, route, voice, setWhen,
+  })
+
   const { previewFare } = useMissionPricing({
     price: form.price, priceMin: form.priceMin, priceMax: form.priceMax,
     type: form.type, medicalMotif: form.medicalMotif,
@@ -179,6 +184,9 @@ export function usePosterCourse() {
     onSelectDeparture, onSelectDestination,
     toggleGroup,
     voice,
+    guidedSetters,
+    completerIds,
+    closeCompleter,
     distanceKm: route.distanceKm,
     durationMin: route.durationMin,
     loadingRoute: route.loadingRoute,
