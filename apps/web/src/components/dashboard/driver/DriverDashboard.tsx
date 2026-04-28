@@ -7,7 +7,6 @@ import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedMissionAcceptNotifier } from '@/hooks/usePostedMissionAcceptNotifier'
 import { useNightMode } from '@/hooks/useNightMode'
 import { useDriverHeartbeat } from '@/hooks/useDriverHeartbeat'
-import { useDriverOfflineBeacon } from '@/hooks/useDriverOfflineBeacon'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
@@ -49,7 +48,6 @@ export function DriverDashboard() {
   usePostedMissionAcceptNotifier()
   useNightMode()
   useDriverHeartbeat()
-  useDriverOfflineBeacon()
   const unseenAcceptCount = useUnseenAcceptCount()
   const [mapFullscreen, setMapFullscreen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
