@@ -62,7 +62,12 @@ export function MobileNavDrawer({
         <div className="flex flex-col h-full">
           <div className="px-5 pt-5 pb-4 border-b border-warm-200 dark:border-night-border">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={() => handleNav('profil')}
+                aria-label="Ouvrir mon profil"
+                className="flex items-center gap-3 min-w-0 text-left rounded-xl -mx-1 px-1 py-1 hover:bg-warm-50 dark:hover:bg-night-elevated transition-colors"
+              >
                 <div className="w-12 h-12 rounded-full bg-ink text-brand flex items-center justify-center text-base font-extrabold shrink-0">
                   {driverInitials}
                 </div>
@@ -73,7 +78,7 @@ export function MobileNavDrawer({
                     <span className="truncate">{groupName} · {isOnline ? 'En ligne' : 'Hors ligne'}</span>
                   </div>
                 </div>
-              </div>
+              </button>
               <button
                 type="button"
                 onClick={onClose}
