@@ -43,12 +43,12 @@ export function MobileNavDrawer({
   return (
     <>
       <div
-        className={`md:hidden fixed inset-0 z-[700] bg-black/45 transition-opacity duration-200 ${open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`md:hidden fixed inset-0 z-[1100] bg-black/45 transition-opacity duration-200 ${open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={onClose}
         aria-hidden="true"
       />
       <aside
-        className={`md:hidden fixed top-0 bottom-0 left-0 z-[701] w-[78%] max-w-[320px] bg-paper dark:bg-night-bg shadow-[8px_0_24px_rgba(0,0,0,0.18)] transform transition-transform duration-200 ease-out ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`md:hidden fixed top-0 bottom-0 left-0 z-[1101] w-[78%] max-w-[320px] bg-paper dark:bg-night-bg shadow-[8px_0_24px_rgba(0,0,0,0.18)] transform transition-transform duration-200 ease-out ${open ? 'translate-x-0' : '-translate-x-full'}`}
         role="dialog"
         aria-label="Menu navigation"
         aria-hidden={!open}

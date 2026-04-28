@@ -47,6 +47,7 @@ beforeEach(() => {
       createdAt: new Date().toISOString(),
     },
     isLoading: false,
+    loadedUserId: null,
   })
 })
 
@@ -127,27 +128,64 @@ describe('driverStore — load()', () => {
 
 // ─── setOnline() ──────────────────────────────────────────────────────────────
 describe('driverStore — setOnline()', () => {
-  it('met isOnline à true', () => {
+  it('met isOnline à true', async () => {
     useDriverStore.setState({ driver: { ...useDriverStore.getState().driver, id: 'drv-1' } })
     mockSetOnline.mockResolvedValue(undefined)
 
-    useDriverStore.getState().setOnline(true)
+    await useDriverStore.getState().setOnline(true)
 
     expect(useDriverStore.getState().driver.isOnline).toBe(true)
   })
 
-  it('met isOnline à false', () => {
+  it('met isOnline à false', async () => {
     useDriverStore.setState({ driver: { ...useDriverStore.getState().driver, id: 'drv-1', isOnline: true } })
     mockSetOnline.mockResolvedValue(undefined)
 
-    useDriverStore.getState().setOnline(false)
+    await useDriverStore.getState().setOnline(false)
 
     expect(useDriverStore.getState().driver.isOnline).toBe(false)
   })
 
-  it('n\'appelle pas driverService si id est vide', () => {
-    useDriverStore.getState().setOnline(true)
+  it('n\'appelle pas driverService si id est vide', async () => {
+    await useDriverStore.getState().setOnline(true)
     expect(mockSetOnline).not.toHaveBeenCalled()
+  })
+
+  // Si l'ecriture DB echoue, on annule l'optimistic local pour rester aligne
+  // avec ce que les autres pages liront au remount.
+  it('rollback l\'etat local si l\'ecriture DB echoue', async () => {
+    useDriverStore.setState({ driver: { ...useDriverStore.getState().driver, id: 'drv-1', isOnline: false } })
+    mockSetOnline.mockRejectedValue(new Error('reseau'))
+
+    await expect(useDriverStore.getState().setOnline(true)).rejects.toThrow('reseau')
+    expect(useDriverStore.getState().driver.isOnline).toBe(false)
+  })
+})
+
+// ─── load() idempotent ────────────────────────────────────────────────────────
+describe('driverStore — load() idempotent', () => {
+  // Garantit qu'un remount du DriverDashboard ne refetch pas et n'ecrase pas
+  // l'isOnline local que setOnline vient juste d'optimistic-update.
+  it('skip le refetch pour le meme userId', async () => {
+    mockGetProfile.mockResolvedValue({ full_name: 'X' })
+    mockGetDriver.mockResolvedValue({ is_online: true })
+
+    await useDriverStore.getState().load('drv-1', 'a@a.fr')
+    await useDriverStore.getState().load('drv-1', 'a@a.fr')
+
+    expect(mockGetProfile).toHaveBeenCalledTimes(1)
+    expect(mockGetDriver).toHaveBeenCalledTimes(1)
+  })
+
+  it('refetch si le userId change', async () => {
+    mockGetProfile.mockResolvedValue({ full_name: 'X' })
+    mockGetDriver.mockResolvedValue({ is_online: false })
+
+    await useDriverStore.getState().load('drv-1', 'a@a.fr')
+    await useDriverStore.getState().load('drv-2', 'b@b.fr')
+
+    expect(mockGetProfile).toHaveBeenCalledTimes(2)
+    expect(mockGetDriver).toHaveBeenCalledTimes(2)
   })
 })
 

@@ -8,8 +8,9 @@ import { authService } from '@/services/authService'
 interface DriverState {
   driver: Driver
   isLoading: boolean
+  loadedUserId: string | null
   load: (userId: string, email: string) => Promise<void>
-  setOnline: (online: boolean) => void
+  setOnline: (online: boolean) => Promise<void>
   updateDriver: (patch: Partial<Driver>) => void
   incrementTodayStats: (rides: number, km: number, earnings: number) => void
   signOut: () => Promise<void>
@@ -29,8 +30,14 @@ const defaultDriver: Driver = {
 export const useDriverStore = create<DriverState>((set, get) => ({
   driver: defaultDriver,
   isLoading: false,
+  loadedUserId: null,
 
+  // Idempotent par userId : un remount du DriverDashboard (ex. retour depuis
+  // /dashboard/poster-mockup) ne doit PAS refetch et ecraser l'isOnline local
+  // par une valeur DB potentiellement obsolete (ecriture setOnline encore en
+  // vol, ou cron qui a flip pendant qu'on etait sur une autre page).
   load: async (userId, email) => {
+    if (get().loadedUserId === userId) return
     set({ isLoading: true })
     try {
       const [profile, driver] = await Promise.all([
@@ -55,17 +62,28 @@ export const useDriverStore = create<DriverState>((set, get) => ({
           todayRides: 0,
           todayKm: 0,
         },
+        loadedUserId: userId,
       })
     } finally {
       set({ isLoading: false })
     }
   },
 
-  setOnline: (online) => {
+  // Await l'ecriture DB : sans ca, un clic "En ligne" suivi d'une navigation
+  // rapide pouvait perdre l'ecriture (fire-and-forget) → au remount, load()
+  // relisait l'ancienne valeur. Optimistic UI conserve, mais on ne rend la
+  // main qu'apres confirmation serveur. En cas d'erreur on rollback le local
+  // pour rester coherent avec la DB.
+  setOnline: async (online) => {
     const { driver } = get()
     set((state) => ({ driver: { ...state.driver, isOnline: online } }))
-    if (driver.id) {
-      driverService.setOnline(driver.id, online).catch(console.error)
+    if (!driver.id) return
+    try {
+      await driverService.setOnline(driver.id, online)
+    } catch (err) {
+      Sentry.captureException(err, { tags: { context: 'setOnline' } })
+      set((state) => ({ driver: { ...state.driver, isOnline: !online } }))
+      throw err
     }
   },
 
@@ -97,6 +115,6 @@ export const useDriverStore = create<DriverState>((set, get) => ({
       })
     }
     await authService.signOut()
-    set({ driver: defaultDriver, isLoading: false })
+    set({ driver: defaultDriver, isLoading: false, loadedUserId: null })
   },
 }))

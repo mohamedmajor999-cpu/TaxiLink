@@ -6,6 +6,40 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ## ✅ Terminé
 
+### Fix presence — beacon offline trop agressif sur mobile (2026-04-27, soir)
+Bug remonté en test prod sur compte Fontaine (Samsung Browser Android) : « je me mets en ligne, je change de tab vers Mes courses ou Groupes, je repasse hors ligne ». Diagnostic via Supabase MCP : `is_online=false` mais `last_seen_at` < 120 s — quelque chose flippait `is_online` sans toucher `last_seen_at`.
+
+**Cause** : [`useDriverOfflineBeacon`](apps/web/src/hooks/useDriverOfflineBeacon.ts) écoutait `pagehide` + `beforeunload` et déclenchait `/api/driver/offline` à chaque entrée bfcache. Sur mobile Chrome / Samsung Browser, `pagehide` fire dès qu'on switch d'onglet browser, qu'Android background l'app, ou que le navigateur met la page en bfcache — pas seulement à la fermeture réelle. Résultat : faux offline déclenchés en arrière-plan pendant que le heartbeat tournait toujours.
+
+**Fix** (commit `fb03238` sur master, ff-merge depuis `accueil-carte-annonces`) :
+- Filtre `event.persisted` sur `pagehide` : bfcache → on ignore (la page peut revivre au premier plan)
+- Retiré `beforeunload` (peu fiable sur mobile, redondant avec pagehide quand il fire bien)
+- TTL heartbeat (120 s) reste le filet de sécurité pour les vrais cas non couverts (crash, kill, perte réseau)
+
+Déployé sur prod via push direct sur master.
+
+### Refonte design « Poster une course » — mockups + preview (2026-04-27, soir, **en validation**)
+Suite à un échange UX : le `PartagerMissionModal` actuel a 3 modes (Guidé / Vocal / Libre) + preview, perçu comme trop complexe pour un cas d'usage métier (chauffeur qui poste depuis le terrain). 4 itérations de design pour aboutir à une v4 « éditoriale » inspirée de Cash App / Stripe Express / Linear (hairlines, typographie display, accent jaune unique réservé aux CTA).
+
+**Décisions UX prises** (à appliquer au refacto futur) :
+- **Pas de modes séparés** : un seul écran formulaire avec micro intégré (par champ + un « Tout dicter » global)
+- **Niveau 1 visible** : type (Standard/CPAM), départ/arrivée, heure, nom + téléphone patient, visibilité
+- **Bloc CPAM révélé conditionnellement** : motif (HPJ/Consultation), aller-retour, nb patients, ☐ TPMR (+30 €). Tous nécessaires au calcul du tarif conventionné — pas optionnels en pratique même si la validation `canSubmit` ne les exige pas
+- **Niveau 2 (replié)** : accompagnant, notes, prix manuel
+- **Footer prix temps réel** : 36 px display, mise à jour live à chaque saisie
+
+**Livré** :
+- 3 mockups HTML statiques [`mockups/poster-course-v2.html`](mockups/poster-course-v2.html), [`v3`](mockups/poster-course-v3.html), [`v4`](mockups/poster-course-v4.html) (commit `3c318d1`) pour comparer les directions visuelles
+- v4 codée en React/Tailwind sur `/dashboard/poster-mockup` (commit `f087020`) — pattern miroir de `patron-mockup`, route non gardée par le middleware
+- Bouton **« + »** (sidebar desktop, FAB mobile, accueil, courses empty state) **temporairement rebranché** sur la maquette (commit `e6fd5f1`) pour test grandeur nature. Réversible : remplacer `handlePostCourse` dans [DriverDashboard.tsx:77](apps/web/src/components/dashboard/driver/DriverDashboard.tsx#L77) par `() => setShowCreer(true)`
+- **Tout reste sur la branche `accueil-carte-annonce`** — rien n'est sur master tant que le design n'est pas validé. Vercel preview disponible.
+
+**Reste à faire** (après validation) :
+- Refacto réel du `PartagerMissionModal` en réutilisant les hooks existants (`usePartagerMissionModal`, `useMissionVoiceFiller`, `useMissionPricing`)
+- Suppression des modes Guidé / Vocal (et des composants `MissionFormVocal`, `GuidedMissionFlow`, `MissionModeToggle`)
+- Câblage des micros par champ sur le `voiceFiller` existant
+- Branchement live du calcul de prix dans le footer
+
 ### Wave 5 — RGPD + observabilité + temps réel + accessibilité (2026-04-27)
 Suite à un audit produit transverse qui a remonté 8 chantiers, tous shippés en 5 commits sur master. Bilan : 877/877 tests verts (+19 nouveaux), 3 migrations Supabase appliquées via MCP, type-check propre, 0 fonctionnalité cassée.
 
