@@ -167,6 +167,7 @@ export function DriverDashboard() {
         onClose={() => setDrawerOpen(false)}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        onPostCourse={handlePostCourse}
         driverName={driverName || 'Chauffeur'}
         driverInitials={initials}
         groupName="Taxi13"

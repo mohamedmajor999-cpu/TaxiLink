@@ -30,17 +30,29 @@ export function DriverHomeTopOverlay({
       <button
         type="button"
         onClick={onToggleOnline}
-        className="pointer-events-auto inline-flex items-center gap-2 h-10 px-3.5 rounded-full bg-paper dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12.5px] font-bold text-ink dark:text-night-text"
         aria-pressed={isOnline}
+        className={`pointer-events-auto inline-flex items-center gap-2 h-11 pl-3.5 pr-2 rounded-full text-[13px] font-bold tracking-tight transition-all shadow-[0_8px_24px_rgba(0,0,0,0.18)] active:scale-[0.97] ${
+          isOnline
+            ? 'bg-ink text-paper dark:bg-night-elevated dark:text-night-text'
+            : 'bg-paper text-ink border border-warm-200 dark:bg-night-surface dark:text-night-text dark:border-night-border'
+        }`}
       >
         <span
           aria-hidden="true"
-          className={`w-2 h-2 rounded-full ${isOnline ? 'bg-[#10B981]' : 'bg-warm-300'}`}
-          style={isOnline ? { boxShadow: '0 0 0 4px rgba(16,185,129,0.18)' } : undefined}
+          className={`w-2 h-2 rounded-full ${isOnline ? 'bg-[#34D399]' : 'bg-warm-400 dark:bg-night-text-soft'}`}
+          style={isOnline ? { boxShadow: '0 0 0 4px rgba(52,211,153,0.28)' } : undefined}
         />
         {isOnline ? 'En ligne' : 'Hors ligne'}
-        <span className="text-warm-500 dark:text-night-text-soft font-semibold">·</span>
-        <span className="text-warm-500 dark:text-night-text-soft font-semibold">{count} annonce{count > 1 ? 's' : ''}</span>
+        <span
+          className={`ml-0.5 inline-flex items-center justify-center min-w-[26px] h-[24px] px-1.5 rounded-full text-[11.5px] font-extrabold tabular-nums ${
+            isOnline
+              ? 'bg-paper/15 text-paper'
+              : 'bg-warm-100 text-ink dark:bg-night-elevated dark:text-night-text'
+          }`}
+          aria-label={`${count} annonce${count > 1 ? 's' : ''}`}
+        >
+          {count}
+        </span>
       </button>
 
       {middle && (

@@ -1,5 +1,5 @@
 'use client'
-import { Home, List, Users, User, LogOut, X } from 'lucide-react'
+import { Home, List, Plus, Users, User, LogOut, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useDriverStore } from '@/store/driverStore'
 import { OnlineDot } from './OnlineDot'
@@ -10,6 +10,7 @@ interface Props {
   onClose: () => void
   activeTab: DriverTab
   onTabChange: (tab: DriverTab) => void
+  onPostCourse: () => void
   driverName: string
   driverInitials: string
   groupName: string
@@ -25,7 +26,7 @@ const ITEMS: { key: DriverTab; label: string; icon: typeof Home }[] = [
 ]
 
 export function MobileNavDrawer({
-  open, onClose, activeTab, onTabChange,
+  open, onClose, activeTab, onTabChange, onPostCourse,
   driverName, driverInitials, groupName, isOnline, badges,
 }: Props) {
   const router = useRouter()
@@ -37,6 +38,10 @@ export function MobileNavDrawer({
   }
   const handleNav = (tab: DriverTab) => {
     onTabChange(tab)
+    onClose()
+  }
+  const handlePost = () => {
+    onPostCourse()
     onClose()
   }
 
@@ -81,33 +86,36 @@ export function MobileNavDrawer({
           </div>
 
           <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
-            {ITEMS.map((item) => {
-              const active = activeTab === item.key
-              const Icon = item.icon
-              const badge = item.key === 'courses'
-                ? ((badges?.coursesNotif && badges.coursesNotif > 0) ? badges.coursesNotif : badges?.courses)
-                : item.key === 'groupes' ? badges?.groupes
-                : undefined
-              const hasBadge = badge !== undefined && badge > 0
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => handleNav(item.key)}
-                  aria-current={active ? 'page' : undefined}
-                  className={`relative w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium transition-colors ${active ? 'bg-warm-50 dark:bg-night-elevated text-ink dark:text-night-text' : 'text-warm-600 dark:text-night-text-soft hover:bg-warm-50 dark:hover:bg-night-elevated'}`}
-                >
-                  {active && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r bg-brand" aria-hidden="true" />
-                  )}
-                  <Icon className="w-[20px] h-[20px]" strokeWidth={active ? 2 : 1.7} />
-                  <span className="flex-1 text-left">{item.label}</span>
-                  {hasBadge && (
-                    <span className="text-[11px] font-bold text-ink bg-brand rounded-full px-2 py-0.5">{badge}</span>
-                  )}
-                </button>
-              )
-            })}
+            {ITEMS.slice(0, 2).map((item) => (
+              <DrawerNavItem
+                key={item.key}
+                item={item}
+                active={activeTab === item.key}
+                badge={item.key === 'courses'
+                  ? ((badges?.coursesNotif && badges.coursesNotif > 0) ? badges.coursesNotif : badges?.courses)
+                  : undefined}
+                onClick={() => handleNav(item.key)}
+              />
+            ))}
+
+            <button
+              type="button"
+              onClick={handlePost}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-ink dark:bg-night-elevated text-paper dark:text-night-text text-[15px] font-bold transition-transform active:scale-[0.98]"
+            >
+              <Plus className="w-[20px] h-[20px]" strokeWidth={2.4} />
+              <span className="flex-1 text-left">Poster une course</span>
+            </button>
+
+            {ITEMS.slice(2).map((item) => (
+              <DrawerNavItem
+                key={item.key}
+                item={item}
+                active={activeTab === item.key}
+                badge={item.key === 'groupes' ? badges?.groupes : undefined}
+                onClick={() => handleNav(item.key)}
+              />
+            ))}
           </nav>
 
           <div className="border-t border-warm-200 dark:border-night-border p-3">
@@ -123,5 +131,37 @@ export function MobileNavDrawer({
         </div>
       </aside>
     </>
+  )
+}
+
+function DrawerNavItem({
+  item,
+  active,
+  badge,
+  onClick,
+}: {
+  item: { key: DriverTab; label: string; icon: typeof Home }
+  active: boolean
+  badge?: number
+  onClick: () => void
+}) {
+  const Icon = item.icon
+  const hasBadge = badge !== undefined && badge > 0
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? 'page' : undefined}
+      className={`relative w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium transition-colors ${active ? 'bg-warm-50 dark:bg-night-elevated text-ink dark:text-night-text' : 'text-warm-600 dark:text-night-text-soft hover:bg-warm-50 dark:hover:bg-night-elevated'}`}
+    >
+      {active && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r bg-brand" aria-hidden="true" />
+      )}
+      <Icon className="w-[20px] h-[20px]" strokeWidth={active ? 2 : 1.7} />
+      <span className="flex-1 text-left">{item.label}</span>
+      {hasBadge && (
+        <span className="text-[11px] font-bold text-ink bg-brand rounded-full px-2 py-0.5">{badge}</span>
+      )}
+    </button>
   )
 }
