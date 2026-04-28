@@ -19,7 +19,6 @@ interface Options {
   allQuestionIds: string[]
   voiceAutoSpeak: boolean
   onComplete?: () => void
-  restrictToIds?: string[]
 }
 
 /**
@@ -27,14 +26,13 @@ interface Options {
  * le brouillon de la question courante, la lecture vocale et la dictée.
  */
 export function useGuidedMissionScreen(opts: Options) {
-  const { form, myGroups, setters, allQuestionIds, voiceAutoSpeak, onComplete, restrictToIds } = opts
+  const { form, myGroups, setters, allQuestionIds, voiceAutoSpeak, onComplete } = opts
 
   const apply = useGuidedAnswerApplier(setters, myGroups)
   const flow = useGuidedMissionFlow({
     state: { type: form.type, returnTrip: form.returnTrip, visibility: form.visibility },
     apply,
     onComplete,
-    restrictToIds,
   })
 
   const [draft, setDraft] = useState<unknown>(null)

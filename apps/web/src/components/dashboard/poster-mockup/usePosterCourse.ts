@@ -16,7 +16,7 @@ import { useMissionRoute } from '@/components/dashboard/driver/useMissionRoute'
 import { useMissionPricing } from '@/components/dashboard/driver/useMissionPricing'
 import { useMissionVoiceFiller } from '@/components/dashboard/driver/useMissionVoiceFiller'
 import { submitMission } from '@/components/dashboard/driver/submitMission'
-import { usePosterCompleter } from './usePosterCompleter'
+import type { VocalFormSnapshot } from '@/components/dashboard/driver/vocal/missingCriticalFields'
 
 export type WhenMode = 'now' | 'later'
 
@@ -30,6 +30,7 @@ export function usePosterCourse() {
   const [when, setWhen] = useState<WhenMode>('now')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [vocalMode, setVocalMode] = useState(false)
 
   // En CPAM, seed les valeurs requises au calcul tarif (l'UI ne les expose pas en saisie libre).
   useEffect(() => {
@@ -105,9 +106,12 @@ export function usePosterCourse() {
     setDestinationCoords: route.setDestinationCoords,
   })
 
-  const { completerIds, guidedSetters, closeCompleter } = usePosterCompleter({
-    form, route, voice, setWhen,
+  const vocalSnapshot = (): VocalFormSnapshot => ({
+    type: form.type, medicalMotif: form.medicalMotif,
+    departure: form.departure, destination: form.destination,
   })
+  const enterVocalMode = () => setVocalMode(true)
+  const exitVocalMode = () => setVocalMode(false)
 
   const { previewFare } = useMissionPricing({
     price: form.price, priceMin: form.priceMin, priceMax: form.priceMax,
@@ -184,9 +188,7 @@ export function usePosterCourse() {
     onSelectDeparture, onSelectDestination,
     toggleGroup,
     voice,
-    guidedSetters,
-    completerIds,
-    closeCompleter,
+    vocalMode, enterVocalMode, exitVocalMode, vocalSnapshot,
     distanceKm: route.distanceKm,
     durationMin: route.durationMin,
     loadingRoute: route.loadingRoute,

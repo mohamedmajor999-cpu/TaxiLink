@@ -9,31 +9,29 @@ import { PosterCpamBlock } from './PosterCpamBlock'
 import { PosterFooter } from './PosterFooter'
 import { PosterHeader } from './PosterHeader'
 import { usePosterCourse } from './usePosterCourse'
-import { GuidedMissionFlow } from '@/components/dashboard/driver/guided/GuidedMissionFlow'
+import { MissionFormVocal } from '@/components/dashboard/driver/MissionFormVocal'
 
 export function PosterCourseMockup() {
   const router = useRouter()
   const c = usePosterCourse()
   const { form } = c
 
-  if (c.completerIds) {
+  if (c.vocalMode) {
     return (
       <div className="bg-paper min-h-[100dvh] max-w-[480px] mx-auto" style={{ fontFeatureSettings: '"tnum"' }}>
         <div className="px-6 pt-4 pb-1 flex items-center justify-between">
           <button
-            type="button" aria-label="Revenir au formulaire" onClick={c.closeCompleter}
-            className="w-9 h-9 rounded-full bg-warm-100 flex items-center justify-center -ml-2"
+            type="button" aria-label="Revenir au formulaire" onClick={c.exitVocalMode}
+            className="w-9 h-9 rounded-full hover:bg-warm-100 flex items-center justify-center -ml-2 text-ink"
           >
-            <Icon name="arrow_back" size={22} />
+            <Icon name="arrow_back" size={24} />
           </button>
-          <span className="text-[12px] font-semibold text-warm-500">Compléter par la voix</span>
+          <span className="text-[12px] font-semibold text-warm-500">Mains libres</span>
         </div>
-        <GuidedMissionFlow
-          form={c.form}
-          myGroups={c.myGroups}
-          setters={c.guidedSetters}
-          restrictToIds={c.completerIds}
-          onComplete={c.closeCompleter}
+        <MissionFormVocal
+          filler={c.voice}
+          snapshot={c.vocalSnapshot}
+          onComplete={c.exitVocalMode}
         />
       </div>
     )
@@ -41,7 +39,7 @@ export function PosterCourseMockup() {
 
   return (
     <div className="bg-paper min-h-[100dvh] pb-[200px] max-w-[480px] mx-auto" style={{ fontFeatureSettings: '"tnum"' }}>
-      <PosterHeader onBack={() => router.back()} voice={c.voice} />
+      <PosterHeader onBack={() => router.back()} onStartVocal={c.enterVocalMode} voiceSupported={c.voice.isSupported} />
 
       <div className="px-6 pt-4 pb-5">
         <div className="text-[34px] font-extrabold leading-[1.05] tracking-[-0.025em]">

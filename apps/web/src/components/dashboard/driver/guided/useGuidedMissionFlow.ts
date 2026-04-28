@@ -9,8 +9,6 @@ interface Options {
   state: GuidedVisibilityState
   apply: (id: string, value: unknown) => Promise<void>
   onComplete?: () => void
-  /** Si fourni, restreint le flux aux questions dont l'id est listé (utilisé après dictée pour ne demander que les champs manquants). */
-  restrictToIds?: string[]
 }
 
 /**
@@ -24,13 +22,8 @@ interface Options {
  * `onComplete` (typiquement : afficher l'aperçu). Le composant parent garde
  * le flux monté pendant l'aperçu pour préserver la position courante.
  */
-export function useGuidedMissionFlow({ state, apply, onComplete, restrictToIds }: Options) {
-  const visibleQuestions = useMemo<GuidedQuestion[]>(() => {
-    const all = getVisibleQuestions(state)
-    if (!restrictToIds) return all
-    const allow = new Set(restrictToIds)
-    return all.filter((q) => allow.has(q.id))
-  }, [state, restrictToIds])
+export function useGuidedMissionFlow({ state, apply, onComplete }: Options) {
+  const visibleQuestions = useMemo<GuidedQuestion[]>(() => getVisibleQuestions(state), [state])
   const [currentId, setCurrentId] = useState<string | null>(visibleQuestions[0]?.id ?? null)
   const [isComplete, setIsComplete] = useState(false)
   const onCompleteRef = useRef(onComplete)
