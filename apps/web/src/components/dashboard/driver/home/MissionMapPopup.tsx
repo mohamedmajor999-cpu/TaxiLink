@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { AlertTriangle, MapPin, Route, X } from 'lucide-react'
+import { AlertTriangle, Bell, MapPin, Route, X } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { computeDisplayFare } from '@/lib/missionFare'
 import { getMinutesUntil } from '@/lib/dateUtils'
@@ -54,16 +54,34 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
   const typeLabel = isCpam ? 'CPAM' : 'Privé'
   const badgeClass = isCpam ? 'bg-[#DBEAFE] text-[#1E40AF]' : 'bg-[#F3E8FF] text-[#6B21A8]'
 
+  const isIncoming = autoDismissMs != null
+
   return (
     <div
       role="dialog"
-      aria-label="Détails de la course sélectionnée"
-      className="absolute left-3 right-3 bottom-3 z-[1100] rounded-2xl bg-paper dark:bg-night-elevated border border-warm-200 dark:border-night-border shadow-[0_-8px_30px_rgba(0,0,0,0.18)] p-4 motion-safe:animate-[popup-in_280ms_cubic-bezier(0.34,1.56,0.64,1)]"
+      aria-label={isIncoming ? 'Nouvelle course publiée' : 'Détails de la course sélectionnée'}
+      className={
+        isIncoming
+          ? 'absolute left-1/2 top-1/2 w-[calc(100%-24px)] max-w-md z-[1100] rounded-2xl bg-paper dark:bg-night-elevated border-2 border-ink dark:border-night-brand shadow-[0_24px_64px_rgba(0,0,0,0.35)] p-4'
+          : 'absolute left-3 right-3 bottom-3 z-[1100] rounded-2xl bg-paper dark:bg-night-elevated border border-warm-200 dark:border-night-border shadow-[0_-8px_30px_rgba(0,0,0,0.18)] p-4'
+      }
       style={{
-        animation: 'popup-in 280ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+        animation: isIncoming
+          ? 'popup-in-center 320ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
+          : 'popup-in 280ms cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}
     >
-      <style>{`@keyframes popup-in { 0% { transform: translateY(20px); opacity: 0 } 100% { transform: translateY(0); opacity: 1 } }`}</style>
+      <style>{`
+        @keyframes popup-in { 0% { transform: translateY(20px); opacity: 0 } 100% { transform: translateY(0); opacity: 1 } }
+        @keyframes popup-in-center { 0% { transform: translate(-50%, -50%) scale(0.85); opacity: 0 } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1 } }
+        @keyframes new-mission-glow { 0%, 100% { box-shadow: 0 24px 64px rgba(0,0,0,0.35), 0 0 0 0 rgba(245, 197, 24, 0.5) } 50% { box-shadow: 0 24px 64px rgba(0,0,0,0.35), 0 0 0 12px rgba(245, 197, 24, 0) } }
+      `}</style>
+      {isIncoming && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-ink text-paper dark:bg-night-brand dark:text-night-bg text-[10.5px] font-extrabold uppercase tracking-[0.08em] shadow-lg whitespace-nowrap">
+          <Bell className="w-3 h-3" strokeWidth={2.6} />
+          Nouvelle course
+        </div>
+      )}
       <button
         type="button"
         onClick={onClose}
