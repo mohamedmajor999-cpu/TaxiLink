@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useDriverStore } from '@/store/driverStore'
+import { useUserPrefs } from '@/store/userPrefsStore'
 import { profileService } from '@/services/profileService'
 
 export function useDriverAuth() {
@@ -20,6 +21,7 @@ export function useDriverAuth() {
         if (!profile) { router.push('/auth/login'); return }
         if (profile.role !== 'driver') { router.push('/dashboard/client'); return }
         await load(user.id, user.email!)
+        useUserPrefs.getState().load().catch(() => { /* silencieux : defaults appliques */ })
         setLoading(false)
       })
       .catch((err) => {

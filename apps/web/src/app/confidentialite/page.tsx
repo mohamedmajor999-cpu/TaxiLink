@@ -61,8 +61,10 @@ export default function ConfidentialitePage() {
 
         <H3>2.5 Géolocalisation et présence</H3>
         <List>
-          <li>Position GPS du chauffeur : collectée uniquement quand il a activé le statut « En ligne », pour afficher les missions à proximité</li>
+          <li>Position GPS précise du chauffeur (`current_lat`, `current_lng`) : enregistrée toutes les 60 s tant que le chauffeur est <em>En ligne</em>, pour cibler les nouvelles annonces dans un rayon de 15 km autour de lui (popup « course proche ») et afficher les missions à proximité sur sa carte</li>
+          <li>Pas d&apos;historique conservé : la position est <strong>écrasée</strong> à chaque nouveau ping (`current_position_updated_at` reflète uniquement le dernier ping, jamais la trace de déplacement)</li>
           <li>État de présence : `is_online`, `last_seen_at` (mis à jour toutes les 60 s pendant la connexion)</li>
+          <li><strong>Désactivation possible</strong> à tout moment via Profil &gt; Application &gt; « Partager ma position en ligne ». La désactivation arrête immédiatement les pings GPS, le chauffeur reste visible « En ligne » mais ne reçoit plus les popups ciblés par proximité</li>
         </List>
 
         <H3>2.6 Données techniques</H3>

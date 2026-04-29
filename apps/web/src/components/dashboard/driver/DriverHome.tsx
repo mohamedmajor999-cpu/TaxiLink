@@ -11,6 +11,7 @@ import { DriverHomeAcceptBar } from './home/DriverHomeAcceptBar'
 import { DriverHomeTopOverlay } from './home/DriverHomeTopOverlay'
 import { DriverHomeFilterChips } from './home/DriverHomeFilterChips'
 import { MissionMapPopup } from './home/MissionMapPopup'
+import { DriverHomeNewMissionPopup } from './home/DriverHomeNewMissionPopup'
 import { SHEET_FRACTION, type SheetSnap } from './home/useSheetDrag'
 import { useNightMode } from '@/hooks/useNightMode'
 
@@ -45,13 +46,32 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
   const onAccept = async () => {
     try { await h.acceptSelected() } catch { /* toast déjà géré par acceptMission */ }
   }
+  const sheetCollapsed = snap === 'one'
+
+  const chips = (
+    <DriverHomeFilterChips
+      filter={h.filter} counts={h.counts}
+      urgentOnly={h.urgentOnly} nearbyOnly={h.nearbyOnly}
+      hasUserCoords={h.hasUserCoords}
+      onFilterChange={h.setFilter}
+      onUrgentToggle={() => h.setUrgentOnly(!h.urgentOnly)}
+      onNearbyToggle={() => h.setNearbyOnly(!h.nearbyOnly)}
+      floating
+    />
+  )
 
   return (
-    <div className="flex flex-col md:flex-row md:h-screen h-[100dvh] overflow-hidden bg-paper dark:bg-night-bg">
+    <div className="relative md:flex md:flex-row md:h-screen h-[100dvh] overflow-hidden bg-paper dark:bg-night-bg">
       {h.showConfetti && <MissionAcceptedCelebration onDone={h.clearConfetti} />}
       <ToastContainer toasts={h.toasts} onDismiss={h.dismissToast} />
+      <DriverHomeNewMissionPopup
+        popup={h.popup}
+        userCoords={h.userCoords}
+        onAccept={h.acceptMission}
+        onShowDetail={onShowMissionDetail}
+      />
 
-      <div className="relative flex-1 min-h-[60px] md:flex-none md:w-[58%] md:h-full md:p-4 bg-paper dark:bg-night-bg">
+      <div className="absolute inset-0 md:relative md:flex-none md:w-[58%] md:h-full md:p-4 md:inset-auto bg-paper dark:bg-night-bg">
         <div className="relative w-full h-full overflow-hidden md:rounded-2xl md:border md:border-warm-200 md:shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
           <DriverHomeMap
             missions={h.mappableMissions}
@@ -72,33 +92,11 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
             onRequestLocation={h.hasUserCoords ? undefined : h.requestLocation}
             nightActive={night.active}
             onToggleNight={night.toggle}
-            middle={mapFullscreen ? (
-              <DriverHomeFilterChips
-                filter={h.filter}
-                counts={h.counts}
-                urgentOnly={h.urgentOnly}
-                nearbyOnly={h.nearbyOnly}
-                hasUserCoords={h.hasUserCoords}
-                onFilterChange={h.setFilter}
-                onUrgentToggle={() => h.setUrgentOnly(!h.urgentOnly)}
-                onNearbyToggle={() => h.setNearbyOnly(!h.nearbyOnly)}
-                floating
-              />
-            ) : null}
+            middle={mapFullscreen ? chips : null}
           />
-          {(snap === 'one' || mapFullscreen) && (
+          {(sheetCollapsed || mapFullscreen) && (
             <div className={`md:hidden absolute top-16 left-0 right-0 z-[500] pointer-events-auto ${mapFullscreen ? 'landscape:hidden' : ''}`}>
-              <DriverHomeFilterChips
-                filter={h.filter}
-                counts={h.counts}
-                urgentOnly={h.urgentOnly}
-                nearbyOnly={h.nearbyOnly}
-                hasUserCoords={h.hasUserCoords}
-                onFilterChange={h.setFilter}
-                onUrgentToggle={() => h.setUrgentOnly(!h.urgentOnly)}
-                onNearbyToggle={() => h.setNearbyOnly(!h.nearbyOnly)}
-                floating
-              />
+              {chips}
             </div>
           )}
           {h.selectedMission && mapFullscreen && (
@@ -112,20 +110,23 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
               />
             </div>
           )}
-          <button
-            type="button"
-            onClick={onPostCourse}
-            aria-label="Poster une course"
-            className="md:hidden absolute bottom-3 left-1/2 -translate-x-1/2 z-[500] inline-flex items-center gap-2 h-12 px-5 rounded-full bg-ink text-paper text-[13px] font-bold shadow-[0_10px_28px_rgba(0,0,0,0.32)] active:scale-95 transition-transform whitespace-nowrap"
-            style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
-          >
-            <Plus className="w-5 h-5" strokeWidth={2.6} />
-            Poster une course
-          </button>
         </div>
       </div>
 
-      <div className={`shrink-0 flex flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200 ${mapFullscreen ? 'hidden md:flex' : ''}`}>
+      <button
+        type="button"
+        onClick={onPostCourse}
+        aria-label="Poster une course"
+        aria-hidden={!sheetCollapsed}
+        tabIndex={sheetCollapsed ? 0 : -1}
+        className={`md:hidden fixed left-1/2 -translate-x-1/2 z-[610] inline-flex items-center gap-2 h-12 px-5 rounded-full bg-ink text-paper text-[13px] font-bold shadow-[0_10px_28px_rgba(0,0,0,0.32)] active:scale-95 transition-all duration-300 whitespace-nowrap ${sheetCollapsed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        style={{ bottom: `calc(${sheetHeightPx}px + 12px + env(safe-area-inset-bottom))` }}
+      >
+        <Plus className="w-5 h-5" strokeWidth={2.6} />
+        Poster une course
+      </button>
+
+      <div className={`absolute bottom-0 left-0 right-0 md:relative md:inset-auto md:shrink-0 md:flex md:flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200 z-[600] md:z-auto ${mapFullscreen ? 'hidden md:flex' : ''}`}>
         <div
           ref={sheetRef}
           className="relative shrink-0 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 bg-paper dark:bg-night-bg rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none flex flex-col transition-[height] duration-300 ease-out"
