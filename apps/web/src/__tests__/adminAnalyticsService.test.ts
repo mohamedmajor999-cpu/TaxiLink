@@ -63,4 +63,22 @@ describe('adminAnalyticsService', () => {
     await adminAnalyticsService.getUserStats()
     expect(mockedApi.get).toHaveBeenCalledWith('/api/admin/users-stats')
   })
+
+  it('getTopDrivers appelle GET /api/admin/top-drivers', async () => {
+    mockedApi.get.mockResolvedValue({ items: [] })
+    await adminAnalyticsService.getTopDrivers()
+    expect(mockedApi.get).toHaveBeenCalledWith('/api/admin/top-drivers')
+  })
+
+  it('getTopGroups appelle GET /api/admin/top-groups', async () => {
+    mockedApi.get.mockResolvedValue({ items: [], counters: { totalGroups: 0, activeGroups30d: 0, totalMembers: 0 } })
+    await adminAnalyticsService.getTopGroups()
+    expect(mockedApi.get).toHaveBeenCalledWith('/api/admin/top-groups')
+  })
+
+  it('getOnlineDrivers appelle GET /api/admin/online-drivers', async () => {
+    mockedApi.get.mockResolvedValue({ items: [] })
+    await adminAnalyticsService.getOnlineDrivers()
+    expect(mockedApi.get).toHaveBeenCalledWith('/api/admin/online-drivers')
+  })
 })
