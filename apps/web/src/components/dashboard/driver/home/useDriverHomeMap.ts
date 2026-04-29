@@ -42,7 +42,7 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
         zoomControl: true,
         attributionControl: false,
         scrollWheelZoom: true,
-      }).setView([center.lat, center.lng], 13)
+      }).setView([center.lat, center.lng], 10)
       const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
       if (token) {
         const style = night ? MAPBOX_STYLE_NIGHT : MAPBOX_STYLE_DAY
@@ -130,7 +130,10 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
         accuracyCircleRef.current = null
       }
       if (!didCenterOnUserRef.current) {
-        map.flyTo(pos, 15, { duration: 0.6 })
+        // Auto-center sur l'user mais on conserve le zoom large (10) pour
+        // voir toute la metropole (Salon, Aix, Aubagne, La Ciotat). L'user
+        // peut zoomer manuellement via bouton recenter ou pinch.
+        map.flyTo(pos, 10, { duration: 0.6 })
         didCenterOnUserRef.current = true
       }
     })()
