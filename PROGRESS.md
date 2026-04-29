@@ -4,6 +4,58 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ---
 
+## 🟡 À faire — backlog validé pour la prochaine session (2026-04-29)
+
+### Refonte écran d'accueil chauffeur — carte plein écran + popup course en temps réel
+Trois chantiers cohérents validés en fin de session 28/04 :
+
+**1. Layout mobile : carte plein écran + barre à tirer**
+- Sur **mobile uniquement** : carte prend 100% de l'écran (la liste de droite disparaît du layout par défaut).
+- Sur la carte, deux éléments flottants superposés en bas :
+  - Bouton **« Poster une course »** (le `+` sticky existant peut être réutilisé)
+  - Juste **en dessous** : la **poignée à tirer** (grabber) pour déployer la liste — déjà en place via `DriverHomeSheet` + `useSheetDrag`
+- Sur **desktop (md+)** : on garde le split actuel 58% carte / 42% liste — pas touché.
+- Concrètement : ajuster [`DriverHome.tsx`](apps/web/src/components/dashboard/driver/DriverHome.tsx) pour que la sheet mobile démarre en position fermée (snap `one`, déjà à 5%), bouton `Poster` au-dessus du grabber.
+
+**2. Position GPS du chauffeur (RGPD)**
+- Migration Supabase : ajouter `current_lat NUMERIC`, `current_lng NUMERIC`, `current_position_updated_at TIMESTAMPTZ` sur la table `drivers`.
+- `useDriverHome` watch déjà `userCoords` via `navigator.geolocation.watchPosition` ; ajouter un push throttle 60 s vers `driverService.updatePosition(lat, lng)`.
+- Push **uniquement si** `driver.isOnline === true` (sinon pas de tracking).
+- Mise à jour de [`/confidentialite`](apps/web/src/app/confidentialite/page.tsx) pour mentionner le suivi GPS en temps réel.
+- Toggle dans le profil > Application pour désactiver le tracking (default ON).
+
+**3. Popup nouvelle course (style Uber, 10 s avec décompte)**
+- Composant `<NewMissionPopup>` modal centré qui affiche :
+  - Adresse de départ
+  - Adresse d'arrivée
+  - « À X km de toi » (distance entre `userCoords` et `mission.departure_lat/lng`)
+  - Distance de la course (`mission.distance_km`)
+  - Prix calculé
+  - Type : Standard / CPAM HDJ / CPAM Consultation
+- **Barre de progression** qui se vide en 10 s ; auto-dismiss à la fin.
+- Boutons **Accepter** / **Voir détail** / **Fermer**.
+- Hook `useNewMissionPopup` branché sur `useMissionRealtime.onInsert` :
+  - Filtre **horaire** : `mission.scheduled_at` dans les **2 prochaines heures**
+  - Filtre **géoloc** : distance entre `driver.current_position` et `mission.departure_lat/lng` **< 15 km**
+  - Si plusieurs missions matchent en rafale → **file d'attente** (afficher une après l'autre, pas de remplacement).
+- Préférence `notifyOnNewMission: boolean` dans `userPrefsService` (default `true`), togglable dans le profil > Application.
+
+**Ordre d'attaque suggéré pour demain** :
+1. Layout mobile (modif `DriverHome.tsx`, sans nouvelle DB) — quick win visuel
+2. Migration GPS + push position + service `driverService.updatePosition` — backend
+3. Hook `useNewMissionPopup` + composant `NewMissionPopup` + filtre horaire + filtre géoloc — feature finale
+4. Toggle profil pour désactiver les popups
+5. Mise à jour `/confidentialite` pour le tracking GPS
+
+### Marker chauffeur sur la carte — décision asset (suite du 28/04)
+Choix laissé en suspens hier soir :
+- **A** : regénérer Bing avec prompt strict overhead view → permettra rotation `coords.heading`
+- **B** : garder image 2 Bing (Tesla blanc toit noir 3/4) → marker fixe orienté nord, plus premium
+
+À trancher en début de session demain pour pouvoir intégrer en parallèle des chantiers ci-dessus.
+
+---
+
 ## ✅ Terminé
 
 ### Câblage v4 « Poster une course » sur le backend réel (2026-04-28)
