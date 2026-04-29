@@ -4,59 +4,71 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ---
 
-## 🟡 À faire — backlog validé pour la prochaine session (2026-04-29)
+## 🟡 À faire — backlog pour la prochaine session (2026-04-30)
 
-### Refonte écran d'accueil chauffeur — carte plein écran + popup course en temps réel
-Trois chantiers cohérents validés en fin de session 28/04 :
+### Bug ouvert — `MissionMapPopup` centré ne s'affiche toujours pas
+Au terme de la session 29/04, après plusieurs itérations (cf. section « Refonte écran d'accueil » ci-dessous), le user a confirmé : **« le nouveau popup ne s'affiche pas »**.
 
-**1. Layout mobile : carte plein écran + barre à tirer**
-- Sur **mobile uniquement** : carte prend 100% de l'écran (la liste de droite disparaît du layout par défaut).
-- Sur la carte, deux éléments flottants superposés en bas :
-  - Bouton **« Poster une course »** (le `+` sticky existant peut être réutilisé)
-  - Juste **en dessous** : la **poignée à tirer** (grabber) pour déployer la liste — déjà en place via `DriverHomeSheet` + `useSheetDrag`
-- Sur **desktop (md+)** : on garde le split actuel 58% carte / 42% liste — pas touché.
-- Concrètement : ajuster [`DriverHome.tsx`](apps/web/src/components/dashboard/driver/DriverHome.tsx) pour que la sheet mobile démarre en position fermée (snap `one`, déjà à 5%), bouton `Poster` au-dessus du grabber.
+Hypothèses à investiguer demain :
+- **Le flux ne se déclenche pas** : `useNewMissionPopup` ne queue jamais la mission. Vérifier que `popupNewMission` est bien activé dans `userPrefsStore`, que `driver.isOnline` est `true`, que l'utilisateur n'est pas l'auteur, que `scheduled_at` tombe dans `[now-5min, now+2h]`, que la distance est ≤ 15 km. Ajouter un `console.debug` temporaire dans `useNewMissionPopup.ts:34` pour voir où le filtre rejette.
+- **`selectedMission` reste `null`** : la nouvelle mission entre via realtime mais n'apparaît pas dans `f.filteredMissions` à temps (filtre type/groupe/urgent/nearby) → `selectedMission` reste null → `MissionMapPopup` ne rend pas. Vérifier que `useDriverMissions.onInsert` ajoute bien la mission à `setMissions` AVANT que `useEffect(setSelectedMissionId)` tire.
+- **Conditions de rendu non remplies** : le popup ne rend que si `(mapFullscreen || sheetCollapsed)` — donc si la sheet est déployée au moment où la mission arrive, rien ne s'affiche. Décider : pousser le popup même sheet ouverte ? Forcer `setSnap('one')` quand `incomingMission` ?
+- **Service worker / cache Vercel** : le user pourrait voir une vieille version. Lui faire vider le cache navigateur et tester sur deploy fraîchement vérifié.
 
-**2. Position GPS du chauffeur (RGPD)**
-- Migration Supabase : ajouter `current_lat NUMERIC`, `current_lng NUMERIC`, `current_position_updated_at TIMESTAMPTZ` sur la table `drivers`.
-- `useDriverHome` watch déjà `userCoords` via `navigator.geolocation.watchPosition` ; ajouter un push throttle 60 s vers `driverService.updatePosition(lat, lng)`.
-- Push **uniquement si** `driver.isOnline === true` (sinon pas de tracking).
-- Mise à jour de [`/confidentialite`](apps/web/src/app/confidentialite/page.tsx) pour mentionner le suivi GPS en temps réel.
-- Toggle dans le profil > Application pour désactiver le tracking (default ON).
+Fichiers concernés :
+- [`useNewMissionPopup.ts`](apps/web/src/components/dashboard/driver/home/useNewMissionPopup.ts) — la file FIFO
+- [`DriverHome.tsx:53-57`](apps/web/src/components/dashboard/driver/DriverHome.tsx#L53-L57) — l'auto-select
+- [`DriverHome.tsx:104-122`](apps/web/src/components/dashboard/driver/DriverHome.tsx#L104-L122) — la condition de rendu
+- [`MissionMapPopup.tsx`](apps/web/src/components/dashboard/driver/home/MissionMapPopup.tsx) — branche `isIncoming` (fixed + z-1200 + scale-in)
 
-**3. Popup nouvelle course (style Uber, 10 s avec décompte)**
-- Composant `<NewMissionPopup>` modal centré qui affiche :
-  - Adresse de départ
-  - Adresse d'arrivée
-  - « À X km de toi » (distance entre `userCoords` et `mission.departure_lat/lng`)
-  - Distance de la course (`mission.distance_km`)
-  - Prix calculé
-  - Type : Standard / CPAM HDJ / CPAM Consultation
-- **Barre de progression** qui se vide en 10 s ; auto-dismiss à la fin.
-- Boutons **Accepter** / **Voir détail** / **Fermer**.
-- Hook `useNewMissionPopup` branché sur `useMissionRealtime.onInsert` :
-  - Filtre **horaire** : `mission.scheduled_at` dans les **2 prochaines heures**
-  - Filtre **géoloc** : distance entre `driver.current_position` et `mission.departure_lat/lng` **< 15 km**
-  - Si plusieurs missions matchent en rafale → **file d'attente** (afficher une après l'autre, pas de remplacement).
-- Préférence `notifyOnNewMission: boolean` dans `userPrefsService` (default `true`), togglable dans le profil > Application.
-
-**Ordre d'attaque suggéré pour demain** :
-1. Layout mobile (modif `DriverHome.tsx`, sans nouvelle DB) — quick win visuel
-2. Migration GPS + push position + service `driverService.updatePosition` — backend
-3. Hook `useNewMissionPopup` + composant `NewMissionPopup` + filtre horaire + filtre géoloc — feature finale
-4. Toggle profil pour désactiver les popups
-5. Mise à jour `/confidentialite` pour le tracking GPS
-
-### Marker chauffeur sur la carte — décision asset (suite du 28/04)
-Choix laissé en suspens hier soir :
+### Marker chauffeur sur la carte — décision asset (suite du 28/04, toujours pendant)
+Choix laissé en suspens :
 - **A** : regénérer Bing avec prompt strict overhead view → permettra rotation `coords.heading`
 - **B** : garder image 2 Bing (Tesla blanc toit noir 3/4) → marker fixe orienté nord, plus premium
 
-À trancher en début de session demain pour pouvoir intégrer en parallèle des chantiers ci-dessus.
+À trancher après le fix du popup ci-dessus.
 
 ---
 
-## ✅ Terminé
+## ✅ Terminé — Session 2026-04-29
+
+### Refonte écran d'accueil chauffeur — carte plein écran + popup course en temps réel
+Les trois chantiers planifiés (layout, GPS, popup) ont été livrés sur la branche `accueil-carte-annonce` (preview Vercel `taxi-link-web-git-accueil-carte-annonce-major9.vercel.app`).
+
+**1. Layout mobile carte plein écran** (commits `a79deac`, `e446024` après revert/reapply, `9f91f65`, `69caeb4`, `483e7c9`) :
+- Sur mobile : carte en `absolute inset-0`, sheet en `absolute bottom-0` z-600, bouton Poster `fixed` z-610 dont `bottom` se cale dynamiquement sur la hauteur de la sheet (`SHEET_FRACTION[snap]`).
+- Sheet `bg-transparent` quand repliée (snap='one'), passe `bg-paper rounded-t shadow` dès qu'elle est tirée — détecté via `ResizeObserver` sur `sheetRef` (le state `snap` ne change qu'au release du drag, le bg basculait trop tard).
+- Carte `invalidateSize()` via `ResizeObserver` au resize du conteneur (sinon zones grises pendant le drag).
+- Zoom initial 13 → 10 pour englober Marseille / Aix / Salon / Aubagne / La Ciotat.
+
+**2. Position GPS RGPD-compliant** (commit `e446024`) :
+- Migration `20260429_drivers_current_position.sql` (appliquée via Supabase MCP) : 3 colonnes `current_lat NUMERIC(9,6)`, `current_lng NUMERIC(9,6)`, `current_position_updated_at TIMESTAMPTZ` + index partiel sur `(is_online, current_position_updated_at) WHERE is_online=TRUE AND current_lat IS NOT NULL`.
+- [`driverService.updatePosition`](apps/web/src/services/driverService.ts) — POST direct Supabase, pas d'historique conservé (RGPD).
+- [`useDriverPositionPush`](apps/web/src/hooks/useDriverPositionPush.ts) : throttle 60 s, push uniquement si `driver.isOnline && popup.geolocPushEnabled`.
+- [`userPrefsStore`](apps/web/src/store/userPrefsStore.ts) — Zustand avec `popupNewMission` (default true) et `geolocPushEnabled` (default true), persistés via `userPrefsService`.
+- Toggles dans [`ProfileSectionApp`](apps/web/src/components/dashboard/driver/profil/ProfileSectionApp.tsx) (BellRing « Alertes nouvelles courses » + MapPin « Partager ma position en ligne »).
+- Section 2.5 de [`/confidentialite`](apps/web/src/app/confidentialite/page.tsx) : explication de la collecte position en temps réel, absence d'historique, procédure de désactivation.
+
+**3. Popup nouvelle course unifié** (commits `a79deac`, `f147d4f`, `5c6b94f`, `3356aee`, `18b00be`) :
+- [`useNewMissionPopup`](apps/web/src/components/dashboard/driver/home/useNewMissionPopup.ts) : file FIFO sur `useMissionRealtime.onInsert`, filtres = `popupEnabled` + `isOnline` + `not own mission` + `scheduled_at ∈ [now-5min, now+2h]` + distance Haversine ≤ 15 km. Channel dédié `'missions-realtime-newpopup'` (cf. fix realtime ci-dessous).
+- Décision UX : **pas** de modal central séparé. On réutilise [`MissionMapPopup`](apps/web/src/components/dashboard/driver/home/MissionMapPopup.tsx) (le popup déjà affiché au clic-pin) avec une prop optionnelle `autoDismissMs` qui ajoute la barre de progression 10 s en bas. Branche `isIncoming` = positionnement `fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-1200` (échappe le stacking context du map wrapper, passe au-dessus de la sheet z-600). Branche par défaut = `absolute bottom-3` comme avant.
+- Le `DriverHome.tsx` fait l'auto-select de la mission entrante (`setSelectedMissionId(incomingMission.id)`) pour que `MissionMapPopup` rende sur celle-ci avec `autoDismissMs={10_000}`.
+
+**Bug critique réglé en cours de route** (commit `1b6a790`) :
+- Au login, crash « cannot add postgres_changes callbacks after subscribe() ». `useDriverMissions` et `useNewMissionPopup` utilisaient le même channel name `'missions-realtime'` → Supabase refuse `.on(...)` sur un channel déjà `subscribe()`.
+- Fix : prop `channelName?: string` ajoutée à [`useMissionRealtime`](apps/web/src/hooks/useMissionRealtime.ts) (default `'missions-realtime'` pour backcompat). `useNewMissionPopup` utilise `'missions-realtime-newpopup'`.
+
+**Suppression du toast doublon** (commit `18b00be`) :
+- `useDriverMissions.onInsert` envoyait un toast type `'mission'` (`bg-ink text-paper`) en haut à droite — c'était le « popup fin noir » que le user voyait à la place du popup centré attendu.
+- Toast supprimé : pour les missions in-criteria, `MissionMapPopup` couvre. Pour les out-criteria, la mission apparaît directement dans la liste sous la carte.
+
+### Fix admin SSR + turbo env vars (commit `77274a9`)
+- `/dashboard/admin` plantait au prerender Next.js (`ReferenceError: window is not defined`) parce que `OnlineDriversMap` importait `leaflet` au top-level. Passage en `dynamic(import, { ssr: false })` comme `DriverHomeMap` et `CourseMap`.
+- `turbo.json` : déclaration des env vars (`NEXT_PUBLIC_SUPABASE_*`, `NEXT_PUBLIC_GOOGLE_MAPS_KEY`, `NEXT_PUBLIC_MAPBOX_TOKEN`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `ADMIN_EMAIL`, `SUPABASE_SERVICE_ROLE_KEY`, `SENTRY_DSN`) pour silencer le warning Vercel et invalider correctement le cache build.
+
+---
+
+## ✅ Terminé — Sessions précédentes
 
 ### Câblage v4 « Poster une course » sur le backend réel (2026-04-28)
 Le design v4 a été validé. Remplacement du state local de la maquette `/dashboard/poster-mockup` par un vrai hook orchestrateur qui réutilise toute l'infra existante.
