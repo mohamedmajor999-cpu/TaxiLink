@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDriverStore } from '@/store/driverStore'
 import { useNightModeStore, type NightModePref } from '@/store/nightModeStore'
+import { useUserPrefs } from '@/store/userPrefsStore'
 import { useSettingsToggles } from './useSettingsToggles'
 
 const VOICE_KEY = 'taxilink:driver:voiceDictation'
@@ -46,11 +47,20 @@ export function useProfileSectionApp() {
     }
   }
 
+  const popupNewMission = useUserPrefs((s) => s.popupNewMission)
+  const setPopupNewMission = useUserPrefs((s) => s.setPopupNewMission)
+  const geolocPushEnabled = useUserPrefs((s) => s.geolocPushEnabled)
+  const setGeolocPushEnabled = useUserPrefs((s) => s.setGeolocPushEnabled)
+
   return {
     notifications: toggles.notifications,
     setNotifications: toggles.setNotifications,
     voiceDictation,
     setVoiceDictation,
+    popupNewMission,
+    setPopupNewMission,
+    geolocPushEnabled,
+    setGeolocPushEnabled,
     themePref,
     setThemePref: (p: NightModePref) => setThemePref(p),
     loggingOut,

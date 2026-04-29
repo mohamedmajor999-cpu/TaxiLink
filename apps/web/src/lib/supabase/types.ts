@@ -132,6 +132,9 @@ export type Database = {
           bio: string | null
           cpam_enabled: boolean
           created_at: string
+          current_lat: number | null
+          current_lng: number | null
+          current_position_updated_at: string | null
           id: string
           is_online: boolean
           is_verified: boolean
@@ -148,6 +151,9 @@ export type Database = {
           bio?: string | null
           cpam_enabled?: boolean
           created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          current_position_updated_at?: string | null
           id: string
           is_online?: boolean
           is_verified?: boolean
@@ -164,6 +170,9 @@ export type Database = {
           bio?: string | null
           cpam_enabled?: boolean
           created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          current_position_updated_at?: string | null
           id?: string
           is_online?: boolean
           is_verified?: boolean
