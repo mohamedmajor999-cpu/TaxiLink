@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useToasts } from '@/hooks/useToasts'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 import { missionService } from '@/services/missionService'
+import { groupMissionsByDate } from '@/lib/groupMissionsByDate'
 import type { Mission } from '@/lib/supabase/types'
 
 export type PostedStatus = 'accepted' | 'waiting'
@@ -106,6 +107,10 @@ export function usePostedTab() {
     }
   }, [user, load, addToast])
 
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const openDetail = useCallback((id: string) => setSelectedId(id), [])
+  const closeDetail = useCallback(() => setSelectedId(null), [])
+
   const remove = useCallback(async (id: string) => {
     if (!user) return
     if (typeof window !== 'undefined'
@@ -115,6 +120,7 @@ export function usePostedTab() {
     setDeletingId(id)
     try {
       await missionService.remove(id)
+      setSelectedId((s) => (s === id ? null : s))
       await load(user.id)
       addToast({ message: 'Course supprimée', type: 'success' })
     } catch (err) {
@@ -137,5 +143,17 @@ export function usePostedTab() {
     [missions, profilesById]
   )
 
-  return { loading, error, items, remove, deletingId, boostPrice, boostingId, toasts, dismissToast }
+  const groups = useMemo(() => groupMissionsByDate(items), [items])
+  const selectedItem = useMemo(
+    () => items.find((i) => i.mission.id === selectedId) ?? null,
+    [items, selectedId]
+  )
+
+  return {
+    loading, error, items, groups,
+    remove, deletingId,
+    boostPrice, boostingId,
+    selectedItem, openDetail, closeDetail,
+    toasts, dismissToast,
+  }
 }

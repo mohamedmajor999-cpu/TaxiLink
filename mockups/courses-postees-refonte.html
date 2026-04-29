@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink — Refonte Mes courses postées</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0A0A0A;
+    --paper: #FFFFFF;
+    --brand: #FFD23F;
+    --brand-soft: #FFF4C2;
+    --warm-50: #FAF8F4;
+    --warm-100: #F4F1EA;
+    --warm-200: #E8E3D8;
+    --warm-300: #D4CDBE;
+    --warm-400: #A89F8A;
+    --warm-500: #7A7363;
+    --warm-600: #524D42;
+    --warm-700: #2F2C26;
+    --warm-800: #1A1815;
+    --danger: #DC2626;
+    --danger-soft: #FEE2E2;
+    --success: #059669;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #EDE9E2;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+
+  .page { max-width: 1800px; margin: 0 auto; padding: 36px 24px 80px; }
+  .page h1 { font-size: 26px; font-weight: 900; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .page p.lead { color: #5c5a54; margin: 0 0 32px; font-size: 14px; max-width: 760px; line-height: 1.55; }
+
+  .variants {
+    display: grid; gap: 36px;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    justify-items: center;
+  }
+  .variant { width: 100%; max-width: 410px; }
+  .variant-label {
+    text-align: center; font-size: 13px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 6px; color: #2a2823;
+  }
+  .variant-sub {
+    text-align: center; font-size: 12px;
+    color: #6e6b63; margin: 0 auto 16px; max-width: 360px; line-height: 1.5;
+  }
+
+  /* Phone frame */
+  .phone {
+    width: 390px; margin: 0 auto;
+    background: #fff; border-radius: 44px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.25), 0 0 0 8px #111 inset, 0 0 0 14px #111;
+    overflow: hidden; position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute; top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 28px;
+    background: #111; border-radius: 20px; z-index: 40;
+  }
+  .screen {
+    height: 820px; position: relative;
+    background: var(--paper); overflow: hidden;
+    padding-top: 44px;
+  }
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 4px;
+    background: #111; border-radius: 2px;
+    opacity: .3; z-index: 50;
+  }
+  .statusbar {
+    height: 44px; position: absolute; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 28px 0 32px;
+    font-size: 14px; font-weight: 700;
+    z-index: 30; background: var(--paper);
+  }
+  .statusbar .icons { display: flex; gap: 6px; align-items: center; }
+  .statusbar .icons .material-symbols-rounded { font-size: 16px; }
+
+  .content { padding: 12px 16px 90px; height: 100%; overflow-y: auto; }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* Header */
+  .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .head .title { font-size: 19px; font-weight: 800; letter-spacing: -0.01em; }
+  .head .sub { font-size: 11.5px; color: var(--warm-500); margin-top: 1px; }
+  .head .new-btn {
+    height: 34px; padding: 0 12px; border-radius: 10px;
+    background: var(--ink); color: var(--paper);
+    font-size: 12.5px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 4px; border: none;
+  }
+  .head .new-btn .material-symbols-rounded { font-size: 16px; }
+
+  /* Sub-tabs (Upcoming / Posted / History) */
+  .subtabs {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px; margin-bottom: 16px;
+  }
+  .subtab {
+    height: 38px; border-radius: 999px;
+    background: var(--paper); border: 1px solid var(--warm-200);
+    font-size: 12.5px; font-weight: 700; color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .subtab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .subtab .badge {
+    min-width: 19px; height: 19px; padding: 0 5px;
+    border-radius: 999px; background: var(--brand); color: var(--ink);
+    font-size: 10.5px; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* Earnings strip (slim, kept) */
+  .stats-strip {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    background: var(--warm-50); border: 1px solid var(--warm-200);
+    border-radius: 14px; padding: 10px 6px;
+    margin-bottom: 16px;
+  }
+  .stats-strip .col { text-align: center; }
+  .stats-strip .col + .col { border-left: 1px solid var(--warm-200); }
+  .stats-strip .v { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; line-height: 1; }
+  .stats-strip .l { font-size: 10.5px; color: var(--warm-500); margin-top: 4px; font-weight: 600; }
+
+  /* Date band */
+  .date-band {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--warm-500);
+    padding: 10px 4px 6px;
+  }
+
+  /* === COMPACT ROW (le coeur de la refonte) === */
+  .row {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    gap: 10px; align-items: center;
+    padding: 12px 12px;
+    background: var(--paper);
+    border: 1px solid var(--warm-200);
+    border-radius: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background .12s;
+    position: relative;
+  }
+  .row:active { background: var(--warm-50); }
+  .row .pin {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+  }
+  .row.accepted .pin { background: var(--ink); box-shadow: 0 0 0 3px var(--warm-100); }
+  .row.urgent .pin { animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 3px var(--brand-soft); }
+    50% { box-shadow: 0 0 0 6px rgba(255,210,63,.35); }
+  }
+
+  .row .body { min-width: 0; }
+  .row .trip {
+    font-size: 13px; font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: -0.005em;
+  }
+  .row .trip .arrow {
+    color: var(--warm-400); margin: 0 5px; font-weight: 500;
+  }
+  .row .meta {
+    margin-top: 3px;
+    font-size: 11px; color: var(--warm-500);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .row .meta .when { font-weight: 600; }
+  .row .meta .taken-by {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--warm-100); border-radius: 999px;
+    padding: 2px 7px 2px 3px; color: var(--ink); font-weight: 700; font-size: 10.5px;
+  }
+  .row .meta .taken-by .av {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    font-size: 8px; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .row .price-col {
+    display: flex; align-items: center; gap: 6px;
+    flex-shrink: 0;
+  }
+  .row .price {
+    font-size: 16px; font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .row .price .e { font-size: 12px; font-weight: 700; }
+  .row .chev { color: var(--warm-400); }
+  .row .chev .material-symbols-rounded { font-size: 18px; }
+
+  /* Row swipe-revealed actions (illustration only) */
+  .row.swiped {
+    transform: translateX(-72px);
+    transition: transform .25s;
+  }
+  .row-swipe-bg {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    display: flex; gap: 6px;
+  }
+  .row-swipe-bg .swipe-act {
+    width: 56px; height: 40px; border-radius: 10px;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 9.5px; font-weight: 700; gap: 1px;
+  }
+  .row-swipe-bg .swipe-act.del { background: var(--danger); color: var(--paper); }
+  .row-swipe-bg .swipe-act.del .material-symbols-rounded { font-size: 16px; }
+
+  /* Empty state */
+  .empty {
+    margin-top: 24px;
+    border: 1px dashed var(--warm-300);
+    border-radius: 18px;
+    padding: 32px 24px;
+    text-align: center;
+    background: var(--warm-50);
+  }
+  .empty .ill {
+    width: 56px; height: 56px; border-radius: 18px;
+    background: var(--brand-soft); color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+  }
+  .empty .ill .material-symbols-rounded { font-size: 30px; }
+  .empty h3 { font-size: 16px; font-weight: 800; margin: 0 0 4px; }
+  .empty p {
+    font-size: 13px; color: var(--warm-500);
+    margin: 0 0 18px; line-height: 1.5;
+  }
+  .empty .cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 42px; padding: 0 18px; border-radius: 12px;
+    background: var(--ink); color: var(--paper);
+    font-size: 13px; font-weight: 700; border: none;
+  }
+
+  /* === MODAL DETAIL === */
+  .scrim {
+    position: absolute; inset: 0;
+    background: rgba(10,10,10,.55);
+    z-index: 25;
+  }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: var(--paper); z-index: 26;
+    border-radius: 22px 22px 0 0;
+    overflow: hidden;
+    box-shadow: 0 -10px 40px rgba(0,0,0,.18);
+  }
+  .sheet-handle {
+    height: 4px; width: 36px; border-radius: 2px;
+    background: var(--paper); opacity: .35;
+    margin: 8px auto 6px;
+  }
+  .sheet .top {
+    background: var(--ink); color: var(--paper);
+    padding: 4px 18px 22px;
+  }
+  .sheet .top-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 6px 0 14px;
+  }
+  .sheet .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10.5px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: rgba(255,255,255,.65);
+  }
+  .sheet .status-pill .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--brand);
+  }
+  .sheet .status-pill.accepted .dot { background: #60A5FA; }
+  .sheet .type-pill {
+    font-size: 10.5px; font-weight: 700;
+    background: rgba(255,255,255,.1); color: var(--paper);
+    padding: 5px 10px; border-radius: 999px;
+    margin-left: 8px;
+  }
+  .sheet .close-btn {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: rgba(255,255,255,.1);
+    color: var(--paper); border: none;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .sheet .close-btn .material-symbols-rounded { font-size: 16px; }
+  .sheet .when-line {
+    font-size: 12px; color: rgba(255,255,255,.5);
+    text-transform: capitalize;
+    margin-bottom: 16px; font-weight: 600;
+  }
+  .sheet .trip-block {
+    display: flex; gap: 14px; align-items: flex-end;
+  }
+  .sheet .route { flex: 1; min-width: 0; }
+  .sheet .route .stop {
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .sheet .route .stop .dot-out {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--paper); margin-top: 4px; flex-shrink: 0;
+  }
+  .sheet .route .stop .dot-in {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--brand); border: 2px solid var(--paper); margin-top: 4px; flex-shrink: 0;
+  }
+  .sheet .route .stop .place {
+    font-size: 13.5px; font-weight: 700; color: var(--paper);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sheet .route .stop .addr {
+    font-size: 11px; color: rgba(255,255,255,.4);
+    margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sheet .route .gap {
+    width: 1px; height: 14px;
+    background: rgba(255,255,255,.2);
+    margin: 4px 0 4px 4.5px;
+  }
+  .sheet .price-big {
+    text-align: right; flex-shrink: 0;
+  }
+  .sheet .price-big .v {
+    font-size: 34px; font-weight: 900;
+    color: var(--paper); letter-spacing: -0.02em;
+    line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .sheet .price-big .v .e { font-size: 22px; font-weight: 800; }
+  .sheet .price-big .km {
+    font-size: 11px; color: rgba(255,255,255,.4);
+    margin-top: 6px; font-variant-numeric: tabular-nums;
+  }
+
+  .sheet .bottom { padding: 16px 18px 24px; }
+
+  /* "Pris par" block */
+  .taken {
+    background: var(--warm-50);
+    border: 1px solid var(--warm-200);
+    border-radius: 14px;
+    padding: 12px 12px;
+    margin-bottom: 16px;
+  }
+  .taken .who {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .taken .who .av {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    font-size: 13px; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .taken .who .name { font-size: 14px; font-weight: 800; line-height: 1.2; }
+  .taken .who .ago { font-size: 11px; color: var(--warm-500); margin-top: 1px; }
+  .taken .actions {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  .taken .actions .a {
+    height: 40px; border-radius: 11px;
+    background: var(--paper); border: 1px solid var(--warm-200);
+    font-size: 12px; font-weight: 700;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0px; color: var(--ink);
+    text-decoration: none;
+  }
+  .taken .actions .a.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .taken .actions .a .material-symbols-rounded { font-size: 16px; }
+  .taken .actions .a .lab { font-size: 10.5px; }
+
+  /* Info rows (notes, type) */
+  .info-row { padding: 10px 0; border-top: 1px solid var(--warm-100); }
+  .info-row:first-of-type { border-top: none; }
+  .info-row .lab {
+    font-size: 10px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--warm-400); margin-bottom: 3px;
+  }
+  .info-row .val { font-size: 13px; color: var(--ink); line-height: 1.4; }
+
+  /* Manage block */
+  .manage {
+    margin-top: 16px;
+    border-top: 1px solid var(--warm-100);
+    padding-top: 16px;
+  }
+  .manage .lab-section {
+    font-size: 10px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--warm-400); margin-bottom: 10px;
+  }
+  .manage .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .manage .btn {
+    height: 44px; border-radius: 12px;
+    border: 1px solid var(--warm-200); background: var(--paper);
+    font-size: 12.5px; font-weight: 700; color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .manage .btn .material-symbols-rounded { font-size: 16px; }
+  .manage .btn.boost {
+    background: var(--brand); border-color: var(--brand);
+  }
+  .manage .btn.del {
+    color: var(--danger); border-color: var(--danger-soft); background: var(--danger-soft);
+  }
+  .manage .btn.full { grid-column: 1 / -1; }
+  .manage .hint {
+    margin-top: 10px;
+    font-size: 11px; color: var(--warm-500);
+    display: flex; align-items: center; gap: 6px;
+    background: var(--warm-50);
+    padding: 8px 10px; border-radius: 10px;
+  }
+  .manage .hint .material-symbols-rounded { font-size: 14px; color: var(--warm-400); }
+
+  /* Floating action button */
+  .fab {
+    position: absolute; bottom: 76px; right: 18px;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--ink); color: var(--brand);
+    box-shadow: 0 12px 24px rgba(0,0,0,.22);
+    display: inline-flex; align-items: center; justify-content: center;
+    z-index: 22; border: none;
+  }
+  .fab .material-symbols-rounded { font-size: 26px; }
+
+  /* Bottom nav (illustration) */
+  .bn {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+    background: var(--paper); border-top: 1px solid var(--warm-100);
+    display: flex; justify-content: space-around; align-items: center;
+    padding-bottom: 12px; z-index: 20;
+  }
+  .bn .it {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1px;
+    color: var(--warm-400); font-size: 10px; font-weight: 700;
+  }
+  .bn .it .material-symbols-rounded { font-size: 21px; }
+  .bn .it.active { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1>Mes courses postées — refonte</h1>
+  <p class="lead">
+    Lignes compactes au lieu de grandes cartes : tout l'essentiel en une ligne, le détail s'ouvre dans un modal au tap.
+    Le modal contient le bloc « Pris par » avec les 3 contacts (Appeler / SMS / WhatsApp) quand la course est acceptée,
+    ou les actions de gestion (Modifier / Booster / Supprimer) quand elle est en attente.
+  </p>
+
+  <div class="variants">
+
+    <!-- ========================================================== -->
+    <!-- VARIANTE 1 : LISTE COMPACTE -->
+    <!-- ========================================================== -->
+    <div class="variant">
+      <div class="variant-label">Vue 1 — Liste compacte</div>
+      <div class="variant-sub">
+        Une ligne = une course. Pin coloré pour le statut, trajet sur 1 ligne, prix à droite.
+        Si acceptée, le prénom du preneur est intégré dans la ligne.
+      </div>
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <div class="icons">
+              <span class="material-symbols-rounded">network_wifi</span>
+              <span class="material-symbols-rounded">battery_full</span>
+            </div>
+          </div>
+          <div class="content">
+
+            <div class="head">
+              <div>
+                <div class="title">Mes courses</div>
+                <div class="sub">mardi 29 avril</div>
+              </div>
+            </div>
+
+            <div class="subtabs">
+              <button class="subtab"><span>À venir</span></button>
+              <button class="subtab active"><span>Postées</span><span class="badge">5</span></button>
+              <button class="subtab"><span>Historique</span></button>
+            </div>
+
+            <div class="stats-strip">
+              <div class="col">
+                <div class="v">12</div>
+                <div class="l">postées (mois)</div>
+              </div>
+              <div class="col">
+                <div class="v">83%</div>
+                <div class="l">taux d'acceptation</div>
+              </div>
+              <div class="col">
+                <div class="v">428€</div>
+                <div class="l">CA réseau</div>
+              </div>
+            </div>
+
+            <div class="date-band">Aujourd'hui</div>
+
+            <div class="row urgent">
+              <div class="pin"></div>
+              <div class="body">
+                <div class="trip">Châtelet<span class="arrow">→</span>Aéroport CDG T2</div>
+                <div class="meta"><span class="when">dans 1h 30</span><span>·</span><span>Privé</span></div>
+              </div>
+              <div class="price-col">
+                <div class="price">62<span class="e">€</span></div>
+                <div class="chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+
+            <div class="row accepted">
+              <div class="pin"></div>
+              <div class="body">
+                <div class="trip">Gare de Lyon<span class="arrow">→</span>Hôpital Saint-Louis</div>
+                <div class="meta">
+                  <span class="when">14:30</span><span>·</span>
+                  <span class="taken-by"><span class="av">JM</span>J. Martin</span>
+                </div>
+              </div>
+              <div class="price-col">
+                <div class="price">38<span class="e">€</span></div>
+                <div class="chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+
+            <div class="date-band">Demain</div>
+
+            <div class="row">
+              <div class="pin"></div>
+              <div class="body">
+                <div class="trip">Versailles<span class="arrow">→</span>Place de la Concorde</div>
+                <div class="meta"><span class="when">08:15</span><span>·</span><span>TaxiLink</span></div>
+              </div>
+              <div class="price-col">
+                <div class="price">45<span class="e">€</span></div>
+                <div class="chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+
+            <div class="row accepted">
+              <div class="pin"></div>
+              <div class="body">
+                <div class="trip">Clinique Bizet<span class="arrow">→</span>14ᵉ arrondissement</div>
+                <div class="meta">
+                  <span class="when">10:00</span><span>·</span>
+                  <span class="taken-by"><span class="av">SL</span>S. Lambert</span>
+                </div>
+              </div>
+              <div class="price-col">
+                <div class="price">29<span class="e">€</span></div>
+                <div class="chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+
+            <div class="date-band">Cette semaine</div>
+
+            <div class="row">
+              <div class="pin"></div>
+              <div class="body">
+                <div class="trip">Cergy<span class="arrow">→</span>Roissy CDG</div>
+                <div class="meta"><span class="when">jeu. 06:00</span><span>·</span><span>Médical</span></div>
+              </div>
+              <div class="price-col">
+                <div class="price">55<span class="e">€</span></div>
+                <div class="chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+
+          </div>
+          <button class="fab" aria-label="Nouvelle course">
+            <span class="material-symbols-rounded">add</span>
+          </button>
+          <div class="bn">
+            <div class="it"><span class="material-symbols-rounded">explore</span><span>Découvrir</span></div>
+            <div class="it active"><span class="material-symbols-rounded">local_taxi</span><span>Mes courses</span></div>
+            <div class="it"><span class="material-symbols-rounded">groups</span><span>Réseau</span></div>
+            <div class="it"><span class="material-symbols-rounded">person</span><span>Profil</span></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- VARIANTE 2 : MODAL DETAIL — ACCEPTEE -->
+    <!-- ========================================================== -->
+    <div class="variant">
+      <div class="variant-label">Vue 2 — Détail (acceptée)</div>
+      <div class="variant-sub">
+        Tap sur une course acceptée → modal avec le bloc « Pris par » et 3 deeplinks natifs : tel, sms, WhatsApp.
+        En bas, possibilité d'annuler la course.
+      </div>
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <div class="icons">
+              <span class="material-symbols-rounded">network_wifi</span>
+              <span class="material-symbols-rounded">battery_full</span>
+            </div>
+          </div>
+
+          <!-- Background liste atténuée -->
+          <div class="content" style="filter: blur(2px); opacity: .5;">
+            <div class="head"><div><div class="title">Mes courses</div></div></div>
+            <div class="subtabs"><button class="subtab active">Postées</button><button class="subtab">Historique</button><button class="subtab">À venir</button></div>
+            <div class="row accepted"><div class="pin"></div><div class="body"><div class="trip">Gare de Lyon → Hôpital Saint-Louis</div></div><div class="price-col"><div class="price">38<span class="e">€</span></div></div></div>
+          </div>
+
+          <div class="scrim"></div>
+
+          <div class="sheet">
+            <div class="sheet-handle"></div>
+            <div class="top">
+              <div class="top-row">
+                <div>
+                  <span class="status-pill accepted"><span class="dot"></span>Planifiée</span>
+                  <span class="type-pill">Médical</span>
+                </div>
+                <button class="close-btn"><span class="material-symbols-rounded">close</span></button>
+              </div>
+              <div class="when-line">demain · 14:30</div>
+              <div class="trip-block">
+                <div class="route">
+                  <div class="stop">
+                    <div class="dot-out"></div>
+                    <div>
+                      <div class="place">Gare de Lyon</div>
+                      <div class="addr">20 Bd Diderot, 75012</div>
+                    </div>
+                  </div>
+                  <div class="gap"></div>
+                  <div class="stop">
+                    <div class="dot-in"></div>
+                    <div>
+                      <div class="place">Hôpital Saint-Louis</div>
+                      <div class="addr">1 Av. Claude-Vellefaux, 75010</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="price-big">
+                  <div class="v">38<span class="e">€</span></div>
+                  <div class="km">8.4 km · 22 min</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bottom">
+
+              <!-- Bloc PRIS PAR -->
+              <div class="taken">
+                <div class="who">
+                  <div class="av">JM</div>
+                  <div>
+                    <div class="name">Jean Martin</div>
+                    <div class="ago">Accepté il y a 12 min · 06 12 34 56 78</div>
+                  </div>
+                </div>
+                <div class="actions">
+                  <a class="a primary">
+                    <span class="material-symbols-rounded">call</span>
+                    <span class="lab">Appeler</span>
+                  </a>
+                  <a class="a">
+                    <span class="material-symbols-rounded">chat_bubble</span>
+                    <span class="lab">SMS</span>
+                  </a>
+                  <a class="a">
+                    <span class="material-symbols-rounded">forum</span>
+                    <span class="lab">WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+
+              <div class="info-row">
+                <div class="lab">Patient</div>
+                <div class="val">Mme Marie Dubois</div>
+              </div>
+              <div class="info-row">
+                <div class="lab">Notes</div>
+                <div class="val">Béquille, à aider à monter dans le véhicule.</div>
+              </div>
+
+              <div class="manage">
+                <div class="lab-section">Gérer la course</div>
+                <button class="btn del full">
+                  <span class="material-symbols-rounded">cancel</span>
+                  Annuler la course
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- VARIANTE 3 : MODAL DETAIL — EN ATTENTE -->
+    <!-- ========================================================== -->
+    <div class="variant">
+      <div class="variant-label">Vue 3 — Détail (en attente)</div>
+      <div class="variant-sub">
+        Pas encore prise. Stats de visibilité (vues / chauffeurs intéressés / délai) et trois actions
+        principales : modifier, booster le prix, supprimer.
+      </div>
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <div class="icons">
+              <span class="material-symbols-rounded">network_wifi</span>
+              <span class="material-symbols-rounded">battery_full</span>
+            </div>
+          </div>
+
+          <div class="content" style="filter: blur(2px); opacity: .5;">
+            <div class="head"><div><div class="title">Mes courses</div></div></div>
+          </div>
+
+          <div class="scrim"></div>
+
+          <div class="sheet">
+            <div class="sheet-handle"></div>
+            <div class="top">
+              <div class="top-row">
+                <div>
+                  <span class="status-pill"><span class="dot"></span>En attente</span>
+                  <span class="type-pill">Privé</span>
+                </div>
+                <button class="close-btn"><span class="material-symbols-rounded">close</span></button>
+              </div>
+              <div class="when-line">aujourd'hui · 11:00 · dans 1h 30</div>
+              <div class="trip-block">
+                <div class="route">
+                  <div class="stop">
+                    <div class="dot-out"></div>
+                    <div>
+                      <div class="place">Châtelet</div>
+                      <div class="addr">Place du Châtelet, 75001</div>
+                    </div>
+                  </div>
+                  <div class="gap"></div>
+                  <div class="stop">
+                    <div class="dot-in"></div>
+                    <div>
+                      <div class="place">Aéroport CDG T2</div>
+                      <div class="addr">Roissy-en-France, 95700</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="price-big">
+                  <div class="v">62<span class="e">€</span></div>
+                  <div class="km">38 km · 45 min</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bottom">
+
+              <!-- Stats de visibilité -->
+              <div class="taken" style="background: var(--brand-soft); border-color: rgba(255,210,63,.4);">
+                <div style="display:grid; grid-template-columns: repeat(3,1fr); gap: 8px; text-align:center;">
+                  <div>
+                    <div style="font-size:18px; font-weight:800;">12</div>
+                    <div style="font-size:10px; color: var(--warm-600); font-weight:700; margin-top:2px;">vues</div>
+                  </div>
+                  <div style="border-left:1px solid rgba(0,0,0,.08); border-right:1px solid rgba(0,0,0,.08);">
+                    <div style="font-size:18px; font-weight:800;">3</div>
+                    <div style="font-size:10px; color: var(--warm-600); font-weight:700; margin-top:2px;">intéressés</div>
+                  </div>
+                  <div>
+                    <div style="font-size:18px; font-weight:800;">2h</div>
+                    <div style="font-size:10px; color: var(--warm-600); font-weight:700; margin-top:2px;">en ligne</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="info-row">
+                <div class="lab">Téléphone client</div>
+                <div class="val">06 78 90 12 34</div>
+              </div>
+              <div class="info-row">
+                <div class="lab">Notes</div>
+                <div class="val">Vol à 13h, prévoir 10 min d'avance.</div>
+              </div>
+
+              <div class="manage">
+                <div class="lab-section">Gérer la course</div>
+                <div class="grid">
+                  <button class="btn">
+                    <span class="material-symbols-rounded">edit</span>
+                    Modifier
+                  </button>
+                  <button class="btn boost">
+                    <span class="material-symbols-rounded">trending_up</span>
+                    Booster +5€
+                  </button>
+                  <button class="btn del full">
+                    <span class="material-symbols-rounded">delete</span>
+                    Supprimer
+                  </button>
+                </div>
+                <div class="hint">
+                  <span class="material-symbols-rounded">lightbulb</span>
+                  Votre prix est 8 € sous la médiane Paris-CDG. Booster augmente vos chances.
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- VARIANTE 4 : EMPTY STATE + SWIPE ACTION -->
+    <!-- ========================================================== -->
+    <div class="variant">
+      <div class="variant-label">Vue 4 — Empty state &amp; swipe</div>
+      <div class="variant-sub">
+        Empty state actif avec CTA. En bas, illustration du geste swipe-gauche révélant l'action « Supprimer » rapide
+        sans ouvrir le modal.
+      </div>
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <div class="icons">
+              <span class="material-symbols-rounded">network_wifi</span>
+              <span class="material-symbols-rounded">battery_full</span>
+            </div>
+          </div>
+          <div class="content">
+
+            <div class="head">
+              <div>
+                <div class="title">Mes courses</div>
+                <div class="sub">mardi 29 avril</div>
+              </div>
+            </div>
+
+            <div class="subtabs">
+              <button class="subtab"><span>À venir</span></button>
+              <button class="subtab active"><span>Postées</span></button>
+              <button class="subtab"><span>Historique</span></button>
+            </div>
+
+            <div class="empty">
+              <div class="ill"><span class="material-symbols-rounded">share_location</span></div>
+              <h3>Aucune course postée</h3>
+              <p>Un trajet en surplus ?<br/>Partagez-le au réseau et touchez une commission.</p>
+              <button class="cta">
+                <span class="material-symbols-rounded">add</span>
+                Poster une course
+              </button>
+            </div>
+
+            <div style="margin-top: 28px;">
+              <div class="date-band">Geste rapide — swipe</div>
+              <div style="position: relative; padding-right: 0;">
+                <!-- Swipe-revealed bg -->
+                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:flex-end; padding-right:8px;">
+                  <button style="height:54px; width:64px; border-radius:12px; background:var(--danger); color:var(--paper); border:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;">
+                    <span class="material-symbols-rounded" style="font-size:18px;">delete</span>
+                    <span style="font-size:10px; font-weight:700;">Suppr.</span>
+                  </button>
+                </div>
+                <!-- Row sliding left -->
+                <div class="row" style="transform: translateX(-72px); transition:none; margin-bottom: 0;">
+                  <div class="pin"></div>
+                  <div class="body">
+                    <div class="trip">Versailles<span class="arrow">→</span>Concorde</div>
+                    <div class="meta"><span class="when">demain 08:15</span><span>·</span><span>TaxiLink</span></div>
+                  </div>
+                  <div class="price-col">
+                    <div class="price">45<span class="e">€</span></div>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size:11.5px; color: var(--warm-500); margin: 10px 4px 0; line-height: 1.5;">
+                Glissez vers la gauche pour supprimer sans ouvrir le détail. Mêmes actions que le modal,
+                accès plus rapide quand on en a beaucoup.
+              </p>
+            </div>
+
+          </div>
+          <div class="bn">
+            <div class="it"><span class="material-symbols-rounded">explore</span><span>Découvrir</span></div>
+            <div class="it active"><span class="material-symbols-rounded">local_taxi</span><span>Mes courses</span></div>
+            <div class="it"><span class="material-symbols-rounded">groups</span><span>Réseau</span></div>
+            <div class="it"><span class="material-symbols-rounded">person</span><span>Profil</span></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

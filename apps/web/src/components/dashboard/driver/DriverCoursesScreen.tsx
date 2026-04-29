@@ -48,18 +48,9 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
 
       <div className="transition-opacity">
         {active === 'upcoming' && <UpcomingTab />}
-        {active === 'posted' && <PostedTab />}
+        {active === 'posted' && <PostedTab onPostCourse={onPostCourse} />}
         {active === 'history' && <HistoryTab />}
       </div>
-
-      <button
-        type="button"
-        onClick={onPostCourse}
-        aria-label="Nouvelle course"
-        className="md:hidden fixed bottom-20 right-4 w-14 h-14 rounded-full bg-ink text-brand shadow-fab hover:shadow-fab-hover flex items-center justify-center active:scale-95 transition-all z-30"
-      >
-        <Plus className="w-6 h-6" strokeWidth={2.6} />
-      </button>
     </div>
   )
 }
