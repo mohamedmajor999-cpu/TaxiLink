@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { AlertTriangle, MapPin, Route, X } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { computeDisplayFare } from '@/lib/missionFare'
@@ -15,9 +16,33 @@ interface Props {
   onAccept: () => void | Promise<void>
   onShowDetail: () => void
   onClose: () => void
+  /**
+   * Si défini, affiche une barre de progression qui se vide en N ms et appelle
+   * `onAutoDismiss` à la fin. Utilisé pour les nouvelles annonces postées en
+   * temps réel (alerte avec décompte 10s).
+   */
+  autoDismissMs?: number
+  onAutoDismiss?: () => void
 }
 
-export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, onClose }: Props) {
+export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, onClose, autoDismissMs, onAutoDismiss }: Props) {
+  const [progress, setProgress] = useState(100)
+  useEffect(() => {
+    if (!autoDismissMs) return
+    setProgress(100)
+    const startedAt = Date.now()
+    const id = window.setInterval(() => {
+      const elapsed = Date.now() - startedAt
+      const ratio = Math.max(0, 1 - elapsed / autoDismissMs)
+      setProgress(ratio * 100)
+      if (ratio <= 0) {
+        window.clearInterval(id)
+        onAutoDismiss?.()
+      }
+    }, 80)
+    return () => window.clearInterval(id)
+  }, [mission.id, autoDismissMs, onAutoDismiss])
+
   const fare = computeDisplayFare(mission)
   const minutesUntil = getMinutesUntil(mission.scheduled_at)
   const urgent = minutesUntil <= URGENT_THRESHOLD_MIN
@@ -106,6 +131,15 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
           Détail
         </button>
       </div>
+
+      {autoDismissMs && (
+        <div className="absolute left-0 right-0 bottom-0 h-1 bg-warm-200 dark:bg-night-border overflow-hidden rounded-b-2xl" aria-hidden="true">
+          <div
+            className="h-full bg-brand dark:bg-night-brand transition-[width] ease-linear"
+            style={{ width: `${progress}%`, transitionDuration: '80ms' }}
+          />
+        </div>
+      )}
     </div>
   )
 }

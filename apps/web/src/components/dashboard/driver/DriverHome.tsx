@@ -11,7 +11,6 @@ import { DriverHomeAcceptBar } from './home/DriverHomeAcceptBar'
 import { DriverHomeTopOverlay } from './home/DriverHomeTopOverlay'
 import { DriverHomeFilterChips } from './home/DriverHomeFilterChips'
 import { MissionMapPopup } from './home/MissionMapPopup'
-import { DriverHomeNewMissionPopup } from './home/DriverHomeNewMissionPopup'
 import { SHEET_FRACTION, type SheetSnap } from './home/useSheetDrag'
 import { useNightMode } from '@/hooks/useNightMode'
 
@@ -48,6 +47,15 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
   }
   const sheetCollapsed = snap === 'one'
 
+  // Quand une nouvelle annonce arrive en realtime (filtree par useNewMissionPopup
+  // sur 2h + 15km), on la selectionne automatiquement pour afficher le
+  // MissionMapPopup avec barre 10s par-dessus la carte.
+  const incomingMission = h.popup.current
+  useEffect(() => {
+    if (incomingMission) h.setSelectedMissionId(incomingMission.id)
+  }, [incomingMission, h.setSelectedMissionId])
+  const isIncomingDisplay = incomingMission != null && h.selectedMissionId === incomingMission.id
+
   const chips = (
     <DriverHomeFilterChips
       filter={h.filter} counts={h.counts}
@@ -64,12 +72,6 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
     <div className="relative md:flex md:flex-row md:h-screen h-[100dvh] overflow-hidden bg-paper dark:bg-night-bg">
       {h.showConfetti && <MissionAcceptedCelebration onDone={h.clearConfetti} />}
       <ToastContainer toasts={h.toasts} onDismiss={h.dismissToast} />
-      <DriverHomeNewMissionPopup
-        popup={h.popup}
-        userCoords={h.userCoords}
-        onAccept={h.acceptMission}
-        onShowDetail={onShowMissionDetail}
-      />
 
       <div className="absolute inset-0 md:relative md:flex-none md:w-[58%] md:h-full md:p-4 md:inset-auto bg-paper dark:bg-night-bg">
         <div className="relative w-full h-full overflow-hidden md:rounded-2xl md:border md:border-warm-200 md:shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
@@ -99,14 +101,22 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
               {chips}
             </div>
           )}
-          {h.selectedMission && mapFullscreen && (
+          {h.selectedMission && (mapFullscreen || sheetCollapsed) && (
             <div className="md:hidden">
               <MissionMapPopup
                 mission={h.selectedMission}
                 userCoords={h.userCoords}
                 onAccept={onAccept}
                 onShowDetail={() => h.selectedMissionId && onShowMissionDetail(h.selectedMissionId)}
-                onClose={() => h.selectedMissionId && h.toggleMission(h.selectedMissionId)}
+                onClose={() => {
+                  if (incomingMission) h.popup.dismiss(incomingMission.id)
+                  if (h.selectedMissionId) h.toggleMission(h.selectedMissionId)
+                }}
+                autoDismissMs={isIncomingDisplay ? 10_000 : undefined}
+                onAutoDismiss={() => {
+                  if (incomingMission) h.popup.dismiss(incomingMission.id)
+                  if (h.selectedMissionId) h.toggleMission(h.selectedMissionId)
+                }}
               />
             </div>
           )}
