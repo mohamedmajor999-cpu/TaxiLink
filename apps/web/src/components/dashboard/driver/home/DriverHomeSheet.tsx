@@ -48,7 +48,11 @@ export function DriverHomeSheet({
 
   return (
     <section
-      className="bg-paper dark:bg-night-bg rounded-t-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] flex flex-col min-h-0 flex-1"
+      className={`flex flex-col min-h-0 flex-1 transition-colors duration-200 ${
+        isCollapsed
+          ? 'bg-transparent md:bg-paper md:dark:bg-night-bg md:rounded-none md:shadow-none'
+          : 'bg-paper dark:bg-night-bg rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none'
+      }`}
       aria-label="Liste des courses disponibles"
     >
       <div
@@ -61,7 +65,13 @@ export function DriverHomeSheet({
         aria-valuenow={snap === 'one' ? 1 : snap === 'two' ? 2 : snap === 'three' ? 3 : 4}
         style={{ touchAction: 'none' }}
       >
-        <span className="w-14 h-1.5 rounded-full bg-warm-500 dark:bg-night-text-soft" />
+        <span
+          className={`w-14 h-1.5 rounded-full transition-colors ${
+            isCollapsed
+              ? 'bg-white/95 shadow-[0_2px_8px_rgba(0,0,0,0.3)] ring-1 ring-black/10'
+              : 'bg-warm-500 dark:bg-night-text-soft'
+          }`}
+        />
       </div>
       <div className="hidden md:block pt-4" />
       <div className={isCollapsed ? 'hidden md:block' : 'block'}>
