@@ -11,13 +11,20 @@ interface UseMissionRealtimeOptions {
   onUpdate?: (mission: Mission) => void
   /** Appelé à chaque suppression d'une mission (payload partiel : id uniquement) */
   onDelete?: (mission: { id: string }) => void
+  /**
+   * Nom du channel Supabase. Doit être unique par instance du hook montée en
+   * parallèle : Supabase refuse `.on(...)` après `.subscribe()` sur un nom
+   * existant — donc deux hooks qui veulent recevoir les mêmes events doivent
+   * utiliser des noms différents.
+   */
+  channelName?: string
 }
 
 /**
  * Hook qui souscrit aux changements temps réel de la table missions via Supabase Realtime.
  * Isole toute la logique de subscription hors des composants UI.
  */
-export function useMissionRealtime({ onInsert, onUpdate, onDelete }: UseMissionRealtimeOptions) {
+export function useMissionRealtime({ onInsert, onUpdate, onDelete, channelName = 'missions-realtime' }: UseMissionRealtimeOptions) {
   // Ref mise à jour à chaque render : garantit qu'on appelle toujours la
   // dernière version des callbacks (sinon closure figée au premier render,
   // où user peut encore être null → loadMissions no-op).
@@ -28,7 +35,7 @@ export function useMissionRealtime({ onInsert, onUpdate, onDelete }: UseMissionR
     const supabase = createClient()
 
     const pgChannel = supabase
-      .channel('missions-realtime')
+      .channel(channelName)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'missions', filter: 'status=eq.AVAILABLE' },

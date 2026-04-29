@@ -28,6 +28,9 @@ export function useNewMissionPopup({ userCoords, authorIdToSkip }: Args) {
   const isOnline = useDriverStore((s) => s.driver.isOnline)
 
   useMissionRealtime({
+    // Channel dedie : useDriverMissions monte deja « missions-realtime » sur la
+    // home, et Supabase refuse `.on(...)` apres `.subscribe()` sur un nom existant.
+    channelName: 'missions-realtime-newpopup',
     onInsert: (m) => {
       if (!popupEnabled || !isOnline) return
       if (authorIdToSkip && m.shared_by === authorIdToSkip) return
