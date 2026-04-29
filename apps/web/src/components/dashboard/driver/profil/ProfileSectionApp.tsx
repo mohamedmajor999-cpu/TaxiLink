@@ -1,5 +1,5 @@
 'use client'
-import { Bell, Mic, HelpCircle, LogOut, Loader2, BellRing, MapPin } from 'lucide-react'
+import { Bell, Mic, HelpCircle, LogOut, Loader2 } from 'lucide-react'
 import { ProfileSection } from './ProfileSection'
 import { ProfileMenuRow } from './ProfileMenuRow'
 import { GreenSwitch } from './GreenSwitch'
@@ -34,30 +34,6 @@ export function ProfileSectionApp({ onOpenSupport }: Props) {
             label="Dictée vocale"
             checked={a.voiceDictation}
             onChange={a.setVoiceDictation}
-          />
-        }
-      />
-      <ProfileMenuRow
-        icon={<BellRing className="w-full h-full" strokeWidth={1.8} />}
-        label="Alertes nouvelles courses"
-        description="Popup quand une course proche est postée"
-        right={
-          <GreenSwitch
-            label="Alertes nouvelles courses"
-            checked={a.popupNewMission}
-            onChange={(v) => { a.setPopupNewMission(v).catch(() => {}) }}
-          />
-        }
-      />
-      <ProfileMenuRow
-        icon={<MapPin className="w-full h-full" strokeWidth={1.8} />}
-        label="Partager ma position en ligne"
-        description="Pour recevoir les courses proches de toi (RGPD)"
-        right={
-          <GreenSwitch
-            label="Position GPS"
-            checked={a.geolocPushEnabled}
-            onChange={(v) => { a.setGeolocPushEnabled(v).catch(() => {}) }}
           />
         }
       />

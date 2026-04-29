@@ -4,11 +4,9 @@ import type { Group } from '@taxilink/core'
 import { useDriverStore } from '@/store/driverStore'
 import { useAuth } from '@/hooks/useAuth'
 import { useNextMissionNotification } from '@/hooks/useNextMissionNotification'
-import { useDriverPositionPush } from '@/hooks/useDriverPositionPush'
 import { groupService } from '@/services/groupService'
 import { useDriverMissions } from './useDriverMissions'
 import { useDriverHomeFilters } from './home/useDriverHomeFilters'
-import { useNewMissionPopup } from './home/useNewMissionPopup'
 
 export {
   HOME_GROUP_PUBLIC,
@@ -74,8 +72,6 @@ export function useDriverHome({ onShowMissionDetail }: UseDriverHomeOptions = {}
   }, [user?.id])
 
   const f = useDriverHomeFilters({ missions: m.missions, groups, userCoords })
-  useDriverPositionPush(userCoords)
-  const popup = useNewMissionPopup({ userCoords, authorIdToSkip: driver.id })
 
   const mappableMissions = useMemo(
     () => f.filteredMissions.filter((x) => x.departure_lat != null && x.departure_lng != null),
@@ -153,6 +149,5 @@ export function useDriverHome({ onShowMissionDetail }: UseDriverHomeOptions = {}
     requestLocation,
     notificationPermission: notif.permission,
     requestNotificationPermission: notif.requestPermission,
-    popup,
   }
 }

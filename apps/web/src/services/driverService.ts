@@ -48,17 +48,4 @@ export const driverService = {
       .eq('id', driverId)
     if (error) throw new Error(error.message)
   },
-
-  async updatePosition(driverId: string, lat: number, lng: number): Promise<void> {
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('drivers')
-      .update({
-        current_lat: lat,
-        current_lng: lng,
-        current_position_updated_at: new Date().toISOString(),
-      })
-      .eq('id', driverId)
-    if (error) throw new Error(error.message)
-  },
 }
