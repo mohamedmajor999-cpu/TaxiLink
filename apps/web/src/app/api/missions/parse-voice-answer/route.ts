@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { logAiUsage } from '@/lib/aiUsageLogger'
 
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages'
 const CLAUDE_MODEL = 'claude-haiku-4-5'
@@ -6,6 +7,7 @@ const CLAUDE_TIMEOUT_MS = 10000
 
 interface ClaudeResponse {
   content?: { type: string; text?: string }[]
+  usage?: { input_tokens?: number; output_tokens?: number }
 }
 
 interface AnswerRequest {
@@ -119,6 +121,12 @@ export async function POST(request: Request) {
   const json = (await res.json()) as ClaudeResponse
   const text = json.content?.[0]?.text?.trim() ?? ''
   const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
+  await logAiUsage({
+    endpoint:     'parse-voice-answer',
+    model:        CLAUDE_MODEL,
+    inputTokens:  json.usage?.input_tokens ?? 0,
+    outputTokens: json.usage?.output_tokens ?? 0,
+  })
   try {
     return NextResponse.json(JSON.parse(cleaned))
   } catch {

@@ -34,7 +34,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // 2. Vérification complétude profil + rôle pour les routes protégées
+  // 2. Dashboard admin : email == ADMIN_EMAIL, sinon redirige vers son propre dashboard.
+  if (pathname.startsWith('/dashboard/admin')) {
+    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim()
+    const userEmail = user.email?.toLowerCase().trim()
+    if (!adminEmail || userEmail !== adminEmail) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      const target = profile?.role === 'driver' ? '/dashboard/chauffeur' : '/dashboard/client'
+      return NextResponse.redirect(new URL(target, request.url))
+    }
+    return supabaseResponse
+  }
+
+  // 3. Vérification complétude profil + rôle pour les routes protégées
   if (pathname.startsWith('/dashboard/chauffeur') || pathname.startsWith('/dashboard/client')) {
     const { data: profile } = await supabase
       .from('profiles')

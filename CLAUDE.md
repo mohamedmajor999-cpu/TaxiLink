@@ -134,6 +134,10 @@ NEXT_PUBLIC_MAPBOX_TOKEN=
 ANTHROPIC_API_KEY=
 GEMINI_API_KEY=
 
+# Dashboard admin (Phase 1 — /dashboard/admin)
+ADMIN_EMAIL=                       # email du compte autorisé
+SUPABASE_SERVICE_ROLE_KEY=         # bypass RLS pour /api/admin/* uniquement, NE PAS exposer côté client
+
 # Error monitoring (optional; @sentry/nextjs is wired via src/instrumentation.ts)
 SENTRY_DSN=
 NEXT_PUBLIC_SENTRY_DSN=

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { SYSTEM_PROMPT } from './prompt'
+import { logAiUsage } from '@/lib/aiUsageLogger'
+import { computeCostUsd } from '@/lib/aiPricing'
 
 const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash']
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models'
@@ -16,10 +18,6 @@ interface ClaudeResponse {
   content?: { type: string; text?: string }[]
   usage?: { input_tokens?: number; output_tokens?: number }
 }
-
-// Claude Haiku 4.5 pricing (USD per million tokens).
-const CLAUDE_PRICE_IN = 1
-const CLAUDE_PRICE_OUT = 5
 
 async function callGemini(model: string, apiKey: string, prompt: string): Promise<Response> {
   return fetch(`${GEMINI_BASE}/${model}:generateContent?key=${apiKey}`, {
@@ -92,8 +90,9 @@ export async function POST(request: Request) {
         usedProvider = CLAUDE_MODEL
         const inTok = json.usage?.input_tokens ?? 0
         const outTok = json.usage?.output_tokens ?? 0
-        const cost = (inTok * CLAUDE_PRICE_IN + outTok * CLAUDE_PRICE_OUT) / 1_000_000
+        const cost = computeCostUsd(CLAUDE_MODEL, inTok, outTok)
         console.log(`[parse-voice] ${CLAUDE_MODEL} → 200 in ${elapsed}ms (in:${inTok} out:${outTok} = $${cost.toFixed(6)})`)
+        await logAiUsage({ endpoint: 'parse-voice', model: CLAUDE_MODEL, inputTokens: inTok, outputTokens: outTok })
       } else {
         lastStatus = res.status
         const errBody = await res.text().catch(() => '')
