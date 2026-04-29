@@ -1,12 +1,18 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { AiUsageSection } from './AiUsageSection'
 import { GoogleCostsSection } from './GoogleCostsSection'
 import { MissionsSection } from './MissionsSection'
 import { UsersSection } from './UsersSection'
 import { TopDriversSection } from './TopDriversSection'
 import { TopGroupsSection } from './TopGroupsSection'
-import { OnlineDriversMap } from './OnlineDriversMap'
+
+// Leaflet utilise `window` au chargement → désactive SSR pour cette section.
+const OnlineDriversMap = dynamic(
+  () => import('./OnlineDriversMap').then((m) => m.OnlineDriversMap),
+  { ssr: false }
+)
 
 export function AdminDashboard() {
   return (
