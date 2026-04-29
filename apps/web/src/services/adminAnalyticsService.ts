@@ -46,9 +46,63 @@ export interface GoogleCostUpsert {
   notes?:        string | null
 }
 
+export interface MissionBucket {
+  period:         string
+  posted:         number
+  accepted:       number
+  completed:      number
+  totalAmount:    number
+  acceptanceRate: number
+}
+
+export interface MissionTotals {
+  posted:         number
+  accepted:       number
+  completed:      number
+  totalAmount:    number
+  averageAmount:  number
+  acceptanceRate: number
+}
+
+export interface MissionStatsReport {
+  daily:   MissionBucket[]
+  weekly:  MissionBucket[]
+  monthly: MissionBucket[]
+  totals:  MissionTotals
+}
+
+export interface UserCounters {
+  totalUsers:     number
+  totalDrivers:   number
+  totalClients:   number
+  newDrivers30d:  number
+  newClients30d:  number
+  onlineDrivers:  number
+  totalLogins90d: number
+}
+
+export interface LoginBucket {
+  period:      string
+  logins:      number
+  uniqueUsers: number
+}
+
+export interface UserStatsReport {
+  counters: UserCounters
+  daily:    LoginBucket[]
+  weekly:   LoginBucket[]
+  monthly:  LoginBucket[]
+}
+
 export const adminAnalyticsService = {
   getAiUsage(): Promise<AiUsageReport> {
     return api.get<AiUsageReport>('/api/admin/ai-usage')
+  },
+  getMissionStats(): Promise<MissionStatsReport> {
+    return api.get<MissionStatsReport>('/api/admin/missions-stats')
+  },
+  getUserStats(): Promise<UserStatsReport> {
+    return api.get<UserStatsReport>('/api/admin/users-stats')
   },
   listGoogleCosts(): Promise<{ items: GoogleCostItem[] }> {
     return api.get<{ items: GoogleCostItem[] }>('/api/admin/google-costs')

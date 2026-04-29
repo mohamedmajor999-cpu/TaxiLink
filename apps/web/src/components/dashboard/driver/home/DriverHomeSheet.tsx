@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, type RefObject } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import type { ReactNode } from 'react'
 import type { Mission } from '@/lib/supabase/types'
 import { type HomeTypeFilter } from './useDriverHomeFilters'
@@ -40,6 +40,21 @@ export function DriverHomeSheet({
   const listRef = useRef<HTMLDivElement | null>(null)
   const dragHandleRef = useSheetDrag(snap, onSnapChange, sheetRef, vh)
   const isCollapsed = snap === 'one'
+  // Pendant un drag, le state `snap` ne change qu'au release. On observe
+  // la hauteur reelle du sheetRef pour appliquer le bg-paper des qu'on
+  // commence a tirer (sinon les cards apparaissent sans fond et la carte
+  // est visible derriere ce qui est moche).
+  const [isPhysicallyExpanded, setPhysicallyExpanded] = useState(false)
+  useEffect(() => {
+    const el = sheetRef.current
+    if (!el) return
+    const update = () => setPhysicallyExpanded(el.getBoundingClientRect().height > 60)
+    const obs = new ResizeObserver(update)
+    obs.observe(el)
+    update()
+    return () => obs.disconnect()
+  }, [sheetRef])
+  const showOpaqueBg = isPhysicallyExpanded || !isCollapsed
   useEffect(() => {
     if (!selectedId || !listRef.current) return
     const el = listRef.current.querySelector<HTMLElement>(`[data-mission="${selectedId}"]`)
@@ -49,9 +64,9 @@ export function DriverHomeSheet({
   return (
     <section
       className={`flex flex-col min-h-0 flex-1 transition-colors duration-200 ${
-        isCollapsed
-          ? 'bg-transparent md:bg-paper md:dark:bg-night-bg md:rounded-none md:shadow-none'
-          : 'bg-paper dark:bg-night-bg rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none'
+        showOpaqueBg
+          ? 'bg-paper dark:bg-night-bg rounded-t-[24px] md:rounded-none shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-none'
+          : 'bg-transparent md:bg-paper md:dark:bg-night-bg md:rounded-none md:shadow-none'
       }`}
       aria-label="Liste des courses disponibles"
     >
@@ -67,14 +82,14 @@ export function DriverHomeSheet({
       >
         <span
           className={`w-14 h-1.5 rounded-full transition-colors ${
-            isCollapsed
-              ? 'bg-white/95 shadow-[0_2px_8px_rgba(0,0,0,0.3)] ring-1 ring-black/10'
-              : 'bg-warm-500 dark:bg-night-text-soft'
+            showOpaqueBg
+              ? 'bg-warm-500 dark:bg-night-text-soft'
+              : 'bg-white/95 shadow-[0_2px_8px_rgba(0,0,0,0.3)] ring-1 ring-black/10'
           }`}
         />
       </div>
       <div className="hidden md:block pt-4" />
-      <div className={isCollapsed ? 'hidden md:block' : 'block'}>
+      <div className={showOpaqueBg ? 'block' : 'hidden md:block'}>
         <header className="px-5 pb-2.5 flex items-center justify-between">
           <h2 className="text-[15px] font-extrabold text-ink dark:text-night-text">Annonces autour de vous</h2>
           <span className="text-[12px] text-warm-500 dark:text-night-text-soft font-semibold">

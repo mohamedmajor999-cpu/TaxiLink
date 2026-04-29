@@ -129,11 +129,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
       <div className={`absolute bottom-0 left-0 right-0 md:relative md:inset-auto md:shrink-0 md:flex md:flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200 z-[600] md:z-auto ${mapFullscreen ? 'hidden md:flex' : ''}`}>
         <div
           ref={sheetRef}
-          className={`relative shrink-0 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 md:bg-paper md:dark:bg-night-bg md:rounded-none md:shadow-none flex flex-col transition-[height] duration-300 ease-out ${
-            sheetCollapsed
-              ? 'bg-transparent'
-              : 'bg-paper dark:bg-night-bg rounded-t-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)]'
-          }`}
+          className="relative shrink-0 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 bg-transparent md:bg-paper md:dark:bg-night-bg flex flex-col transition-[height] duration-300 ease-out"
           style={{ height: `${sheetHeightPx}px` }}
         >
           <DriverHomeSheet

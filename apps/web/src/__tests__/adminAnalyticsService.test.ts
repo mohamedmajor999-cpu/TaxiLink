@@ -45,4 +45,22 @@ describe('adminAnalyticsService', () => {
     await adminAnalyticsService.deleteGoogleCost(42)
     expect(mockedApi.delete).toHaveBeenCalledWith('/api/admin/google-costs?id=42')
   })
+
+  it('getMissionStats appelle GET /api/admin/missions-stats', async () => {
+    const fixture = { daily: [], weekly: [], monthly: [], totals: { posted: 0, accepted: 0, completed: 0, totalAmount: 0, averageAmount: 0, acceptanceRate: 0 } }
+    mockedApi.get.mockResolvedValue(fixture)
+    const result = await adminAnalyticsService.getMissionStats()
+    expect(mockedApi.get).toHaveBeenCalledWith('/api/admin/missions-stats')
+    expect(result).toEqual(fixture)
+  })
+
+  it('getUserStats appelle GET /api/admin/users-stats', async () => {
+    const fixture = {
+      counters: { totalUsers: 0, totalDrivers: 0, totalClients: 0, newDrivers30d: 0, newClients30d: 0, onlineDrivers: 0, totalLogins90d: 0 },
+      daily: [], weekly: [], monthly: [],
+    }
+    mockedApi.get.mockResolvedValue(fixture)
+    await adminAnalyticsService.getUserStats()
+    expect(mockedApi.get).toHaveBeenCalledWith('/api/admin/users-stats')
+  })
 })
