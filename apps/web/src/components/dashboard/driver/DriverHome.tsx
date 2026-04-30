@@ -115,7 +115,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
                 onAccept={incomingMission ? () => onAcceptIncoming(incomingMission.id) : onAccept}
                 onShowDetail={() => onShowMissionDetail(incomingMission?.id ?? h.selectedMissionId!)}
                 onClose={() => incomingMission ? h.popup.dismiss(incomingMission.id) : h.selectedMissionId && h.toggleMission(h.selectedMissionId)}
-                autoDismissMs={incomingMission ? 10_000 : undefined}
+                autoDismissMs={incomingMission && !showDebug ? 10_000 : undefined}
                 onAutoDismiss={incomingMission ? () => h.popup.dismiss(incomingMission.id) : undefined}
               />
             </div>
