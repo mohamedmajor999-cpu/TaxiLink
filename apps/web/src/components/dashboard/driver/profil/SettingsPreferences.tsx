@@ -1,7 +1,8 @@
 'use client'
-import { Loader2, Check, Bell, Shield } from 'lucide-react'
+import { Loader2, Check, Bell, Shield, Navigation2 } from 'lucide-react'
 import { SettingItem } from '@/components/taxilink/SettingItem'
 import { Switch } from '@/components/taxilink/Switch'
+import type { GpsPreference } from '@/lib/gpsNavigation'
 import { useSettingsToggles } from './useSettingsToggles'
 import { useSettingsPreferences } from './useSettingsPreferences'
 
@@ -45,6 +46,14 @@ export function SettingsPreferences() {
           />
         </label>
 
+        <div>
+          <span className="flex items-center gap-2 text-[13px] text-ink px-1 mb-1.5">
+            <Navigation2 className="w-4 h-4 text-warm-600" strokeWidth={1.8} />
+            Application GPS
+          </span>
+          <GpsPrefSelector value={s.gpsPref} onChange={s.setGpsPref} disabled={s.loading || s.saving} />
+        </div>
+
         {s.error && (
           <div className="bg-danger-soft text-danger text-[12px] px-3 py-2 rounded-xl">
             {s.error}
@@ -78,6 +87,42 @@ export function SettingsPreferences() {
         />
       </div>
     </section>
+  )
+}
+
+const GPS_OPTIONS: ReadonlyArray<{ value: GpsPreference; label: string }> = [
+  { value: 'ask', label: 'Les deux' },
+  { value: 'waze', label: 'Waze' },
+  { value: 'maps', label: 'Maps' },
+]
+
+function GpsPrefSelector({
+  value, onChange, disabled,
+}: {
+  value: GpsPreference
+  onChange: (v: GpsPreference) => void
+  disabled?: boolean
+}) {
+  return (
+    <div className="grid grid-cols-3 gap-1 bg-warm-100 rounded-xl p-1">
+      {GPS_OPTIONS.map((opt) => {
+        const active = value === opt.value
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            disabled={disabled}
+            aria-pressed={active}
+            className={`h-9 rounded-lg text-[12.5px] font-bold transition-colors disabled:opacity-50 ${
+              active ? 'bg-paper text-ink shadow-sm' : 'bg-transparent text-warm-600 hover:text-ink'
+            }`}
+          >
+            {opt.label}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 

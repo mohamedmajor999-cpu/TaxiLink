@@ -1,20 +1,22 @@
 'use client'
+import { useState } from 'react'
 import { Navigation2, Phone } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { getMinutesUntil } from '@/lib/dateUtils'
 import { formatDuration } from '@/lib/formatDuration'
+import { NavigationSheet } from './NavigationSheet'
 
 interface Props {
   mission: Mission
 }
 
 export function NextMissionHero({ mission }: Props) {
+  const [navOpen, setNavOpen] = useState(false)
   const minutesUntil = getMinutesUntil(mission.scheduled_at)
   const time = new Date(mission.scheduled_at).toLocaleTimeString('fr-FR', {
     hour: '2-digit',
     minute: '2-digit',
   })
-  const navHref = `https://waze.com/ul?q=${encodeURIComponent(mission.destination)}&navigate=yes`
   const delay = minutesUntil <= 0 ? 'Maintenant' : `Dans ${formatDuration(minutesUntil)}`
   const phoneHref = mission.phone ? `tel:${mission.phone}` : null
 
@@ -42,15 +44,14 @@ export function NextMissionHero({ mission }: Props) {
       </div>
 
       <div className="relative mt-3 flex gap-2">
-        <a
-          href={navHref}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          type="button"
+          onClick={() => setNavOpen(true)}
           className="flex-1 h-12 rounded-xl bg-brand text-ink text-[14px] font-extrabold inline-flex items-center justify-center gap-2 hover:bg-brand/90 transition-colors"
         >
           <Navigation2 className="w-4 h-4" strokeWidth={2.2} />
           Démarrer
-        </a>
+        </button>
         {phoneHref && (
           <a
             href={phoneHref}
@@ -61,6 +62,23 @@ export function NextMissionHero({ mission }: Props) {
           </a>
         )}
       </div>
+
+      {navOpen && (
+        <NavigationSheet
+          pickup={{
+            label: 'Aller chercher',
+            sublabel: mission.patient_name || undefined,
+            address: mission.departure,
+            dotClass: 'bg-ink',
+          }}
+          destination={{
+            label: 'Aller à destination',
+            address: mission.destination,
+            dotClass: 'bg-brand border-2 border-ink',
+          }}
+          onClose={() => setNavOpen(false)}
+        />
+      )}
     </article>
   )
 }

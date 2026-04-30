@@ -1,8 +1,10 @@
 'use client'
+import { useState } from 'react'
 import { X, Phone, Navigation2 } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
+import { NavigationSheet } from './NavigationSheet'
 
 const TYPE_LABEL: Record<string, string> = {
   CPAM: 'Médical', PRIVE: 'Privé', TAXILINK: 'TaxiLink',
@@ -22,11 +24,11 @@ interface Props {
 }
 
 export function MissionDetailsModal({ mission, onClose }: Props) {
+  const [navOpen, setNavOpen] = useState(false)
   const scheduledAt = new Date(mission.scheduled_at)
   const dateLabel = scheduledAt.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
   const timeLabel = scheduledAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
   const fare = computeDisplayFare(mission)
-  const wazeHref = `https://waze.com/ul?q=${encodeURIComponent(mission.destination)}&navigate=yes`
   const status = STATUS_MAP[mission.status] ?? STATUS_MAP.ACCEPTED
   const durationMin = mission.duration_min ?? 0
   const dep = addressAsPoint(mission.departure)
@@ -119,15 +121,14 @@ export function MissionDetailsModal({ mission, onClose }: Props) {
           {mission.notes && <InfoRow label="Notes" value={mission.notes} multiline />}
 
           <div className="flex gap-3 pt-1">
-            <a
-              href={wazeHref}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => setNavOpen(true)}
               className="flex-1 h-14 rounded-2xl bg-ink text-paper text-[14px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
             >
               <Navigation2 className="w-4 h-4" strokeWidth={2} />
               Naviguer
-            </a>
+            </button>
             {mission.phone && (
               <a
                 href={`tel:${mission.phone}`}
@@ -140,6 +141,22 @@ export function MissionDetailsModal({ mission, onClose }: Props) {
           </div>
         </div>
       </div>
+      {navOpen && (
+        <NavigationSheet
+          pickup={{
+            label: 'Aller chercher',
+            sublabel: mission.patient_name || undefined,
+            address: mission.departure,
+            dotClass: 'bg-ink',
+          }}
+          destination={{
+            label: 'Aller à destination',
+            address: mission.destination,
+            dotClass: 'bg-primary border-2 border-ink',
+          }}
+          onClose={() => setNavOpen(false)}
+        />
+      )}
     </div>
   )
 }

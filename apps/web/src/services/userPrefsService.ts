@@ -1,5 +1,10 @@
 import { createClient } from '@/lib/supabase/client'
 import { isValidDepartement } from '@/lib/departement'
+import {
+  DEFAULT_GPS_PREFERENCE,
+  isValidGpsPreference,
+  type GpsPreference,
+} from '@/lib/gpsNavigation'
 
 export const userPrefsService = {
   async getNotificationPrefs(): Promise<Record<string, boolean> | null> {
@@ -32,6 +37,25 @@ export const userPrefsService = {
     const clean = Array.from(new Set(depts.filter(isValidDepartement)))
     const supabase = createClient()
     const { error } = await supabase.auth.updateUser({ data: { dept_preferences: clean } })
+    if (error) throw new Error(error.message)
+  },
+
+  /**
+   * Application GPS préférée du chauffeur ('waze' | 'maps' | 'ask').
+   * 'ask' = proposer les deux à chaque navigation (valeur par défaut).
+   */
+  async getGpsPref(): Promise<GpsPreference> {
+    const supabase = createClient()
+    const { data, error } = await supabase.auth.getUser()
+    if (error) return DEFAULT_GPS_PREFERENCE
+    const raw = data.user?.user_metadata?.gps_pref
+    return isValidGpsPreference(raw) ? raw : DEFAULT_GPS_PREFERENCE
+  },
+
+  async updateGpsPref(pref: GpsPreference): Promise<void> {
+    if (!isValidGpsPreference(pref)) throw new Error('Préférence GPS invalide')
+    const supabase = createClient()
+    const { error } = await supabase.auth.updateUser({ data: { gps_pref: pref } })
     if (error) throw new Error(error.message)
   },
 }
