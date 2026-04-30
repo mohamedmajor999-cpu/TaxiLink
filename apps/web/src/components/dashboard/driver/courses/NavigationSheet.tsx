@@ -1,5 +1,7 @@
 'use client'
-import { X, Navigation2 } from 'lucide-react'
+import type { ComponentType, SVGProps } from 'react'
+import { X } from 'lucide-react'
+import { WazeIcon, GMapsIcon } from '@/components/ui/GpsAppIcon'
 import { buildGpsUrl, gpsAppLabel, type GpsApp, type GpsPreference } from '@/lib/gpsNavigation'
 import { useGpsPreference } from './useGpsPreference'
 
@@ -61,27 +63,33 @@ function LegBlock({ leg, apps, onLaunch }: { leg: Leg; apps: readonly GpsApp[]; 
           <p className="text-[14px] font-semibold text-ink mt-0.5 break-words">{leg.address}</p>
         </div>
       </div>
-      <div className={`grid gap-2 ${apps.length === 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+      <div className={`flex items-stretch gap-2 ${apps.length === 1 ? 'flex-col' : ''}`}>
         {apps.map((app) => (
-          <a
-            key={app}
-            href={buildGpsUrl(app, leg.address)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onLaunch}
-            className="h-11 rounded-xl bg-ink text-paper text-[13px] font-bold inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
-          >
-            <Navigation2 className="w-4 h-4" strokeWidth={2.2} />
-            {gpsAppLabel(app)}
-          </a>
+          <GpsLinkBtn key={app} app={app} address={leg.address} onLaunch={onLaunch} />
         ))}
       </div>
     </div>
   )
 }
 
+function GpsLinkBtn({ app, address, onLaunch }: { app: GpsApp; address: string; onLaunch: () => void }) {
+  const Icon: ComponentType<SVGProps<SVGSVGElement>> = app === 'waze' ? WazeIcon : GMapsIcon
+  return (
+    <a
+      href={buildGpsUrl(app, address)}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={onLaunch}
+      className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl border border-warm-200 bg-paper text-ink text-[14px] font-semibold hover:shadow-md transition-all"
+    >
+      <Icon className="w-5 h-5" strokeWidth={2} />
+      {gpsAppLabel(app)}
+    </a>
+  )
+}
+
 function appsForPref(pref: GpsPreference): readonly GpsApp[] {
   if (pref === 'waze') return ['waze']
   if (pref === 'maps') return ['maps']
-  return ['waze', 'maps']
+  return ['maps', 'waze']
 }

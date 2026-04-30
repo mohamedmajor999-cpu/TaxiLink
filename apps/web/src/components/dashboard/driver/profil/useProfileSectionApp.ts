@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useDriverStore } from '@/store/driverStore'
 import { useNightModeStore, type NightModePref } from '@/store/nightModeStore'
 import { useUserPrefs } from '@/store/userPrefsStore'
+import { userPrefsService } from '@/services/userPrefsService'
+import { DEFAULT_GPS_PREFERENCE, type GpsPreference } from '@/lib/gpsNavigation'
 import { useSettingsToggles } from './useSettingsToggles'
 
 const VOICE_KEY = 'taxilink:driver:voiceDictation'
@@ -26,8 +28,24 @@ export function useProfileSectionApp() {
   const [loggingOut, setLoggingOut] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [voiceDictation, setVoiceState] = useState(true)
+  const [gpsPref, setGpsPrefState] = useState<GpsPreference>(DEFAULT_GPS_PREFERENCE)
 
   useEffect(() => { setVoiceState(loadVoice()) }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    userPrefsService.getGpsPref()
+      .then((p) => { if (!cancelled) setGpsPrefState(p) })
+      .catch(() => { /* fallback déjà = ask */ })
+    return () => { cancelled = true }
+  }, [])
+
+  const setGpsPref = (p: GpsPreference) => {
+    setGpsPrefState(p)
+    userPrefsService.updateGpsPref(p).catch((e: unknown) => {
+      setError(e instanceof Error ? e.message : 'Erreur de sauvegarde GPS')
+    })
+  }
 
   const setVoiceDictation = (v: boolean) => {
     setVoiceState(v)
@@ -63,6 +81,8 @@ export function useProfileSectionApp() {
     setGeolocPushEnabled,
     themePref,
     setThemePref: (p: NightModePref) => setThemePref(p),
+    gpsPref,
+    setGpsPref,
     loggingOut,
     error,
     logout,

@@ -24,21 +24,10 @@ vi.mock('@/services/driverService', () => ({
   },
 }))
 
-const mockGetGpsPref = vi.fn()
-const mockUpdateGpsPref = vi.fn()
-vi.mock('@/services/userPrefsService', () => ({
-  userPrefsService: {
-    getGpsPref: (...a: unknown[]) => mockGetGpsPref(...a),
-    updateGpsPref: (...a: unknown[]) => mockUpdateGpsPref(...a),
-  },
-}))
-
 beforeEach(() => {
   vi.clearAllMocks()
   mockGetDriver.mockResolvedValue({ vehicle_model: 'Peugeot 308', vehicle_plate: 'AB-123-CD', cpam_enabled: true })
   mockUpdateDriverService.mockResolvedValue(undefined)
-  mockGetGpsPref.mockResolvedValue('ask')
-  mockUpdateGpsPref.mockResolvedValue(undefined)
 })
 
 describe('useSettingsPreferences', () => {
