@@ -3,7 +3,14 @@ import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
+import { computeDisplayFare } from '@/lib/missionFare'
 import type { Mission } from '@/lib/supabase/types'
+
+// Renvoie le montant a afficher pour une mission : prix saisi sinon estimation
+// CPAM/prefectorale calculee a partir de date/distance/duree.
+function fareValue(m: Mission): number {
+  return computeDisplayFare(m).value
+}
 
 export type Period = 'week' | 'month' | 'quarter' | 'all'
 export type HistoryTypeFilter = 'ALL' | 'CPAM' | 'PRIVE'
@@ -41,7 +48,7 @@ function exportCsv(missions: Mission[]) {
       `"${m.departure}"`,
       `"${m.destination}"`,
       m.type,
-      m.price_eur ?? 0,
+      fareValue(m),
       m.distance_km ?? 0,
     ].join(',')
   )
@@ -70,7 +77,7 @@ function buildGroups(missions: Mission[]): MonthGroup[] {
       return {
         key,
         label: `${MONTHS_FR[d.getMonth()]} ${d.getFullYear()}`.toUpperCase(),
-        total: list.reduce((s, m) => s + Number(m.price_eur ?? 0), 0),
+        total: list.reduce((s, m) => s + fareValue(m), 0),
         missions: list,
       }
     })
@@ -100,7 +107,7 @@ export function useHistoryTab() {
 
   const stats = useMemo(
     () => ({
-      total: filtered.reduce((s, m) => s + Number(m.price_eur ?? 0), 0),
+      total: filtered.reduce((s, m) => s + fareValue(m), 0),
       count: filtered.length,
       km: filtered.reduce((s, m) => s + Number(m.distance_km ?? 0), 0),
     }),

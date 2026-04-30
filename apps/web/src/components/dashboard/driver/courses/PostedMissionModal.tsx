@@ -49,14 +49,14 @@ export function PostedMissionModal({
         className="bg-paper w-full max-w-lg rounded-t-2xl shadow-soft max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-ink rounded-t-2xl px-5 pt-5 pb-7 text-paper">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-paper rounded-t-2xl px-5 pt-5 pb-6 border-b border-warm-200">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-paper/60">
-                <span className={`w-2 h-2 rounded-full ${isWaiting ? 'bg-brand' : 'bg-blue-400'}`} />
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-warm-600">
+                <span className={`w-2 h-2 rounded-full ${isWaiting ? 'bg-brand' : 'bg-blue-500'}`} />
                 {isWaiting ? 'En attente' : 'Acceptée'}
               </span>
-              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-paper/10 text-paper">
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-warm-100 text-ink">
                 {TYPE_LABEL[mission.type] ?? mission.type}
               </span>
             </div>
@@ -64,31 +64,31 @@ export function PostedMissionModal({
               type="button"
               onClick={onClose}
               aria-label="Fermer"
-              className="w-8 h-8 rounded-xl bg-paper/10 flex items-center justify-center text-paper hover:bg-paper/20 transition-colors"
+              className="w-8 h-8 rounded-xl bg-warm-100 flex items-center justify-center text-ink hover:bg-warm-200 transition-colors"
             >
               <X className="w-4 h-4" strokeWidth={1.8} />
             </button>
           </div>
-          <p className="text-[12px] text-paper/50 font-semibold capitalize mb-5">
+          <p className="text-[12px] text-warm-500 font-semibold capitalize mb-5">
             {dateLabel} · {timeLabel}
           </p>
 
           <div className="flex items-end gap-4">
             <div className="flex-1 min-w-0 space-y-1.5">
               <Stop kind="out" name={dep.name} address={dep.address} />
-              <div className="ml-[4px] h-3 w-px bg-paper/20" />
+              <div className="ml-[4px] h-3 w-px bg-warm-300" />
               <Stop kind="in" name={dst.name} address={dst.address} />
             </div>
             <div className="text-right shrink-0">
               {fare.isEstimated && (
-                <p className="text-[10px] font-extrabold uppercase tracking-wider text-paper/40 mb-0.5">
+                <p className="text-[10px] font-extrabold uppercase tracking-wider text-warm-500 mb-0.5">
                   Estimé
                 </p>
               )}
-              <p className="text-[34px] font-black leading-none text-paper tabular-nums tracking-[-0.02em]">
-                {fare.value}<span className="text-[22px]">€</span>
+              <p className="text-[28px] sm:text-[34px] font-black leading-none text-ink tabular-nums tracking-[-0.02em]">
+                {fare.value}<span className="text-[20px] sm:text-[22px]">€</span>
               </p>
-              <p className="text-[11px] text-paper/40 mt-1.5 tabular-nums">
+              <p className="text-[11px] text-warm-500 mt-1.5 tabular-nums">
                 {(mission.distance_km ?? 0).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km
                 {durationMin > 0 && <> · {durationMin} min</>}
               </p>
@@ -130,10 +130,10 @@ export function PostedMissionModal({
 function Stop({ kind, name, address }: { kind: 'in' | 'out'; name: string; address?: string }) {
   return (
     <div className="flex items-start gap-3">
-      <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${kind === 'out' ? 'bg-paper' : 'bg-brand border-2 border-paper'}`} />
+      <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${kind === 'out' ? 'bg-ink' : 'bg-brand border-2 border-ink'}`} />
       <div className="min-w-0">
-        <p className="text-[14px] font-bold text-paper leading-tight truncate">{name}</p>
-        {address && <p className="text-[11px] text-paper/40 truncate mt-0.5">{address}</p>}
+        <p className="text-[14px] font-bold text-ink leading-tight truncate">{name}</p>
+        {address && <p className="text-[11px] text-warm-500 truncate mt-0.5">{address}</p>}
       </div>
     </div>
   )

@@ -5,7 +5,7 @@ import { HistoryKpiTiles } from './HistoryKpiTiles'
 import { HistoryQuarterCard } from './HistoryQuarterCard'
 import { useInvoiceGenerator } from './useInvoiceGenerator'
 import type { Mission } from '@/lib/supabase/types'
-import { formatMissionPrice } from '@/lib/formatMissionPrice'
+import { computeDisplayFare } from '@/lib/missionFare'
 
 const PERIOD_OPTIONS: { value: Period; label: string }[] = [
   { value: 'week', label: '7j' },
@@ -35,6 +35,8 @@ function HistoryRow({
       : mission.type === 'PRIVE'
         ? { variant: 'private' as const, label: 'Privé' }
         : { variant: 'fleet' as const, label: 'TaxiLink' }
+  const fare = computeDisplayFare(mission)
+  const priceLabel = fare.value > 0 ? `${fare.isEstimated ? '~' : ''}${fare.value.toFixed(0)}€` : '—'
 
   return (
     <button
@@ -47,8 +49,8 @@ function HistoryRow({
       <span className="flex-1 text-[13px] text-ink truncate">
         {mission.departure} → {mission.destination}
       </span>
-      <span className="text-[15px] font-bold text-ink tabular-nums tracking-tight">
-        {formatMissionPrice(mission)}
+      <span className="text-[15px] font-bold text-ink tabular-nums tracking-tight" title={fare.isEstimated ? 'Tarif estimé' : undefined}>
+        {priceLabel}
       </span>
     </button>
   )
