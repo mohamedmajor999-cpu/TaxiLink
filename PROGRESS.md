@@ -15,6 +15,49 @@ Choix laissé en suspens :
 
 ## ✅ Terminé — Session 2026-04-30
 
+### Dashboard admin `/dashboard/admin` — 4 phases livrées
+Construction d'une console d'administration accessible uniquement à l'email `ADMIN_EMAIL` (variable Vercel), avec 10 sections. Architecture serveur : `assertAdmin()` valide chaque API admin via cookies session puis `createAdminSupabaseClient()` (service_role, bypass RLS). Tables dédiées avec RLS en lecture refusée côté client. Pricing Anthropic dans `lib/aiPricing.ts`, helper best-effort `lib/aiUsageLogger.ts` qui logge tous les appels Claude vers la table `ai_usage`.
+
+**Phase 1 — Coûts API (commit `bbcc214`)** :
+- Migration `20260429_admin_dashboard_phase1.sql` : tables `ai_usage` (1 ligne par appel LLM), `auth_login_events` (alimentée par trigger `handle_auth_login` sur `auth.users.last_sign_in_at`), `google_api_costs` (saisie manuelle mensuelle). Toutes en RLS deny côté client, lecture via service_role uniquement.
+- API `/api/admin/ai-usage` : agrège tokens et coûts par jour/semaine/mois + top consommateurs (12 derniers mois).
+- API `/api/admin/google-costs` : CRUD pour saisir manuellement les chiffres facturation Google Cloud (Places, Routes, Directions).
+- Routes `parse-voice` et `parse-voice-answer` patchées pour appeler `logAiUsage()` après chaque réponse Claude.
+- Middleware étendu : redirige `/dashboard/admin` vers `/dashboard/{role}` si email != `ADMIN_EMAIL`.
+
+**Phase 2 — Activité courses + utilisateurs (commit `69caeb4`, partie merged)** :
+- API `/api/admin/missions-stats` : courses postées/acceptées/terminées + CA + montant moyen + taux d'acceptation par jour/semaine/mois.
+- API `/api/admin/users-stats` : total inscrits par rôle, chauffeurs en ligne (TTL 2 min via `is_online + last_seen_at`), connexions par jour/semaine/mois (uniques + total).
+
+**Phase 3 — Classements + carte géoloc + groupes (commit `99d841d`)** :
+- API `/api/admin/top-drivers` : ranking chauffeurs (postées, acceptées, terminées, CA €, conso API $, statut online, note).
+- API `/api/admin/top-groups` : ranking groupes (membres, courses 30j, total, taux acceptation, dernière activité) + counters totaux.
+- API `/api/admin/online-drivers` : chauffeurs avec `is_online=TRUE` et `current_position_updated_at > now() - 5 min`.
+- Composant `OnlineDriversMap` : carte Leaflet+Mapbox plein écran avec popups (nom + téléphone + freshness), refresh auto 30 s.
+
+**Phase B — Refonte visuelle + nouvelles métriques (commits `23b1ed3`, `a49f647`)** :
+- API `/api/admin/missions-breakdown` : top types (CPAM/Marseille/Privé), top motifs CPAM, top départements (12 derniers mois).
+- `missions-stats` enrichi : funnel (postées → vues → acceptées → terminées), heatmap 7 jours × 24 h, comparaisons mois courant vs précédent.
+- `users-stats` enrichi : comparaisons new drivers / new clients / logins (30j vs 30j précédents).
+- 6 composants UI réutilisables dans `components/dashboard/admin/ui/` : `SectionShell`, `MetricCard`, `TrendBadge` (`↑↓→` + % + ring vert/rouge soft), `Sparkline` (SVG inline avec gradient), `Skeleton` / `SkeletonCard`, `HBar`.
+- 3 nouvelles sections : `FunnelSection` (barres horizontales avec drop% entre étapes), `HeatmapSection` (grille 7×24 dégradé jaune TaxiLink primary `#FFD23F`), `BreakdownSection` (3 listes triées par count avec barres de proportion).
+- Refonte cohérente des sections existantes avec MetricCard + sparkline + tendance.
+- Refacto types : `services/adminAnalyticsTypes.ts` split en `adminAnalyticsTypes` (analytics) + `adminRankingTypes` (ranking) pour rester sous 150 lignes.
+- Animations stagger fade-in (60 ms entre sections) sur `AdminDashboard`.
+
+**Polish final palette (commit `a49f647`)** :
+- Toutes les emoticônes (👥🚖🧑🚕📝✅🏁📈💶💰🤖📞💸🏆🏘️🌐🔻🔥📊🏷️🏥🗺️↑↓→) remplacées par Material Symbols via `<Icon name=... />` : `groups`, `local_taxi`, `person_add`, `assignment`, `post_add`, `check_circle`, `task_alt`, `payments`, `psychology`, `api`, `leaderboard`, `apartment`, `public`, `filter_list`, `grid_view`, `bar_chart`, `category`, `medical_services`, `place`, `map`, `radio_button_checked`, `arrow_upward` / `arrow_downward` / `trending_up` / `trending_down` / `trending_flat`.
+- Code couleur respecté : primary jaune TaxiLink (`#FFD23F`) en accent (heatmap), secondary noir (`#1A1A1A`) en sparklines + funnel + barres breakdown, `bg-bgsoft` + `text-secondary` en iconBg uniforme.
+- Vert/rouge **soft uniquement** sur TrendBadge : `bg-emerald-50 text-emerald-700 ring-emerald-100` et `bg-rose-50 text-rose-700 ring-rose-100`. Aucune couleur vive (`-500`) sur les fonds de cards.
+- Header simplifié : retiré le gradient indigo, fond `bg-bgsoft` uniforme, badge "Pilotage TaxiLink" sobre avec pastille emerald-600.
+
+**Setup utilisateur** :
+- Variables Vercel ajoutées : `ADMIN_EMAIL=mohamed.major@outlook.fr` + `SUPABASE_SERVICE_ROLE_KEY=eyJ...` (3 environnements).
+- Migration appliquée via Supabase Dashboard → SQL Editor.
+- Auth via compte Outlook créé sur `/auth/register` (Google OAuth bloqué par "App non vérifiée").
+
+**Documentation** : Variables d'env documentées dans CLAUDE.md, mémoire `project_admin_dashboard.md` mise à jour avec architecture et phases livrées.
+
 ### Bug `MissionMapPopup` centré qui ne s'affichait pas — diagnostic et fix
 Le popup nouvelle annonce (carte centrée + barre 10s) ne s'affichait jamais en prod malgré toutes les itérations de la veille. Diagnostic via overlay de debug visible (`?debug=popup`) qui exposait `events`/`lastReason`/`isOnline`/`popupEnabled`/`hasCoords` en haut à gauche de la carte — le user a pu voir en live `e:1 q:0 lastReason=ACCEPTÉ`, c'est-à-dire que le filtre passait, la queue était bien remplie, mais l'instant d'après elle se vidait.
 
