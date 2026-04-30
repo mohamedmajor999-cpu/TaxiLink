@@ -50,12 +50,11 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
   }
   const sheetCollapsed = snap === 'one'
 
-  // Une nouvelle annonce arrive en realtime via useNewMissionPopup (filtree
-  // sur 2h + 15km). On l'affiche dans MissionMapPopup en passant la mission
-  // DIRECTEMENT — surtout pas via selectedMissionId, qui est annule par le
-  // useEffect de cleanup de useDriverHome si la mission ne passe pas les
-  // filtres clients (type/groupe/urgent/nearby) actifs.
+  // L'incoming est passe DIRECTEMENT au popup (pas via selectedMissionId qui
+  // serait annule par le cleanup de useDriverHome si la mission ne passe pas
+  // les filtres clients actifs).
   const incomingMission = h.popup.current
+  const showDebug = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug')
 
   const chips = (
     <DriverHomeFilterChips
@@ -73,6 +72,12 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
     <div className="relative md:flex md:flex-row md:h-screen h-[100dvh] overflow-hidden bg-paper dark:bg-night-bg">
       {h.showConfetti && <MissionAcceptedCelebration onDone={h.clearConfetti} />}
       <ToastContainer toasts={h.toasts} onDismiss={h.dismissToast} />
+      {showDebug && (
+        <div className="fixed top-2 left-2 z-[9999] px-2 py-1.5 rounded-lg bg-black/85 text-white text-[10px] font-mono leading-tight max-w-[200px] pointer-events-none">
+          <div>e:{h.popup.debug.events} q:{incomingMission ? '1+' : '0'} · {h.popup.debug.lastReason}</div>
+          <div>on{h.popup.debug.isOnline ? '✓' : '✗'} pref{h.popup.debug.popupEnabled ? '✓' : '✗'} gps{h.popup.debug.hasCoords ? '✓' : '✗'}</div>
+        </div>
+      )}
 
       <div className="absolute inset-0 md:relative md:flex-none md:w-[58%] md:h-full md:p-4 md:inset-auto bg-paper dark:bg-night-bg">
         <div className="relative w-full h-full overflow-hidden md:rounded-2xl md:border md:border-warm-200 md:shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
