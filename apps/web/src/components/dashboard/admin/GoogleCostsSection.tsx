@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useGoogleCostsSection } from './useGoogleCostsSection'
+import { SectionShell } from './ui/SectionShell'
 
 export function GoogleCostsSection() {
   const { items, total, loading, saving, error, upsert, remove } = useGoogleCostsSection()
@@ -27,15 +28,20 @@ export function GoogleCostsSection() {
     setNotes('')
   }
 
-  return (
-    <section className="rounded-3xl bg-white p-5 shadow-soft md:p-6">
-      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-xl font-semibold text-secondary">Coûts API Google (saisie manuelle)</h2>
-        <div className="text-sm text-muted">
-          Total enregistré : <span className="font-semibold text-secondary">${total.toFixed(2)}</span>
-        </div>
-      </div>
+  const right = (
+    <div className="rounded-full bg-bgsoft px-3 py-1.5 text-xs">
+      Total : <span className="font-semibold text-secondary">${total.toFixed(2)}</span>
+    </div>
+  )
 
+  return (
+    <SectionShell
+      title="Coûts API Google"
+      subtitle="Places, Routes, Directions — saisie manuelle mensuelle"
+      icon={<span className="text-lg">🌐</span>}
+      iconBg="bg-blue-100 text-blue-700"
+      right={right}
+    >
       <p className="mb-4 text-xs text-muted">
         Source officielle :{' '}
         <a
@@ -161,7 +167,7 @@ export function GoogleCostsSection() {
           </table>
         </div>
       )}
-    </section>
+    </SectionShell>
   )
 }
 

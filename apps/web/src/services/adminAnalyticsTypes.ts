@@ -1,4 +1,5 @@
-// Types partagés pour les API admin et leurs consommateurs front.
+// Types partagés pour les API admin (analytics : ai-usage, missions, users, google).
+// Les types de classement (drivers ranking, groups, online) sont dans adminRankingTypes.ts.
 
 export interface PeriodBucket {
   period:   string
@@ -64,11 +65,34 @@ export interface MissionTotals {
   acceptanceRate: number
 }
 
+export interface MissionFunnel {
+  posted:    number
+  viewed:    number
+  accepted:  number
+  completed: number
+}
+
 export interface MissionStatsReport {
-  daily:   MissionBucket[]
-  weekly:  MissionBucket[]
-  monthly: MissionBucket[]
-  totals:  MissionTotals
+  daily:    MissionBucket[]
+  weekly:   MissionBucket[]
+  monthly:  MissionBucket[]
+  totals:   MissionTotals
+  funnel:   MissionFunnel
+  heatmap:  number[][]
+  comparisons: { current: MissionTotals; previous: MissionTotals }
+}
+
+export interface BreakdownRow {
+  key:         string
+  count:       number
+  caEur:       number
+  acceptedPct: number
+}
+
+export interface MissionsBreakdown {
+  byType:        BreakdownRow[]
+  byMotif:       BreakdownRow[]
+  byDepartement: BreakdownRow[]
 }
 
 export interface UserCounters {
@@ -89,46 +113,12 @@ export interface LoginBucket {
 
 export interface UserStatsReport {
   counters: UserCounters
-  daily:    LoginBucket[]
-  weekly:   LoginBucket[]
-  monthly:  LoginBucket[]
-}
-
-export interface DriverRanking {
-  userId:     string
-  name:       string
-  phone:      string | null
-  isOnline:   boolean
-  rating:     number
-  posted:     number
-  accepted:   number
-  completed:  number
-  caEur:      number
-  apiCostUsd: number
-}
-
-export interface GroupRanking {
-  groupId:        string
-  name:           string
-  description:    string | null
-  members:        number
-  missionsTotal:  number
-  missions30d:    number
-  acceptanceRate: number
-  lastMissionAt:  string | null
-}
-
-export interface GroupCounters {
-  totalGroups:     number
-  activeGroups30d: number
-  totalMembers:    number
-}
-
-export interface OnlineDriver {
-  userId:    string
-  name:      string
-  phone:     string | null
-  lat:       number
-  lng:       number
-  updatedAt: string
+  comparisons: {
+    newDrivers: { current: number; previous: number }
+    newClients: { current: number; previous: number }
+    logins:     { current: number; previous: number }
+  }
+  daily:   LoginBucket[]
+  weekly:  LoginBucket[]
+  monthly: LoginBucket[]
 }

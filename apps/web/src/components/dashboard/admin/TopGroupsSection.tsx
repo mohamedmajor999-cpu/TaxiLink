@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTopGroupsSection } from './useTopGroupsSection'
 import type { GroupRanking } from '@/services/adminAnalyticsService'
+import { SectionShell } from './ui/SectionShell'
 
 type SortField = 'name' | 'members' | 'missionsTotal' | 'missions30d' | 'acceptanceRate' | 'lastMissionAt'
 type SortDir = 'asc' | 'desc'
@@ -25,9 +26,12 @@ export function TopGroupsSection() {
   })
 
   return (
-    <section className="rounded-3xl bg-white p-5 shadow-soft md:p-6">
-      <h2 className="mb-4 text-xl font-semibold text-secondary">Groupes</h2>
-
+    <SectionShell
+      title="Groupes"
+      subtitle="Classement par activité (30 derniers jours)"
+      icon={<span className="text-lg">🏘️</span>}
+      iconBg="bg-indigo-100 text-indigo-700"
+    >
       {counters && (
         <div className="mb-4 grid gap-4 sm:grid-cols-3">
           <Stat label="Total groupes"     value={counters.totalGroups.toString()} />
@@ -61,7 +65,7 @@ export function TopGroupsSection() {
           </table>
         </div>
       )}
-    </section>
+    </SectionShell>
   )
 }
 

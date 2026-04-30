@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTopDriversSection } from './useTopDriversSection'
 import type { DriverRanking } from '@/services/adminAnalyticsService'
+import { SectionShell } from './ui/SectionShell'
 
 type SortField = 'name' | 'isOnline' | 'rating' | 'posted' | 'accepted' | 'completed' | 'caEur' | 'apiCostUsd'
 type SortDir = 'asc' | 'desc'
@@ -25,9 +26,12 @@ export function TopDriversSection() {
   })
 
   return (
-    <section className="rounded-3xl bg-white p-5 shadow-soft md:p-6">
-      <h2 className="mb-4 text-xl font-semibold text-secondary">Classement chauffeurs</h2>
-
+    <SectionShell
+      title="Classement chauffeurs"
+      subtitle="Trie par n'importe quelle colonne"
+      icon={<span className="text-lg">🏆</span>}
+      iconBg="bg-amber-100 text-amber-700"
+    >
       {loading && <div className="text-sm text-muted">Chargement…</div>}
       {error && <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
 
@@ -55,7 +59,7 @@ export function TopDriversSection() {
           </table>
         </div>
       )}
-    </section>
+    </SectionShell>
   )
 }
 

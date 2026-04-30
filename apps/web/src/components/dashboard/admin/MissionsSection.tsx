@@ -2,54 +2,80 @@
 
 import { useMissionsSection } from './useMissionsSection'
 import { MissionsTable } from './MissionsTable'
+import { SectionShell } from './ui/SectionShell'
+import { MetricCard } from './ui/MetricCard'
+import { SkeletonCard } from './ui/Skeleton'
 
 export function MissionsSection() {
   const { report, loading, error } = useMissionsSection()
 
-  if (loading) return <Shell><Loading /></Shell>
-  if (error)   return <Shell><ErrorBox message={error} /></Shell>
-  if (!report) return null
-
-  const t = report.totals
   return (
-    <Shell>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-        <Stat label="Postées"       value={t.posted.toLocaleString('fr-FR')} />
-        <Stat label="Acceptées"     value={t.accepted.toLocaleString('fr-FR')} />
-        <Stat label="Terminées"     value={t.completed.toLocaleString('fr-FR')} />
-        <Stat label="Taux accept."  value={`${t.acceptanceRate}%`} />
-        <Stat label="Montant moyen" value={`${t.averageAmount.toFixed(0)}€`} />
-        <Stat label="CA total"      value={`${t.totalAmount.toFixed(0)}€`} />
-      </div>
+    <SectionShell
+      title="Activité courses"
+      subtitle="12 derniers mois — postées, acceptées, terminées, CA"
+      icon={<span className="text-lg">🚕</span>}
+      iconBg="bg-amber-100 text-amber-700"
+    >
+      {loading && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+          {[0, 1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} />)}
+        </div>
+      )}
+      {error && <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+      {report && (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+            <MetricCard
+              label="Postées"     value={report.totals.posted.toLocaleString('fr-FR')}
+              icon={<span>📝</span>} iconBg="bg-amber-100 text-amber-700"
+              sparkData={[...report.daily].reverse().map((d) => d.posted)}
+              sparkColor="#F59E0B"
+              current={report.comparisons.current.posted}
+              previous={report.comparisons.previous.posted}
+            />
+            <MetricCard
+              label="Acceptées"   value={report.totals.accepted.toLocaleString('fr-FR')}
+              icon={<span>✅</span>} iconBg="bg-emerald-100 text-emerald-700"
+              sparkData={[...report.daily].reverse().map((d) => d.accepted)}
+              sparkColor="#10B981"
+              current={report.comparisons.current.accepted}
+              previous={report.comparisons.previous.accepted}
+            />
+            <MetricCard
+              label="Terminées"   value={report.totals.completed.toLocaleString('fr-FR')}
+              icon={<span>🏁</span>} iconBg="bg-indigo-100 text-indigo-700"
+              sparkData={[...report.daily].reverse().map((d) => d.completed)}
+              sparkColor="#6366F1"
+              current={report.comparisons.current.completed}
+              previous={report.comparisons.previous.completed}
+            />
+            <MetricCard
+              label="Taux accept." value={`${report.totals.acceptanceRate}%`}
+              icon={<span>📈</span>} iconBg="bg-rose-100 text-rose-700"
+              current={report.comparisons.current.acceptanceRate}
+              previous={report.comparisons.previous.acceptanceRate}
+            />
+            <MetricCard
+              label="Montant moyen" value={`${report.totals.averageAmount.toFixed(0)}€`}
+              icon={<span>💶</span>} iconBg="bg-violet-100 text-violet-700"
+            />
+            <MetricCard
+              label="CA total"    value={`${report.totals.totalAmount.toFixed(0)}€`}
+              icon={<span>💰</span>} iconBg="bg-emerald-100 text-emerald-700"
+              sparkData={[...report.daily].reverse().map((d) => d.totalAmount)}
+              sparkColor="#10B981"
+              current={report.comparisons.current.totalAmount}
+              previous={report.comparisons.previous.totalAmount}
+            />
+          </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <MissionsTable title="Par jour (30 derniers)" rows={report.daily} />
-        <MissionsTable title="Par semaine (12)"       rows={report.weekly} />
-        <MissionsTable title="Par mois (12)"          rows={report.monthly} />
-      </div>
-    </Shell>
+          <div className="mt-6 grid gap-6 lg:grid-cols-3">
+            <MissionsTable title="Par jour (30 derniers)" rows={report.daily} />
+            <MissionsTable title="Par semaine (12)"       rows={report.weekly} />
+            <MissionsTable title="Par mois (12)"          rows={report.monthly} />
+          </div>
+        </>
+      )}
+    </SectionShell>
   )
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <section className="rounded-3xl bg-white p-5 shadow-soft md:p-6">
-      <h2 className="mb-4 text-xl font-semibold text-secondary">Activité courses (12 derniers mois)</h2>
-      {children}
-    </section>
-  )
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-bgsoft p-4">
-      <div className="text-xs uppercase tracking-wide text-muted">{label}</div>
-      <div className="mt-1 text-2xl font-bold text-secondary">{value}</div>
-    </div>
-  )
-}
-
-function Loading()                              { return <div className="text-sm text-muted">Chargement…</div> }
-function ErrorBox({ message }: { message: string }) {
-  return <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{message}</div>
 }

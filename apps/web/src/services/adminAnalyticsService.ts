@@ -2,16 +2,20 @@ import { api } from '@/lib/api'
 import type {
   AiUsageReport,
   MissionStatsReport,
+  MissionsBreakdown,
   UserStatsReport,
+  GoogleCostItem,
+  GoogleCostUpsert,
+} from './adminAnalyticsTypes'
+import type {
   DriverRanking,
   GroupRanking,
   GroupCounters,
   OnlineDriver,
-  GoogleCostItem,
-  GoogleCostUpsert,
-} from './adminAnalyticsTypes'
+} from './adminRankingTypes'
 
 export * from './adminAnalyticsTypes'
+export * from './adminRankingTypes'
 
 export const adminAnalyticsService = {
   getAiUsage(): Promise<AiUsageReport> {
@@ -19,6 +23,9 @@ export const adminAnalyticsService = {
   },
   getMissionStats(): Promise<MissionStatsReport> {
     return api.get<MissionStatsReport>('/api/admin/missions-stats')
+  },
+  getMissionsBreakdown(): Promise<MissionsBreakdown> {
+    return api.get<MissionsBreakdown>('/api/admin/missions-breakdown')
   },
   getUserStats(): Promise<UserStatsReport> {
     return api.get<UserStatsReport>('/api/admin/users-stats')

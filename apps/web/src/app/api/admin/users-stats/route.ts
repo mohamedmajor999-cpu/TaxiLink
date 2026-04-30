@@ -62,6 +62,27 @@ export async function GET() {
     (p) => p.role === 'client' && Date.now() - new Date(p.created_at).getTime() < 30 * 24 * 60 * 60 * 1000
   ).length
 
+  const ms60d = 60 * 24 * 60 * 60 * 1000
+  const ms30d = 30 * 24 * 60 * 60 * 1000
+  const newDriversPrev30d = profiles.filter(
+    (p) => p.role === 'driver' && (() => {
+      const t = Date.now() - new Date(p.created_at).getTime()
+      return t >= ms30d && t < ms60d
+    })()
+  ).length
+  const newClientsPrev30d = profiles.filter(
+    (p) => p.role === 'client' && (() => {
+      const t = Date.now() - new Date(p.created_at).getTime()
+      return t >= ms30d && t < ms60d
+    })()
+  ).length
+
+  const logins30d = logins.filter((l) => now - new Date(l.created_at).getTime() < ms30d).length
+  const loginsPrev30d = logins.filter((l) => {
+    const t = now - new Date(l.created_at).getTime()
+    return t >= ms30d && t < ms60d
+  }).length
+
   return NextResponse.json({
     counters: {
       totalUsers:    profiles.length,
@@ -70,7 +91,12 @@ export async function GET() {
       newDrivers30d,
       newClients30d,
       onlineDrivers,
-      totalLogins90d: logins.filter((l) => Date.now() - new Date(l.created_at).getTime() < 90 * 24 * 60 * 60 * 1000).length,
+      totalLogins90d: logins.filter((l) => now - new Date(l.created_at).getTime() < 90 * 24 * 60 * 60 * 1000).length,
+    },
+    comparisons: {
+      newDrivers:  { current: newDrivers30d,  previous: newDriversPrev30d },
+      newClients:  { current: newClients30d,  previous: newClientsPrev30d },
+      logins:      { current: logins30d,      previous: loginsPrev30d },
     },
     daily:   bucketLogins(logins, dayKey,   30),
     weekly:  bucketLogins(logins, weekKey,  12),
