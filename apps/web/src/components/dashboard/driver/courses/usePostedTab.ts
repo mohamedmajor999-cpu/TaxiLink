@@ -6,9 +6,12 @@ import { useToasts } from '@/hooks/useToasts'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 import { missionService } from '@/services/missionService'
 import { groupMissionsByDate } from '@/lib/groupMissionsByDate'
+import { applyStatusFilter, applySort, computeCounts } from './postedFilters'
 import type { Mission } from '@/lib/supabase/types'
 
 export type PostedStatus = 'accepted' | 'waiting'
+export type PostedStatusFilter = 'all' | 'waiting' | 'accepted'
+export type PostedSort = 'scheduled' | 'created' | 'accepted'
 
 export interface PostedDriverProfile {
   full_name: string | null
@@ -134,6 +137,9 @@ export function usePostedTab() {
     }
   }, [user, load, addToast])
 
+  const [statusFilter, setStatusFilter] = useState<PostedStatusFilter>('all')
+  const [sort, setSort] = useState<PostedSort>('scheduled')
+
   const items = useMemo<PostedMissionView[]>(
     () => missions.map((m) => ({
       mission: m,
@@ -143,7 +149,11 @@ export function usePostedTab() {
     [missions, profilesById]
   )
 
-  const groups = useMemo(() => groupMissionsByDate(items), [items])
+  const filtered = useMemo(() => applyStatusFilter(items, statusFilter), [items, statusFilter])
+  const sorted = useMemo(() => applySort(filtered, sort), [filtered, sort])
+  const counts = useMemo(() => computeCounts(items), [items])
+
+  const groups = useMemo(() => groupMissionsByDate(sorted), [sorted])
   const selectedItem = useMemo(
     () => items.find((i) => i.mission.id === selectedId) ?? null,
     [items, selectedId]
@@ -155,5 +165,9 @@ export function usePostedTab() {
     boostPrice, boostingId,
     selectedItem, openDetail, closeDetail,
     toasts, dismissToast,
+    statusFilter, setStatusFilter,
+    sort, setSort,
+    counts,
+    filteredCount: sorted.length,
   }
 }

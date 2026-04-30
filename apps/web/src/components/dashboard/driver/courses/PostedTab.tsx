@@ -2,10 +2,22 @@
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { ToastContainer } from '@/components/ui/Toast'
 import { useMissionEditStore } from '@/store/missionEditStore'
-import { usePostedTab } from './usePostedTab'
+import { usePostedTab, type PostedStatusFilter, type PostedSort } from './usePostedTab'
 import { PostedRow } from './PostedRow'
 import { PostedMissionModal } from './PostedMissionModal'
 import type { Mission } from '@/lib/supabase/types'
+
+const STATUS_OPTIONS: { value: PostedStatusFilter; label: string }[] = [
+  { value: 'all', label: 'Toutes' },
+  { value: 'waiting', label: 'En attente' },
+  { value: 'accepted', label: 'Acceptées' },
+]
+
+const SORT_OPTIONS: { value: PostedSort; label: string }[] = [
+  { value: 'scheduled', label: 'Date du trajet' },
+  { value: 'created', label: 'Date de dépôt' },
+  { value: 'accepted', label: 'Date d’acceptation' },
+]
 
 interface Props {
   onPostCourse: () => void
@@ -56,7 +68,44 @@ export function PostedTab({ onPostCourse }: Props) {
   return (
     <>
       <ToastContainer toasts={p.toasts} onDismiss={p.dismissToast} />
-      <div className="mt-6 space-y-4">
+      <div className="mt-4 flex flex-wrap items-center gap-1.5">
+        {STATUS_OPTIONS.map(({ value, label }) => {
+          const count = value === 'all' ? p.counts.all : value === 'waiting' ? p.counts.waiting : p.counts.accepted
+          const active = p.statusFilter === value
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => p.setStatusFilter(value)}
+              className={[
+                'shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-bold transition-colors border inline-flex items-center gap-1.5',
+                active ? 'bg-ink text-paper border-ink' : 'bg-paper text-ink border-warm-200 hover:bg-warm-50',
+              ].join(' ')}
+            >
+              <span>{label}</span>
+              <span className={active ? 'text-paper/60' : 'text-warm-500'}>{count}</span>
+            </button>
+          )
+        })}
+        <select
+          value={p.sort}
+          onChange={(e) => p.setSort(e.target.value as PostedSort)}
+          className="ml-auto h-[28px] text-[12px] font-semibold rounded-full bg-paper text-ink border border-warm-200 px-3 hover:bg-warm-50 cursor-pointer"
+          aria-label="Trier par"
+        >
+          {SORT_OPTIONS.map(({ value, label }) => (
+            <option key={value} value={value}>Trier : {label}</option>
+          ))}
+        </select>
+      </div>
+
+      {p.filteredCount === 0 ? (
+        <div className="mt-6 rounded-2xl border border-warm-200 bg-paper p-8 text-center">
+          <p className="text-[14px] text-warm-600">Aucune course pour ce filtre.</p>
+        </div>
+      ) : null}
+
+      <div className="mt-4 space-y-4">
         {p.groups.map((g) => (
           <section key={g.key}>
             <h3 className="text-[10.5px] font-extrabold uppercase tracking-wider text-warm-500 px-1 mb-2">
