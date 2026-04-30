@@ -45,16 +45,17 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
   const onAccept = async () => {
     try { await h.acceptSelected() } catch { /* toast déjà géré par acceptMission */ }
   }
+  const onAcceptIncoming = async (id: string) => {
+    try { await h.acceptMission(id); h.popup.dismiss(id) } catch { /* toast géré */ }
+  }
   const sheetCollapsed = snap === 'one'
 
-  // Quand une nouvelle annonce arrive en realtime (filtree par useNewMissionPopup
-  // sur 2h + 15km), on la selectionne automatiquement pour afficher le
-  // MissionMapPopup avec barre 10s par-dessus la carte.
+  // Une nouvelle annonce arrive en realtime via useNewMissionPopup (filtree
+  // sur 2h + 15km). On l'affiche dans MissionMapPopup en passant la mission
+  // DIRECTEMENT — surtout pas via selectedMissionId, qui est annule par le
+  // useEffect de cleanup de useDriverHome si la mission ne passe pas les
+  // filtres clients (type/groupe/urgent/nearby) actifs.
   const incomingMission = h.popup.current
-  useEffect(() => {
-    if (incomingMission) h.setSelectedMissionId(incomingMission.id)
-  }, [incomingMission, h.setSelectedMissionId])
-  const isIncomingDisplay = incomingMission != null && h.selectedMissionId === incomingMission.id
 
   const chips = (
     <DriverHomeFilterChips
@@ -101,22 +102,16 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
               {chips}
             </div>
           )}
-          {h.selectedMission && (mapFullscreen || sheetCollapsed) && (
+          {(incomingMission || (h.selectedMission && (mapFullscreen || sheetCollapsed))) && (
             <div className="md:hidden">
               <MissionMapPopup
-                mission={h.selectedMission}
+                mission={(incomingMission ?? h.selectedMission)!}
                 userCoords={h.userCoords}
-                onAccept={onAccept}
-                onShowDetail={() => h.selectedMissionId && onShowMissionDetail(h.selectedMissionId)}
-                onClose={() => {
-                  if (incomingMission) h.popup.dismiss(incomingMission.id)
-                  if (h.selectedMissionId) h.toggleMission(h.selectedMissionId)
-                }}
-                autoDismissMs={isIncomingDisplay ? 10_000 : undefined}
-                onAutoDismiss={() => {
-                  if (incomingMission) h.popup.dismiss(incomingMission.id)
-                  if (h.selectedMissionId) h.toggleMission(h.selectedMissionId)
-                }}
+                onAccept={incomingMission ? () => onAcceptIncoming(incomingMission.id) : onAccept}
+                onShowDetail={() => onShowMissionDetail(incomingMission?.id ?? h.selectedMissionId!)}
+                onClose={() => incomingMission ? h.popup.dismiss(incomingMission.id) : h.selectedMissionId && h.toggleMission(h.selectedMissionId)}
+                autoDismissMs={incomingMission ? 10_000 : undefined}
+                onAutoDismiss={incomingMission ? () => h.popup.dismiss(incomingMission.id) : undefined}
               />
             </div>
           )}
