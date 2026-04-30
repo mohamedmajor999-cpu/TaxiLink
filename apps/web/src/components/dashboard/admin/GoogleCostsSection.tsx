@@ -38,8 +38,7 @@ export function GoogleCostsSection() {
     <SectionShell
       title="Coûts API Google"
       subtitle="Places, Routes, Directions — saisie manuelle mensuelle"
-      icon={<span className="text-lg">🌐</span>}
-      iconBg="bg-blue-100 text-blue-700"
+      iconName="public"
       right={right}
     >
       <p className="mb-4 text-xs text-muted">
@@ -55,7 +54,7 @@ export function GoogleCostsSection() {
         . Filtre par service (Places API, Routes API, Directions API) puis reporte le coût mensuel ici.
       </p>
 
-      {error && <div className="mb-4 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+      {error && <div className="mb-4 rounded-2xl bg-rose-50 p-3 text-sm text-rose-700">{error}</div>}
 
       <form onSubmit={onSubmit} className="mb-6 grid gap-3 rounded-2xl bg-bgsoft p-4 sm:grid-cols-5">
         <Field label="Mois">
@@ -156,7 +155,7 @@ export function GoogleCostsSection() {
                   <td className="px-4 py-2 text-right">
                     <button
                       onClick={() => remove(it.id)}
-                      className="text-xs text-red-600 hover:underline"
+                      className="text-xs text-rose-700 hover:underline"
                     >
                       Supprimer
                     </button>

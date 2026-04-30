@@ -7,6 +7,8 @@ import { SectionShell } from './ui/SectionShell'
 import { MetricCard } from './ui/MetricCard'
 import { SkeletonCard } from './ui/Skeleton'
 
+const SPARK_COLOR = '#1A1A1A'
+
 export function AiUsageSection() {
   const { report, loading, error } = useAiUsageSection()
 
@@ -14,38 +16,37 @@ export function AiUsageSection() {
     <SectionShell
       title="Coûts API Anthropic"
       subtitle="Claude Haiku 4.5 — 12 derniers mois"
-      icon={<span className="text-lg">🤖</span>}
-      iconBg="bg-purple-100 text-purple-700"
+      iconName="psychology"
     >
       {loading && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[0, 1, 2, 3].map((i) => <SkeletonCard key={i} />)}
         </div>
       )}
-      {error && <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}
 
       {report && (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard
-              label="Total appels"  value={report.totals.requests.toLocaleString('fr-FR')}
-              icon={<span>📞</span>} iconBg="bg-purple-100 text-purple-700"
+              label="Total appels" value={report.totals.requests.toLocaleString('fr-FR')}
+              iconName="api"
               sparkData={[...report.daily].reverse().map((d) => d.requests)}
-              sparkColor="#8B5CF6"
+              sparkColor={SPARK_COLOR}
             />
             <MetricCard
-              label="Coût total"    value={`$${report.totals.costUsd.toFixed(4)}`}
-              icon={<span>💸</span>} iconBg="bg-rose-100 text-rose-700"
+              label="Coût total" value={`$${report.totals.costUsd.toFixed(4)}`}
+              iconName="payments"
               sparkData={[...report.daily].reverse().map((d) => d.costUsd)}
-              sparkColor="#F43F5E"
+              sparkColor={SPARK_COLOR}
             />
             <MetricCard
-              label="Tokens entrée"  value={report.totals.inputTokens.toLocaleString('fr-FR')}
-              icon={<span>↘️</span>} iconBg="bg-indigo-100 text-indigo-700"
+              label="Tokens entrée" value={report.totals.inputTokens.toLocaleString('fr-FR')}
+              iconName="south_east"
             />
             <MetricCard
-              label="Tokens sortie"  value={report.totals.outputTokens.toLocaleString('fr-FR')}
-              icon={<span>↗️</span>} iconBg="bg-emerald-100 text-emerald-700"
+              label="Tokens sortie" value={report.totals.outputTokens.toLocaleString('fr-FR')}
+              iconName="north_east"
             />
           </div>
 

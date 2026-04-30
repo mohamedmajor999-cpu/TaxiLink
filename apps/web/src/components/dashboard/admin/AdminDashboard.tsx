@@ -18,18 +18,18 @@ const OnlineDriversMap = dynamic(
 
 export function AdminDashboard() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-bgsoft via-bgsoft to-indigo-50/40">
+    <main className="min-h-screen bg-bgsoft">
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-10">
-        <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="mb-1 inline-flex items-center gap-2 rounded-full bg-secondary/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-secondary ring-1 ring-secondary/10">
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-muted ring-1 ring-line/60">
+              <span className="size-1.5 rounded-full bg-emerald-600" />
               Pilotage TaxiLink
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-secondary md:text-4xl">Dashboard Admin</h1>
-            <p className="mt-1 text-sm text-muted">Activité, coûts API, classements, conversion et géolocalisation</p>
+            <h1 className="text-2xl font-bold tracking-tight text-secondary md:text-3xl">Dashboard Admin</h1>
+            <p className="mt-1 text-sm text-muted">Activité, coûts API, classements et géolocalisation</p>
           </div>
-          <div className="rounded-2xl bg-white/70 px-4 py-2 text-xs text-muted shadow-soft ring-1 ring-line/50 backdrop-blur">
+          <div className="rounded-2xl bg-white px-4 py-2 text-xs text-muted shadow-soft ring-1 ring-line/60">
             Données : 12 derniers mois · refresh à chaque chargement
           </div>
         </header>
@@ -51,7 +51,6 @@ export function AdminDashboard() {
   )
 }
 
-// Anime chaque section avec un délai progressif (stagger).
 function Stagger({ index, children }: { index: number; children: React.ReactNode }) {
   return (
     <div

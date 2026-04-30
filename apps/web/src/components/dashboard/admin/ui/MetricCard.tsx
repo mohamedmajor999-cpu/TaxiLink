@@ -1,35 +1,33 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { Icon } from '@/components/ui/Icon'
 import { TrendBadge } from './TrendBadge'
 import { Sparkline } from './Sparkline'
 
 interface Props {
-  label:      string
-  value:      string
-  icon?:      ReactNode
-  iconBg?:    string                          // ex: 'bg-emerald-100 text-emerald-700'
-  sparkData?: number[]
-  sparkColor?: string
-  current?:   number                           // pour TrendBadge
-  previous?:  number
+  label:          string
+  value:          string
+  iconName?:      string
+  sparkData?:     number[]
+  sparkColor?:    string
+  current?:       number
+  previous?:      number
   trendInverted?: boolean
-  accent?:    string                           // sous-texte (ex: "+5 (30j)")
+  accent?:        string
 }
 
-// Card métrique moderne : icône colorée + label + valeur géante + sparkline + tendance.
 export function MetricCard({
-  label, value, icon, iconBg = 'bg-bgsoft text-secondary',
-  sparkData, sparkColor, current, previous, trendInverted, accent,
+  label, value, iconName,
+  sparkData, sparkColor = '#1A1A1A', current, previous, trendInverted, accent,
 }: Props) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl bg-white p-4 shadow-soft ring-1 ring-line transition hover:shadow-card">
+    <div className="group relative overflow-hidden rounded-2xl bg-white p-4 shadow-soft ring-1 ring-line/60 transition hover:shadow-card">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            {icon && (
-              <span className={`flex size-8 items-center justify-center rounded-xl ${iconBg}`}>
-                {icon}
+            {iconName && (
+              <span className="flex size-8 items-center justify-center rounded-xl bg-bgsoft text-secondary">
+                <Icon name={iconName} size={18} />
               </span>
             )}
             <div className="text-xs font-medium uppercase tracking-wide text-muted">{label}</div>
@@ -39,16 +37,16 @@ export function MetricCard({
         </div>
 
         {sparkData && sparkData.length > 1 && (
-          <div className="shrink-0">
+          <div className="shrink-0 opacity-80">
             <Sparkline data={sparkData} color={sparkColor} width={70} height={28} />
           </div>
         )}
       </div>
 
       {(current != null && previous != null) && (
-        <div className="mt-3">
+        <div className="mt-3 flex items-center gap-2">
           <TrendBadge current={current} previous={previous} inverted={trendInverted} />
-          <span className="ml-2 text-xs text-muted">vs période précédente</span>
+          <span className="text-xs text-muted">vs période précédente</span>
         </div>
       )}
     </div>

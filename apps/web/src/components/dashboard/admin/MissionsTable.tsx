@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { MissionBucket } from '@/services/adminAnalyticsService'
+import { Icon } from '@/components/ui/Icon'
 
 type SortField = 'period' | 'posted' | 'accepted' | 'completed' | 'totalAmount' | 'acceptanceRate'
 type SortDir = 'asc' | 'desc'
@@ -77,7 +78,7 @@ function Th({
     <th className={`px-3 py-2 ${align === 'right' ? 'text-right' : 'text-left'}`}>
       <button onClick={() => on(field)} className="inline-flex items-center gap-1 hover:text-secondary">
         {label}
-        {active && <span>{d === 'asc' ? '↑' : '↓'}</span>}
+        {active && <Icon name={d === 'asc' ? 'arrow_upward' : 'arrow_downward'} size={12} />}
       </button>
     </th>
   )

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTopGroupsSection } from './useTopGroupsSection'
 import type { GroupRanking } from '@/services/adminAnalyticsService'
 import { SectionShell } from './ui/SectionShell'
+import { Icon } from '@/components/ui/Icon'
 
 type SortField = 'name' | 'members' | 'missionsTotal' | 'missions30d' | 'acceptanceRate' | 'lastMissionAt'
 type SortDir = 'asc' | 'desc'
@@ -29,8 +30,7 @@ export function TopGroupsSection() {
     <SectionShell
       title="Groupes"
       subtitle="Classement par activité (30 derniers jours)"
-      icon={<span className="text-lg">🏘️</span>}
-      iconBg="bg-indigo-100 text-indigo-700"
+      iconName="apartment"
     >
       {counters && (
         <div className="mb-4 grid gap-4 sm:grid-cols-3">
@@ -41,7 +41,7 @@ export function TopGroupsSection() {
       )}
 
       {loading && <div className="text-sm text-muted">Chargement…</div>}
-      {error && <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}
 
       {!loading && !error && (
         <div className="overflow-x-auto rounded-2xl border border-line">
@@ -111,7 +111,7 @@ function Th({
     <th className={`px-3 py-2 ${align === 'right' ? 'text-right' : 'text-left'}`}>
       <button onClick={() => on(field)} className="inline-flex items-center gap-1 hover:text-secondary">
         {label}
-        {active && <span>{d === 'asc' ? '↑' : '↓'}</span>}
+        {active && <Icon name={d === 'asc' ? 'arrow_upward' : 'arrow_downward'} size={12} />}
       </button>
     </th>
   )

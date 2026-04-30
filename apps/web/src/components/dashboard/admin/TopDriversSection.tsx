@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTopDriversSection } from './useTopDriversSection'
 import type { DriverRanking } from '@/services/adminAnalyticsService'
 import { SectionShell } from './ui/SectionShell'
+import { Icon } from '@/components/ui/Icon'
 
 type SortField = 'name' | 'isOnline' | 'rating' | 'posted' | 'accepted' | 'completed' | 'caEur' | 'apiCostUsd'
 type SortDir = 'asc' | 'desc'
@@ -29,11 +30,10 @@ export function TopDriversSection() {
     <SectionShell
       title="Classement chauffeurs"
       subtitle="Trie par n'importe quelle colonne"
-      icon={<span className="text-lg">🏆</span>}
-      iconBg="bg-amber-100 text-amber-700"
+      iconName="leaderboard"
     >
       {loading && <div className="text-sm text-muted">Chargement…</div>}
-      {error && <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}
 
       {!loading && !error && (
         <div className="overflow-x-auto rounded-2xl border border-line">
@@ -72,7 +72,7 @@ function Row({ r }: { r: DriverRanking }) {
       </td>
       <td className="px-3 py-2">
         {r.isOnline
-          ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700"><span className="size-2 rounded-full bg-green-500" />En ligne</span>
+          ? <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700"><span className="size-1.5 rounded-full bg-emerald-600" />En ligne</span>
           : <span className="text-xs text-muted">Hors ligne</span>}
       </td>
       <td className="px-3 py-2 text-right">{r.rating > 0 ? r.rating.toFixed(1) : '—'}</td>
@@ -100,7 +100,7 @@ function Th({
     <th className={`px-3 py-2 ${align === 'right' ? 'text-right' : 'text-left'}`}>
       <button onClick={() => on(field)} className="inline-flex items-center gap-1 hover:text-secondary">
         {label}
-        {active && <span>{d === 'asc' ? '↑' : '↓'}</span>}
+        {active && <Icon name={d === 'asc' ? 'arrow_upward' : 'arrow_downward'} size={12} />}
       </button>
     </th>
   )
