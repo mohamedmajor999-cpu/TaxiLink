@@ -46,6 +46,7 @@ export function PosterCourseMockup() {
       </div>
 
       <div className="px-6">
+        <div className="text-[11px] font-bold tracking-[0.04em] uppercase text-warm-500 mb-2">Type de course</div>
         <div className="flex gap-2 pb-5">
           <Chip active={form.type === 'PRIVE'} onClick={() => form.setType('PRIVE')} icon="local_taxi" label="Standard" />
           <Chip active={form.type === 'CPAM'} onClick={() => form.setType('CPAM')} icon="medical_services" label="CPAM" />
@@ -68,20 +69,18 @@ export function PosterCourseMockup() {
             />
           </FieldRow>
 
-          <FieldRow
-            leadIcon={<Icon name="schedule" size={19} className="text-warm-500" />}
-            trail={
-              <>
+          <div className="grid grid-cols-[24px_1fr] gap-3.5 items-center py-4 border-b border-warm-200">
+            <div className="flex items-center justify-center text-warm-500">
+              <Icon name="schedule" size={19} className="text-warm-500" />
+            </div>
+            <div className="min-w-0 flex flex-wrap items-center gap-2">
+              <FieldLabel>Quand</FieldLabel>
+              <div className="flex flex-wrap items-center gap-1.5 ml-auto">
                 <WhenPill active={c.when === 'now'} onClick={() => c.setWhen('now')} icon="bolt" label="Maintenant" />
                 <WhenPill active={c.when === 'later'} onClick={() => c.setWhen('later')} icon="event" label="Plus tard" />
-              </>
-            }
-          >
-            <FieldLabel>Quand</FieldLabel>
-            <div className="text-[16px] font-bold tracking-tight">
-              {c.when === 'now' ? 'Maintenant' : 'À une date précise'}
+              </div>
             </div>
-          </FieldRow>
+          </div>
           {c.when === 'later' && (
             <div className="grid grid-cols-[24px_1fr] gap-3.5 items-center pt-3 pb-4 border-b border-warm-200">
               <span aria-hidden="true" />

@@ -6,8 +6,8 @@ export function Chip({ active, onClick, icon, label }: { active: boolean; onClic
   return (
     <button
       onClick={onClick}
-      className={`h-9 px-3.5 rounded-full border flex items-center gap-1.5 text-[12.5px] font-bold transition-colors ${
-        active ? 'bg-ink border-ink text-paper' : 'bg-transparent border-warm-200 text-warm-500 hover:border-warm-400 hover:text-ink'
+      className={`h-10 px-4 rounded-full border flex items-center gap-1.5 text-[13px] font-bold transition-colors ${
+        active ? 'bg-ink border-ink text-paper' : 'bg-warm-100 border-warm-300 text-ink/70 hover:border-warm-500 hover:text-ink'
       }`}
     >
       <Icon name={icon} size={16} />
