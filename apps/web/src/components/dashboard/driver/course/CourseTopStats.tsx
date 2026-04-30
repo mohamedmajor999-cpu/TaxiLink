@@ -24,9 +24,9 @@ function Cell({
 }) {
   const color = tone === 'danger' ? 'text-danger' : 'text-ink'
   return (
-    <div className={`px-3 py-3 text-center ${border ? 'border-l border-warm-200' : ''}`}>
+    <div className={`px-2 sm:px-3 py-3 text-center ${border ? 'border-l border-warm-200' : ''}`}>
       <p className="text-[10px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">{label}</p>
-      <p className={`text-[18px] md:text-[20px] font-bold ${color} ${mono ? 'tabular-nums' : ''} tracking-tight leading-none truncate`}>{value}</p>
+      <p className={`text-[14px] sm:text-[16px] md:text-[20px] font-bold ${color} ${mono ? 'tabular-nums' : ''} tracking-tight leading-none truncate`}>{value}</p>
       {sub && <p className="text-[10px] text-warm-500 mt-1">{sub}</p>}
     </div>
   )

@@ -64,10 +64,10 @@ interface RowProps {
 
 function Row({ label, value, mono, multiline }: RowProps) {
   return (
-    <div className="flex items-start gap-3 px-4 py-2.5 border-b border-warm-200 last:border-b-0">
-      <span className="text-[11px] font-bold uppercase tracking-wider text-warm-500 w-24 shrink-0 pt-0.5">{label}</span>
+    <div className="flex items-start gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 border-b border-warm-200 last:border-b-0">
+      <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-warm-500 w-20 sm:w-24 shrink-0 pt-0.5">{label}</span>
       <span
-        className={`flex-1 min-w-0 text-ink text-[14px] ${mono ? 'tabular-nums' : ''} ${multiline ? 'whitespace-pre-wrap' : ''}`}
+        className={`flex-1 min-w-0 text-ink text-[13px] sm:text-[14px] ${mono ? 'tabular-nums' : ''} ${multiline ? 'whitespace-pre-wrap break-words' : 'break-words'}`}
       >
         {value}
       </span>

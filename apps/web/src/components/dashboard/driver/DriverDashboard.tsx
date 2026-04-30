@@ -154,11 +154,13 @@ export function DriverDashboard() {
         )}
       </main>
 
-      <MobileTopbar
-        variant={activeTab === 'home' ? 'floating' : 'bar'}
-        hasNotif={unseenAcceptCount > 0}
-        onOpen={() => setDrawerOpen(true)}
-      />
+      {!detailMissionId && (
+        <MobileTopbar
+          variant={activeTab === 'home' ? 'floating' : 'bar'}
+          hasNotif={unseenAcceptCount > 0}
+          onOpen={() => setDrawerOpen(true)}
+        />
+      )}
 
       <MobileNavDrawer
         open={drawerOpen}

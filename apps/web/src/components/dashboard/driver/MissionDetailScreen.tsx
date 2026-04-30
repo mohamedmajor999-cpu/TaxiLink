@@ -150,10 +150,10 @@ function Shell({ children, onBack }: { children: React.ReactNode; onBack?: () =>
 
 function Stat({ label, value, sub, border = false }: { label: string; value: string; sub?: string; border?: boolean }) {
   return (
-    <div className={`px-3 py-3 text-center ${border ? 'border-l border-warm-200' : ''}`}>
+    <div className={`px-2 sm:px-3 py-3 text-center ${border ? 'border-l border-warm-200' : ''}`}>
       <p className="text-[10px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">{label}</p>
-      <p className="text-[18px] md:text-[20px] font-bold text-ink tabular-nums tracking-tight leading-none">{value}</p>
-      {sub && <p className="text-[10px] text-warm-500 mt-1">{sub}</p>}
+      <p className="text-[14px] sm:text-[16px] md:text-[20px] font-bold text-ink tabular-nums tracking-tight leading-none truncate">{value}</p>
+      {sub && <p className="text-[10px] text-warm-500 mt-1 truncate">{sub}</p>}
     </div>
   )
 }
