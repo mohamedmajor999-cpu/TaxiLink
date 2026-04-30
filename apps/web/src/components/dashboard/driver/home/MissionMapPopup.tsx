@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AlertTriangle, MapPin, Route, X } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { computeDisplayFare } from '@/lib/missionFare'
@@ -27,6 +27,11 @@ interface Props {
 
 export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, onClose, autoDismissMs, onAutoDismiss }: Props) {
   const [progress, setProgress] = useState(100)
+  // Stabilise onAutoDismiss via une ref : sinon, comme la callback est recreee
+  // a chaque render dans le parent (DriverHome), le useEffect se relancerait
+  // en boucle, resetant progress a 100 et faisant osciller la barre.
+  const onAutoDismissRef = useRef(onAutoDismiss)
+  onAutoDismissRef.current = onAutoDismiss
   useEffect(() => {
     if (!autoDismissMs) return
     setProgress(100)
@@ -37,11 +42,11 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
       setProgress(ratio * 100)
       if (ratio <= 0) {
         window.clearInterval(id)
-        onAutoDismiss?.()
+        onAutoDismissRef.current?.()
       }
     }, 80)
     return () => window.clearInterval(id)
-  }, [mission.id, autoDismissMs, onAutoDismiss])
+  }, [mission.id, autoDismissMs])
 
   const fare = computeDisplayFare(mission)
   const minutesUntil = getMinutesUntil(mission.scheduled_at)
