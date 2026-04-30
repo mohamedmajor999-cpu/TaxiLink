@@ -16,6 +16,9 @@ const instrumentSerif = Instrument_Serif({
   variable: '--font-serif',
   weight: '400',
   style: ['normal', 'italic'],
+  // Pas de preload : police reservee a la landing/refonte, le dashboard
+  // chauffeur (Inter only) n'en a pas besoin au critical path.
+  preload: false,
 })
 
 const BASE_URL = 'https://taxilink.fr'
