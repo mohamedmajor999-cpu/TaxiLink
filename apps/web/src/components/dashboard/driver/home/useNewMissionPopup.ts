@@ -14,38 +14,23 @@ interface Args {
   authorIdToSkip?: string | null
 }
 
-export interface PopupDebug {
-  events: number
-  lastReason: string
-  popupEnabled: boolean
-  isOnline: boolean
-  hasCoords: boolean
-}
-
 /**
  * Ecoute les inserts realtime de missions et alimente une file FIFO de
  * popups. Filtre : popupEnabled + isOnline + not own + 2h window + 15km radius.
+ * Channel dedie pour eviter le conflit de subscribe avec useDriverMissions.
  */
 export function useNewMissionPopup({ userCoords, authorIdToSkip }: Args) {
   const [queue, setQueue] = useState<Mission[]>([])
-  const [debug, setDebug] = useState<PopupDebug>({
-    events: 0, lastReason: '—', popupEnabled: true, isOnline: false, hasCoords: false,
-  })
   const popupEnabled = useUserPrefs((s) => s.popupNewMission)
   const isOnline = useDriverStore((s) => s.driver.isOnline)
 
   useMissionRealtime({
     channelName: 'missions-realtime-newpopup',
     onInsert: (m) => {
-      const tag = (lastReason: string) => setDebug({
-        events: debug.events + 1, lastReason, popupEnabled, isOnline, hasCoords: userCoords != null,
-      })
-      if (!popupEnabled) return tag('pref OFF')
-      if (!isOnline) return tag('hors ligne')
-      if (authorIdToSkip && m.shared_by === authorIdToSkip) return tag('propre annonce')
-      if (!matchesWindow(m)) return tag(`hors fenêtre 2h (sched=${m.scheduled_at?.slice(11, 16) ?? '?'})`)
-      if (!matchesRadius(m, userCoords)) return tag('hors rayon 15km')
-      tag('ACCEPTÉ')
+      if (!popupEnabled || !isOnline) return
+      if (authorIdToSkip && m.shared_by === authorIdToSkip) return
+      if (!matchesWindow(m)) return
+      if (!matchesRadius(m, userCoords)) return
       setQueue((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]))
     },
     onDelete: ({ id }) => setQueue((prev) => prev.filter((m) => m.id !== id)),
@@ -58,7 +43,7 @@ export function useNewMissionPopup({ userCoords, authorIdToSkip }: Args) {
     setQueue((prev) => prev.filter((m) => m.id !== id))
   }, [])
 
-  return { current: queue[0] ?? null, dismiss, debug }
+  return { current: queue[0] ?? null, dismiss }
 }
 
 function matchesWindow(m: Mission): boolean {

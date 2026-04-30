@@ -4,29 +4,35 @@ Suivi de l'avancement du projet TaxiLink Pro.
 
 ---
 
-## 🟡 À faire — backlog pour la prochaine session (2026-04-30)
-
-### Bug ouvert — `MissionMapPopup` centré ne s'affiche toujours pas
-Au terme de la session 29/04, après plusieurs itérations (cf. section « Refonte écran d'accueil » ci-dessous), le user a confirmé : **« le nouveau popup ne s'affiche pas »**.
-
-Hypothèses à investiguer demain :
-- **Le flux ne se déclenche pas** : `useNewMissionPopup` ne queue jamais la mission. Vérifier que `popupNewMission` est bien activé dans `userPrefsStore`, que `driver.isOnline` est `true`, que l'utilisateur n'est pas l'auteur, que `scheduled_at` tombe dans `[now-5min, now+2h]`, que la distance est ≤ 15 km. Ajouter un `console.debug` temporaire dans `useNewMissionPopup.ts:34` pour voir où le filtre rejette.
-- **`selectedMission` reste `null`** : la nouvelle mission entre via realtime mais n'apparaît pas dans `f.filteredMissions` à temps (filtre type/groupe/urgent/nearby) → `selectedMission` reste null → `MissionMapPopup` ne rend pas. Vérifier que `useDriverMissions.onInsert` ajoute bien la mission à `setMissions` AVANT que `useEffect(setSelectedMissionId)` tire.
-- **Conditions de rendu non remplies** : le popup ne rend que si `(mapFullscreen || sheetCollapsed)` — donc si la sheet est déployée au moment où la mission arrive, rien ne s'affiche. Décider : pousser le popup même sheet ouverte ? Forcer `setSnap('one')` quand `incomingMission` ?
-- **Service worker / cache Vercel** : le user pourrait voir une vieille version. Lui faire vider le cache navigateur et tester sur deploy fraîchement vérifié.
-
-Fichiers concernés :
-- [`useNewMissionPopup.ts`](apps/web/src/components/dashboard/driver/home/useNewMissionPopup.ts) — la file FIFO
-- [`DriverHome.tsx:53-57`](apps/web/src/components/dashboard/driver/DriverHome.tsx#L53-L57) — l'auto-select
-- [`DriverHome.tsx:104-122`](apps/web/src/components/dashboard/driver/DriverHome.tsx#L104-L122) — la condition de rendu
-- [`MissionMapPopup.tsx`](apps/web/src/components/dashboard/driver/home/MissionMapPopup.tsx) — branche `isIncoming` (fixed + z-1200 + scale-in)
+## 🟡 À faire — backlog pour la prochaine session
 
 ### Marker chauffeur sur la carte — décision asset (suite du 28/04, toujours pendant)
 Choix laissé en suspens :
 - **A** : regénérer Bing avec prompt strict overhead view → permettra rotation `coords.heading`
 - **B** : garder image 2 Bing (Tesla blanc toit noir 3/4) → marker fixe orienté nord, plus premium
 
-À trancher après le fix du popup ci-dessus.
+---
+
+## ✅ Terminé — Session 2026-04-30
+
+### Bug `MissionMapPopup` centré qui ne s'affichait pas — diagnostic et fix
+Le popup nouvelle annonce (carte centrée + barre 10s) ne s'affichait jamais en prod malgré toutes les itérations de la veille. Diagnostic via overlay de debug visible (`?debug=popup`) qui exposait `events`/`lastReason`/`isOnline`/`popupEnabled`/`hasCoords` en haut à gauche de la carte — le user a pu voir en live `e:1 q:0 lastReason=ACCEPTÉ`, c'est-à-dire que le filtre passait, la queue était bien remplie, mais l'instant d'après elle se vidait.
+
+**Cause racine #1 — auto-cleanup de `selectedMissionId`** (commit `8be4e50`) :
+Le hook [`useDriverHome`](apps/web/src/components/dashboard/driver/useDriverHome.ts) avait un `useEffect` qui annulait `selectedMissionId` dès que la mission n'apparaissait pas dans `filteredMissions` (filtres clients type/groupe/urgent/nearby). Le flow était : realtime → `useNewMissionPopup` queue → DriverHome `setSelectedMissionId(m.id)` → cleanup `setSelectedMissionId(null)` parce que `m` n'est pas dans `filteredMissions` (filtre actif) → `selectedMission = null` → popup ne rend pas. **Fix** : `incomingMission` passé directement au composant `MissionMapPopup` sans transiter par `selectedMissionId`. Bonus : popup s'affiche aussi quand la sheet est déployée (position `fixed z-1200` couvre).
+
+**Cause racine #2 — barre de décompte qui oscille** (commit `9f7280d`) :
+Une fois le popup affiché, sa barre de progression descendait puis remontait à 100 puis redescendait sans cesse. La closure `onAutoDismiss` était recréée à chaque render dans DriverHome (lambda inline `() => h.popup.dismiss(...)`) ; avec elle dans les deps du `useEffect` du décompte, l'effect se relançait à chaque rerender du parent → `setProgress(100)` + nouvel `setInterval` → oscillation visible. **Fix** : `onAutoDismissRef = useRef(onAutoDismiss)` mis à jour à chaque render mais lu dans le timer, retiré des deps du useEffect.
+
+**Setup du diagnostic** (commits `343c4f6`, `4151d19`, `e026d22`) :
+- Overlay debug `?debug=popup` en haut à gauche : compteur d'events realtime, dernière raison (rejet ou ACCEPTÉ), états `online/pref/gps`. Permet de débugger sans devtools sur mobile.
+- Mode `?debug=popup` sans auto-dismiss pour confirmer que le popup s'affiche bien, puis remis pour valider la barre 10s en condition normale.
+- Code debug retiré une fois le bug résolu (commit suivant ce résumé).
+
+**Master mis à jour** : `accueil-carte-annonce` mergé en fast-forward dans master (37 commits, `1550390..8be4e50` puis itérations de fix). Branche `master-backup-2026-04-30` créée avant le merge pour rollback potentiel.
+
+### Push direct sur master + branche backup
+Le user a demandé à pousser `accueil-carte-annonce` en prod pour tester (le preview ne lui permettait pas de tester avec un second compte). Backup `master-backup-2026-04-30` créée et pushée depuis `origin/master` avant le merge ff. Vercel auto-deploy en prod.
 
 ---
 
