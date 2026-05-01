@@ -6,9 +6,6 @@ interface PinOptions {
   priceLabel: string
   selected: boolean
   urgent: boolean
-  // Quand > 1, le pin represente N annonces empilees (meme adresse) :
-  // affiche le prix passe + badge "+N-1" et applique le visuel stacked.
-  count?: number
 }
 
 function escapeHtml(s: string): string {
@@ -24,20 +21,16 @@ export async function createMissionPinIcon(opts: PinOptions): Promise<DivIcon> {
   const classes = ['mission-pin']
   if (opts.selected) classes.push('selected')
   if (opts.urgent) classes.push('urgent')
-  const stacked = opts.count != null && opts.count > 1
-  if (stacked) classes.push('stacked')
-  const stackCard = stacked ? '<span class="mp-stack-card"></span>' : ''
-  const countBadge = stacked
-    ? `<span class="mp-count">+${opts.count! - 1}</span>`
-    : ''
   return L.divIcon({
-    html: `<div class="${classes.join(' ')}">${stackCard}${escapeHtml(opts.priceLabel)}${countBadge}</div>`,
+    html: `<div class="${classes.join(' ')}">${opts.priceLabel}</div>`,
     className: '',
     iconSize: [0, 0],
-    iconAnchor: [0, 0],
+    iconAnchor: [0, -6],
   })
 }
 
+// Pilule chauffeur (Mehdi - AB-123-CD) : icone taxi sur carre arrondi jaune
+// + prenom + plaque monospace. Remplace l'ancien PNG /brand/icon.svg.
 export async function createDriverPillIcon(args: { firstName: string; plate?: string | null }): Promise<DivIcon> {
   const L = (await import('leaflet')).default
   const name = escapeHtml((args.firstName || 'Vous').trim() || 'Vous')
@@ -57,5 +50,8 @@ export async function createDriverPillIcon(args: { firstName: string; plate?: st
 
 export function formatMissionPriceLabel(m: Mission): string {
   const value = computeDisplayFare(m).value
-  return `${value.toFixed(2).replace('.', ',')} €`
+  const rounded = Number.isInteger(value)
+    ? value.toFixed(0)
+    : value.toFixed(2).replace(/0$/, '').replace(/\.$/, '')
+  return `${rounded.replace('.', ',')} €`
 }
