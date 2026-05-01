@@ -5,13 +5,34 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { Layers, LocateFixed } from 'lucide-react'
 
 // OpenFreeMap : tuiles vectorielles 100% gratuites, hebergees sur Cloudflare,
-// sans cle ni quota. Style "liberty" = Mapbox Streets-like.
+// sans cle ni quota. 4 styles dispos pour comparer le rendu.
 // Doc : https://openfreemap.org
-const STREET_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
+type StyleKey = 'liberty' | 'bright' | 'positron' | 'dark'
+
+const STREET_STYLES: { key: StyleKey; label: string; url: string; hint: string }[] = [
+  {
+    key: 'liberty', label: 'Liberty',
+    url: 'https://tiles.openfreemap.org/styles/liberty',
+    hint: 'Style Mapbox Streets — équilibré',
+  },
+  {
+    key: 'bright', label: 'Bright',
+    url: 'https://tiles.openfreemap.org/styles/bright',
+    hint: 'Couleurs vives, plus de POI visibles',
+  },
+  {
+    key: 'positron', label: 'Positron',
+    url: 'https://tiles.openfreemap.org/styles/positron',
+    hint: 'Très light, minimaliste — bon pour overlays',
+  },
+  {
+    key: 'dark', label: 'Dark',
+    url: 'https://tiles.openfreemap.org/styles/dark',
+    hint: 'Mode nuit',
+  },
+]
 
 // Force les labels en francais sur tous les layers symbol qui ont un text-field.
-// OpenFreeMap utilise OSM `name` par defaut (parfois en anglais). On bascule
-// sur `name:fr` quand dispo, fallback `name:latin` (translitere) puis `name`.
 function localizeLabelsToFrench(map: maplibregl.Map) {
   const layers = map.getStyle().layers ?? []
   for (const layer of layers) {
@@ -47,14 +68,15 @@ export function MapLibreTest() {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const [view, setView] = useState<'street' | 'satellite'>('street')
+  const [styleKey, setStyleKey] = useState<StyleKey>('liberty')
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: STREET_STYLE,
+      style: STREET_STYLES[0].url,
       center: MARSEILLE,
-      zoom: 9,
+      zoom: 11,
       pitchWithRotate: false,
       attributionControl: false,
     })
@@ -67,12 +89,17 @@ export function MapLibreTest() {
     }
   }, [])
 
-  // Bascule street/satellite via setStyle
+  // Bascule style street/satellite OU change de style street
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
-    map.setStyle(view === 'street' ? STREET_STYLE : SATELLITE_STYLE)
-  }, [view])
+    if (view === 'satellite') {
+      map.setStyle(SATELLITE_STYLE)
+    } else {
+      const cfg = STREET_STYLES.find((s) => s.key === styleKey) ?? STREET_STYLES[0]
+      map.setStyle(cfg.url)
+    }
+  }, [view, styleKey])
 
   const recenter = () => {
     const map = mapRef.current
@@ -86,6 +113,29 @@ export function MapLibreTest() {
   return (
     <div className="relative w-full h-full">
       <div ref={containerRef} className="w-full h-full" />
+
+      {/* Picker de style en haut */}
+      {view === 'street' && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[500] flex gap-1.5 bg-white/95 backdrop-blur rounded-full p-1.5 shadow-[0_4px_14px_rgba(0,0,0,0.15)]">
+          {STREET_STYLES.map((s) => (
+            <button
+              key={s.key}
+              type="button"
+              onClick={() => setStyleKey(s.key)}
+              title={s.hint}
+              className={[
+                'px-3 h-8 rounded-full text-[12px] font-bold transition-colors',
+                styleKey === s.key
+                  ? 'bg-ink text-paper'
+                  : 'bg-paper text-ink hover:bg-warm-50',
+              ].join(' ')}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       <button
         type="button"
         onClick={recenter}
