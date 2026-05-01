@@ -83,6 +83,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
             fullscreen={mapFullscreen}
             onToggleFullscreen={() => onMapFullscreenChange(!mapFullscreen)}
             night={night.active}
+            hideZoomControls={!sheetCollapsed && !mapFullscreen}
           />
           <DriverHomeTopOverlay
             isOnline={h.driver.isOnline}

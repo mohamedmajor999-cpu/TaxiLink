@@ -64,13 +64,13 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
 
   return (
     <Shell onBack={onBack}>
-      {c.isMasked && mission.type === 'CPAM' && (
+      {c.isMasked && (
         <div className="mb-3 flex items-start gap-3 rounded-2xl border border-warm-200 bg-warm-50 p-3">
           <Lock className="w-4 h-4 text-warm-600 shrink-0 mt-0.5" strokeWidth={2} />
           <p className="text-[12.5px] text-warm-700 leading-snug">
-            <strong>Données patient masquées.</strong> Les coordonnées complètes
-            (nom, téléphone, notes) seront visibles uniquement après acceptation de
-            la course, conformément à la protection des données de santé (RGPD Art. 9).
+            <strong>Coordonnées masquées.</strong> Le nom complet, le téléphone
+            et les notes seront visibles uniquement après acceptation de la
+            course{mission.type === 'CPAM' ? ' (RGPD Art. 9, données de santé)' : ''}.
           </p>
         </div>
       )}
@@ -115,7 +115,7 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
         onCorrect={c.correct}
       />
 
-      <CourseDetailsTable mission={mission} />
+      <CourseDetailsTable mission={mission} masked={c.isMasked} />
 
       {!isTerminal && (
         <CourseActions
@@ -123,8 +123,11 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
           smsHref={c.smsHref}
           wazeHref={c.wazeHref}
           gmapsHref={c.gmapsHref}
+          step={c.step}
+          onAdvance={c.advanceStep}
           onComplete={c.complete}
           onCancel={() => c.setCancelOpen(true)}
+          advancing={c.advancing}
           completing={c.completing}
         />
       )}

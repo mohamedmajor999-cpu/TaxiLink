@@ -3,6 +3,9 @@ import type { Mission } from '@/lib/supabase/types'
 
 interface Props {
   mission: Mission
+  // Vue masquee = chauffeur non-acceptant : on cache totalement la ligne
+  // patient/passager au lieu d'afficher des initiales depouillees.
+  masked?: boolean
 }
 
 const TRANSPORT_LABEL: Record<string, string> = {
@@ -15,7 +18,7 @@ const MOTIF_LABEL: Record<string, string> = {
   CONSULTATION: 'Consultation',
 }
 
-export function CourseDetailsTable({ mission }: Props) {
+export function CourseDetailsTable({ mission, masked }: Props) {
   const typeExtras: string[] = []
   if (mission.medical_motif && MOTIF_LABEL[mission.medical_motif]) typeExtras.push(MOTIF_LABEL[mission.medical_motif])
   if (mission.transport_type && TRANSPORT_LABEL[mission.transport_type]) typeExtras.push(TRANSPORT_LABEL[mission.transport_type])
@@ -26,7 +29,7 @@ export function CourseDetailsTable({ mission }: Props) {
 
   const isMedical = mission.type === 'CPAM'
   const nameLabel = isMedical ? 'Patient' : 'Passager'
-  const name = isMedical ? mission.patient_name || null : null
+  const name = !masked && isMedical ? mission.patient_name || null : null
 
   const countLabel = isMedical ? null : 'Passagers'
   const countValue = mission.passengers != null

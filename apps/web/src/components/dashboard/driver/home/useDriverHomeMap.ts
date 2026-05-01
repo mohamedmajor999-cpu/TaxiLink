@@ -1,12 +1,10 @@
 'use client'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Map as LeafletMap, Marker, Circle } from 'leaflet'
 import { createDriverIcon } from './missionMapPin'
+import { tileUrlFor, type MapView } from './mapTileLayers'
 
 const MARSEILLE_FALLBACK: [number, number] = [43.2965, 5.3698]
-const MAPBOX_STYLE_DAY = 'streets-v12'
-const MAPBOX_STYLE_NIGHT = 'navigation-night-v1'
-const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
 interface Params {
   userCoords: { lat: number; lng: number } | null
@@ -15,6 +13,8 @@ interface Params {
 }
 
 export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
+  const [view, setView] = useState<MapView>('street')
+  const toggleView = useCallback(() => setView((v) => (v === 'street' ? 'satellite' : 'street')), [])
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<LeafletMap | null>(null)
   const meMarkerRef = useRef<Marker | null>(null)
@@ -36,23 +36,24 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
     let observer: ResizeObserver | null = null
     ;(async () => {
       const L = (await import('leaflet')).default
+      // Plugin side-effect : patche L.Map pour exposer rotate/touchRotate.
+      // A importer APRES leaflet, sinon les options sont ignorees.
+      await import('leaflet-rotate')
       if (cancelled || !containerRef.current) return
       const center = userCoords ?? { lat: MARSEILLE_FALLBACK[0], lng: MARSEILLE_FALLBACK[1] }
       const map = L.map(containerRef.current, {
         zoomControl: true,
         attributionControl: false,
         scrollWheelZoom: true,
-      }).setView([center.lat, center.lng], 9)
-      const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-      if (token) {
-        const style = night ? MAPBOX_STYLE_NIGHT : MAPBOX_STYLE_DAY
-        tileLayerRef.current = L.tileLayer(
-          `https://api.mapbox.com/styles/v1/mapbox/${style}/tiles/{z}/{x}/{y}@2x?access_token=${token}`,
-          { maxZoom: 19, tileSize: 512, zoomOffset: -1 },
-        ).addTo(map)
-      } else {
-        tileLayerRef.current = L.tileLayer(OSM_URL, { maxZoom: 19 }).addTo(map)
-      }
+        // Rotation 2 doigts (mobile) + touche Shift sur desktop. Pas de
+        // bearing par defaut : l'utilisateur l'oriente librement.
+        rotate: true,
+        touchRotate: true,
+        rotateControl: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any).setView([center.lat, center.lng], 9)
+      const initial = tileUrlFor('street', night)
+      tileLayerRef.current = L.tileLayer(initial.url, initial.opts).addTo(map)
       map.zoomControl.setPosition('bottomleft')
       mapRef.current = map
       setTimeout(() => map.invalidateSize(), 50)
@@ -71,7 +72,8 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
     }
   }, [])
 
-  // Hot-swap des tuiles quand on bascule jour/nuit (sans demonter la carte).
+  // Hot-swap des tuiles quand on bascule jour/nuit OU street/satellite
+  // (sans demonter la carte).
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -79,20 +81,15 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
       if (!map) return
       const L = (await import('leaflet')).default
       if (cancelled) return
-      const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-      const next = token
-        ? L.tileLayer(
-            `https://api.mapbox.com/styles/v1/mapbox/${night ? MAPBOX_STYLE_NIGHT : MAPBOX_STYLE_DAY}/tiles/{z}/{x}/{y}@2x?access_token=${token}`,
-            { maxZoom: 19, tileSize: 512, zoomOffset: -1 },
-          )
-        : L.tileLayer(OSM_URL, { maxZoom: 19 })
+      const { url, opts } = tileUrlFor(view, night)
+      const next = L.tileLayer(url, opts)
       next.addTo(map)
       const prev = tileLayerRef.current
       tileLayerRef.current = next
       if (prev) setTimeout(() => prev.remove(), 200)
     })()
     return () => { cancelled = true }
-  }, [night])
+  }, [night, view])
 
   const didCenterOnUserRef = useRef(false)
   useEffect(() => {
@@ -140,5 +137,5 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
     return () => { cancelled = true }
   }, [userCoords, userAccuracy])
 
-  return { containerRef, recenter, mapRef }
+  return { containerRef, recenter, mapRef, view, toggleView }
 }
