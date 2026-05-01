@@ -29,18 +29,16 @@ export async function createMissionPinIcon(opts: PinOptions): Promise<DivIcon> {
   })
 }
 
-// Pilule chauffeur (Mehdi - AB-123-CD) : icone taxi sur carre arrondi jaune
-// + prenom + plaque monospace. Remplace l'ancien PNG /brand/icon.svg.
-export async function createDriverPillIcon(args: { firstName: string; plate?: string | null }): Promise<DivIcon> {
+// Pilule chauffeur : icone taxi sur carre arrondi jaune + prenom du
+// profil connecte. Remplace l'ancien PNG /brand/icon.svg.
+export async function createDriverPillIcon(args: { firstName: string }): Promise<DivIcon> {
   const L = (await import('leaflet')).default
   const name = escapeHtml((args.firstName || 'Vous').trim() || 'Vous')
-  const plate = args.plate?.trim() ? escapeHtml(args.plate.trim()) : ''
-  const plateHtml = plate ? `<div class="me-driver-plate">${plate}</div>` : ''
   return L.divIcon({
     html:
       '<div class="me-driver-pill">' +
       '<div class="me-driver-icon"><span class="material-symbols-outlined">local_taxi</span></div>' +
-      `<div class="me-driver-info"><div class="me-driver-name">${name}</div>${plateHtml}</div>` +
+      `<div class="me-driver-name">${name}</div>` +
       '</div>',
     className: '',
     iconSize: [0, 0],
