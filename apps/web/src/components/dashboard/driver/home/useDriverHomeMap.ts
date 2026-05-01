@@ -42,7 +42,7 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
         zoomControl: true,
         attributionControl: false,
         scrollWheelZoom: true,
-      }).setView([center.lat, center.lng], 8)
+      }).setView([center.lat, center.lng], 9)
       const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
       if (token) {
         const style = night ? MAPBOX_STYLE_NIGHT : MAPBOX_STYLE_DAY
@@ -130,10 +130,10 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
         accuracyCircleRef.current = null
       }
       if (!didCenterOnUserRef.current) {
-        // Auto-center sur l'user au zoom 8 pour voir toute la region PACA :
-        // Arles, L'Isle-sur-la-Sorgue, Manosque, Brignoles, Toulon. L'user
-        // peut zoomer manuellement via bouton recenter ou pinch.
-        map.flyTo(pos, 8, { duration: 0.6 })
+        // Auto-center sur l'user au zoom 9 : metropole Marseille + Aix +
+        // Cavaillon/Manosque visibles. Cadrage par defaut valide en mai 2026
+        // (cf screenshot user). Zoom manuel via pinch / bouton recenter.
+        map.flyTo(pos, 9, { duration: 0.6 })
         didCenterOnUserRef.current = true
       }
     })()
