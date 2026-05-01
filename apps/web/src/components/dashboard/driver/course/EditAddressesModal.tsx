@@ -89,7 +89,7 @@ export function EditAddressesModal({
         </div>
         <div className="px-5 py-4">
           <p className="text-[12.5px] text-warm-600 mb-4 leading-snug">
-            Ajustez l'adresse pour préciser un numéro de bâtiment, un code d'accès ou corriger une faute.
+            Ajustez l’adresse pour préciser un numéro de bâtiment, un code d’accès ou corriger une faute.
           </p>
           <AddressField
             label="Départ"
