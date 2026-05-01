@@ -62,8 +62,12 @@ const nextConfig = {
                 : "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://*.supabase.co https://*.tile.openstreetmap.org https://api.mapbox.com",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o*.ingest.sentry.io https://o*.ingest.de.sentry.io https://api-adresse.data.gouv.fr https://router.project-osrm.org https://api.mapbox.com https://places.googleapis.com https://routes.googleapis.com https://photon.komoot.io",
+              "img-src 'self' data: blob: https://*.supabase.co https://*.tile.openstreetmap.org https://api.mapbox.com https://tiles.openfreemap.org https://server.arcgisonline.com",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o*.ingest.sentry.io https://o*.ingest.de.sentry.io https://api-adresse.data.gouv.fr https://router.project-osrm.org https://api.mapbox.com https://places.googleapis.com https://routes.googleapis.com https://photon.komoot.io https://tiles.openfreemap.org https://server.arcgisonline.com",
+              // MapLibre cree des Web Workers depuis des blob: URLs pour decoder
+              // les tuiles vectorielles. Sans worker-src explicite, le fallback
+              // utilise script-src qui ne whitelist pas blob: → workers bloques.
+              "worker-src 'self' blob:",
               "frame-ancestors 'none'",
             ].join('; '),
           },
