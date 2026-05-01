@@ -102,7 +102,7 @@ export function NextCourseHero({ mission, onEdit }: Props) {
             disabled={h.busy}
             className="mt-2 w-full h-10 rounded-xl bg-paper/10 border border-paper/15 text-paper text-[13px] font-bold disabled:opacity-50"
           >
-            J'y suis arrivé — patient à bord
+            J&apos;y suis arrivé — patient à bord
           </button>
         )}
 
