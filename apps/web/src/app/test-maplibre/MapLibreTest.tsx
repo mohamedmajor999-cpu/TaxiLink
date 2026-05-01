@@ -9,6 +9,24 @@ import { Layers, LocateFixed } from 'lucide-react'
 // Doc : https://openfreemap.org
 const STREET_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 
+// Force les labels en francais sur tous les layers symbol qui ont un text-field.
+// OpenFreeMap utilise OSM `name` par defaut (parfois en anglais). On bascule
+// sur `name:fr` quand dispo, fallback `name:latin` (translitere) puis `name`.
+function localizeLabelsToFrench(map: maplibregl.Map) {
+  const layers = map.getStyle().layers ?? []
+  for (const layer of layers) {
+    if (layer.type !== 'symbol') continue
+    const textField = (layer.layout as { 'text-field'?: unknown })?.['text-field']
+    if (!textField) continue
+    map.setLayoutProperty(layer.id, 'text-field', [
+      'coalesce',
+      ['get', 'name:fr'],
+      ['get', 'name:latin'],
+      ['get', 'name'],
+    ])
+  }
+}
+
 // Satellite : Esri World Imagery via custom style MapLibre. Pas de cle.
 const SATELLITE_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -41,6 +59,7 @@ export function MapLibreTest() {
       attributionControl: false,
     })
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-left')
+    map.on('style.load', () => localizeLabelsToFrench(map))
     mapRef.current = map
     return () => {
       map.remove()
