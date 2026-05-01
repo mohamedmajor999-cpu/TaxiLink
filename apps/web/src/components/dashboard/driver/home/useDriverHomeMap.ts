@@ -1,8 +1,8 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Map as LeafletMap, Marker, Circle } from 'leaflet'
+import type { Map as LeafletMap, Marker, Circle, TileLayer } from 'leaflet'
 import { createDriverIcon } from './missionMapPin'
-import { tileUrlFor, type MapView } from './mapTileLayers'
+import { tilesFor, type MapView } from './mapTileLayers'
 
 const MARSEILLE_FALLBACK: [number, number] = [43.2965, 5.3698]
 
@@ -19,7 +19,9 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
   const mapRef = useRef<LeafletMap | null>(null)
   const meMarkerRef = useRef<Marker | null>(null)
   const accuracyCircleRef = useRef<Circle | null>(null)
-  const tileLayerRef = useRef<import('leaflet').TileLayer | null>(null)
+  // Plusieurs couches : satellite empile World Imagery + Transportation +
+  // Reference (labels). Street : 1 seule couche.
+  const tileLayersRef = useRef<TileLayer[]>([])
   const userCoordsRef = useRef(userCoords)
   userCoordsRef.current = userCoords
 
@@ -47,8 +49,9 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
         attributionControl: false,
         scrollWheelZoom: true,
       }).setView([center.lat, center.lng], 9)
-      const initial = tileUrlFor('street', night)
-      tileLayerRef.current = L.tileLayer(initial.url, initial.opts).addTo(map)
+      tileLayersRef.current = tilesFor('street', night).map((s) =>
+        L.tileLayer(s.url, s.opts).addTo(map),
+      )
       map.zoomControl.setPosition('bottomleft')
       mapRef.current = map
       setTimeout(() => map.invalidateSize(), 50)
@@ -68,7 +71,9 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
   }, [])
 
   // Hot-swap des tuiles quand on bascule jour/nuit OU street/satellite
-  // (sans demonter la carte).
+  // (sans demonter la carte). Pour le satellite on empile 3 couches : image
+  // Esri + transports + labels villes. La transition garde l'ancienne pile
+  // visible 200 ms pour eviter le flash blanc pendant le chargement.
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -76,12 +81,14 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
       if (!map) return
       const L = (await import('leaflet')).default
       if (cancelled) return
-      const { url, opts } = tileUrlFor(view, night)
-      const next = L.tileLayer(url, opts)
-      next.addTo(map)
-      const prev = tileLayerRef.current
-      tileLayerRef.current = next
-      if (prev) setTimeout(() => prev.remove(), 200)
+      const nextLayers = tilesFor(view, night).map((s) =>
+        L.tileLayer(s.url, s.opts).addTo(map),
+      )
+      const prevLayers = tileLayersRef.current
+      tileLayersRef.current = nextLayers
+      if (prevLayers.length > 0) {
+        setTimeout(() => prevLayers.forEach((l) => l.remove()), 200)
+      }
     })()
     return () => { cancelled = true }
   }, [night, view])
