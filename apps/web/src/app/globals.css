@@ -103,98 +103,53 @@ body {
 .dark .leaflet-control-attribution { background: rgba(30,32,38,0.85) !important; color: #9A9890 !important; }
 .dark .leaflet-control-attribution a { color: #D9A923 !important; }
 
-/* ============================================================
- * Mission price pin — Apple Maps style
- * Pill blanche minimale, hairline border, soft shadow 4-couches.
- * Etats : .selected (inverse noir + halo jaune), .urgent (dot rouge pulsant),
- * .stacked (pile suggerant N offres groupees, suffixee par <span class="mp-count">+N</span>).
- * ============================================================ */
+/* Mission price pin */
 .mission-pin {
-  position: relative;
   background: #fff;
-  border-radius: 9999px;
-  padding: 5px 11px;
-  font-family: inherit;
-  font-size: 13px;
+  border: 2px solid #1A1A1A;
+  border-radius: 999px;
+  padding: 5px 10px 5px 8px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: -0.01em;
-  color: #0A0A0A;
-  font-variant-numeric: tabular-nums;
+  color: #1A1A1A;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  box-shadow:
-    0 0 0 0.5px rgba(10,10,10,0.12),
-    0 1px 1px rgba(0,0,0,0.04),
-    0 2px 4px rgba(0,0,0,0.06),
-    0 8px 16px -4px rgba(0,0,0,0.12);
+  gap: 4px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   white-space: nowrap;
+  transition: transform 0.15s ease;
   cursor: pointer;
-  /* Centre le pin sur le point lat/lng (iconAnchor:[0,0]) */
-  transform: translate(-50%, -50%);
-  transition: box-shadow 0.18s ease;
 }
-.mission-pin.selected {
-  background: #0A0A0A;
-  color: #fff;
-  z-index: 10;
-  box-shadow:
-    0 0 0 0.5px rgba(10,10,10,0.4),
-    0 0 0 4px rgba(255,210,63,0.55),
-    0 8px 20px -4px rgba(0,0,0,0.30);
-}
-
-/* Urgent : dot rouge prefixe + halo pulsant */
-.mission-pin.urgent { padding-left: 8px; }
-.mission-pin.urgent::before {
-  content: '';
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: #DC2626;
-  flex-shrink: 0;
-  animation: missionPinUrgent 1.6s ease-out infinite;
-}
-@keyframes missionPinUrgent {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.55); }
-  50%      { box-shadow: 0 0 0 5px rgba(220,38,38,0); }
-}
-
-/* Stack : deux cartes fantomes derriere le pin (Airbnb-style) */
-.mission-pin.stacked::after,
-.mission-pin.stacked > .mp-stack-card {
+.mission-pin::after {
   content: '';
   position: absolute;
-  inset: 0;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
   background: #fff;
-  border-radius: inherit;
-  z-index: -1;
-  box-shadow:
-    0 0 0 0.5px rgba(10,10,10,0.10),
-    0 2px 4px rgba(0,0,0,0.05);
+  border-right: 2px solid #1A1A1A;
+  border-bottom: 2px solid #1A1A1A;
 }
-.mission-pin.stacked::after  { transform: translate(2px, 3px) scale(0.97); opacity: 0.85; }
-.mission-pin.stacked > .mp-stack-card { transform: translate(4px, 6px) scale(0.93); opacity: 0.6; }
-
-/* Badge +N a droite du prix dans un stack */
-.mp-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #0A0A0A;
-  color: #FFD11A;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0;
-  padding: 2px 6px;
-  border-radius: 9999px;
-  line-height: 1.1;
-  margin-left: 2px;
-}
-.mission-pin.selected .mp-count {
+.mission-pin.selected {
   background: #FFD11A;
-  color: #0A0A0A;
+  color: #1A1A1A;
+  border-color: #1A1A1A;
+  transform: scale(1.1);
+  z-index: 10;
 }
-
+.mission-pin.selected::after { background: #FFD11A; border-color: #1A1A1A; }
+.mission-pin.urgent::before {
+  content: '';
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 11px; height: 11px;
+  background: #FFD11A;
+  border: 1.5px solid #1A1A1A;
+  border-radius: 50%;
+  z-index: 2;
+}
 .leaflet-div-icon { background: transparent; border: none; }
 
 /* ============================================================
