@@ -56,7 +56,7 @@ export function EditPriceDialog({ open, initialPrice, saving, onClose, onSave }:
         </div>
         <div className="px-5 py-4">
           <p className="text-[12.5px] text-warm-600 mb-4 leading-snug">
-            Saisissez le montant que vous avez réellement encaissé pour cette course. Cette valeur remplace l'estimation et alimente votre historique et vos KPI.
+            Saisissez le montant que vous avez réellement encaissé pour cette course. Cette valeur remplace l’estimation et alimente votre historique et vos KPI.
           </p>
           <label className="block">
             <span className="text-[11px] font-bold uppercase tracking-wider text-warm-500 mb-1.5 block">Montant</span>
