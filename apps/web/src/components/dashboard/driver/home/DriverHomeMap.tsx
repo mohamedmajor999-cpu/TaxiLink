@@ -14,13 +14,15 @@ interface Props {
   fullscreen?: boolean
   onToggleFullscreen?: () => void
   night?: boolean
+  driverName: string
+  driverPlate?: string | null
 }
 
 export function DriverHomeMap({
   missions, userCoords, userAccuracy, selectedId, onSelect, className,
-  fullscreen, onToggleFullscreen, night,
+  fullscreen, onToggleFullscreen, night, driverName, driverPlate,
 }: Props) {
-  const { containerRef, recenter, mapRef } = useDriverHomeMap({ userCoords, userAccuracy, night })
+  const { containerRef, recenter, mapRef } = useDriverHomeMap({ userCoords, userAccuracy, night, driverName, driverPlate })
   useMissionMarkers({ mapRef, missions, selectedId, onSelect })
   return (
     <div className={`relative ${className ?? 'w-full h-full'}`}>
