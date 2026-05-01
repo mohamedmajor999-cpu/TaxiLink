@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pins prix — propositions geolocalisation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<style>
+  :root {
+    --ink:#0A0A0A;
+    --ink-soft:#1A1A1A;
+    --brand:#FFD11A;
+    --brand-2:#FFD23F;
+    --warm-200:#E5DFD3;
+    --warm-400:#A8A095;
+    --warm-500:#7E7669;
+    --green:#34D399;
+    --blue:#3B82F6;
+    --red:#EF4444;
+    --paper:#FFFFFF;
+  }
+  html, body { font-family:'Inter',system-ui,sans-serif; font-feature-settings:"tnum"; }
+  body { background:#EDE8DD; color:var(--ink); }
+
+  /* ---------- Fond carte simulé ---------- */
+  .map {
+    position:relative;
+    background:linear-gradient(135deg,#F4F1E8 0%,#E8E3D2 100%);
+    overflow:hidden;
+  }
+  .map::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background-image:
+      linear-gradient(98deg, transparent 47%, rgba(255,255,255,0.85) 47.5%, rgba(255,255,255,0.85) 52.5%, transparent 53%),
+      linear-gradient(8deg, transparent 35%, rgba(255,255,255,0.7) 35.5%, rgba(255,255,255,0.7) 38%, transparent 38.5%),
+      linear-gradient(75deg, transparent 70%, rgba(255,255,255,0.6) 70.5%, rgba(255,255,255,0.6) 72.5%, transparent 73%),
+      linear-gradient(45deg, transparent 49.5%, rgba(0,0,0,0.06) 50%, transparent 50.5%);
+    pointer-events:none;
+  }
+
+  /* ---------- Driver badge (validé) ---------- */
+  .driver-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#0A0A0A; color:#fff;
+    padding:3px 10px 3px 3px;
+    border-radius:9999px;
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+  }
+  .driver-badge .icon {
+    width:30px; height:30px;
+    border-radius:8px;
+    background:var(--brand);
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ---------- Pin shapes ---------- */
+
+  /* Goutte SVG-like en CSS (cercle + pointe) */
+  .geo-pin {
+    position:relative;
+    width:56px; height:72px;
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));
+  }
+  .geo-pin .head {
+    width:56px; height:56px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:900;
+    border:3px solid #0A0A0A;
+  }
+  .geo-pin .tail {
+    position:absolute; left:50%; bottom:0;
+    width:14px; height:18px;
+    background:inherit;
+    transform:translateX(-50%);
+    clip-path:polygon(50% 100%, 0 0, 100% 0);
+  }
+  .geo-pin .tail::after {
+    /* la pointe noire bord */
+    content:''; position:absolute; inset:0;
+    background:#0A0A0A;
+    clip-path:polygon(50% 100%, 0 0, 3px 0, 50% 96%, calc(100% - 3px) 0, 100% 0);
+  }
+
+  /* ---------- Pulse halo ---------- */
+  @keyframes pulseRing {
+    0%   { transform:translate(-50%,-50%) scale(0.6); opacity:0.6; }
+    100% { transform:translate(-50%,-50%) scale(2.2); opacity:0;   }
+  }
+  .pulse-ring {
+    position:absolute; left:50%; top:50%;
+    width:48px; height:48px; border-radius:9999px;
+    transform:translate(-50%,-50%);
+    background:rgba(255,210,63,0.45);
+    animation:pulseRing 1.8s ease-out infinite;
+    pointer-events:none;
+  }
+
+  /* ---------- numero ---------- */
+  .num {
+    width:34px; height:34px;
+    border-radius:9999px;
+    background:#0A0A0A;
+    color:var(--brand);
+    font-weight:900;
+    font-size:14px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 16px rgba(0,0,0,.25);
+  }
+
+  .card-shadow { box-shadow:0 12px 32px -8px rgba(0,0,0,.18), 0 4px 12px -4px rgba(0,0,0,.08); }
+  .section-title { font-size:11px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; color:var(--warm-500); }
+
+  /* ---------- petits ornements ---------- */
+  .badge-mini {
+    position:absolute;
+    background:#0A0A0A; color:var(--brand);
+    font-size:9px; font-weight:800;
+    padding:2px 5px; border-radius:999px;
+    box-shadow:0 2px 4px rgba(0,0,0,.2);
+    border:2px solid #fff;
+    white-space:nowrap;
+  }
+</style>
+</head>
+<body class="min-h-screen p-5 md:p-10">
+
+  <header class="max-w-6xl mx-auto mb-8">
+    <p class="section-title">TaxiLink — Mockups</p>
+    <h1 class="text-3xl md:text-4xl font-extrabold mt-2">Pins prix — intégration au logo de géolocalisation</h1>
+    <p class="text-sm text-[var(--ink-soft)]/70 mt-2 max-w-2xl">
+      8 propositions visuelles pour représenter <b>une offre</b> sur la carte.
+      La pilule <span class="font-mono bg-black/5 px-1.5 py-0.5 rounded">Mehdi · AB-123-CD</span> reste pour toi.
+      Indique le numéro que tu préfères (combinaisons OK).
+    </p>
+
+    <!-- mini légende driver -->
+    <div class="mt-4 flex items-center gap-3">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-[var(--warm-500)]">Toi sur la carte :</span>
+      <div class="driver-badge">
+        <div class="icon"><span class="material-symbols-rounded text-[18px] text-[#0A0A0A]">local_taxi</span></div>
+        <div class="leading-tight">
+          <div class="text-[11px] font-bold">Mehdi</div>
+          <div class="text-[10px] text-[var(--brand)] font-mono">AB-123-CD</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+    <!-- =============================================== -->
+    <!-- 1 — Goutte jaune classique avec prix au centre   -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56">
+        <div class="absolute top-3 left-3 z-30 num">1</div>
+
+        <div class="absolute" style="left:50%; top:55%; transform:translate(-50%,-100%);">
+          <div class="geo-pin">
+            <div class="head" style="background:var(--brand);">
+              <span class="text-[15px]">24€</span>
+            </div>
+            <div class="tail" style="background:var(--brand);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold">1 · Goutte jaune + prix au centre</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Le pin de géoloc devient lui-même le prix. Direct, brand fort.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 2 — Goutte noire avec prix en jaune              -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56">
+        <div class="absolute top-3 left-3 z-30 num">2</div>
+
+        <div class="absolute" style="left:50%; top:55%; transform:translate(-50%,-100%);">
+          <div class="geo-pin">
+            <div class="head" style="background:#0A0A0A; border-color:var(--brand);">
+              <span class="text-[15px]" style="color:var(--brand);">24€</span>
+            </div>
+            <div class="tail" style="background:#0A0A0A;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold">2 · Goutte noire, prix jaune</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Inversion. Très contrasté sur fond clair, élégant, distingue les offres « premium ».</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 3 — Goutte avec icône taxi + chip prix accolée   -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56">
+        <div class="absolute top-3 left-3 z-30 num">3</div>
+
+        <div class="absolute" style="left:50%; top:55%; transform:translate(-50%,-100%);">
+          <div class="flex items-end gap-1">
+            <div class="geo-pin" style="width:46px; height:60px;">
+              <div class="head" style="width:46px; height:46px; background:var(--brand);">
+                <span class="material-symbols-rounded text-[22px] text-[#0A0A0A]">local_taxi</span>
+              </div>
+              <div class="tail" style="background:var(--brand);"></div>
+            </div>
+            <div class="bg-[#0A0A0A] text-[var(--brand)] font-extrabold text-sm px-2.5 py-1 rounded-full mb-2 shadow-lg whitespace-nowrap">24 €</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold">3 · Goutte taxi + chip prix accolée</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Pin reconnaissable « course » + prix lisible à part. Bonne hiérarchie.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 4 — Goutte hôpital + chip prix dessus            -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56">
+        <div class="absolute top-3 left-3 z-30 num">4</div>
+
+        <div class="absolute" style="left:50%; top:55%; transform:translate(-50%,-100%);">
+          <div class="relative">
+            <!-- chip prix au-dessus -->
+            <div class="absolute -top-7 left-1/2 -translate-x-1/2 bg-[var(--brand)] text-[#0A0A0A] font-extrabold text-sm px-2.5 py-1 rounded-full shadow-lg whitespace-nowrap ring-2 ring-[#0A0A0A]">24 €</div>
+            <div class="geo-pin">
+              <div class="head" style="background:#fff; border-color:#0A0A0A;">
+                <span class="material-symbols-rounded text-[22px] text-[#0A0A0A]">local_hospital</span>
+              </div>
+              <div class="tail" style="background:#fff;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold">4 · Goutte « destination » + prix au-dessus</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Icône du type de course (hôpital, clinique, gare...) dans le pin. Idéal transport sanitaire.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 5 — Goutte deux étages : prix + ETA             -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56">
+        <div class="absolute top-3 left-3 z-30 num">5</div>
+
+        <div class="absolute" style="left:50%; top:55%; transform:translate(-50%,-100%);">
+          <div class="geo-pin" style="width:64px; height:84px;">
+            <div class="head" style="width:64px; height:64px; background:var(--brand); flex-direction:column; gap:0; padding-top:6px;">
+              <div class="text-[14px] leading-none font-extrabold">24€</div>
+              <div class="text-[9px] mt-0.5 font-bold text-[#0A0A0A]/70">dans 8 min</div>
+            </div>
+            <div class="tail" style="background:var(--brand); bottom:0;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold">5 · Goutte 2 lignes : prix + ETA</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Deux infos d'un coup d'œil. Le pin est plus grand mais hyper informatif.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 6 — Sticker price tag (étiquette pliée)         -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56">
+        <div class="absolute top-3 left-3 z-30 num">6</div>
+
+        <div class="absolute" style="left:50%; top:60%; transform:translate(-50%,-100%);">
+          <!-- étiquette price tag avec trou et "ficelle" -->
+          <div class="relative bg-[var(--brand)] text-[#0A0A0A] font-extrabold pl-5 pr-3 py-2 ring-[3px] ring-[#0A0A0A] shadow-xl"
+               style="border-radius:6px 16px 16px 6px;">
+            <div class="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#0A0A0A]"></div>
+            <span class="text-base">24 €</span>
+          </div>
+          <!-- pointe -->
+          <div class="w-0 h-0 mx-auto"
+               style="border-left:8px solid transparent; border-right:8px solid transparent; border-top:10px solid #0A0A0A;"></div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold">6 · Étiquette de prix</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Sémantique « prix » immédiate. Forme distincte qui ne ressemble à rien d'autre sur la carte.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 7 — Goutte avec heure + halo urgence            -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56">
+        <div class="absolute top-3 left-3 z-30 num">7</div>
+
+        <div class="absolute" style="left:50%; top:55%; transform:translate(-50%,-100%);">
+          <div class="relative">
+            <div class="pulse-ring" style="background:rgba(239,68,68,0.4); width:80px; height:80px; top:30px;"></div>
+            <div class="geo-pin">
+              <div class="head" style="background:var(--brand); border-color:#EF4444;">
+                <span class="text-[15px]">24€</span>
+              </div>
+              <div class="tail" style="background:var(--brand);"></div>
+            </div>
+            <!-- badge urgence -->
+            <div class="badge-mini" style="top:-6px; right:-6px; background:#EF4444; color:#fff;">
+              <span class="material-symbols-rounded text-[10px] align-middle">bolt</span> 8min
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold">7 · Goutte + badge urgence pulsant</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Pour les courses qui partent bientôt. Halo rouge + badge ETA. Crée un sentiment d'urgence ciblé.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 8 — Capsule horizontale + pointe géoloc         -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56">
+        <div class="absolute top-3 left-3 z-30 num">8</div>
+
+        <div class="absolute" style="left:50%; top:55%; transform:translate(-50%,-100%);">
+          <!-- capsule -->
+          <div class="bg-white ring-[2.5px] ring-[#0A0A0A] rounded-full pl-1.5 pr-3 py-1 flex items-center gap-1.5 shadow-xl">
+            <div class="w-7 h-7 rounded-full bg-[var(--brand)] flex items-center justify-center">
+              <span class="material-symbols-rounded text-[15px] text-[#0A0A0A]">local_taxi</span>
+            </div>
+            <span class="text-[13px] font-extrabold">24 €</span>
+            <span class="text-[10px] text-[var(--ink-soft)]/60 font-bold">· 4,2 km</span>
+          </div>
+          <!-- pointe vers le sol (géoloc) -->
+          <div class="mx-auto w-0 h-0"
+               style="border-left:7px solid transparent; border-right:7px solid transparent; border-top:9px solid #0A0A0A;"></div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold">8 · Capsule riche + pointe géoloc</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Icône taxi + prix + distance, posée sur une pointe qui « plante » la position. Familier de Google Maps.</p>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- Démo de zoom — comment ça réagit selon densité                  -->
+  <!-- ============================================================== -->
+  <section class="max-w-6xl mx-auto mt-12">
+    <div class="flex items-baseline gap-3 mb-4">
+      <span class="section-title">Aperçu — plusieurs offres + ta position</span>
+    </div>
+
+    <div class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-[420px]">
+        <!-- Mehdi -->
+        <div class="absolute" style="left:48%; top:55%; transform:translate(-50%,-50%); z-index:25;">
+          <div class="driver-badge">
+            <div class="icon"><span class="material-symbols-rounded text-[18px] text-[#0A0A0A]">local_taxi</span></div>
+            <div class="leading-tight">
+              <div class="text-[11px] font-bold">Mehdi</div>
+              <div class="text-[10px] text-[var(--brand)] font-mono">AB-123-CD</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- offres style 1 -->
+        <div class="absolute" style="left:18%; top:25%;">
+          <div class="geo-pin"><div class="head" style="background:var(--brand);"><span class="text-[14px]">24€</span></div><div class="tail" style="background:var(--brand);"></div></div>
+          <div class="text-[9px] font-bold text-center mt-1 opacity-60">style 1</div>
+        </div>
+
+        <!-- offres style 2 -->
+        <div class="absolute" style="left:75%; top:22%;">
+          <div class="geo-pin"><div class="head" style="background:#0A0A0A; border-color:var(--brand);"><span class="text-[14px]" style="color:var(--brand);">42€</span></div><div class="tail" style="background:#0A0A0A;"></div></div>
+          <div class="text-[9px] font-bold text-center mt-1 opacity-60">style 2</div>
+        </div>
+
+        <!-- style 3 -->
+        <div class="absolute" style="left:13%; top:75%;">
+          <div class="flex items-end gap-1">
+            <div class="geo-pin" style="width:40px; height:52px;">
+              <div class="head" style="width:40px; height:40px; background:var(--brand);">
+                <span class="material-symbols-rounded text-[18px] text-[#0A0A0A]">local_taxi</span>
+              </div>
+              <div class="tail" style="background:var(--brand);"></div>
+            </div>
+            <div class="bg-[#0A0A0A] text-[var(--brand)] font-extrabold text-xs px-2 py-1 rounded-full mb-1 shadow-lg whitespace-nowrap">31 €</div>
+          </div>
+          <div class="text-[9px] font-bold text-center mt-1 opacity-60">style 3</div>
+        </div>
+
+        <!-- style 4 -->
+        <div class="absolute" style="left:80%; top:70%;">
+          <div class="relative">
+            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-[var(--brand)] text-[#0A0A0A] font-extrabold text-xs px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap ring-2 ring-[#0A0A0A]">52 €</div>
+            <div class="geo-pin">
+              <div class="head" style="background:#fff; border-color:#0A0A0A;">
+                <span class="material-symbols-rounded text-[22px] text-[#0A0A0A]">local_hospital</span>
+              </div>
+              <div class="tail" style="background:#fff;"></div>
+            </div>
+          </div>
+          <div class="text-[9px] font-bold text-center mt-1 opacity-60">style 4</div>
+        </div>
+
+        <!-- style 7 (urgent) -->
+        <div class="absolute" style="left:43%; top:18%;">
+          <div class="relative">
+            <div class="pulse-ring" style="background:rgba(239,68,68,0.4); width:80px; height:80px; top:30px;"></div>
+            <div class="geo-pin">
+              <div class="head" style="background:var(--brand); border-color:#EF4444;">
+                <span class="text-[14px]">18€</span>
+              </div>
+              <div class="tail" style="background:var(--brand);"></div>
+            </div>
+            <div class="badge-mini" style="top:-6px; right:-6px; background:#EF4444; color:#fff;">8min</div>
+          </div>
+          <div class="text-[9px] font-bold text-center mt-1 opacity-60">style 7</div>
+        </div>
+      </div>
+      <div class="p-4 border-t border-black/5 text-xs text-[var(--ink-soft)]/70">
+        Mélange de styles à titre de comparaison. En production tu choisis un seul style cohérent — éventuellement avec une variante « urgent » (style 7).
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- Footer choix                                                      -->
+  <!-- ============================================================== -->
+  <footer class="max-w-6xl mx-auto mt-10 mb-4">
+    <div class="bg-[#0A0A0A] text-white rounded-3xl p-5 md:p-6">
+      <p class="section-title" style="color:var(--brand);">Ton choix</p>
+      <p class="text-base mt-2">
+        Indique-moi le numéro (1 à 8). Tu peux aussi composer, ex.
+        <span class="bg-[var(--brand)] text-[#0A0A0A] font-mono px-2 py-0.5 rounded">5 par défaut + 7 pour les urgentes</span>.
+      </p>
+      <p class="text-sm mt-3 text-white/70">
+        Une fois choisi, j'adapte <span class="font-mono text-[var(--brand)]">missionMapPin.ts</span> et le CSS de <span class="font-mono text-[var(--brand)]">.mission-pin</span> dans <span class="font-mono text-[var(--brand)]">globals.css</span>.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
