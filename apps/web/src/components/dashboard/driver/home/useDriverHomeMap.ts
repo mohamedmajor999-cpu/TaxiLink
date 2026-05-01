@@ -36,22 +36,17 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
     let observer: ResizeObserver | null = null
     ;(async () => {
       const L = (await import('leaflet')).default
-      // Plugin side-effect : patche L.Map pour exposer rotate/touchRotate.
-      // A importer APRES leaflet, sinon les options sont ignorees.
-      await import('leaflet-rotate')
       if (cancelled || !containerRef.current) return
       const center = userCoords ?? { lat: MARSEILLE_FALLBACK[0], lng: MARSEILLE_FALLBACK[1] }
+      // Pas de rotation : avec des tuiles raster Mapbox, les labels (rues,
+      // villes) sont peints dans l'image et tourneraient avec la carte. La
+      // seule facon d'avoir des labels droits = tuiles vectorielles
+      // (MapLibre/Mapbox GL) — pas le scope ici. Ref : decision 2026-05-02.
       const map = L.map(containerRef.current, {
         zoomControl: true,
         attributionControl: false,
         scrollWheelZoom: true,
-        // Rotation 2 doigts (mobile) + touche Shift sur desktop. Pas de
-        // bearing par defaut : l'utilisateur l'oriente librement.
-        rotate: true,
-        touchRotate: true,
-        rotateControl: false,
-        // eslint-disable-next-line
-      } as any).setView([center.lat, center.lng], 9)
+      }).setView([center.lat, center.lng], 9)
       const initial = tileUrlFor('street', night)
       tileLayerRef.current = L.tileLayer(initial.url, initial.opts).addTo(map)
       map.zoomControl.setPosition('bottomleft')
