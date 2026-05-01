@@ -38,26 +38,27 @@ export function DriverHomeMap({
         aria-label="Carte des courses disponibles"
         role="application"
       />
-      {onToggleFullscreen && (
-        <button
-          type="button"
-          onClick={onToggleFullscreen}
-          aria-label={fullscreen ? 'Quitter le plein écran' : 'Carte en plein écran'}
-          className="md:hidden absolute bottom-[64px] right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
-        >
-          {fullscreen
-            ? <Minimize2 className="w-5 h-5" strokeWidth={2} />
-            : <Maximize2 className="w-5 h-5" strokeWidth={2} />}
-        </button>
-      )}
+      {/* Pile droite, du bas vers le haut : Localiser → Plein ecran → Satellite */}
       {userCoords && (
         <button
           type="button"
           onClick={recenter}
           aria-label="Recentrer sur ma position"
-          className="absolute bottom-3 right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
+          className="absolute bottom-[22px] right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
         >
           <LocateFixed className="w-5 h-5" strokeWidth={2} />
+        </button>
+      )}
+      {onToggleFullscreen && (
+        <button
+          type="button"
+          onClick={onToggleFullscreen}
+          aria-label={fullscreen ? 'Quitter le plein écran' : 'Carte en plein écran'}
+          className="md:hidden absolute bottom-[74px] right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
+        >
+          {fullscreen
+            ? <Minimize2 className="w-5 h-5" strokeWidth={2} />
+            : <Maximize2 className="w-5 h-5" strokeWidth={2} />}
         </button>
       )}
       <button
@@ -65,7 +66,7 @@ export function DriverHomeMap({
         onClick={toggleView}
         aria-label={view === 'satellite' ? 'Vue plan' : 'Vue satellite'}
         aria-pressed={view === 'satellite'}
-        className="absolute top-3 right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
+        className="absolute bottom-[126px] right-3 z-[500] w-11 h-11 rounded-full bg-white dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.2)] flex items-center justify-center text-ink dark:text-night-text hover:bg-warm-50 dark:hover:bg-night-elevated active:scale-95 transition-transform"
       >
         <Layers className="w-5 h-5" strokeWidth={view === 'satellite' ? 2.4 : 2} />
       </button>
