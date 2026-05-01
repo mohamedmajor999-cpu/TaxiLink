@@ -198,6 +198,7 @@ export type Database = {
       missions: {
         Row: {
           accepted_at: string | null
+          auto_completed: boolean
           client_id: string | null
           companion: boolean
           completed_at: string | null
@@ -211,14 +212,19 @@ export type Database = {
           destination_lng: number | null
           distance_km: number | null
           driver_id: string | null
+          dropoff_at: string | null
           duration_min: number | null
+          enroute_at: string | null
           static_duration_min: number | null
           id: string
           medical_motif: string | null
+          no_show: boolean
           notes: string | null
           passengers: number | null
           patient_name: string | null
           phone: string | null
+          pickup_at: string | null
+          pickup_signature_url: string | null
           price_eur: number | null
           price_min_eur: number | null
           price_max_eur: number | null
@@ -228,6 +234,7 @@ export type Database = {
           shared_by: string | null
           status: string
           transport_type: string | null
+          transport_voucher_url: string | null
           type: string
           updated_at: string
           view_count: number
@@ -235,6 +242,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          auto_completed?: boolean
           client_id?: string | null
           companion?: boolean
           completed_at?: string | null
@@ -248,14 +256,19 @@ export type Database = {
           destination_lng?: number | null
           distance_km?: number | null
           driver_id?: string | null
+          dropoff_at?: string | null
           duration_min?: number | null
+          enroute_at?: string | null
           static_duration_min?: number | null
           id?: string
           medical_motif?: string | null
+          no_show?: boolean
           notes?: string | null
           passengers?: number | null
           patient_name?: string | null
           phone?: string | null
+          pickup_at?: string | null
+          pickup_signature_url?: string | null
           price_eur?: number | null
           price_min_eur?: number | null
           price_max_eur?: number | null
@@ -265,6 +278,7 @@ export type Database = {
           shared_by?: string | null
           status?: string
           transport_type?: string | null
+          transport_voucher_url?: string | null
           type?: string
           updated_at?: string
           view_count?: number
@@ -272,6 +286,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          auto_completed?: boolean
           client_id?: string | null
           companion?: boolean
           completed_at?: string | null
@@ -285,14 +300,19 @@ export type Database = {
           destination_lng?: number | null
           distance_km?: number | null
           driver_id?: string | null
+          dropoff_at?: string | null
           duration_min?: number | null
+          enroute_at?: string | null
           static_duration_min?: number | null
           id?: string
           medical_motif?: string | null
+          no_show?: boolean
           notes?: string | null
           passengers?: number | null
           patient_name?: string | null
           phone?: string | null
+          pickup_at?: string | null
+          pickup_signature_url?: string | null
           price_eur?: number | null
           price_min_eur?: number | null
           price_max_eur?: number | null
@@ -302,6 +322,7 @@ export type Database = {
           shared_by?: string | null
           status?: string
           transport_type?: string | null
+          transport_voucher_url?: string | null
           type?: string
           updated_at?: string
           view_count?: number

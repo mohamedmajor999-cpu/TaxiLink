@@ -48,7 +48,7 @@ const __filename = fileURLToPath(import.meta.url)
 const SRC = join(dirname(__filename), '..')
 
 const violations = collectFiles(SRC)
-  .filter((f) => !EXCLUDED.has(f) && !f.startsWith('__tests__/'))
+  .filter((f) => !EXCLUDED.has(f) && !f.startsWith('__tests__/') && !/\.test\.tsx?$/.test(f))
   .map((rel) => ({ rel, max: maxLines(rel), lines: lineCount(join(SRC, rel)) }))
   .filter(({ max, lines }) => max !== null && lines > max!)
 

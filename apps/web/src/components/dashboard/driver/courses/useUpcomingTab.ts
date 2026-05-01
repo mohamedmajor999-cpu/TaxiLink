@@ -9,6 +9,19 @@ function sameDay(a: Date, b: Date) {
   return a.toDateString() === b.toDateString()
 }
 
+// Une course est "depassee" quand son heure de fin estimee + 60 min de
+// tolerance est dans le passe. Aligne avec le cron auto_complete_overdue_missions
+// (cf. 20260501_missions_auto_complete_cron.sql) — protege l'UI le temps que
+// le cron tourne, et masque aussi les courses ACCEPTED (manuelles) oubliees.
+const OVERDUE_TOLERANCE_MS = 60 * 60_000
+
+function isOverdue(m: Mission, now: number): boolean {
+  const start = new Date(m.scheduled_at).getTime()
+  const durationMin = Math.max(m.duration_min ?? Math.round((m.distance_km ?? 0) * 2.2), 15)
+  const end = start + durationMin * 60_000
+  return end + OVERDUE_TOLERANCE_MS < now
+}
+
 function labelDay(d: Date, today: Date, tomorrow: Date) {
   if (sameDay(d, today)) return `Aujourd'hui · ${d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}`
   if (sameDay(d, tomorrow)) return `Demain · ${d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}`
@@ -47,9 +60,25 @@ export function useUpcomingTab() {
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
 
+  // Course en cours = la mission IN_PROGRESS la plus recente. On la sort de
+  // l'agenda principal pour l'afficher en hero "Course en cours" (cf.
+  // CurrentCourseStrip dans UpcomingTab).
+  const current = useMemo(
+    () => missions.find((m) => m.status === 'IN_PROGRESS') ?? null,
+    [missions],
+  )
+
   const upcoming = useMemo(
-    () => missions.filter((m) => new Date(m.scheduled_at).getTime() >= today.getTime()),
-    [missions, today]
+    () => {
+      const nowMs = now.getTime()
+      return missions.filter(
+        (m) =>
+          m.status !== 'IN_PROGRESS'
+          && new Date(m.scheduled_at).getTime() >= today.getTime()
+          && !isOverdue(m, nowMs),
+      )
+    },
+    [missions, today, now]
   )
 
   const groups = useMemo<DayGroup[]>(() => {
@@ -87,6 +116,7 @@ export function useUpcomingTab() {
 
   return {
     loading, error, groups,
+    current,
     next, nextInMinutes,
     todayTotal, todayCount,
     tomorrowTotal, tomorrowCount,

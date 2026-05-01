@@ -7,6 +7,7 @@ import { NextMissionHero } from './NextMissionHero'
 import { UpcomingMissionCard } from './UpcomingMissionCard'
 import { AgendaTab } from './AgendaTab'
 import { CoursesEmptyOnboarding } from './CoursesEmptyOnboarding'
+import { CurrentCourseStrip } from './CurrentCourseStrip'
 import type { Mission } from '@/lib/supabase/types'
 
 type ViewMode = 'list' | 'week'
@@ -81,12 +82,13 @@ function UpcomingListView() {
     .map((g) => ({ ...g, missions: next ? g.missions.filter((m) => m.id !== next.id) : g.missions }))
     .filter((g) => g.missions.length > 0)
 
-  if (!next && groups.length === 0) {
+  if (!t.current && !next && groups.length === 0) {
     return <CoursesEmptyOnboarding onPostCourse={openCreer} />
   }
 
   return (
     <div>
+      {t.current && <CurrentCourseStrip mission={t.current} />}
       {next && <NextMissionHero mission={next} />}
       {groups.map((g) => (
         <DaySection key={g.key} group={g} onShowDetails={t.openDetails} />

@@ -196,3 +196,55 @@ describe('useHistoryTab — openDetail', () => {
     expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur/mission/abc-123')
   })
 })
+
+// ─── Recherche full-text ──────────────────────────────────────────────────────
+describe('useHistoryTab — recherche', () => {
+  function makeNamed(id: string, fields: { patient_name?: string; departure?: string; destination?: string }): Mission {
+    return {
+      id,
+      completed_at: daysAgo(1),
+      scheduled_at: daysAgo(1),
+      price_eur: 0,
+      distance_km: 0,
+      type: 'PRIVE',
+      patient_name: fields.patient_name ?? null,
+      departure: fields.departure ?? '',
+      destination: fields.destination ?? '',
+    } as unknown as Mission
+  }
+
+  it('filtre par nom de patient', async () => {
+    mockGetDoneByDriver.mockResolvedValueOnce([
+      makeNamed('m1', { patient_name: 'Jean Dupont' }),
+      makeNamed('m2', { patient_name: 'Marie Martin' }),
+    ])
+    const { result } = renderHook(() => useHistoryTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    act(() => result.current.setQuery('dupont'))
+    expect(result.current.filtered).toHaveLength(1)
+    expect(result.current.filtered[0].id).toBe('m1')
+  })
+
+  it('filtre par adresse insensible à la casse', async () => {
+    mockGetDoneByDriver.mockResolvedValueOnce([
+      makeNamed('m1', { departure: 'Hôpital Saint-Joseph', destination: 'Domicile' }),
+      makeNamed('m2', { departure: 'Gare', destination: 'Aéroport' }),
+    ])
+    const { result } = renderHook(() => useHistoryTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    act(() => result.current.setQuery('SAINT-JOSEPH'))
+    expect(result.current.filtered).toHaveLength(1)
+    expect(result.current.filtered[0].id).toBe('m1')
+  })
+
+  it('retourne tout quand la recherche est vide ou contient juste des espaces', async () => {
+    mockGetDoneByDriver.mockResolvedValueOnce([
+      makeNamed('m1', { patient_name: 'Alice' }),
+      makeNamed('m2', { patient_name: 'Bob' }),
+    ])
+    const { result } = renderHook(() => useHistoryTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    act(() => result.current.setQuery('   '))
+    expect(result.current.filtered).toHaveLength(2)
+  })
+})

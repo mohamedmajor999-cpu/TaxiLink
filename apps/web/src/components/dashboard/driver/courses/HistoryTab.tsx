@@ -1,11 +1,14 @@
 'use client'
-import { RideBadge } from '@/components/taxilink/RideBadge'
-import { useHistoryTab, type MonthGroup, type Period, type HistoryTypeFilter } from './useHistoryTab'
+import { Search, X } from 'lucide-react'
+import { useMemo } from 'react'
+import { useHistoryTab } from './useHistoryTab'
+import type { Period, HistoryTypeFilter } from './historyHelpers'
 import { HistoryKpiTiles } from './HistoryKpiTiles'
 import { HistoryQuarterCard } from './HistoryQuarterCard'
+import { HistoryHeatmap } from './HistoryHeatmap'
+import { HistoryRow, MonthSection } from './HistoryRow'
 import { useInvoiceGenerator } from './useInvoiceGenerator'
-import type { Mission } from '@/lib/supabase/types'
-import { computeDisplayFare } from '@/lib/missionFare'
+import { buildHeatmap } from '@/lib/historyHeatmap'
 
 const PERIOD_OPTIONS: { value: Period; label: string }[] = [
   { value: 'week', label: '7j' },
@@ -20,74 +23,13 @@ const TYPE_OPTIONS: { value: HistoryTypeFilter; label: string }[] = [
   { value: 'PRIVE', label: 'Privé' },
 ]
 
-function HistoryRow({
-  mission,
-  onClick,
-}: {
-  mission: Mission
-  onClick: () => void
-}) {
-  const d = new Date(mission.completed_at ?? mission.scheduled_at)
-  const dateLabel = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-  const badge =
-    mission.type === 'CPAM'
-      ? { variant: 'medical' as const, label: 'Médical' }
-      : mission.type === 'PRIVE'
-        ? { variant: 'private' as const, label: 'Privé' }
-        : { variant: 'fleet' as const, label: 'TaxiLink' }
-  const fare = computeDisplayFare(mission)
-  const priceLabel = fare.value > 0 ? `${fare.isEstimated ? '~' : ''}${fare.value.toFixed(0)}€` : '—'
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 border-b border-warm-100 last:border-b-0 hover:bg-warm-50 cursor-pointer text-left transition-colors"
-    >
-      <span className="text-[12px] text-warm-500 w-16 shrink-0">{dateLabel}</span>
-      <RideBadge variant={badge.variant}>{badge.label}</RideBadge>
-      <span className="flex-1 text-[13px] text-ink truncate">
-        {mission.departure} → {mission.destination}
-      </span>
-      <span className="text-[15px] font-bold text-ink tabular-nums tracking-tight" title={fare.isEstimated ? 'Tarif estimé' : undefined}>
-        {priceLabel}
-      </span>
-    </button>
-  )
-}
-
-function MonthSection({
-  group,
-  openDetail,
-}: {
-  group: MonthGroup
-  openDetail: (id: string) => void
-}) {
-  return (
-    <section className="mb-6">
-      <header className="flex items-end justify-between mb-2">
-        <h3 className="text-[11px] font-bold uppercase tracking-wider text-warm-500">
-          {group.label}
-        </h3>
-        <span className="text-[11px] text-warm-500">
-          {group.missions.length} course{group.missions.length > 1 ? 's' : ''} ·{' '}
-          {group.total.toLocaleString('fr-FR')}€
-        </span>
-      </header>
-      <ul className="rounded-2xl border border-warm-200 bg-paper overflow-hidden">
-        {group.missions.map((m) => (
-          <li key={m.id}>
-            <HistoryRow mission={m} onClick={() => openDetail(m.id)} />
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
 export function HistoryTab() {
   const h = useHistoryTab()
   const invoice = useInvoiceGenerator()
+
+  // Heatmap calculee sur l'ensemble des missions terminees (pas les filtrees)
+  // pour donner une vue 12 mois cohérente independante des filtres en cours.
+  const heatmapCells = useMemo(() => buildHeatmap(h.missions, 365), [h.missions])
 
   if (h.loading) {
     return (
@@ -114,6 +56,30 @@ export function HistoryTab() {
         avgPerRide={h.kpi.avgPerRide}
         cpamRatioPct={h.kpi.cpamRatioPct}
       />
+
+      {h.missions.length > 0 && <HistoryHeatmap cells={heatmapCells} />}
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-warm-500 pointer-events-none" strokeWidth={2} />
+        <input
+          type="search"
+          value={h.query}
+          onChange={(e) => h.setQuery(e.target.value)}
+          placeholder="Rechercher patient, adresse, motif…"
+          aria-label="Rechercher dans l'historique"
+          className="w-full h-11 pl-10 pr-10 rounded-2xl border border-warm-200 bg-paper text-[13.5px] text-ink placeholder:text-warm-500 focus:outline-none focus:border-ink"
+        />
+        {h.query && (
+          <button
+            type="button"
+            onClick={() => h.setQuery('')}
+            aria-label="Effacer la recherche"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full hover:bg-warm-100 inline-flex items-center justify-center"
+          >
+            <X className="w-3.5 h-3.5 text-warm-500" strokeWidth={2.4} />
+          </button>
+        )}
+      </div>
 
       <div className="flex gap-1.5 overflow-x-auto hide-scrollbar">
         {PERIOD_OPTIONS.map(({ value, label }) => (
@@ -167,12 +133,14 @@ export function HistoryTab() {
       {h.filtered.length === 0 && (
         <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
           <p className="text-[20px] font-bold leading-tight text-ink mb-2 tracking-tight">
-            Aucune course terminée
+            {h.query ? 'Aucun résultat' : 'Aucune course terminée'}
           </p>
           <p className="text-sm text-warm-600">
-            {h.period === 'all'
-              ? 'Vos courses terminées s’afficheront ici, regroupées par mois.'
-              : 'Aucune course sur cette période.'}
+            {h.query
+              ? `Aucune course ne correspond à « ${h.query} ».`
+              : h.period === 'all'
+                ? 'Vos courses terminées s’afficheront ici, regroupées par mois.'
+                : 'Aucune course sur cette période.'}
           </p>
         </div>
       )}

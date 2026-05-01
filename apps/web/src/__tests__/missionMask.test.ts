@@ -39,6 +39,13 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     companion: false,
     passengers: null,
     view_count: 0,
+    auto_completed: false,
+    no_show: false,
+    enroute_at: null,
+    pickup_at: null,
+    dropoff_at: null,
+    pickup_signature_url: null,
+    transport_voucher_url: null,
     ...overrides,
   }
 }

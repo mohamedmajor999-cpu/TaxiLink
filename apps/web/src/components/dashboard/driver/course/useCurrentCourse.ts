@@ -7,6 +7,9 @@ import { useDriverStore } from '@/store/driverStore'
 import { missionService } from '@/services/missionService'
 import { fetchOsrmRoute, type OsrmRoute } from '@/lib/osrmRoute'
 import { fetchGoogleRoutesTraffic, type TrafficEstimate } from '@/lib/googleRoutes'
+import { useMissionProgressActions } from '@/hooks/useMissionProgressActions'
+import { useCourseGeofence } from '@/hooks/useCourseGeofence'
+import { useMissionEvidence } from './useMissionEvidence'
 
 interface Coords { lat: number; lng: number }
 
@@ -21,6 +24,8 @@ export function useCurrentCourse() {
   const [cancelling, setCancelling] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
   const [completing, setCompleting] = useState(false)
+  const [noShowing, setNoShowing] = useState(false)
+  const [noShowOpen, setNoShowOpen] = useState(false)
 
   useEffect(() => {
     if (!user?.id) return
@@ -84,6 +89,21 @@ export function useCurrentCourse() {
     }
   }
 
+  const markNoShow = async (reason: string) => {
+    if (!mission) return
+    setNoShowing(true)
+    try {
+      await missionService.markNoShow(mission.id, reason)
+      router.push('/dashboard/chauffeur')
+    } catch {
+      setNoShowing(false)
+    }
+  }
+
+  const { step, advanceStep, advancing } = useMissionProgressActions(mission, setMission)
+  const evidence = useMissionEvidence(mission, setMission)
+  const geofence = useCourseGeofence(mission, setMission)
+
   const smsHref = mission?.phone ? buildSmsHref(mission.phone, driver.name || '') : null
   const wazeHref = to ? `https://waze.com/ul?ll=${to.lat}%2C${to.lng}&navigate=yes` : null
   const gmapsHref = buildGmapsHref(to, mission?.destination)
@@ -93,6 +113,10 @@ export function useCurrentCourse() {
     smsHref, wazeHref, gmapsHref,
     cancel, cancelling, cancelOpen, setCancelOpen,
     complete, completing,
+    markNoShow, noShowing, noShowOpen, setNoShowOpen,
+    step, advanceStep, advancing,
+    evidence,
+    geofence,
     currentUserId: user?.id ?? null,
   }
 }

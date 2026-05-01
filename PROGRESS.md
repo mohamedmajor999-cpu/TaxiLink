@@ -13,6 +13,64 @@ Choix laissé en suspens :
 
 ---
 
+## ✅ Terminé — Session 2026-05-01
+
+### Refonte mécanique des courses : auto-completion + cycle de vie + GPS + UX historique + preuves CPAM
+**Contexte** : le user a signalé qu'une course prise 2 h plus tôt était encore affichée dans "À venir". Diagnostic : rien ne fait passer une mission `IN_PROGRESS` en `DONE` automatiquement, et `getAgenda` retourne tout `driver_id = me AND status != DONE`. Refonte complète en 6 phases (P0–P5 + P2 GPS), 3 nouvelles migrations, 53 nouveaux tests (902 → 955), zéro régression. **Rien n'est commité, aucune migration appliquée** — code en local, à valider et pousser après tests.
+
+**P0 — Auto-completion temporelle**
+- Migration `20260501_missions_auto_complete_cron.sql` : pg_cron toutes les 15 min appelle `auto_complete_overdue_missions()` qui passe en `DONE` les courses `IN_PROGRESS` dont l'heure de fin estimée + 60 min de tolérance est passée. Durée estimée = `greatest(coalesce(duration_min, ceil(distance_km * 2.2), 30))` minutes.
+- Filtre client miroir dans [`useUpcomingTab`](apps/web/src/components/dashboard/driver/courses/useUpcomingTab.ts) : `isOverdue(m, now)` masque les courses déjà passées dans l'agenda côté UI sans attendre que le cron tourne.
+
+**P1 — Cycle de vie étendu (timestamps additifs, pas de nouveau status)**
+- Migration `20260501_missions_progress_timestamps.sql` : 5 nouvelles colonnes sur `missions` — `enroute_at`, `pickup_at`, `dropoff_at`, `no_show`, `auto_completed`. Refresh de la fonction d'auto-completion pour propager `auto_completed=true`. Choix : ne PAS toucher au champ `status` (RLS et code existant intacts) — l'étape est dérivée des timestamps.
+- Helper [`missionProgress.ts`](apps/web/src/lib/missionProgress.ts) : dérive l'étape (`accepted/enroute/onboard/dropped/done/no_show`) depuis les timestamps + table `PROGRESS_LABELS`.
+- Service [`missionProgressMutations.ts`](apps/web/src/services/missionProgressMutations.ts) : `markEnRoute`, `markOnBoard`, `markDropped` (ne clôturent pas la course — laissent le temps de saisir signature/prix/photo), `markNoShow` (clôture avec flag, motif tracé dans `notes`).
+- Mise à jour manuelle de [`types.ts`](apps/web/src/lib/supabase/types.ts) (auto-généré normalement, mais excluded). 3 mission factories de tests synchronisées.
+
+**P3 — UX wizard sur la course en cours + hero "course en cours"**
+- [`CourseProgressStepper`](apps/web/src/components/dashboard/driver/course/CourseProgressStepper.tsx) : barre de progression 4 étapes (Acceptée → En route → À bord → Déposé), pastille brand sur l'étape courante, ✓ ink sur les étapes franchies.
+- [`CourseActions`](apps/web/src/components/dashboard/driver/course/CourseActions.tsx) refondu : le bouton primaire change selon l'étape ("Je pars chercher le patient" → "Patient à bord" → "Patient déposé" → "Course terminée"). Icônes contextuelles (Navigation/UserCheck/UserMinus/CheckCircle2).
+- Hook partagé [`useMissionProgressActions`](apps/web/src/hooks/useMissionProgressActions.ts) (DRY entre `useCurrentCourse` et `useMissionDetail`) — extrait pour ne pas dépasser le seuil 150 lignes des hooks.
+- [`CurrentCourseStrip`](apps/web/src/components/dashboard/driver/courses/CurrentCourseStrip.tsx) : bandeau noir en haut de l'onglet "À venir" qui mène directement à l'écran course active. `useUpcomingTab` expose `current` (mission `IN_PROGRESS`) et l'exclut des groupes pour éviter le doublon.
+
+**P4 — Refonte historique : heatmap + recherche full-text + badge auto**
+- [`historyHeatmap.ts`](apps/web/src/lib/historyHeatmap.ts) + [`HistoryHeatmap.tsx`](apps/web/src/components/dashboard/driver/courses/HistoryHeatmap.tsx) : carte d'activité 12 mois style GitHub contributions, intensité quartilique 0..4 (échelle non-linéaire pour rendre visibles les jours peu chargés), tooltip "X courses · Y€", découpage en colonnes-semaines alignées lundi-dimanche, labels mois flottants.
+- Recherche full-text dans [`useHistoryTab`](apps/web/src/components/dashboard/driver/courses/useHistoryTab.ts) : insensible à la casse, filtre sur `patient_name`, `departure`, `destination`, `medical_motif`, `notes`. Input avec icône Search + bouton croix pour effacer.
+- Refacto pour passer sous les seuils : helpers purs extraits dans [`historyHelpers.ts`](apps/web/src/components/dashboard/driver/courses/historyHelpers.ts), [`HistoryRow.tsx`](apps/web/src/components/dashboard/driver/courses/HistoryRow.tsx) (`HistoryRow` + `MonthSection`).
+- Badge `auto` discret sur les courses clôturées par le cron (visibilité du flag `auto_completed`).
+
+**P5 — Preuves CPAM (signature patient + photo bon de transport)**
+- Migration `20260501_missions_evidence.sql` : colonnes `pickup_signature_url` + `transport_voucher_url` + bucket privé `mission-evidence` (`INSERT INTO storage.buckets ... ON CONFLICT DO NOTHING`) + 3 policies RLS sur `storage.objects` (read/insert/update). Convention de path : `<missionId>/signature.png` et `<missionId>/voucher.<ext>` — la RLS extrait le mission_id via `(storage.foldername(name))[1]` et vérifie que `mission.driver_id = auth.uid()`.
+- [`missionEvidenceService`](apps/web/src/services/missionEvidenceService.ts) : `uploadSignature(missionId, dataUrl)` (PNG via `fetch().blob()`), `uploadVoucher(missionId, file)` avec validation (8 Mo max, JPG/PNG/WEBP/PDF), `getSignedUrl(path)` TTL 5 min pour rendu temporaire — pas d'URL publique stockée, RGPD Article 9.
+- [`useSignaturePad`](apps/web/src/components/dashboard/driver/course/useSignaturePad.ts) : capture canvas tactile/souris (`pointerdown/move/up`) avec correction `devicePixelRatio` pour signature nette en retina/hi-DPI.
+- [`SignaturePadModal`](apps/web/src/components/dashboard/driver/course/SignaturePadModal.tsx) + [`EvidenceSection`](apps/web/src/components/dashboard/driver/course/EvidenceSection.tsx) : 2 tuiles (signature / bon transport) qui passent en vert ✓ après upload. Section visible **uniquement** sur les courses CPAM (filtre `mission.type === 'CPAM'`).
+- Photo bon : `<input type="file" capture="environment">` qui ouvre directement la caméra arrière sur mobile.
+
+**P2 — GPS auto-completion (geofencing foreground)**
+- [`geofence.ts`](apps/web/src/lib/geofence.ts) : Haversine + state machine `dwell` (`outside → entering → confirmed`), 100% pure et testable. Reset complet à la sortie de zone (anti-jitter inversé : oblige à re-attendre). `checkGeofence` renvoie `justConfirmed` qui ne se déclenche qu'une seule fois.
+- [`useCourseGeofence`](apps/web/src/hooks/useCourseGeofence.ts) : `navigator.geolocation.watchPosition` haute précision (`enableHighAccuracy: true`, `maximumAge: 5000`). Auto-`markOnBoard` si dans 80 m du pickup pendant 2 min, auto-`markDropped` si dans 100 m de la destination pendant 2 min. `missionRef` permet d'éviter les recreations du callback à chaque update mission.
+- [`GpsTrackingToggle`](apps/web/src/components/dashboard/driver/course/GpsTrackingToggle.tsx) : section opt-in toujours visible, avec statut live ("Recherche du signal", "📍 Approche du patient", "✓ Patient à bord (auto)", "📍 Approche destination") + précision affichée (±X m). Gère `denied` (permission refusée) et `unsupported`.
+- **Limites web-only documentées** : tracking s'arrête si l'app est en arrière-plan ou téléphone verrouillé. Capacitor + plugin background-geolocation à terme. Pas de filtre `accuracy > radius/2` actuellement (à itérer après tests terrain réels).
+
+**Tests** : 902 → 955 (+53), tous verts. Type-check OK.
+- Couverture nouvelle : `geofence` (12), `historyHeatmap` (5), `missionEvidenceService` (8), `missionProgressMutations` (9), `missionProgress` (8), `useMissionProgressActions` (6), `useUpcomingTab` (+5 pour overdue + IN_PROGRESS), `useHistoryTab` (+3 pour recherche).
+- Refacto fileSize.test.ts : exclut désormais `*.test.ts` co-localisés (un seul existant : `lib/missionMapper.test.ts`).
+
+**Migrations à appliquer dans cet ordre sur Supabase (non appliquées)**
+1. `20260501_missions_auto_complete_cron.sql`
+2. `20260501_missions_progress_timestamps.sql`
+3. `20260501_missions_evidence.sql`
+
+⚠️ **Vérification post-migration P5** : confirmer dans Supabase Dashboard → Storage que le bucket `mission-evidence` a bien été créé. Sinon, le créer manuellement (privé, name=`mission-evidence`, public=off).
+
+**À faire après application**
+- Tester en local (`npm run web`) le flow complet : `AVAILABLE` → accept → `IN_PROGRESS` → wizard étape par étape → signature CPAM → photo bon → "Course terminée".
+- Tester sur mobile réel le canvas de signature (tactile haute densité) + le tracking GPS (rayon 80 m sur un vrai trajet).
+- `/schedule` un agent dans 2 semaines pour vérifier que le cron auto-completion tourne bien en prod et nettoyer d'éventuelles courses test orphelines.
+
+---
+
 ## ✅ Terminé — Session 2026-04-30
 
 ### Dashboard admin `/dashboard/admin` — 4 phases livrées

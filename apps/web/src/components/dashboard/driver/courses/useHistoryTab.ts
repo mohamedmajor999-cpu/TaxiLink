@@ -3,86 +3,15 @@ import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
-import { computeDisplayFare } from '@/lib/missionFare'
 import type { Mission } from '@/lib/supabase/types'
+import {
+  filterByPeriod, filterByType, filterByQuery,
+  buildGroups, exportCsv, fareValue,
+  type Period, type HistoryTypeFilter, type MonthGroup,
+} from './historyHelpers'
 
-// Renvoie le montant a afficher pour une mission : prix saisi sinon estimation
-// CPAM/prefectorale calculee a partir de date/distance/duree.
-function fareValue(m: Mission): number {
-  return computeDisplayFare(m).value
-}
-
-export type Period = 'week' | 'month' | 'quarter' | 'all'
-export type HistoryTypeFilter = 'ALL' | 'CPAM' | 'PRIVE'
-
-export interface MonthGroup {
-  key: string
-  label: string
-  total: number
-  missions: Mission[]
-}
-
-const MONTHS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
-
-function filterByPeriod(missions: Mission[], period: Period): Mission[] {
-  if (period === 'all') return missions
-  const now = Date.now()
-  const days = period === 'week' ? 7 : period === 'month' ? 30 : 90
-  const ms = days * 24 * 3600 * 1000
-  return missions.filter((m) => {
-    const d = new Date(m.completed_at ?? m.scheduled_at).getTime()
-    return now - d <= ms
-  })
-}
-
-function filterByType(missions: Mission[], type: HistoryTypeFilter): Mission[] {
-  if (type === 'ALL') return missions
-  return missions.filter((m) => m.type === type)
-}
-
-function exportCsv(missions: Mission[]) {
-  const header = 'Date,Départ,Destination,Type,Prix (€),Distance (km)'
-  const rows = missions.map((m) =>
-    [
-      new Date(m.completed_at ?? m.scheduled_at).toLocaleDateString('fr-FR'),
-      `"${m.departure}"`,
-      `"${m.destination}"`,
-      m.type,
-      fareValue(m),
-      m.distance_km ?? 0,
-    ].join(',')
-  )
-  const csv = [header, ...rows].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'courses-taxilink.csv'
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-function buildGroups(missions: Mission[]): MonthGroup[] {
-  const map = new Map<string, Mission[]>()
-  for (const m of missions) {
-    const d = new Date(m.completed_at ?? m.scheduled_at)
-    const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}`
-    const list = map.get(key) ?? []
-    list.push(m)
-    map.set(key, list)
-  }
-  return Array.from(map.entries())
-    .map(([key, list]) => {
-      const d = new Date(list[0].completed_at ?? list[0].scheduled_at)
-      return {
-        key,
-        label: `${MONTHS_FR[d.getMonth()]} ${d.getFullYear()}`.toUpperCase(),
-        total: list.reduce((s, m) => s + fareValue(m), 0),
-        missions: list,
-      }
-    })
-    .sort((a, b) => b.key.localeCompare(a.key))
-}
+// Re-exports pour compat avec les consommateurs (HistoryTab, tests).
+export type { Period, HistoryTypeFilter, MonthGroup }
 
 export function useHistoryTab() {
   const { user } = useAuth()
@@ -92,6 +21,7 @@ export function useHistoryTab() {
   const [error, setError] = useState<string | null>(null)
   const [period, setPeriod] = useState<Period>('all')
   const [typeFilter, setTypeFilter] = useState<HistoryTypeFilter>('ALL')
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     if (!user) return
@@ -103,7 +33,8 @@ export function useHistoryTab() {
   }, [user])
 
   const periodFiltered = useMemo(() => filterByPeriod(missions, period), [missions, period])
-  const filtered = useMemo(() => filterByType(periodFiltered, typeFilter), [periodFiltered, typeFilter])
+  const typeFiltered = useMemo(() => filterByType(periodFiltered, typeFilter), [periodFiltered, typeFilter])
+  const filtered = useMemo(() => filterByQuery(typeFiltered, query), [typeFiltered, query])
 
   const stats = useMemo(
     () => ({
@@ -121,7 +52,6 @@ export function useHistoryTab() {
     return { total: stats.total, count: stats.count, avgPerRide: avg, cpamRatioPct: cpamRatio }
   }, [filtered, stats])
 
-  // Groups are only used for the 'all' view
   const groups = useMemo(() => buildGroups(filtered), [filtered])
 
   const handleExportCsv = useCallback(() => exportCsv(filtered), [filtered])
@@ -131,5 +61,12 @@ export function useHistoryTab() {
     [router]
   )
 
-  return { loading, error, period, setPeriod, typeFilter, setTypeFilter, filtered, stats, kpi, groups, handleExportCsv, openDetail }
+  return {
+    loading, error,
+    period, setPeriod,
+    typeFilter, setTypeFilter,
+    query, setQuery,
+    missions, filtered, stats, kpi, groups,
+    handleExportCsv, openDetail,
+  }
 }

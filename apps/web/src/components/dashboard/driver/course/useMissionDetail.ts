@@ -8,6 +8,7 @@ import { missionViewsService } from '@/services/missionViewsService'
 import { fetchOsrmRoute, type OsrmRoute } from '@/lib/osrmRoute'
 import { fetchGoogleRoutesTraffic, type TrafficEstimate } from '@/lib/googleRoutes'
 import { maskMissionForViewer, canSeeFullMission } from '@/lib/missionMask'
+import { useMissionProgressActions } from '@/hooks/useMissionProgressActions'
 
 interface Coords { lat: number; lng: number }
 
@@ -106,6 +107,8 @@ export function useMissionDetail(missionId: string) {
     }
   }
 
+  const { step, advanceStep, advancing } = useMissionProgressActions(mission, setMission)
+
   const smsHref = mission?.phone
     ? buildSmsHref(mission.phone, driver.name || '')
     : null
@@ -120,6 +123,7 @@ export function useMissionDetail(missionId: string) {
     cancel, cancelling, cancelOpen, setCancelOpen,
     complete, completing,
     correct, correcting,
+    step, advanceStep, advancing,
   }
 }
 

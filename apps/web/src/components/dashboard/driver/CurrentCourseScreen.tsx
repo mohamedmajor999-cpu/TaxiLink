@@ -7,9 +7,14 @@ import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
 import { useCurrentCourse } from './course/useCurrentCourse'
 import { CancelMissionDialog } from './course/CancelMissionDialog'
+import { NoShowDialog } from './course/NoShowDialog'
 import { CourseTopStats } from './course/CourseTopStats'
 import { CourseDetailsTable } from './course/CourseDetailsTable'
 import { CourseActions } from './course/CourseActions'
+import { CourseProgressStepper } from './course/CourseProgressStepper'
+import { EvidenceSection } from './course/EvidenceSection'
+import { SignaturePadModal } from './course/SignaturePadModal'
+import { GpsTrackingToggle } from './course/GpsTrackingToggle'
 
 const CourseMap = dynamic(() => import('./course/CourseMap').then((m) => m.CourseMap), { ssr: false })
 
@@ -88,13 +93,39 @@ export function CurrentCourseScreen({ onBack }: Props = {}) {
 
       <CourseDetailsTable mission={mission} />
 
+      <div className="rounded-2xl border border-warm-200 bg-paper p-4 mb-3">
+        <CourseProgressStepper step={c.step} />
+      </div>
+
+      <GpsTrackingToggle
+        enabled={c.geofence.enabled}
+        status={c.geofence.status}
+        accuracyM={c.geofence.accuracyM}
+        onEnable={c.geofence.enable}
+        onDisable={c.geofence.disable}
+      />
+
+      {mission.type === 'CPAM' && (
+        <EvidenceSection
+          signatureSaved={c.evidence.signatureSaved}
+          voucherSaved={c.evidence.voucherSaved}
+          uploading={c.evidence.uploading}
+          onOpenSignature={c.evidence.openSignature}
+          onPickVoucher={c.evidence.submitVoucher}
+        />
+      )}
+
       <CourseActions
         phone={mission.phone}
         smsHref={c.smsHref}
         wazeHref={c.wazeHref}
         gmapsHref={c.gmapsHref}
+        step={c.step}
+        onAdvance={c.advanceStep}
         onComplete={c.complete}
         onCancel={() => c.setCancelOpen(true)}
+        onNoShow={() => c.setNoShowOpen(true)}
+        advancing={c.advancing}
         completing={c.completing}
       />
 
@@ -103,6 +134,20 @@ export function CurrentCourseScreen({ onBack }: Props = {}) {
         submitting={c.cancelling}
         onClose={() => c.setCancelOpen(false)}
         onSubmit={c.cancel}
+      />
+
+      <SignaturePadModal
+        open={c.evidence.signatureOpen}
+        submitting={c.evidence.uploading === 'signature'}
+        onClose={c.evidence.closeSignature}
+        onSubmit={c.evidence.submitSignature}
+      />
+
+      <NoShowDialog
+        open={c.noShowOpen}
+        submitting={c.noShowing}
+        onClose={() => c.setNoShowOpen(false)}
+        onSubmit={c.markNoShow}
       />
     </div>
   )
