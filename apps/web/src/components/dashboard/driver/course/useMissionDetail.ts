@@ -94,6 +94,18 @@ export function useMissionDetail(missionId: string) {
     }
   }
 
+  const [correcting, setCorrecting] = useState(false)
+  const correct = async (patch: Parameters<typeof missionService.correct>[1]) => {
+    if (!mission) return
+    setCorrecting(true)
+    try {
+      const updated = await missionService.correct(mission.id, patch)
+      setMission(maskMissionForViewer(updated, driver.id || null))
+    } finally {
+      setCorrecting(false)
+    }
+  }
+
   const smsHref = mission?.phone
     ? buildSmsHref(mission.phone, driver.name || '')
     : null
@@ -107,6 +119,7 @@ export function useMissionDetail(missionId: string) {
     smsHref, wazeHref, gmapsHref,
     cancel, cancelling, cancelOpen, setCancelOpen,
     complete, completing,
+    correct, correcting,
   }
 }
 

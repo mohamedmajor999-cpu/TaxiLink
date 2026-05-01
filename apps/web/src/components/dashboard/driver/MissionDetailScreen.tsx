@@ -5,11 +5,13 @@ import { ArrowLeft, Lock } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
+import { useDriverStore } from '@/store/driverStore'
 import { useMissionDetail } from './course/useMissionDetail'
 import { CancelMissionDialog } from './course/CancelMissionDialog'
 import { CourseTopStats } from './course/CourseTopStats'
 import { CourseDetailsTable } from './course/CourseDetailsTable'
 import { CourseActions } from './course/CourseActions'
+import { CourseCorrections } from './course/CourseCorrections'
 
 const CourseMap = dynamic(() => import('./course/CourseMap').then((m) => m.CourseMap), { ssr: false })
 
@@ -22,6 +24,7 @@ interface Props {
 
 export function MissionDetailScreen({ missionId, onBack }: Props) {
   const c = useMissionDetail(missionId)
+  const driverId = useDriverStore((s) => s.driver.id)
 
   if (c.loading) return <Shell onBack={onBack}><div className="h-64 rounded-3xl bg-warm-100 motion-safe:animate-pulse mb-3" /></Shell>
   if (!c.mission) return (
@@ -104,6 +107,13 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
           to={addressAsPoint(mission.destination)}
         />
       </div>
+
+      <CourseCorrections
+        mission={mission}
+        driverId={driverId || null}
+        saving={c.correcting}
+        onCorrect={c.correct}
+      />
 
       <CourseDetailsTable mission={mission} />
 
