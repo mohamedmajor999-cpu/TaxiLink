@@ -50,7 +50,7 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
         rotate: true,
         touchRotate: true,
         rotateControl: false,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line
       } as any).setView([center.lat, center.lng], 9)
       const initial = tileUrlFor('street', night)
       tileLayerRef.current = L.tileLayer(initial.url, initial.opts).addTo(map)
