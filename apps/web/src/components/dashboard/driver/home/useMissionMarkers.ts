@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, type RefObject } from 'react'
-import type { Map as LeafletMap, Marker } from 'leaflet'
+import type { Map as LeafletMap, Marker, MarkerClusterGroup } from 'leaflet'
 import type { Mission } from '@/lib/supabase/types'
 import { getMinutesUntil } from '@/lib/dateUtils'
 import { createMissionPinIcon, formatMissionPriceLabel } from './missionMapPin'
@@ -17,12 +17,20 @@ interface Params {
   onSelect: (id: string) => void
 }
 
+// Genere l'icone d'un cluster (sphere jaune avec compteur). La taille
+// croit avec la densite : sm < 10, md < 50, lg sinon.
+function clusterIconHtml(count: number): { html: string; className: string; size: number } {
+  const sizeClass = count < 10 ? '' : count < 50 ? 'lg' : 'xl'
+  const size = count < 10 ? 44 : count < 50 ? 56 : 68
+  const html = `<div class="mission-cluster ${sizeClass}">${count}</div>`
+  return { html, className: '', size }
+}
+
 export function useMissionMarkers({ mapRef, missions, selectedId, onSelect }: Params) {
+  const clusterGroupRef = useRef<MarkerClusterGroup | null>(null)
   const markersRef = useRef<Map<string, MarkerWithSig>>(new Map())
   const onSelectRef = useRef(onSelect)
   onSelectRef.current = onSelect
-  // Les effets ne depend pas de `missions` pour le flyTo : evite la relance a chaque
-  // diff realtime. On lit la derniere valeur via ref au moment du changement de selection.
   const missionsRef = useRef(missions)
   missionsRef.current = missions
 
@@ -32,7 +40,32 @@ export function useMissionMarkers({ mapRef, missions, selectedId, onSelect }: Pa
     let cancelled = false
     ;(async () => {
       const L = (await import('leaflet')).default
+      await import('leaflet.markercluster')
       if (cancelled) return
+      // Cree le groupe une fois et le reutilise. Important : sans
+      // ce groupe persistant, chaque diff realtime detruirait/recreerait
+      // tous les markers (spider/expand state perdu, flicker visuel).
+      if (!clusterGroupRef.current) {
+        const group = L.markerClusterGroup({
+          maxClusterRadius: 60,
+          spiderfyOnMaxZoom: true,
+          showCoverageOnHover: false,
+          zoomToBoundsOnClick: true,
+          chunkedLoading: true,
+          iconCreateFunction: (c) => {
+            const cfg = clusterIconHtml(c.getChildCount())
+            return L.divIcon({
+              html: cfg.html,
+              className: cfg.className,
+              iconSize: [cfg.size, cfg.size],
+              iconAnchor: [cfg.size / 2, cfg.size / 2],
+            })
+          },
+        })
+        clusterGroupRef.current = group
+        map.addLayer(group)
+      }
+      const group = clusterGroupRef.current!
       const positions = computeMarkerPositions(missions)
       const seen = new Set<string>()
       for (const m of missions) {
@@ -56,21 +89,32 @@ export function useMissionMarkers({ mapRef, missions, selectedId, onSelect }: Pa
           const icon = await createMissionPinIcon({ priceLabel, selected, urgent })
           if (cancelled) return
           const marker = L.marker(pos, { icon, riseOnHover: true })
-            .on('click', () => onSelectRef.current(m.id))
-            .addTo(map) as MarkerWithSig
+            .on('click', () => onSelectRef.current(m.id)) as MarkerWithSig
           marker.__sig = sig
           markersRef.current.set(m.id, marker)
+          group.addLayer(marker)
         }
       }
       markersRef.current.forEach((marker, id) => {
         if (!seen.has(id)) {
-          marker.remove()
+          group.removeLayer(marker)
           markersRef.current.delete(id)
         }
       })
     })()
     return () => { cancelled = true }
   }, [missions, selectedId, mapRef])
+
+  // Cleanup du groupe au demontage du hook (pas a chaque diff de missions).
+  useEffect(() => {
+    return () => {
+      const map = mapRef.current
+      const group = clusterGroupRef.current
+      if (map && group) map.removeLayer(group)
+      clusterGroupRef.current = null
+      markersRef.current.clear()
+    }
+  }, [mapRef])
 
   useEffect(() => {
     const map = mapRef.current

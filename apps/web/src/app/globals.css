@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import 'leaflet/dist/leaflet.css';
+@import 'leaflet.markercluster/dist/MarkerCluster.css';
 
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 
@@ -151,6 +152,41 @@ body {
   z-index: 2;
 }
 .leaflet-div-icon { background: transparent; border: none; }
+
+/* ============================================================
+ * Cluster d'offres (style Apple) : sphere jaune avec compteur.
+ * Apparait au dezoom, eclate au clic en pins prix individuels.
+ * Tailles : default <10, .lg <50, .xl 50+.
+ * ============================================================ */
+.mission-cluster {
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 32% 28%, #FFF1A8 0%, #FFD11A 55%, #E5B800 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: #1A1A1A;
+  cursor: pointer;
+  user-select: none;
+  box-shadow:
+    0 0 0 0.5px rgba(10,10,10,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    inset 0 -2px 0 rgba(0,0,0,0.10),
+    0 4px 12px -2px rgba(0,0,0,0.20),
+    0 16px 32px -10px rgba(0,0,0,0.22);
+  transition: transform 0.15s ease;
+}
+.mission-cluster:hover { transform: scale(1.06); }
+.mission-cluster.lg { width: 56px; height: 56px; font-size: 16px; }
+.mission-cluster.xl { width: 68px; height: 68px; font-size: 18px; }
+
+/* Override leaflet.markercluster defaults (qui injectent un cercle bleu) */
+.marker-cluster, .marker-cluster div { background: transparent !important; }
+.marker-cluster span { display: none; }
 
 /* ============================================================
  * Marqueur chauffeur — carre arrondi jaune avec icone taxi
