@@ -13,10 +13,9 @@ interface Params {
   userAccuracy: number | null
   night?: boolean
   driverName: string
-  driverPlate?: string | null
 }
 
-export function useDriverHomeMap({ userCoords, userAccuracy, night, driverName, driverPlate }: Params) {
+export function useDriverHomeMap({ userCoords, userAccuracy, night, driverName }: Params) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<LeafletMap | null>(null)
   const meMarkerRef = useRef<Marker | null>(null)
@@ -108,7 +107,7 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night, driverName, 
       if (meMarkerRef.current) {
         meMarkerRef.current.setLatLng(pos)
       } else {
-        const icon = await createDriverPillIcon({ firstName: driverName, plate: driverPlate })
+        const icon = await createDriverPillIcon({ firstName: driverName })
         if (cancelled) return
         meMarkerRef.current = L.marker(pos, { icon, interactive: false, keyboard: false, zIndexOffset: 1000 }).addTo(map)
       }
@@ -142,18 +141,18 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night, driverName, 
     return () => { cancelled = true }
   }, [userCoords, userAccuracy])
 
-  // Met a jour le contenu du pill (prenom + plaque) si profil change apres affichage initial.
+  // Met a jour le prenom dans le pill si le profil change apres affichage initial.
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       const marker = meMarkerRef.current
       if (!marker) return
-      const icon = await createDriverPillIcon({ firstName: driverName, plate: driverPlate })
+      const icon = await createDriverPillIcon({ firstName: driverName })
       if (cancelled) return
       marker.setIcon(icon)
     })()
     return () => { cancelled = true }
-  }, [driverName, driverPlate])
+  }, [driverName])
 
   return { containerRef, recenter, mapRef }
 }
