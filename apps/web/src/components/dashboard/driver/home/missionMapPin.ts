@@ -8,14 +8,6 @@ interface PinOptions {
   urgent: boolean
 }
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
-
 export async function createMissionPinIcon(opts: PinOptions): Promise<DivIcon> {
   const L = (await import('leaflet')).default
   const classes = ['mission-pin']
@@ -29,17 +21,12 @@ export async function createMissionPinIcon(opts: PinOptions): Promise<DivIcon> {
   })
 }
 
-// Pilule chauffeur : icone taxi sur carre arrondi jaune + prenom du
-// profil connecte. Remplace l'ancien PNG /brand/icon.svg.
-export async function createDriverPillIcon(args: { firstName: string }): Promise<DivIcon> {
+// Marqueur chauffeur : carre arrondi jaune avec icone taxi noire.
+// Remplace l'ancien PNG /brand/icon.svg.
+export async function createDriverIcon(): Promise<DivIcon> {
   const L = (await import('leaflet')).default
-  const name = escapeHtml((args.firstName || 'Vous').trim() || 'Vous')
   return L.divIcon({
-    html:
-      '<div class="me-driver-pill">' +
-      '<div class="me-driver-icon"><span class="material-symbols-outlined">local_taxi</span></div>' +
-      `<div class="me-driver-name">${name}</div>` +
-      '</div>',
+    html: '<div class="me-driver-icon"><span class="material-symbols-outlined">local_taxi</span></div>',
     className: '',
     iconSize: [0, 0],
     iconAnchor: [0, 0],

@@ -83,7 +83,6 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
             fullscreen={mapFullscreen}
             onToggleFullscreen={() => onMapFullscreenChange(!mapFullscreen)}
             night={night.active}
-            driverName={(h.driver.name || 'Vous').split(' ')[0]!}
           />
           <DriverHomeTopOverlay
             isOnline={h.driver.isOnline}
