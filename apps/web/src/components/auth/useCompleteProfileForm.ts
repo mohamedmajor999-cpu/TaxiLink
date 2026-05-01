@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { profileService } from '@/services/profileService'
+import { createClient } from '@/lib/supabase/client'
 import { isValidPhone } from '@/lib/validators'
 
 interface Args {
@@ -36,6 +37,11 @@ export function useCompleteProfileForm({
         last_name:  lastName.trim(),
         phone:      phone.trim(),
       })
+      // Le trigger SQL met a jour app_metadata.profile_complete sur auth.users,
+      // mais le JWT en cache cote client est anterieur. On force un refresh
+      // pour que le middleware lise immediatement le nouveau claim et ne
+      // redirige pas en boucle vers /auth/complete-profile.
+      await createClient().auth.refreshSession()
       router.replace(redirectTo)
       router.refresh()
     } catch (err) {
