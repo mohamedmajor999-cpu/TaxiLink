@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef } from 'react'
 import type { Map as LeafletMap, Marker, Circle } from 'leaflet'
-import { createMeMarkerIcon } from './missionMapPin'
+import { createDriverPillIcon } from './missionMapPin'
 
 const MARSEILLE_FALLBACK: [number, number] = [43.2965, 5.3698]
 const MAPBOX_STYLE_DAY = 'streets-v12'
@@ -12,9 +12,11 @@ interface Params {
   userCoords: { lat: number; lng: number } | null
   userAccuracy: number | null
   night?: boolean
+  driverName: string
+  driverPlate?: string | null
 }
 
-export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
+export function useDriverHomeMap({ userCoords, userAccuracy, night, driverName, driverPlate }: Params) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<LeafletMap | null>(null)
   const meMarkerRef = useRef<Marker | null>(null)
@@ -106,7 +108,7 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
       if (meMarkerRef.current) {
         meMarkerRef.current.setLatLng(pos)
       } else {
-        const icon = await createMeMarkerIcon()
+        const icon = await createDriverPillIcon({ firstName: driverName, plate: driverPlate })
         if (cancelled) return
         meMarkerRef.current = L.marker(pos, { icon, interactive: false, keyboard: false, zIndexOffset: 1000 }).addTo(map)
       }
@@ -139,6 +141,19 @@ export function useDriverHomeMap({ userCoords, userAccuracy, night }: Params) {
     })()
     return () => { cancelled = true }
   }, [userCoords, userAccuracy])
+
+  // Met a jour le contenu du pill (prenom + plaque) si profil change apres affichage initial.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      const marker = meMarkerRef.current
+      if (!marker) return
+      const icon = await createDriverPillIcon({ firstName: driverName, plate: driverPlate })
+      if (cancelled) return
+      marker.setIcon(icon)
+    })()
+    return () => { cancelled = true }
+  }, [driverName, driverPlate])
 
   return { containerRef, recenter, mapRef }
 }

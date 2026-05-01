@@ -6,6 +6,17 @@ interface PinOptions {
   priceLabel: string
   selected: boolean
   urgent: boolean
+  // Quand > 1, le pin represente N annonces empilees (meme adresse) :
+  // affiche le prix passe + badge "+N-1" et applique le visuel stacked.
+  count?: number
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
 }
 
 export async function createMissionPinIcon(opts: PinOptions): Promise<DivIcon> {
@@ -13,28 +24,38 @@ export async function createMissionPinIcon(opts: PinOptions): Promise<DivIcon> {
   const classes = ['mission-pin']
   if (opts.selected) classes.push('selected')
   if (opts.urgent) classes.push('urgent')
+  const stacked = opts.count != null && opts.count > 1
+  if (stacked) classes.push('stacked')
+  const stackCard = stacked ? '<span class="mp-stack-card"></span>' : ''
+  const countBadge = stacked
+    ? `<span class="mp-count">+${opts.count! - 1}</span>`
+    : ''
   return L.divIcon({
-    html: `<div class="${classes.join(' ')}">${opts.priceLabel}</div>`,
+    html: `<div class="${classes.join(' ')}">${stackCard}${escapeHtml(opts.priceLabel)}${countBadge}</div>`,
     className: '',
     iconSize: [0, 0],
-    iconAnchor: [0, -6],
+    iconAnchor: [0, 0],
   })
 }
 
-export async function createMeMarkerIcon() {
+export async function createDriverPillIcon(args: { firstName: string; plate?: string | null }): Promise<DivIcon> {
   const L = (await import('leaflet')).default
-  return L.icon({
-    iconUrl: '/brand/icon.svg',
-    iconSize: [36, 51],
-    iconAnchor: [18, 48],
-    className: 'me-marker-taxi',
+  const name = escapeHtml((args.firstName || 'Vous').trim() || 'Vous')
+  const plate = args.plate?.trim() ? escapeHtml(args.plate.trim()) : ''
+  const plateHtml = plate ? `<div class="me-driver-plate">${plate}</div>` : ''
+  return L.divIcon({
+    html:
+      '<div class="me-driver-pill">' +
+      '<div class="me-driver-icon"><span class="material-symbols-outlined">local_taxi</span></div>' +
+      `<div class="me-driver-info"><div class="me-driver-name">${name}</div>${plateHtml}</div>` +
+      '</div>',
+    className: '',
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
   })
 }
 
 export function formatMissionPriceLabel(m: Mission): string {
   const value = computeDisplayFare(m).value
-  const rounded = Number.isInteger(value)
-    ? value.toFixed(0)
-    : value.toFixed(2).replace(/0$/, '').replace(/\.$/, '')
-  return `${rounded.replace('.', ',')} €`
+  return `${value.toFixed(2).replace('.', ',')} €`
 }

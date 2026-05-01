@@ -5,6 +5,7 @@ export interface Driver {
   phone?: string
   vehicle?: string
   vehicleType?: string
+  vehiclePlate?: string
   cpamEnabled: boolean
   rating: number
   totalRides: number

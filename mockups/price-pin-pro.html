@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pins prix — direction pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,-50..200" />
+<style>
+  :root {
+    --ink:#0A0A0A;
+    --ink-2:#171717;
+    --ink-3:#262626;
+    --line:rgba(10,10,10,0.08);
+    --line-strong:rgba(10,10,10,0.14);
+    --brand:#FFD11A;
+    --brand-2:#FFE066;
+    --brand-deep:#E5B800;
+    --warm:#7E7669;
+    --paper:#FFFFFF;
+    --bg:#F2EDE2;
+    --danger:#DC2626;
+  }
+  * { -webkit-font-smoothing:antialiased; }
+  html, body {
+    font-family:'Inter Tight','Inter',system-ui,sans-serif;
+    font-feature-settings:"tnum" 1, "cv11" 1, "ss01" 1;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-0.01em;
+  }
+  body { background:var(--bg); color:var(--ink); }
+  .mono { font-family:'JetBrains Mono',ui-monospace,monospace; }
+
+  /* ============ Map background — plus épuré et pro ============ */
+  .map {
+    position:relative;
+    background:
+      radial-gradient(ellipse 70% 50% at 30% 20%, #FAF7EE 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 75% 75%, #EFE8D6 0%, transparent 55%),
+      linear-gradient(180deg, #F4F0E5 0%, #ECE5D2 100%);
+    overflow:hidden;
+  }
+  .map::before {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background-image:
+      linear-gradient(98deg,  transparent 47%, rgba(255,255,255,.55) 47.5%, rgba(255,255,255,.55) 52.5%, transparent 53%),
+      linear-gradient(8deg,   transparent 35%, rgba(255,255,255,.4)  35.5%, rgba(255,255,255,.4)  38%,   transparent 38.5%),
+      linear-gradient(75deg,  transparent 70%, rgba(255,255,255,.35) 70.5%, rgba(255,255,255,.35) 72.5%, transparent 73%),
+      linear-gradient(45deg,  transparent 49.5%, rgba(0,0,0,.025) 50%, transparent 50.5%);
+  }
+  .map::after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background-image:radial-gradient(rgba(0,0,0,.04) 1px, transparent 1px);
+    background-size:18px 18px;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 50%, #000 30%, transparent 70%);
+  }
+
+  /* ============ Driver badge (validé) — version raffinée ============ */
+  .driver {
+    display:inline-flex; align-items:center; gap:7px;
+    background:#0A0A0A;
+    color:#fff;
+    padding:3px 13px 3px 3px;
+    border-radius:9999px;
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.04) inset,
+      0 1px 0 rgba(255,255,255,0.08) inset,
+      0 1px 2px rgba(0,0,0,.08),
+      0 8px 16px -4px rgba(0,0,0,.18),
+      0 24px 48px -16px rgba(0,0,0,.28);
+  }
+  .driver .dot {
+    width:32px; height:32px;
+    border-radius:10px;
+    background:linear-gradient(180deg, #FFE066 0%, #FFD11A 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.55),
+      inset 0 -1px 0 rgba(0,0,0,0.08);
+  }
+  .driver .name { font-size:11.5px; font-weight:700; letter-spacing:-0.01em; line-height:1; }
+  .driver .plate { font-size:10px; color:var(--brand); font-family:'JetBrains Mono',monospace; font-weight:700; margin-top:2px; line-height:1; }
+
+  /* ============ Shadow systems ============ */
+  /* Mercury / Stripe : ombre douce, hairline */
+  .lvl-mercury {
+    box-shadow:
+      0 0 0 0.5px var(--line),
+      0 1px 2px rgba(0,0,0,.04),
+      0 4px 8px -2px rgba(0,0,0,.06),
+      0 12px 24px -8px rgba(0,0,0,.10);
+  }
+  /* Apple Maps : pop + lift */
+  .lvl-apple {
+    box-shadow:
+      0 0 0 0.5px var(--line-strong),
+      0 1px 1px rgba(0,0,0,.04),
+      0 2px 4px rgba(0,0,0,.06),
+      0 8px 16px -4px rgba(0,0,0,.12),
+      0 20px 40px -12px rgba(0,0,0,.14);
+  }
+  /* Linear : plat, glow accent */
+  .lvl-linear {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.06) inset,
+      0 1px 2px rgba(0,0,0,.30),
+      0 8px 24px -6px rgba(0,0,0,.45);
+  }
+  /* Vercel : profond + glow */
+  .lvl-vercel {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.06) inset,
+      0 0 0 1px rgba(0,0,0,.6),
+      0 4px 12px -2px rgba(0,0,0,.45),
+      0 24px 56px -16px rgba(0,0,0,.55);
+  }
+  /* Raycast : carte stratifiée */
+  .lvl-raycast {
+    box-shadow:
+      0 0 0 0.5px var(--line-strong),
+      0 1px 1px rgba(0,0,0,.05),
+      0 3px 6px rgba(0,0,0,.06),
+      0 10px 20px -4px rgba(0,0,0,.08),
+      0 30px 60px -20px rgba(0,0,0,.16);
+  }
+
+  /* ============ États ============ */
+  .state-label {
+    font-size:9.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--warm); padding-bottom:6px;
+  }
+
+  /* ============ Glow ============ */
+  .glow-brand {
+    box-shadow:
+      0 0 0 1px rgba(255,210,63,.15) inset,
+      0 0 0 4px rgba(255,210,63,.18),
+      0 0 24px rgba(255,210,63,.45),
+      0 12px 28px -8px rgba(0,0,0,.30);
+  }
+  .glow-danger-soft {
+    box-shadow:
+      0 0 0 4px rgba(220,38,38,.14),
+      0 0 24px rgba(220,38,38,.30),
+      0 12px 28px -8px rgba(0,0,0,.30);
+  }
+
+  /* ============ Numéro proposition ============ */
+  .num {
+    width:28px; height:28px;
+    border-radius:9px;
+    background:#0A0A0A;
+    color:var(--brand);
+    font-weight:800;
+    font-size:12px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.05) inset,
+      0 4px 12px -2px rgba(0,0,0,.30);
+  }
+  .section-title {
+    font-size:10.5px; font-weight:800; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--warm);
+  }
+
+  /* ============ Animations ============ */
+  @keyframes pulseGlow {
+    0%,100% { box-shadow:0 0 0 0 rgba(220,38,38,.45), 0 12px 28px -8px rgba(0,0,0,.30); }
+    50%     { box-shadow:0 0 0 12px rgba(220,38,38,0),  0 12px 28px -8px rgba(0,0,0,.30); }
+  }
+  .pulse-danger { animation:pulseGlow 1.8s ease-out infinite; }
+
+  /* ============ Iridescent ring ============ */
+  .iridescent {
+    position:relative;
+    isolation:isolate;
+  }
+  .iridescent::before {
+    content:'';
+    position:absolute; inset:-2px;
+    border-radius:inherit;
+    background:conic-gradient(from 0deg,
+      #FFD11A, #FFE066, #FFD11A, #E5B800, #FFD11A, #FFE066, #FFD11A);
+    z-index:-1;
+    filter:blur(1px);
+  }
+
+  /* ============ Tnum classes ============ */
+  .num-tab { font-variant-numeric:tabular-nums; }
+
+  /* ============ Card layout ============ */
+  .proposal {
+    background:#fff;
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:
+      0 0 0 0.5px var(--line),
+      0 1px 2px rgba(0,0,0,.03),
+      0 8px 24px -8px rgba(0,0,0,.10);
+  }
+  .proposal-meta {
+    padding:14px 16px 16px;
+    border-top:1px solid var(--line);
+  }
+  .pname { font-size:13px; font-weight:700; letter-spacing:-0.01em; }
+  .pdesc { font-size:11.5px; color:rgba(10,10,10,0.55); margin-top:3px; line-height:1.45; }
+  .ptag {
+    display:inline-block; font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+    background:rgba(10,10,10,.06); color:var(--ink); padding:3px 7px; border-radius:6px; margin-top:8px;
+  }
+
+  /* Stage cell */
+  .stage {
+    flex:1;
+    display:flex; flex-direction:column; align-items:center;
+    padding:14px 8px 10px;
+    border-right:1px solid var(--line);
+  }
+  .stage:last-child { border-right:0; }
+  .stage-row { display:flex; }
+</style>
+</head>
+<body class="min-h-screen p-5 md:p-10">
+
+  <!-- ============ HEADER ============ -->
+  <header class="max-w-6xl mx-auto mb-10">
+    <p class="section-title">TaxiLink — Mockups · Direction pro</p>
+    <h1 class="text-4xl md:text-5xl font-extrabold mt-3 tracking-tighter leading-[1.05]">
+      Pins prix.<br/>
+      <span class="opacity-50">Six directions, trois états chacune.</span>
+    </h1>
+    <p class="text-sm text-[var(--ink)]/65 mt-4 max-w-xl leading-relaxed">
+      Chaque proposition est présentée en <b class="text-[var(--ink)]">défaut</b>, <b class="text-[var(--ink)]">sélectionnée</b> et <b class="text-[var(--ink)]">urgente</b>
+      pour évaluer la cohérence du système. Typographie Inter Tight tabulaire, hairline borders, ombres en 4 couches.
+    </p>
+
+    <div class="mt-6 flex items-center gap-3">
+      <span class="text-[10px] uppercase tracking-[0.18em] font-bold text-[var(--warm)]">Toi sur la carte</span>
+      <div class="driver">
+        <div class="dot"><span class="material-symbols-rounded text-[18px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 600;">local_taxi</span></div>
+        <div>
+          <div class="name">Mehdi</div>
+          <div class="plate">AB-123-CD</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <!-- ============================================================ -->
+    <!-- 1 — APPLE MAPS                                                -->
+    <!-- ============================================================ -->
+    <section class="proposal">
+      <div class="map h-[260px] flex items-center">
+        <div class="absolute top-3.5 left-3.5 z-30 num">1</div>
+        <div class="absolute top-3.5 right-3.5 z-30 ptag">Apple Maps</div>
+
+        <div class="stage-row w-full">
+          <div class="stage">
+            <span class="state-label">Défaut</span>
+            <div class="lvl-apple bg-white rounded-full px-3 py-1.5 inline-flex items-center gap-1.5">
+              <span class="text-[14px] font-extrabold tracking-tight">24,00 €</span>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Sélectionnée</span>
+            <div class="lvl-apple bg-[#0A0A0A] text-white rounded-full px-3.5 py-2 inline-flex items-center gap-1.5"
+                 style="box-shadow:0 0 0 0.5px var(--line-strong), 0 0 0 4px rgba(255,210,63,0.55), 0 8px 20px -4px rgba(0,0,0,.25);">
+              <span class="text-[15px] font-extrabold tracking-tight">24,00 €</span>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Urgente</span>
+            <div class="lvl-apple bg-white rounded-full px-3 py-1.5 inline-flex items-center gap-1.5 pulse-danger">
+              <span class="w-1.5 h-1.5 rounded-full bg-[var(--danger)]"></span>
+              <span class="text-[14px] font-extrabold tracking-tight">18,00 €</span>
+              <span class="text-[10px] font-bold text-[var(--warm)] mono">8m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="proposal-meta">
+        <div class="pname">1 · Apple Maps — pill blanche minimale</div>
+        <div class="pdesc">Pure typographie sur fond blanc, hairline border, ombre douce. La sélection passe en noir avec halo jaune. Ultra clean.</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 2 — MERCURY                                                   -->
+    <!-- ============================================================ -->
+    <section class="proposal">
+      <div class="map h-[260px] flex items-center">
+        <div class="absolute top-3.5 left-3.5 z-30 num">2</div>
+        <div class="absolute top-3.5 right-3.5 z-30 ptag">Mercury</div>
+
+        <div class="stage-row w-full">
+          <div class="stage">
+            <span class="state-label">Défaut</span>
+            <div class="lvl-mercury bg-white rounded-[10px] px-2.5 py-1.5 inline-flex items-center gap-2">
+              <span class="w-5 h-5 rounded-md flex items-center justify-center"
+                    style="background:linear-gradient(180deg,#FFE066,#FFD11A);">
+                <span class="material-symbols-rounded text-[12px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 700;">euro</span>
+              </span>
+              <span class="text-[13px] font-extrabold tracking-tight">24,00</span>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Sélectionnée</span>
+            <div class="lvl-mercury bg-[#0A0A0A] text-white rounded-[10px] px-2.5 py-1.5 inline-flex items-center gap-2"
+                 style="box-shadow:0 0 0 0.5px rgba(0,0,0,.4), 0 0 0 3px rgba(255,210,63,.35), 0 12px 24px -8px rgba(0,0,0,.20);">
+              <span class="w-5 h-5 rounded-md flex items-center justify-center bg-[var(--brand)]">
+                <span class="material-symbols-rounded text-[12px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 700;">euro</span>
+              </span>
+              <span class="text-[13px] font-extrabold tracking-tight">24,00</span>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Urgente</span>
+            <div class="lvl-mercury bg-white rounded-[10px] px-2.5 py-1.5 inline-flex items-center gap-2"
+                 style="box-shadow:0 0 0 0.5px rgba(220,38,38,.3), 0 0 0 3px rgba(220,38,38,.12), 0 8px 18px -4px rgba(220,38,38,.20);">
+              <span class="w-5 h-5 rounded-md flex items-center justify-center"
+                    style="background:linear-gradient(180deg,#FFE066,#FFD11A);">
+                <span class="material-symbols-rounded text-[12px] text-[#DC2626]" style="font-variation-settings:'FILL' 1, 'wght' 700;">bolt</span>
+              </span>
+              <div class="leading-none">
+                <div class="text-[13px] font-extrabold tracking-tight">18,00 €</div>
+                <div class="text-[9px] mt-0.5 font-bold text-[var(--danger)] tracking-wide">DANS 8 MIN</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="proposal-meta">
+        <div class="pname">2 · Mercury — square radius + icône</div>
+        <div class="pdesc">Coins arrondis 10px (et non pleinement ronds), petite icône à gauche, montant tabulaire. Sobre, fintech, super lisible.</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 3 — LINEAR                                                    -->
+    <!-- ============================================================ -->
+    <section class="proposal">
+      <div class="map h-[260px] flex items-center" style="background:linear-gradient(180deg,#1A1A1A,#0F0F0F);">
+        <div class="absolute top-3.5 left-3.5 z-30 num" style="background:rgba(255,255,255,0.08); color:var(--brand);">3</div>
+        <div class="absolute top-3.5 right-3.5 z-30 ptag" style="background:rgba(255,255,255,0.08); color:#fff;">Linear · Dark</div>
+
+        <div class="stage-row w-full" style="border-color:rgba(255,255,255,0.06);">
+          <div class="stage" style="border-color:rgba(255,255,255,0.06);">
+            <span class="state-label" style="color:rgba(255,255,255,.4);">Défaut</span>
+            <div class="lvl-linear rounded-full px-3 py-1.5 inline-flex items-center gap-2"
+                 style="background:#1F1F1F; border:1px solid rgba(255,255,255,.08);">
+              <span class="w-1 h-1 rounded-full bg-[var(--brand)]"></span>
+              <span class="text-[13px] font-bold text-white tracking-tight">24,00 <span class="opacity-50">€</span></span>
+            </div>
+          </div>
+          <div class="stage" style="border-color:rgba(255,255,255,0.06);">
+            <span class="state-label" style="color:rgba(255,255,255,.4);">Sélectionnée</span>
+            <div class="rounded-full px-3 py-1.5 inline-flex items-center gap-2"
+                 style="background:var(--brand); color:#0A0A0A; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset, 0 0 24px rgba(255,210,63,.55), 0 8px 24px -6px rgba(255,210,63,.40);">
+              <span class="material-symbols-rounded text-[13px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 700;">arrow_forward</span>
+              <span class="text-[13px] font-extrabold tracking-tight">24,00 €</span>
+            </div>
+          </div>
+          <div class="stage" style="border-color:rgba(255,255,255,0.06);">
+            <span class="state-label" style="color:rgba(255,255,255,.4);">Urgente</span>
+            <div class="lvl-linear rounded-full px-3 py-1.5 inline-flex items-center gap-2 pulse-danger"
+                 style="background:#1F1F1F; border:1px solid rgba(220,38,38,.4);">
+              <span class="w-1.5 h-1.5 rounded-full bg-[var(--danger)] animate-pulse"></span>
+              <span class="text-[13px] font-bold text-white tracking-tight">18,00 €</span>
+              <span class="text-[10px] mono text-[var(--danger)] font-bold">8m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="proposal-meta">
+        <div class="pname">3 · Linear — dark mode pill</div>
+        <div class="pdesc">Pour un futur thème sombre. Très condensé, dot accent, glow puissant en sélection. Style Linear/Vercel command palette.</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 4 — STRIPE                                                    -->
+    <!-- ============================================================ -->
+    <section class="proposal">
+      <div class="map h-[260px] flex items-center">
+        <div class="absolute top-3.5 left-3.5 z-30 num">4</div>
+        <div class="absolute top-3.5 right-3.5 z-30 ptag">Stripe · Stack</div>
+
+        <div class="stage-row w-full">
+          <div class="stage">
+            <span class="state-label">Défaut</span>
+            <div class="lvl-mercury bg-white rounded-[12px] overflow-hidden">
+              <div class="px-3 py-1.5">
+                <div class="text-[10px] font-bold tracking-[0.12em] uppercase text-[var(--warm)]">Course</div>
+                <div class="text-[15px] font-extrabold tracking-tight leading-none mt-0.5">24,00 €</div>
+              </div>
+              <div class="h-[3px]" style="background:linear-gradient(90deg,#FFD11A 0%,#FFE066 60%,#FFD11A 100%);"></div>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Sélectionnée</span>
+            <div class="lvl-apple rounded-[12px] overflow-hidden text-white"
+                 style="background:#0A0A0A; box-shadow:0 0 0 0.5px rgba(0,0,0,.4), 0 0 0 3px rgba(255,210,63,.5), 0 8px 18px -4px rgba(0,0,0,.30);">
+              <div class="px-3 py-1.5">
+                <div class="text-[10px] font-bold tracking-[0.12em] uppercase text-[var(--brand)]">Course</div>
+                <div class="text-[15px] font-extrabold tracking-tight leading-none mt-0.5">24,00 €</div>
+              </div>
+              <div class="h-[3px]" style="background:var(--brand);"></div>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Urgente</span>
+            <div class="lvl-mercury bg-white rounded-[12px] overflow-hidden">
+              <div class="px-3 py-1.5">
+                <div class="text-[10px] font-bold tracking-[0.12em] uppercase text-[var(--danger)] flex items-center gap-1">
+                  <span class="material-symbols-rounded text-[11px]" style="font-variation-settings:'FILL' 1, 'wght' 700;">bolt</span>
+                  8 min
+                </div>
+                <div class="text-[15px] font-extrabold tracking-tight leading-none mt-0.5">18,00 €</div>
+              </div>
+              <div class="h-[3px]" style="background:linear-gradient(90deg,#DC2626 0%,#EF4444 100%);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="proposal-meta">
+        <div class="pname">4 · Stripe — stacked card</div>
+        <div class="pdesc">Carte verticale : libellé + prix + barre d'accent en bas. La barre porte la couleur d'état (jaune / sélectionné / urgent).</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 5 — RAYCAST                                                   -->
+    <!-- ============================================================ -->
+    <section class="proposal">
+      <div class="map h-[260px] flex items-center">
+        <div class="absolute top-3.5 left-3.5 z-30 num">5</div>
+        <div class="absolute top-3.5 right-3.5 z-30 ptag">Raycast · Floating</div>
+
+        <div class="stage-row w-full">
+          <div class="stage">
+            <span class="state-label">Défaut</span>
+            <div class="lvl-raycast bg-white rounded-[14px] px-2.5 py-2 inline-flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-[10px] flex items-center justify-center"
+                   style="background:linear-gradient(180deg,#FFE066,#FFD11A); box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(0,0,0,.06);">
+                <span class="material-symbols-rounded text-[16px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 700;">local_taxi</span>
+              </div>
+              <div class="leading-none">
+                <div class="text-[14px] font-extrabold tracking-tight">24,00 €</div>
+                <div class="text-[10px] mt-0.5 font-medium text-[var(--warm)]">4,2 km · 12 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Sélectionnée</span>
+            <div class="lvl-raycast rounded-[14px] px-2.5 py-2 inline-flex items-center gap-2.5 text-white"
+                 style="background:#0A0A0A; box-shadow:0 0 0 0.5px rgba(0,0,0,.5), 0 0 0 3px rgba(255,210,63,.5), 0 8px 20px -4px rgba(0,0,0,.30);">
+              <div class="w-8 h-8 rounded-[10px] flex items-center justify-center bg-[var(--brand)]">
+                <span class="material-symbols-rounded text-[16px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 700;">local_taxi</span>
+              </div>
+              <div class="leading-none">
+                <div class="text-[14px] font-extrabold tracking-tight">24,00 €</div>
+                <div class="text-[10px] mt-0.5 font-medium text-[var(--brand)]/80">4,2 km · 12 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Urgente</span>
+            <div class="lvl-raycast bg-white rounded-[14px] px-2.5 py-2 inline-flex items-center gap-2.5"
+                 style="box-shadow:0 0 0 0.5px rgba(220,38,38,.4), 0 0 0 3px rgba(220,38,38,.10), 0 8px 18px -4px rgba(220,38,38,.20);">
+              <div class="w-8 h-8 rounded-[10px] flex items-center justify-center bg-[var(--danger)]">
+                <span class="material-symbols-rounded text-[16px] text-white" style="font-variation-settings:'FILL' 1, 'wght' 700;">bolt</span>
+              </div>
+              <div class="leading-none">
+                <div class="text-[14px] font-extrabold tracking-tight">18,00 €</div>
+                <div class="text-[10px] mt-0.5 font-bold text-[var(--danger)] tracking-wide">DANS 8 MIN</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="proposal-meta">
+        <div class="pname">5 · Raycast — card riche flottante</div>
+        <div class="pdesc">Avatar carré + double info (prix + distance/ETA). C'est le plus dense, le plus actionnable. Idéal en mobile au tap.</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 6 — ARC / IRIDESCENT                                          -->
+    <!-- ============================================================ -->
+    <section class="proposal">
+      <div class="map h-[260px] flex items-center">
+        <div class="absolute top-3.5 left-3.5 z-30 num">6</div>
+        <div class="absolute top-3.5 right-3.5 z-30 ptag">Arc · Premium</div>
+
+        <div class="stage-row w-full">
+          <div class="stage">
+            <span class="state-label">Défaut</span>
+            <div class="bg-white rounded-full px-3 py-1.5 inline-flex items-center gap-1.5 lvl-mercury">
+              <span class="text-[14px] font-extrabold tracking-tight">24,00 €</span>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Featured</span>
+            <div class="iridescent rounded-full">
+              <div class="bg-white rounded-full px-3 py-1.5 inline-flex items-center gap-1.5"
+                   style="box-shadow:0 8px 20px -4px rgba(0,0,0,.18);">
+                <span class="material-symbols-rounded text-[13px]" style="background:linear-gradient(135deg,#E5B800,#FFD11A,#FFE066); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-variation-settings:'FILL' 1, 'wght' 700;">workspace_premium</span>
+                <span class="text-[14px] font-extrabold tracking-tight">52,00 €</span>
+              </div>
+            </div>
+          </div>
+          <div class="stage">
+            <span class="state-label">Urgente</span>
+            <div class="bg-white rounded-full px-3 py-1.5 inline-flex items-center gap-1.5 pulse-danger lvl-mercury"
+                 style="box-shadow:0 0 0 0.5px rgba(220,38,38,.3), 0 0 0 3px rgba(220,38,38,.12), 0 8px 18px -4px rgba(220,38,38,.20);">
+              <span class="w-1.5 h-1.5 rounded-full bg-[var(--danger)]"></span>
+              <span class="text-[14px] font-extrabold tracking-tight">18,00 €</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="proposal-meta">
+        <div class="pname">6 · Arc — anneau iridescent (featured)</div>
+        <div class="pdesc">Variante n°1 + un anneau doré holographique pour les courses « featured » (gros montant, hôpital partenaire, abonné premium...).</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- APERÇU EN SITUATION — proposition 1 par défaut                 -->
+  <!-- ============================================================ -->
+  <section class="max-w-6xl mx-auto mt-14">
+    <div class="flex items-baseline gap-3 mb-5">
+      <span class="section-title">En situation — direction n°1 (Apple Maps)</span>
+    </div>
+
+    <div class="proposal">
+      <div class="map h-[480px]">
+        <!-- Toi -->
+        <div class="absolute" style="left:48%; top:55%; transform:translate(-50%,-50%); z-index:25;">
+          <div class="driver">
+            <div class="dot"><span class="material-symbols-rounded text-[18px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 600;">local_taxi</span></div>
+            <div>
+              <div class="name">Mehdi</div>
+              <div class="plate">AB-123-CD</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offres défaut -->
+        <div class="absolute" style="left:18%; top:25%;">
+          <div class="lvl-apple bg-white rounded-full px-3 py-1.5 inline-flex items-center"><span class="text-[14px] font-extrabold tracking-tight">24,00 €</span></div>
+        </div>
+        <div class="absolute" style="left:75%; top:20%;">
+          <div class="lvl-apple bg-white rounded-full px-3 py-1.5 inline-flex items-center"><span class="text-[14px] font-extrabold tracking-tight">42,50 €</span></div>
+        </div>
+        <div class="absolute" style="left:13%; top:75%;">
+          <div class="lvl-apple bg-white rounded-full px-3 py-1.5 inline-flex items-center"><span class="text-[14px] font-extrabold tracking-tight">31,00 €</span></div>
+        </div>
+        <div class="absolute" style="left:80%; top:70%;">
+          <div class="lvl-apple bg-white rounded-full px-3 py-1.5 inline-flex items-center"><span class="text-[14px] font-extrabold tracking-tight">52,00 €</span></div>
+        </div>
+
+        <!-- Sélectionnée -->
+        <div class="absolute" style="left:35%; top:40%;">
+          <div class="bg-[#0A0A0A] text-white rounded-full px-3.5 py-2 inline-flex items-center"
+               style="box-shadow:0 0 0 0.5px var(--line-strong), 0 0 0 4px rgba(255,210,63,0.55), 0 8px 20px -4px rgba(0,0,0,.25);">
+            <span class="text-[15px] font-extrabold tracking-tight">36,00 €</span>
+          </div>
+        </div>
+
+        <!-- Urgente -->
+        <div class="absolute" style="left:62%; top:42%;">
+          <div class="lvl-apple bg-white rounded-full px-3 py-1.5 inline-flex items-center gap-1.5 pulse-danger">
+            <span class="w-1.5 h-1.5 rounded-full bg-[var(--danger)]"></span>
+            <span class="text-[14px] font-extrabold tracking-tight">18,00 €</span>
+            <span class="text-[10px] font-bold text-[var(--warm)] mono">8m</span>
+          </div>
+        </div>
+      </div>
+      <div class="proposal-meta">
+        <div class="pname">6 offres + ta position</div>
+        <div class="pdesc">5 défauts blancs, 1 sélectionnée noire avec halo jaune, 1 urgente avec dot rouge et pulse. La hiérarchie de lecture est instantanée.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- APERÇU EN SITUATION — proposition 5 (Raycast)                  -->
+  <!-- ============================================================ -->
+  <section class="max-w-6xl mx-auto mt-8">
+    <div class="flex items-baseline gap-3 mb-5">
+      <span class="section-title">En situation — direction n°5 (Raycast)</span>
+    </div>
+
+    <div class="proposal">
+      <div class="map h-[480px]">
+        <div class="absolute" style="left:48%; top:55%; transform:translate(-50%,-50%); z-index:25;">
+          <div class="driver">
+            <div class="dot"><span class="material-symbols-rounded text-[18px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 600;">local_taxi</span></div>
+            <div>
+              <div class="name">Mehdi</div>
+              <div class="plate">AB-123-CD</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="absolute" style="left:14%; top:22%;">
+          <div class="lvl-raycast bg-white rounded-[14px] px-2.5 py-2 inline-flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-[10px] flex items-center justify-center" style="background:linear-gradient(180deg,#FFE066,#FFD11A);">
+              <span class="material-symbols-rounded text-[16px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 700;">local_taxi</span>
+            </div>
+            <div class="leading-none">
+              <div class="text-[14px] font-extrabold tracking-tight">24,00 €</div>
+              <div class="text-[10px] mt-0.5 font-medium text-[var(--warm)]">4,2 km · 12 min</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="absolute" style="left:72%; top:18%;">
+          <div class="lvl-raycast bg-white rounded-[14px] px-2.5 py-2 inline-flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-[10px] flex items-center justify-center" style="background:linear-gradient(180deg,#FFE066,#FFD11A);">
+              <span class="material-symbols-rounded text-[16px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 700;">local_taxi</span>
+            </div>
+            <div class="leading-none">
+              <div class="text-[14px] font-extrabold tracking-tight">42,50 €</div>
+              <div class="text-[10px] mt-0.5 font-medium text-[var(--warm)]">7,8 km · 18 min</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="absolute" style="left:8%; top:72%;">
+          <div class="lvl-raycast rounded-[14px] px-2.5 py-2 inline-flex items-center gap-2.5 text-white"
+               style="background:#0A0A0A; box-shadow:0 0 0 0.5px rgba(0,0,0,.5), 0 0 0 3px rgba(255,210,63,.5), 0 8px 20px -4px rgba(0,0,0,.30);">
+            <div class="w-8 h-8 rounded-[10px] flex items-center justify-center bg-[var(--brand)]">
+              <span class="material-symbols-rounded text-[16px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 700;">local_taxi</span>
+            </div>
+            <div class="leading-none">
+              <div class="text-[14px] font-extrabold tracking-tight">31,00 €</div>
+              <div class="text-[10px] mt-0.5 font-medium text-[var(--brand)]/80">5,4 km · 14 min</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="absolute" style="left:75%; top:70%;">
+          <div class="lvl-raycast bg-white rounded-[14px] px-2.5 py-2 inline-flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-[10px] flex items-center justify-center" style="background:linear-gradient(180deg,#FFE066,#FFD11A);">
+              <span class="material-symbols-rounded text-[16px] text-[#0A0A0A]" style="font-variation-settings:'FILL' 1, 'wght' 700;">local_taxi</span>
+            </div>
+            <div class="leading-none">
+              <div class="text-[14px] font-extrabold tracking-tight">52,00 €</div>
+              <div class="text-[10px] mt-0.5 font-medium text-[var(--warm)]">9,1 km · 22 min</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="absolute" style="left:42%; top:18%;">
+          <div class="lvl-raycast bg-white rounded-[14px] px-2.5 py-2 inline-flex items-center gap-2.5"
+               style="box-shadow:0 0 0 0.5px rgba(220,38,38,.4), 0 0 0 3px rgba(220,38,38,.10), 0 8px 18px -4px rgba(220,38,38,.20);">
+            <div class="w-8 h-8 rounded-[10px] flex items-center justify-center bg-[var(--danger)]">
+              <span class="material-symbols-rounded text-[16px] text-white" style="font-variation-settings:'FILL' 1, 'wght' 700;">bolt</span>
+            </div>
+            <div class="leading-none">
+              <div class="text-[14px] font-extrabold tracking-tight">18,00 €</div>
+              <div class="text-[10px] mt-0.5 font-bold text-[var(--danger)] tracking-wide">DANS 8 MIN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="proposal-meta">
+        <div class="pname">5 offres + ta position · variante riche</div>
+        <div class="pdesc">Plus dense en information : km + ETA visibles d'emblée. Choix idéal si on n'affiche jamais plus de 6-8 offres simultanément.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="max-w-6xl mx-auto mt-12 mb-4">
+    <div class="rounded-[28px] p-6 md:p-8" style="background:#0A0A0A; color:#fff;">
+      <p class="section-title" style="color:var(--brand);">Recommandation</p>
+      <h2 class="text-2xl md:text-3xl font-extrabold mt-2 tracking-tighter">
+        Direction <span class="text-[var(--brand)]">5 · Raycast</span> pour la richesse,
+        <br/>direction <span class="text-[var(--brand)]">1 · Apple Maps</span> pour la pureté.
+      </h2>
+      <p class="text-sm mt-4 text-white/65 leading-relaxed max-w-xl">
+        La n°5 montre tout ce dont un chauffeur a besoin pour décider sans cliquer. La n°1 est plus aérée et laisse la carte respirer.
+        Tu peux aussi panacher : <span class="font-mono text-[var(--brand)]">5 par défaut + 6 pour les courses featured</span>.
+      </p>
+      <p class="text-sm mt-3 text-white/45">Indique le numéro retenu — j'adapte ensuite <span class="font-mono text-[var(--brand)]">missionMapPin.ts</span> et le CSS.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

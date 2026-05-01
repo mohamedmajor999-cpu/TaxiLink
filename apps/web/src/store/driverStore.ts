@@ -52,6 +52,7 @@ export const useDriverStore = create<DriverState>((set, get) => ({
           phone: profile?.phone ?? undefined,
           vehicle: driver?.vehicle_model ?? undefined,
           vehicleType: driver?.vehicle_type ?? undefined,
+          vehiclePlate: driver?.vehicle_plate ?? undefined,
           cpamEnabled: driver?.cpam_enabled ?? false,
           rating: driver?.rating ?? 0,
           totalRides: driver?.total_rides ?? 0,

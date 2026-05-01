@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pins prix — direction moderne</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<style>
+  :root {
+    --ink:#0A0A0A;
+    --ink-soft:#1A1A1A;
+    --brand:#FFD11A;
+    --brand-2:#FFE066;
+    --brand-deep:#E5B800;
+    --warm-200:#E5DFD3;
+    --warm-500:#7E7669;
+    --paper:#FFFFFF;
+  }
+  html, body { font-family:'Inter',system-ui,sans-serif; font-feature-settings:"tnum" 1, "ss01" 1; }
+  body { background:#EDE8DD; color:var(--ink); }
+
+  /* ---------- Fond carte simulé (plus moderne, plus aéré) ---------- */
+  .map {
+    position:relative;
+    background:
+      radial-gradient(ellipse 60% 50% at 30% 30%, #FBF8F0 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 70% 70%, #F0E9D8 0%, transparent 60%),
+      linear-gradient(135deg,#F4F1E8 0%,#E8E3D2 100%);
+    overflow:hidden;
+  }
+  .map::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background-image:
+      linear-gradient(98deg, transparent 47%, rgba(255,255,255,0.7) 47.5%, rgba(255,255,255,0.7) 52.5%, transparent 53%),
+      linear-gradient(8deg, transparent 35%, rgba(255,255,255,0.5) 35.5%, rgba(255,255,255,0.5) 38%, transparent 38.5%),
+      linear-gradient(45deg, transparent 49.5%, rgba(0,0,0,0.04) 50%, transparent 50.5%);
+    pointer-events:none;
+  }
+
+  /* ---------- Driver badge (validé) ---------- */
+  .driver-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#0A0A0A; color:#fff;
+    padding:3px 12px 3px 3px;
+    border-radius:9999px;
+    box-shadow:
+      0 12px 32px -8px rgba(0,0,0,.4),
+      0 4px 10px -2px rgba(0,0,0,.2),
+      inset 0 1px 0 0 rgba(255,255,255,.1);
+  }
+  .driver-badge .icon {
+    width:32px; height:32px;
+    border-radius:10px;
+    background:linear-gradient(180deg, #FFE066 0%, #FFD11A 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+  }
+
+  /* ---------- Soft shadows (Apple-like, multi-layer) ---------- */
+  .shadow-pop {
+    box-shadow:
+      0 1px 2px rgba(0,0,0,.05),
+      0 4px 8px -2px rgba(0,0,0,.08),
+      0 12px 24px -8px rgba(0,0,0,.18),
+      0 24px 48px -16px rgba(0,0,0,.12);
+  }
+  .shadow-glass {
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.6) inset,
+      0 -1px 0 rgba(0,0,0,.05) inset,
+      0 8px 24px -8px rgba(0,0,0,.18),
+      0 2px 4px rgba(0,0,0,.06);
+  }
+  .shadow-sticker {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.7),
+      inset 0 -2px 0 rgba(0,0,0,.08),
+      0 6px 16px -4px rgba(0,0,0,.25),
+      0 2px 4px rgba(0,0,0,.1);
+  }
+
+  /* ---------- Numero ---------- */
+  .num {
+    width:36px; height:36px;
+    border-radius:12px;
+    background:#0A0A0A;
+    color:var(--brand);
+    font-weight:900;
+    font-size:14px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:
+      0 8px 20px -4px rgba(0,0,0,.35),
+      inset 0 1px 0 rgba(255,255,255,.1);
+  }
+
+  .card-shadow { box-shadow:0 12px 32px -8px rgba(0,0,0,.18), 0 4px 12px -4px rgba(0,0,0,.08); }
+  .section-title { font-size:11px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; color:var(--warm-500); }
+
+  /* ---------- Pin shapes (modern) ---------- */
+
+  /* Squircle Apple-like : superellipse approximée */
+  .squircle {
+    border-radius:30%;
+  }
+
+  /* Glass pill */
+  .pill-glass {
+    background:rgba(255,255,255,0.65);
+    backdrop-filter:blur(14px) saturate(150%);
+    -webkit-backdrop-filter:blur(14px) saturate(150%);
+    border:1px solid rgba(255,255,255,0.8);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 -1px 0 rgba(0,0,0,.05) inset,
+      0 8px 28px -10px rgba(0,0,0,.25),
+      0 2px 6px rgba(0,0,0,.08);
+  }
+  .pill-glass-dark {
+    background:rgba(10,10,10,0.7);
+    backdrop-filter:blur(14px) saturate(150%);
+    -webkit-backdrop-filter:blur(14px) saturate(150%);
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.12) inset,
+      0 8px 28px -10px rgba(0,0,0,.45),
+      0 2px 6px rgba(0,0,0,.18);
+  }
+
+  /* ---------- Animations ---------- */
+  @keyframes float {
+    0%,100% { transform:translateY(0); }
+    50%     { transform:translateY(-3px); }
+  }
+  .floaty { animation:float 3s ease-in-out infinite; }
+
+  @keyframes pulseSoft {
+    0%   { transform:translate(-50%,-50%) scale(0.8); opacity:0.5; }
+    100% { transform:translate(-50%,-50%) scale(1.8); opacity:0;   }
+  }
+  .pulse-soft {
+    position:absolute; left:50%; top:50%;
+    width:60px; height:60px; border-radius:9999px;
+    transform:translate(-50%,-50%);
+    background:rgba(255,210,63,0.4);
+    animation:pulseSoft 2s ease-out infinite;
+    pointer-events:none;
+  }
+
+  /* ---------- Tnum & numerals ---------- */
+  .num-tab { font-feature-settings:"tnum" 1, "ss01" 1; font-variant-numeric:tabular-nums; }
+
+  /* ---------- Mini taxi top-down ---------- */
+  .mini-car {
+    width:18px; height:24px;
+  }
+</style>
+</head>
+<body class="min-h-screen p-5 md:p-10">
+
+  <header class="max-w-6xl mx-auto mb-8">
+    <p class="section-title">TaxiLink — Mockups</p>
+    <h1 class="text-3xl md:text-4xl font-extrabold mt-2 tracking-tight">Pins prix — version moderne</h1>
+    <p class="text-sm text-[var(--ink-soft)]/70 mt-2 max-w-2xl">
+      8 directions plus contemporaines : glassmorphism, squircles Apple-like, soft shadows multicouches, gradients subtils, typographie tabulaire.
+      On garde le brand jaune/noir mais on enlève les bordures épaisses et les codes « Material Design ».
+    </p>
+
+    <div class="mt-4 flex items-center gap-3">
+      <span class="text-[11px] uppercase tracking-wider font-bold text-[var(--warm-500)]">Toi sur la carte :</span>
+      <div class="driver-badge">
+        <div class="icon"><span class="material-symbols-rounded text-[19px] text-[#0A0A0A]">local_taxi</span></div>
+        <div class="leading-tight">
+          <div class="text-[11px] font-bold tracking-tight">Mehdi</div>
+          <div class="text-[10px] text-[var(--brand)] font-mono">AB-123-CD</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+    <!-- =============================================== -->
+    <!-- 1 — Pill noire premium (assortie au driver)     -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56 flex items-center justify-center">
+        <div class="absolute top-3 left-3 z-30 num">1</div>
+
+        <div class="floaty">
+          <div class="inline-flex items-center gap-2 bg-[#0A0A0A] text-white pl-1.5 pr-3.5 py-1.5 rounded-full shadow-pop"
+               style="box-shadow:0 12px 32px -8px rgba(0,0,0,.4), 0 4px 10px -2px rgba(0,0,0,.2), inset 0 1px 0 0 rgba(255,255,255,.08);">
+            <span class="w-2 h-2 rounded-full bg-[var(--brand)] shadow-[0_0_8px_rgba(255,210,63,0.8)]"></span>
+            <span class="text-[14px] font-extrabold num-tab tracking-tight">24,00 €</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold tracking-tight">1 · Pill noire premium</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Même grammaire visuelle que ta pilule. Le dot jaune indique « offre ». Cohérence max.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 2 — Squircle Apple-like                          -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56 flex items-center justify-center">
+        <div class="absolute top-3 left-3 z-30 num">2</div>
+
+        <div class="floaty">
+          <div class="squircle shadow-sticker"
+               style="width:64px; height:64px; background:linear-gradient(180deg,#FFE066 0%,#FFD11A 100%); display:flex; align-items:center; justify-content:center;">
+            <span class="text-[18px] font-black num-tab tracking-tight text-[#0A0A0A]">24€</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold tracking-tight">2 · Squircle Apple-style</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Forme arrondie « squircle » iOS, gradient subtil top-down, sheen interne. Pas de tail. Très 2026.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 3 — Glass blur (frosted)                        -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56 flex items-center justify-center">
+        <div class="absolute top-3 left-3 z-30 num">3</div>
+
+        <div class="floaty">
+          <div class="pill-glass px-4 py-2 rounded-full inline-flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#0A0A0A]"></span>
+            <span class="text-[14px] font-extrabold num-tab tracking-tight text-[#0A0A0A]">24 €</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold tracking-tight">3 · Glass pill (frosted)</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Verre dépoli, laisse voir la carte derrière. Très épuré, fonctionne aussi en mode sombre.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 4 — Capsule horizontale icône taxi + prix       -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56 flex items-center justify-center">
+        <div class="absolute top-3 left-3 z-30 num">4</div>
+
+        <div class="floaty">
+          <div class="inline-flex items-center gap-1.5 bg-white pl-1 pr-3 py-1 rounded-full shadow-pop"
+               style="box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 8px 24px -6px rgba(0,0,0,.2), 0 2px 6px rgba(0,0,0,.08);">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center"
+                 style="background:linear-gradient(180deg,#FFE066 0%,#FFD11A 100%); box-shadow:inset 0 1px 0 rgba(255,255,255,.5);">
+              <span class="material-symbols-rounded text-[16px] text-[#0A0A0A]">local_taxi</span>
+            </div>
+            <span class="text-[14px] font-extrabold num-tab tracking-tight text-[#0A0A0A]">24 €</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold tracking-tight">4 · Capsule blanche + dot taxi</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Symétrie parfaite avec ta pilule (même icône, mêmes proportions, juste l'inverse coloré).</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 5 — Card moderne : prix + ETA                   -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56 flex items-center justify-center">
+        <div class="absolute top-3 left-3 z-30 num">5</div>
+
+        <div class="floaty">
+          <div class="bg-white px-3 py-2 inline-flex items-center gap-2.5 shadow-pop"
+               style="border-radius:14px;">
+            <div class="flex flex-col items-start leading-none">
+              <span class="text-[16px] font-black num-tab tracking-tight text-[#0A0A0A]">24 €</span>
+              <span class="text-[9px] font-bold mt-0.5 text-[var(--warm-500)] uppercase tracking-widest">8 min</span>
+            </div>
+            <div class="w-px h-6 bg-black/10"></div>
+            <span class="material-symbols-rounded text-[18px] text-[var(--ink-soft)]">arrow_outward</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold tracking-tight">5 · Card prix + ETA</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Inspiré Apple Wallet. Hiérarchie typo claire, séparateur fin, flèche d'action.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 6 — Sticker brutaliste bicolore                  -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56 flex items-center justify-center">
+        <div class="absolute top-3 left-3 z-30 num">6</div>
+
+        <div class="floaty">
+          <div class="inline-flex shadow-pop overflow-hidden" style="border-radius:14px;">
+            <div class="bg-[#0A0A0A] text-white px-3 py-2 flex items-center">
+              <span class="material-symbols-rounded text-[18px] text-[var(--brand)]">local_taxi</span>
+            </div>
+            <div class="bg-[var(--brand)] text-[#0A0A0A] px-3.5 py-2 flex items-center">
+              <span class="text-[15px] font-black num-tab tracking-tight">24 €</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold tracking-tight">6 · Bicolor split</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Brutalist + moderne. Deux blocs jointifs, lecture immédiate (icône / prix).</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 7 — Floating big numeral, no shape              -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56 flex items-center justify-center">
+        <div class="absolute top-3 left-3 z-30 num">7</div>
+
+        <div class="floaty">
+          <div class="relative">
+            <!-- glow halo -->
+            <div class="absolute inset-0 -m-3 rounded-full" style="background:radial-gradient(closest-side, rgba(255,210,63,0.7) 0%, transparent 70%); filter:blur(4px);"></div>
+            <div class="relative flex items-baseline gap-0.5 text-[#0A0A0A]" style="text-shadow:0 2px 6px rgba(255,255,255,0.9);">
+              <span class="text-[40px] font-black num-tab leading-none tracking-tighter">24</span>
+              <span class="text-[16px] font-extrabold num-tab leading-none">€</span>
+            </div>
+            <!-- pointe géoloc subtile -->
+            <div class="absolute left-1/2 -translate-x-1/2 -bottom-2 w-1.5 h-1.5 rounded-full bg-[#0A0A0A] shadow"></div>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold tracking-tight">7 · Typographie pure + halo</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Minimalisme radical : juste le chiffre + un halo lumineux + un point au sol. Maximum de carte visible.</p>
+      </div>
+    </article>
+
+    <!-- =============================================== -->
+    <!-- 8 — Glass dark pill                              -->
+    <!-- =============================================== -->
+    <article class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-56 flex items-center justify-center">
+        <div class="absolute top-3 left-3 z-30 num">8</div>
+
+        <div class="floaty">
+          <div class="pill-glass-dark px-3 py-1.5 rounded-full inline-flex items-center gap-2 text-white">
+            <span class="w-2 h-2 rounded-full bg-[var(--brand)] shadow-[0_0_10px_rgba(255,210,63,0.9)]"></span>
+            <span class="text-[14px] font-extrabold num-tab tracking-tight">24 €</span>
+            <span class="text-[10px] font-bold text-white/50 uppercase tracking-wider">·  8m</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-3 border-t border-black/5">
+        <p class="text-sm font-bold tracking-tight">8 · Dark glass pill</p>
+        <p class="text-[11px] text-[var(--ink-soft)]/70 mt-0.5">Verre noir avec dot lumineux jaune. Très Linear/Vercel. ETA en discret à droite.</p>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- Aperçu carte avec proposition n°1 (recommandée)                 -->
+  <!-- ============================================================== -->
+  <section class="max-w-6xl mx-auto mt-12">
+    <div class="flex items-baseline gap-3 mb-4">
+      <span class="section-title">Aperçu en situation — variante n°1 par défaut</span>
+    </div>
+
+    <div class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-[440px]">
+        <!-- Mehdi -->
+        <div class="absolute" style="left:48%; top:55%; transform:translate(-50%,-50%); z-index:25;">
+          <div class="driver-badge">
+            <div class="icon"><span class="material-symbols-rounded text-[19px] text-[#0A0A0A]">local_taxi</span></div>
+            <div class="leading-tight">
+              <div class="text-[11px] font-bold">Mehdi</div>
+              <div class="text-[10px] text-[var(--brand)] font-mono">AB-123-CD</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- offres style 1 -->
+        <div class="absolute" style="left:18%; top:25%;">
+          <div class="inline-flex items-center gap-2 bg-[#0A0A0A] text-white pl-1.5 pr-3.5 py-1.5 rounded-full"
+               style="box-shadow:0 12px 32px -8px rgba(0,0,0,.4), 0 4px 10px -2px rgba(0,0,0,.2), inset 0 1px 0 0 rgba(255,255,255,.08);">
+            <span class="w-2 h-2 rounded-full bg-[var(--brand)] shadow-[0_0_8px_rgba(255,210,63,0.8)]"></span>
+            <span class="text-[13px] font-extrabold num-tab">24,00 €</span>
+          </div>
+        </div>
+        <div class="absolute" style="left:75%; top:20%;">
+          <div class="inline-flex items-center gap-2 bg-[#0A0A0A] text-white pl-1.5 pr-3.5 py-1.5 rounded-full"
+               style="box-shadow:0 12px 32px -8px rgba(0,0,0,.4), 0 4px 10px -2px rgba(0,0,0,.2), inset 0 1px 0 0 rgba(255,255,255,.08);">
+            <span class="w-2 h-2 rounded-full bg-[var(--brand)] shadow-[0_0_8px_rgba(255,210,63,0.8)]"></span>
+            <span class="text-[13px] font-extrabold num-tab">42,50 €</span>
+          </div>
+        </div>
+        <div class="absolute" style="left:13%; top:75%;">
+          <div class="inline-flex items-center gap-2 bg-[#0A0A0A] text-white pl-1.5 pr-3.5 py-1.5 rounded-full"
+               style="box-shadow:0 12px 32px -8px rgba(0,0,0,.4), 0 4px 10px -2px rgba(0,0,0,.2), inset 0 1px 0 0 rgba(255,255,255,.08);">
+            <span class="w-2 h-2 rounded-full bg-[var(--brand)] shadow-[0_0_8px_rgba(255,210,63,0.8)]"></span>
+            <span class="text-[13px] font-extrabold num-tab">31,00 €</span>
+          </div>
+        </div>
+        <div class="absolute" style="left:80%; top:70%;">
+          <div class="inline-flex items-center gap-2 bg-[#0A0A0A] text-white pl-1.5 pr-3.5 py-1.5 rounded-full"
+               style="box-shadow:0 12px 32px -8px rgba(0,0,0,.4), 0 4px 10px -2px rgba(0,0,0,.2), inset 0 1px 0 0 rgba(255,255,255,.08);">
+            <span class="w-2 h-2 rounded-full bg-[var(--brand)] shadow-[0_0_8px_rgba(255,210,63,0.8)]"></span>
+            <span class="text-[13px] font-extrabold num-tab">52,00 €</span>
+          </div>
+        </div>
+        <div class="absolute" style="left:43%; top:18%;">
+          <div class="inline-flex items-center gap-2 bg-[#0A0A0A] text-white pl-1.5 pr-3.5 py-1.5 rounded-full"
+               style="box-shadow:0 12px 32px -8px rgba(0,0,0,.4), 0 4px 10px -2px rgba(0,0,0,.2), inset 0 1px 0 0 rgba(255,255,255,.08);">
+            <span class="w-2 h-2 rounded-full bg-[var(--brand)] shadow-[0_0_8px_rgba(255,210,63,0.8)]"></span>
+            <span class="text-[13px] font-extrabold num-tab">18,00 €</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-4 border-t border-black/5 text-xs text-[var(--ink-soft)]/70">
+        Toutes les offres en pill noire premium. Forte cohésion avec la pilule chauffeur. Le dot jaune = identité « TaxiLink ».
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- Aperçu n°2 — squircle Apple                                    -->
+  <!-- ============================================================== -->
+  <section class="max-w-6xl mx-auto mt-8">
+    <div class="flex items-baseline gap-3 mb-4">
+      <span class="section-title">Aperçu en situation — variante n°2 (squircle)</span>
+    </div>
+
+    <div class="bg-white rounded-3xl card-shadow overflow-hidden">
+      <div class="map h-[440px]">
+        <!-- Mehdi -->
+        <div class="absolute" style="left:48%; top:55%; transform:translate(-50%,-50%); z-index:25;">
+          <div class="driver-badge">
+            <div class="icon"><span class="material-symbols-rounded text-[19px] text-[#0A0A0A]">local_taxi</span></div>
+            <div class="leading-tight">
+              <div class="text-[11px] font-bold">Mehdi</div>
+              <div class="text-[10px] text-[var(--brand)] font-mono">AB-123-CD</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="absolute" style="left:18%; top:25%;">
+          <div class="squircle shadow-sticker" style="width:60px; height:60px; background:linear-gradient(180deg,#FFE066 0%,#FFD11A 100%); display:flex; align-items:center; justify-content:center;">
+            <span class="text-[16px] font-black num-tab text-[#0A0A0A]">24€</span>
+          </div>
+        </div>
+        <div class="absolute" style="left:75%; top:20%;">
+          <div class="squircle shadow-sticker" style="width:60px; height:60px; background:linear-gradient(180deg,#FFE066 0%,#FFD11A 100%); display:flex; align-items:center; justify-content:center;">
+            <span class="text-[16px] font-black num-tab text-[#0A0A0A]">42€</span>
+          </div>
+        </div>
+        <div class="absolute" style="left:13%; top:75%;">
+          <div class="squircle shadow-sticker" style="width:60px; height:60px; background:linear-gradient(180deg,#FFE066 0%,#FFD11A 100%); display:flex; align-items:center; justify-content:center;">
+            <span class="text-[16px] font-black num-tab text-[#0A0A0A]">31€</span>
+          </div>
+        </div>
+        <div class="absolute" style="left:80%; top:70%;">
+          <div class="squircle shadow-sticker" style="width:60px; height:60px; background:linear-gradient(180deg,#FFE066 0%,#FFD11A 100%); display:flex; align-items:center; justify-content:center;">
+            <span class="text-[16px] font-black num-tab text-[#0A0A0A]">52€</span>
+          </div>
+        </div>
+        <div class="absolute" style="left:43%; top:18%;">
+          <!-- variante "selected" -->
+          <div class="squircle shadow-sticker" style="width:68px; height:68px; background:#0A0A0A; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 4px rgba(255,210,63,0.5), 0 12px 32px -8px rgba(0,0,0,.4);">
+            <span class="text-[17px] font-black num-tab text-[var(--brand)]">18€</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-4 border-t border-black/5 text-xs text-[var(--ink-soft)]/70">
+        Squircles avec gradient et sheen. La sélection passe en noir avec un anneau lumineux jaune.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- Footer choix                                                      -->
+  <!-- ============================================================== -->
+  <footer class="max-w-6xl mx-auto mt-10 mb-4">
+    <div class="bg-[#0A0A0A] text-white rounded-3xl p-5 md:p-6">
+      <p class="section-title" style="color:var(--brand);">Ton choix</p>
+      <p class="text-base mt-2 leading-relaxed">
+        Mes 3 favoris pour le côté « moderne » :<br/>
+        • <span class="font-mono bg-white/10 px-2 py-0.5 rounded">1</span> — pill noire (cohérence max avec ton badge)<br/>
+        • <span class="font-mono bg-white/10 px-2 py-0.5 rounded">2</span> — squircle Apple-like (le plus 2026)<br/>
+        • <span class="font-mono bg-white/10 px-2 py-0.5 rounded">7</span> — typo pure + halo (le plus radical)
+      </p>
+      <p class="text-sm mt-4 text-white/70">
+        Donne-moi un numéro — ou indique ce qui ne te plaît pas et je repars sur une autre direction.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
