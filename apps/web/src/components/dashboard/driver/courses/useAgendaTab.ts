@@ -5,19 +5,20 @@ import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 import type { Mission } from '@/lib/supabase/types'
-import { sameDay, addDays, toEvent } from './agendaHelpers'
+import { sameDay, addDays, startOfDay, startOfWeek, agendaDayLabel, toEvent, type AgendaEvent } from './agendaHelpers'
 
 export type { AgendaEvent, AgendaEventStatus } from './agendaHelpers'
 
 const FR_DAY_SHORT = ['DIM', 'LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM']
+const VISIBLE_DAYS = 14
 
-function startOfWeek(d: Date): Date {
-  const r = new Date(d)
-  const day = r.getDay()
-  const diff = day === 0 ? -6 : 1 - day // ramene au lundi
-  r.setDate(r.getDate() + diff)
-  r.setHours(0, 0, 0, 0)
-  return r
+export interface AgendaDayGroup {
+  key: string
+  date: Date
+  label: string
+  events: AgendaEvent[]
+  total: number
+  count: number
 }
 
 export function useAgendaTab() {
@@ -29,6 +30,7 @@ export function useAgendaTab() {
   const [selected, setSelected] = useState(new Date())
   const [nowTick, setNowTick] = useState(Date.now())
   const [showAddModal, setShowAddModal] = useState(false)
+  const [addModalDate, setAddModalDate] = useState<Date | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -63,6 +65,16 @@ export function useAgendaTab() {
 
   function openDetails(id: string) {
     router.push(`/dashboard/chauffeur/mission/${id}`)
+  }
+
+  function openAddModalFor(date: Date) {
+    setAddModalDate(date)
+    setShowAddModal(true)
+  }
+
+  function closeAddModal() {
+    setShowAddModal(false)
+    setAddModalDate(null)
   }
 
   const weekStart = useMemo(() => startOfWeek(selected), [selected])
@@ -105,12 +117,38 @@ export function useAgendaTab() {
       .reduce((s, m) => s + Number(m.distance_km ?? 0), 0),
   }), [events, missions, selected])
 
+  // Vue multi-jours : 14 jours à partir d'aujourd'hui, chacun avec ses events.
+  // Les jours vides sont conservés (tu peux y ajouter une course manuellement).
+  const daysGroups = useMemo<AgendaDayGroup[]>(() => {
+    if (!user) return []
+    const today = startOfDay(new Date())
+    const tomorrow = addDays(today, 1)
+    return Array.from({ length: VISIBLE_DAYS }, (_, i) => {
+      const d = addDays(today, i)
+      const dayEvents = missions
+        .filter((m) => sameDay(new Date(m.scheduled_at), d))
+        .map((m) => toEvent(m, user.id))
+        .filter((e): e is AgendaEvent => e !== null)
+        .sort((a, b) => a.start.getTime() - b.start.getTime())
+      return {
+        key: d.toDateString(),
+        date: d,
+        label: agendaDayLabel(d, today, tomorrow),
+        events: dayEvents,
+        count: dayEvents.length,
+        total: dayEvents.reduce((s, e) => s + e.priceEur, 0),
+      }
+    })
+  }, [missions, user, nowTick])
+
   return {
     loading, error,
     selected, setSelected,
     weekDays, weekRangeLabel, planningTitle,
     events, stats,
+    daysGroups,
     showAddModal, setShowAddModal,
+    addModalDate, openAddModalFor, closeAddModal,
     openDetails, addMission,
   }
 }

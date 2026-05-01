@@ -26,6 +26,28 @@ export function addDays(d: Date, n: number) {
   return r
 }
 
+export function startOfDay(d: Date): Date {
+  const r = new Date(d)
+  r.setHours(0, 0, 0, 0)
+  return r
+}
+
+export function startOfWeek(d: Date): Date {
+  const r = new Date(d)
+  const day = r.getDay()
+  const diff = day === 0 ? -6 : 1 - day // ramene au lundi
+  r.setDate(r.getDate() + diff)
+  r.setHours(0, 0, 0, 0)
+  return r
+}
+
+export function agendaDayLabel(d: Date, today: Date, tomorrow: Date): string {
+  const dayMonth = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
+  if (sameDay(d, today)) return `Aujourd'hui · ${dayMonth}`
+  if (sameDay(d, tomorrow)) return `Demain · ${dayMonth}`
+  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+}
+
 export function toEvent(m: Mission, _userId: string): AgendaEvent | null {
   const start = new Date(m.scheduled_at)
   const durationMin = Math.max(m.duration_min ?? Math.round((m.distance_km ?? 0) * 2.2), 15)

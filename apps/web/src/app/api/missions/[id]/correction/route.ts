@@ -21,6 +21,7 @@ interface Body {
   distance_km?: number | null
   duration_min?: number | null
   price_eur?: number | null
+  phone?: string | null
 }
 
 type RouteParams = { params: Promise<{ id: string }> }
@@ -68,7 +69,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       body.destination_lat !== undefined ||
       body.destination_lng !== undefined ||
       body.distance_km !== undefined ||
-      body.duration_min !== undefined
+      body.duration_min !== undefined ||
+      body.phone !== undefined
     const wantsPriceEdit = body.price_eur !== undefined
 
     if (wantsAddressEdit && !ADDRESS_STATUSES.has(mission.status)) {
@@ -105,6 +107,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     if (body.destination_lng !== undefined) patch.destination_lng = body.destination_lng
     if (body.distance_km !== undefined) patch.distance_km = body.distance_km
     if (body.duration_min !== undefined) patch.duration_min = body.duration_min
+    if (body.phone !== undefined) {
+      const trimmed = body.phone == null ? null : body.phone.trim()
+      patch.phone = trimmed && trimmed.length > 0 ? trimmed : null
+    }
     if (body.price_eur !== undefined) {
       if (body.price_eur != null && (!Number.isFinite(body.price_eur) || body.price_eur < 0)) {
         return NextResponse.json({ error: 'Prix invalide' }, { status: 422 })

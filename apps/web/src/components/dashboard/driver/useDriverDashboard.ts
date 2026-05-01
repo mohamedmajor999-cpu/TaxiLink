@@ -3,7 +3,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import type { DriverTab } from '@/components/taxilink/navTypes'
 
 export type Tab = DriverTab
-const VALID_TABS: Tab[] = ['home', 'courses', 'groupes', 'profil']
+const VALID_TABS: Tab[] = ['home', 'courses', 'groupes', 'stats', 'profil']
 
 export function useDriverDashboard() {
   const router = useRouter()

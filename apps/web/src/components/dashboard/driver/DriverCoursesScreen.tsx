@@ -2,13 +2,20 @@
 import Image from 'next/image'
 import { Plus } from 'lucide-react'
 import { useDriverCoursesScreen, type CoursesTab } from './courses/useDriverCoursesScreen'
-import { UpcomingTab } from './courses/UpcomingTab'
-import { PostedTab } from './courses/PostedTab'
-import { HistoryTab } from './courses/HistoryTab'
-import { CoursesEarningsHero } from './courses/CoursesEarningsHero'
+import { TodayTab } from './courses/today/TodayTab'
+import { AgendaTab } from './courses/AgendaTab'
+import { AdsTab } from './courses/ads/AdsTab'
+import { CoursesEarningsChip } from './courses/CoursesEarningsChip'
+import type { EarningsChipVariant } from './courses/useCoursesEarningsChip'
 
 interface Props {
   onPostCourse: () => void
+}
+
+const CHIP_VARIANT_BY_TAB: Record<CoursesTab, EarningsChipVariant> = {
+  today: 'today',
+  agenda: 'week',
+  ads: 'pendingAds',
 }
 
 export function DriverCoursesScreen({ onPostCourse }: Props) {
@@ -29,6 +36,7 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <CoursesEarningsChip variant={CHIP_VARIANT_BY_TAB[active]} />
           <button
             type="button"
             onClick={onPostCourse}
@@ -40,16 +48,14 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
         </div>
       </header>
 
-      <CoursesEarningsHero />
-
       <nav className="grid grid-cols-3 gap-2 mb-5 md:max-w-2xl">
         {subTabs.map((t) => <TabPill key={t.id} tab={t} active={active} onClick={setActive} />)}
       </nav>
 
       <div className="transition-opacity">
-        {active === 'upcoming' && <UpcomingTab />}
-        {active === 'posted' && <PostedTab onPostCourse={onPostCourse} />}
-        {active === 'history' && <HistoryTab />}
+        {active === 'today' && <TodayTab />}
+        {active === 'agenda' && <AgendaTab />}
+        {active === 'ads' && <AdsTab onPostCourse={onPostCourse} />}
       </div>
     </div>
   )

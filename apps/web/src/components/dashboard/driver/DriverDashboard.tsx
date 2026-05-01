@@ -25,6 +25,7 @@ const TabFallback = () => (
 )
 const DriverCoursesScreen = dynamic(() => import('./DriverCoursesScreen').then((m) => m.DriverCoursesScreen), { loading: TabFallback })
 const DriverGroupesScreen = dynamic(() => import('./DriverGroupesScreen').then((m) => m.DriverGroupesScreen), { loading: TabFallback })
+const DriverStatsScreen = dynamic(() => import('./stats/DriverStatsScreen').then((m) => m.DriverStatsScreen), { loading: TabFallback })
 const DriverProfilScreen = dynamic(() => import('./DriverProfilScreen').then((m) => m.DriverProfilScreen), { loading: TabFallback })
 const DocumentsScreen = dynamic(() => import('./profil/DocumentsScreen').then((m) => m.DocumentsScreen), { loading: TabFallback })
 const PersonalInfoScreen = dynamic(() => import('./profil/PersonalInfoScreen').then((m) => m.PersonalInfoScreen), { loading: TabFallback })
@@ -35,6 +36,7 @@ const SupportScreen = dynamic(() => import('./profil/SupportScreen').then((m) =>
 const MissionDetailScreen = dynamic(() => import('./MissionDetailScreen').then((m) => m.MissionDetailScreen), { loading: TabFallback })
 const PartagerMissionModal = dynamic(() => import('./PartagerMissionModal').then((m) => m.PartagerMissionModal))
 const PostedMissionAcceptPopup = dynamic(() => import('./PostedMissionAcceptPopup').then((m) => m.PostedMissionAcceptPopup))
+const MissionEditSheet = dynamic(() => import('./courses/edit-sheet/MissionEditSheet').then((m) => m.MissionEditSheet))
 
 export function DriverDashboard() {
   const router = useRouter()
@@ -84,7 +86,7 @@ export function DriverDashboard() {
   const handlePostCourse = () => router.push('/dashboard/poster-mockup')
   const goToPostedTab = () => {
     clearEdit()
-    router.push('/dashboard/chauffeur?tab=courses&subtab=posted')
+    router.push('/dashboard/chauffeur?tab=courses&subtab=ads')
   }
 
   if (loading) {
@@ -132,6 +134,7 @@ export function DriverDashboard() {
                 <DriverGroupesScreen />
               </div>
             )}
+            {activeTab === 'stats' && <DriverStatsScreen />}
             {activeTab === 'profil' && (
               <div className="px-4 md:px-8 pt-[calc(56px+env(safe-area-inset-top))] pb-4 md:pt-6 md:pb-6 max-w-6xl mx-auto">
                 {profilSub === 'documents' ? (
@@ -185,6 +188,7 @@ export function DriverDashboard() {
       />
 
       <PostedMissionAcceptPopup onViewPosted={goToPostedTab} />
+      <MissionEditSheet />
     </div>
   )
 }

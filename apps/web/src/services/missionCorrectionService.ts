@@ -11,11 +11,12 @@ export interface CorrectionPatch {
   distance_km?: number | null
   duration_min?: number | null
   price_eur?: number | null
+  phone?: string | null
 }
 
 /**
  * Corrections post-acceptation par le chauffeur :
- * - Adresses + coords + distance/duree : status IN_PROGRESS / ACCEPTED
+ * - Adresses + coords + distance/duree + phone : status IN_PROGRESS / ACCEPTED
  * - price_eur (montant reel) : status DONE
  * Ownership : driver_id = auth.uid() verifie cote serveur.
  */

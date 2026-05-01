@@ -138,3 +138,73 @@ describe('useAgendaTab — addMission', () => {
     })
   })
 })
+
+// ─── Vue multi-jours (daysGroups) ─────────────────────────────────────────────
+describe('useAgendaTab — daysGroups', () => {
+  it('expose 14 jours futurs à partir d\'aujourd\'hui', async () => {
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.daysGroups).toHaveLength(14)
+  })
+
+  it('le 1er groupe correspond à aujourd\'hui avec label commençant par "Aujourd\'hui"', async () => {
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.daysGroups[0].date.toDateString()).toBe(FROZEN.toDateString())
+    expect(result.current.daysGroups[0].label.startsWith("Aujourd'hui")).toBe(true)
+  })
+
+  it('le 2e groupe correspond à demain avec label commençant par "Demain"', async () => {
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.daysGroups[1].label.startsWith('Demain')).toBe(true)
+  })
+
+  it('chaque groupe expose count + total = somme des price_eur des events du jour', async () => {
+    mockGetAgenda.mockResolvedValueOnce([
+      makeMission('m1', '2026-05-01T09:00:00.000Z', { price_eur: 30 }),
+      makeMission('m2', '2026-05-01T14:00:00.000Z', { price_eur: 50 }),
+      makeMission('m3', '2026-05-03T10:00:00.000Z', { price_eur: 25 }),
+    ])
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    const today = result.current.daysGroups[0]
+    const dayPlus2 = result.current.daysGroups[2]
+    expect(today.count).toBe(2)
+    expect(today.total).toBe(80)
+    expect(dayPlus2.count).toBe(1)
+    expect(dayPlus2.total).toBe(25)
+  })
+
+  it('les jours vides existent et ont count=0', async () => {
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.daysGroups.every((g) => g.count === 0)).toBe(true)
+  })
+})
+
+// ─── openAddModalFor ─────────────────────────────────────────────────────────
+describe('useAgendaTab — openAddModalFor / closeAddModal', () => {
+  it('openAddModalFor positionne addModalDate et ouvre showAddModal', async () => {
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    const target = new Date('2026-05-05')
+    result.current.openAddModalFor(target)
+
+    await waitFor(() => expect(result.current.showAddModal).toBe(true))
+    expect(result.current.addModalDate?.toDateString()).toBe(target.toDateString())
+  })
+
+  it('closeAddModal réinitialise addModalDate et ferme la modal', async () => {
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    result.current.openAddModalFor(new Date('2026-05-05'))
+    await waitFor(() => expect(result.current.showAddModal).toBe(true))
+
+    result.current.closeAddModal()
+    await waitFor(() => expect(result.current.showAddModal).toBe(false))
+    expect(result.current.addModalDate).toBeNull()
+  })
+})
