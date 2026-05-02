@@ -1,5 +1,5 @@
 'use client'
-import { Navigation2, Phone, AlertCircle, Pencil, Settings2, Star, Clock, Car, UserCheck, CheckCircle2 } from 'lucide-react'
+import { Navigation2, Phone, AlertCircle, Pencil, Settings2, Star, Clock, Car, UserCheck, UserMinus, CheckCircle2 } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { getMinutesUntil, formatTime } from '@/lib/dateUtils'
 import { formatDuration } from '@/lib/formatDuration'
@@ -10,6 +10,7 @@ import { NavigationSheet } from '../NavigationSheet'
 import { useNextCourseHero } from './useNextCourseHero'
 import { StepBar } from './StepBar'
 import { RouteRow } from './RouteRow'
+import { GpsStatusBadge } from './GpsStatusBadge'
 
 interface Props {
   mission: Mission
@@ -38,10 +39,17 @@ export function NextCourseHero({ mission, onEdit }: Props) {
   const isCpam = mission.transport_type === 'CPAM'
   const patient = mission.patient_name?.trim() || 'le patient'
 
-  const isStep2 = h.step === 'toDestination'
-  const ctaLabel = isStep2 ? 'Démarrer vers la destination' : `Je pars chercher ${patient}`
-  const ctaHandler = isStep2 ? h.goToDestination : h.goToPickup
-  const showArrivedBtn = !isStep2 && mission.enroute_at && !mission.pickup_at
+  const isDropped = h.progress === 'dropped'
+  const isStep2 = h.step === 'toDestination' && !isDropped
+  const CtaIcon = isDropped ? CheckCircle2 : Navigation2
+  const ctaLabel = isDropped
+    ? 'Course terminée'
+    : isStep2
+      ? 'Démarrer vers la destination'
+      : `Je pars chercher ${patient}`
+  const ctaHandler = isDropped ? h.completeMission : isStep2 ? h.goToDestination : h.goToPickup
+  const showArrivedBtn = h.progress === 'enroute'
+  const showDroppedBtn = h.progress === 'onboard'
   const gpsLabel = h.pref === 'ask' ? 'Demander à chaque fois' : gpsAppLabel(h.pref)
   const { label: headerLabel, Icon: HeaderIcon } = HEADER_BY_PROGRESS[h.progress]
   const isStarHeader = h.progress === 'available' || h.progress === 'accepted'
@@ -68,6 +76,8 @@ export function NextCourseHero({ mission, onEdit }: Props) {
           {time}
         </span>
       </div>
+
+      <div className="mt-1.5"><GpsStatusBadge /></div>
 
       <div className="mt-2.5 grid grid-cols-[1fr_auto] gap-3 items-end">
         <div className="min-w-0">
@@ -108,10 +118,10 @@ export function NextCourseHero({ mission, onEdit }: Props) {
           disabled={h.busy}
           className="flex-1 h-12 rounded-2xl bg-brand text-ink text-[13.5px] font-black inline-flex items-center justify-center gap-1.5 hover:bg-brand/90 disabled:opacity-50 transition-colors px-3"
         >
-          <Navigation2 className="w-4 h-4 shrink-0" strokeWidth={2.4} />
+          <CtaIcon className="w-4 h-4 shrink-0" strokeWidth={2.4} />
           <span className="truncate">{ctaLabel}</span>
         </button>
-        {phoneHref && (
+        {phoneHref && !isDropped && (
           <a
             href={phoneHref}
             aria-label="Appeler le patient"
@@ -127,9 +137,22 @@ export function NextCourseHero({ mission, onEdit }: Props) {
           type="button"
           onClick={h.arrivedAtPatient}
           disabled={h.busy}
-          className="mt-1.5 w-full h-10 rounded-xl bg-warm-50 border border-warm-200 text-ink text-[12.5px] font-bold disabled:opacity-50"
+          className="mt-1.5 w-full h-10 rounded-xl bg-warm-50 border border-warm-200 text-ink text-[12.5px] font-bold disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
         >
+          <UserCheck className="w-3.5 h-3.5" strokeWidth={2.2} />
           J&apos;y suis arrivé — patient à bord
+        </button>
+      )}
+
+      {showDroppedBtn && (
+        <button
+          type="button"
+          onClick={h.markDropped}
+          disabled={h.busy}
+          className="mt-1.5 w-full h-10 rounded-xl bg-warm-50 border border-warm-200 text-ink text-[12.5px] font-bold disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+        >
+          <UserMinus className="w-3.5 h-3.5" strokeWidth={2.2} />
+          Patient déposé
         </button>
       )}
 

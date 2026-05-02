@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { missionProgressMutations } from '@/services/missionProgressMutations'
+import { missionService } from '@/services/missionService'
+import { useMissionStore } from '@/store/missionStore'
 import { getMissionProgress } from '@/lib/missionProgress'
 import { buildGpsUrl, type GpsApp } from '@/lib/gpsNavigation'
 import { useGpsPreference } from '../useGpsPreference'
@@ -76,6 +78,39 @@ export function useNextCourseHero({ mission }: Options) {
     else launchGps(pref)
   }
 
+  // Filet de secours manuel quand le suivi GPS auto échoue (indoor, signal faible,
+  // course trop rapide). Pose dropoff_at — la course n'est PAS encore clôturée
+  // (le bouton "Course terminée" reste à cliquer après).
+  const markDropped = async () => {
+    if (busy || mission.dropoff_at) return
+    setBusy(true)
+    setError(null)
+    try {
+      await missionProgressMutations.markDropped(mission.id)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erreur')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Clôture définitive de la course. À utiliser uniquement après dropoff (sinon
+  // le serveur refuse via RLS). Vide aussi la `currentMission` côté store pour
+  // que l'UI bascule sur la course suivante sans rechargement.
+  const completeMission = async () => {
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      await missionService.complete(mission.id)
+      useMissionStore.getState().dismissCurrentMission()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erreur')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return {
     progress,
     step,
@@ -89,5 +124,7 @@ export function useNextCourseHero({ mission }: Options) {
     goToPickup,
     arrivedAtPatient,
     goToDestination,
+    markDropped,
+    completeMission,
   }
 }
