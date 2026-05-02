@@ -16,22 +16,30 @@ const INTENSITY_BG: Record<HeatmapCell['intensity'], string> = {
 const MONTHS_FR = ['Janv.', 'Févr.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.']
 
 // Decoupe les cellules en colonnes-semaines, alignees sur le jour de la
-// semaine (lundi = 0, dimanche = 6). Chaque colonne contient 7 cellules.
-function toWeekColumns(cells: HeatmapCell[]): HeatmapCell[][] {
+// semaine (lundi = 0, dimanche = 6). La 1re et la dernière colonne sont
+// paddees avec null pour que chaque colonne ait toujours 7 cellules.
+function toWeekColumns(cells: HeatmapCell[]): (HeatmapCell | null)[][] {
   if (cells.length === 0) return []
-  const cols: HeatmapCell[][] = []
-  let current: HeatmapCell[] = []
+  const cols: (HeatmapCell | null)[][] = []
+  let current: (HeatmapCell | null)[] = []
+
+  const firstDow = new Date(cells[0].date).getDay()
+  const firstIdx = (firstDow + 6) % 7
+  for (let i = 0; i < firstIdx; i += 1) current.push(null)
 
   for (const cell of cells) {
-    const dow = new Date(cell.date).getDay() // 0=dim, 1=lun, ...
-    const idx = (dow + 6) % 7 // lun=0, dim=6
+    const dow = new Date(cell.date).getDay()
+    const idx = (dow + 6) % 7
     if (idx === 0 && current.length > 0) {
       cols.push(current)
       current = []
     }
     current.push(cell)
   }
-  if (current.length > 0) cols.push(current)
+  if (current.length > 0) {
+    while (current.length < 7) current.push(null)
+    cols.push(current)
+  }
   return cols
 }
 
@@ -43,12 +51,13 @@ function formatTooltip(c: HeatmapCell): string {
   return `${date} — ${c.count} course${c.count > 1 ? 's' : ''} · ${ca}€`
 }
 
-function monthLabels(cells: HeatmapCell[]): { col: number; label: string }[] {
-  const cols = toWeekColumns(cells)
+function monthLabels(cols: (HeatmapCell | null)[][]): { col: number; label: string }[] {
   const seen = new Set<number>()
   const labels: { col: number; label: string }[] = []
   cols.forEach((week, i) => {
-    const month = new Date(week[0].date).getMonth()
+    const first = week.find((c): c is HeatmapCell => c !== null)
+    if (!first) return
+    const month = new Date(first.date).getMonth()
     if (!seen.has(month) && i > 0) {
       seen.add(month)
       labels.push({ col: i, label: MONTHS_FR[month] })
@@ -59,9 +68,10 @@ function monthLabels(cells: HeatmapCell[]): { col: number; label: string }[] {
 
 export function HistoryHeatmap({ cells }: Props) {
   const cols = toWeekColumns(cells)
-  const labels = monthLabels(cells)
+  const labels = monthLabels(cols)
   const totalDays = cells.filter((c) => c.count > 0).length
   const totalCourses = cells.reduce((s, c) => s + c.count, 0)
+  const colCount = cols.length || 1
 
   return (
     <article className="rounded-2xl border border-warm-200 bg-paper p-4">
@@ -75,35 +85,42 @@ export function HistoryHeatmap({ cells }: Props) {
         <Legend />
       </header>
 
-      <div className="overflow-x-auto">
-        <div className="inline-flex flex-col gap-1 min-w-max">
-          <div className="relative h-3" aria-hidden="true">
-            {labels.map(({ col, label }) => (
-              <span
-                key={`${col}-${label}`}
-                className="absolute text-[9px] font-semibold uppercase tracking-wide text-warm-500"
-                style={{ left: `${col * 14}px` }}
-              >
-                {label}
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-[2px]" role="grid" aria-label="Carte d'activité par jour">
-            {cols.map((week, i) => (
-              <div key={i} className="flex flex-col gap-[2px]" role="row">
-                {week.map((cell) => (
+      <div className="w-full">
+        <div className="relative h-3 mb-1" aria-hidden="true">
+          {labels.map(({ col, label }) => (
+            <span
+              key={`${col}-${label}`}
+              className="absolute text-[9px] font-semibold uppercase tracking-wide text-warm-500 whitespace-nowrap"
+              style={{ left: `${(col / colCount) * 100}%` }}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+        <div
+          className="grid gap-[2px] w-full"
+          style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}
+          role="grid"
+          aria-label="Carte d'activité par jour"
+        >
+          {cols.map((week, i) => (
+            <div key={i} className="flex flex-col gap-[2px]" role="row">
+              {week.map((cell, j) =>
+                cell === null ? (
+                  <span key={`empty-${i}-${j}`} className="block aspect-square" aria-hidden="true" />
+                ) : (
                   <span
                     key={cell.date}
                     role="gridcell"
                     title={formatTooltip(cell)}
                     aria-label={formatTooltip(cell)}
-                    className="w-3 h-3 rounded-[3px]"
+                    className="block aspect-square rounded-[3px]"
                     style={{ backgroundColor: INTENSITY_BG[cell.intensity] }}
                   />
-                ))}
-              </div>
-            ))}
-          </div>
+                )
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </article>
