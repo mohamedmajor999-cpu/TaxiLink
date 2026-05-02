@@ -5,6 +5,7 @@ import { WeekStrip } from '../WeekStrip'
 import { AdCardWaiting } from './AdCardWaiting'
 import { AdCardAccepted } from './AdCardAccepted'
 import { AdCardDone } from './AdCardDone'
+import { agendaDayLabel, startOfDay, addDays } from '../agendaHelpers'
 
 interface Props {
   onPostCourse: () => void
@@ -12,13 +13,6 @@ interface Props {
 
 export function AdsTab({ onPostCourse }: Props) {
   const a = useAdsTab()
-
-  const onSelectDay = (d: Date) => {
-    a.setSelected(d)
-    if (typeof window === 'undefined') return
-    const el = document.getElementById(`ad-day-${d.toDateString()}`)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
 
   if (a.loading) {
     return (
@@ -59,39 +53,50 @@ export function AdsTab({ onPostCourse }: Props) {
     )
   }
 
+  const selectedKey = a.selected.toDateString()
+  const today = startOfDay(new Date())
+  const tomorrow = addDays(today, 1)
+  const visibleGroup = a.daysGroups.find((g) => g.key === selectedKey)
+  const dayLabel = visibleGroup?.label ?? agendaDayLabel(a.selected, today, tomorrow)
+
   return (
     <div className="pb-24 md:pb-6">
-      <WeekStrip days={a.weekDays} selected={a.selected} onSelect={onSelectDay} />
+      <WeekStrip days={a.weekDays} selected={a.selected} onSelect={a.setSelected} />
 
       <div className="mt-4">
-        {a.daysGroups.map((g) => (
-          <section key={g.key} id={`ad-day-${g.key}`} className="mb-5 scroll-mt-24">
-            <header className="flex items-end justify-between mb-2 px-1">
-              <h3 className="text-[13px] font-bold text-ink leading-tight first-letter:uppercase">
-                {g.label}
-              </h3>
-              <span className="text-[11px] font-semibold text-warm-500 tabular-nums">
-                {g.ads.length} annonce{g.ads.length > 1 ? 's' : ''}
-              </span>
-            </header>
-            {g.ads.map((ad) => {
-              if (ad.state === 'waiting') {
-                return <AdCardWaiting key={ad.mission.id} mission={ad.mission} />
-              }
-              if (ad.state === 'accepted') {
-                return (
-                  <AdCardAccepted
-                    key={ad.mission.id}
-                    mission={ad.mission}
-                    driver={ad.driver}
-                    now={a.nowTick}
-                  />
-                )
-              }
-              return <AdCardDone key={ad.mission.id} mission={ad.mission} driver={ad.driver} />
-            })}
-          </section>
-        ))}
+        <section className="mb-5">
+          <header className="flex items-end justify-between mb-2 px-1">
+            <h3 className="text-[13px] font-bold text-ink leading-tight first-letter:uppercase">
+              {dayLabel}
+            </h3>
+            <span className="text-[11px] font-semibold text-warm-500 tabular-nums">
+              {visibleGroup ? `${visibleGroup.ads.length} annonce${visibleGroup.ads.length > 1 ? 's' : ''}` : '0 annonce'}
+            </span>
+          </header>
+
+          {!visibleGroup && (
+            <div className="rounded-2xl border border-dashed border-warm-200 bg-warm-50/50 py-8 text-center text-[13px] text-warm-500">
+              Aucune annonce ce jour-là
+            </div>
+          )}
+
+          {visibleGroup?.ads.map((ad) => {
+            if (ad.state === 'waiting') {
+              return <AdCardWaiting key={ad.mission.id} mission={ad.mission} />
+            }
+            if (ad.state === 'accepted') {
+              return (
+                <AdCardAccepted
+                  key={ad.mission.id}
+                  mission={ad.mission}
+                  driver={ad.driver}
+                  now={a.nowTick}
+                />
+              )
+            }
+            return <AdCardDone key={ad.mission.id} mission={ad.mission} driver={ad.driver} />
+          })}
+        </section>
       </div>
     </div>
   )

@@ -3,24 +3,32 @@ import { useAgendaTab } from './useAgendaTab'
 import { AgendaAddModal } from './AgendaAddModal'
 import { WeekStrip } from './WeekStrip'
 import { AgendaDayBlock } from './AgendaDayBlock'
+import { agendaDayLabel, startOfDay, addDays } from './agendaHelpers'
 
 export function AgendaTab() {
   const a = useAgendaTab()
 
-  // Cliquer sur un jour de la WeekStrip → on scrolle vers le bloc du jour
-  // si visible (scroll-margin-top compensé pour la sticky header).
-  const onSelectDay = (d: Date) => {
-    a.setSelected(d)
-    if (typeof window === 'undefined') return
-    const el = document.getElementById(`day-${d.toDateString()}`)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+  // Filtre 1 jour : la WeekStrip pilote daysGroups → seul le jour selectionne
+  // est rendu. Si la date selectionnee n'est pas couverte par daysGroups (jour
+  // passe ou au-dela de J+13), on construit un groupe vide a la volee.
+  const selectedKey = a.selected.toDateString()
+  const today = startOfDay(new Date())
+  const tomorrow = addDays(today, 1)
+  const visibleGroup = a.daysGroups.find((g) => g.key === selectedKey)
+    ?? {
+      key: selectedKey,
+      date: a.selected,
+      label: agendaDayLabel(a.selected, today, tomorrow),
+      events: [],
+      count: 0,
+      total: 0,
+    }
 
   return (
     <div className="mt-2 pb-24 md:pb-6">
       <p className="text-[12px] text-warm-500 -mt-3 mb-1 capitalize">{a.weekRangeLabel}</p>
 
-      <WeekStrip days={a.weekDays} selected={a.selected} onSelect={onSelectDay} />
+      <WeekStrip days={a.weekDays} selected={a.selected} onSelect={a.setSelected} />
 
       <div className="mt-4">
         {a.loading && (
@@ -29,14 +37,14 @@ export function AgendaTab() {
           </div>
         )}
 
-        {!a.loading && a.daysGroups.map((g) => (
+        {!a.loading && (
           <AgendaDayBlock
-            key={g.key}
-            group={g}
+            key={visibleGroup.key}
+            group={visibleGroup}
             onTap={a.openDetails}
             onAdd={a.openAddModalFor}
           />
-        ))}
+        )}
       </div>
 
       {a.showAddModal && (
