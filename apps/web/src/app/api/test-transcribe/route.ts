@@ -3,6 +3,21 @@ import { NextResponse } from 'next/server'
 const OPENAI_URL = 'https://api.openai.com/v1/audio/transcriptions'
 const TIMEOUT_MS = 30000
 
+// Biais Whisper : liste de noms propres marseillais et termes médicaux courants
+// pour orienter la reconnaissance. Whisper accepte jusqu'a 224 tokens.
+const WHISPER_PROMPT =
+  'Course en taxi a Marseille et Bouches-du-Rhone. ' +
+  'Quartiers : Frais Vallon, La Castellane, La Rose, Saint-Antoine, La Joliette, ' +
+  'Castellane, Bonneveine, La Timone, La Conception, Endoume, Saint-Loup, Mazargues, ' +
+  'Le Panier, Sainte-Marguerite, Les Caillols, Saint-Just, Saint-Jerome. ' +
+  'Hopitaux : La Timone, La Conception, Hopital Nord, Hopital Europeen, ' +
+  'Saint-Joseph, Sainte-Marguerite, Clairval, Beauregard, Desbief. ' +
+  'Reperes : Gare Saint-Charles, Aeroport Marseille Provence, Vieux-Port, ' +
+  'Stade Velodrome, Stade Frais Vallon, Plage du Prado. ' +
+  'Villes : Aix-en-Provence, Aubagne, Marignane, Vitrolles, Martigues, ' +
+  'Salon-de-Provence, Cassis, La Ciotat, Allauch, Plan-de-Cuques. ' +
+  'Termes : CPAM, dialyse, consultation, hopital de jour, kine, radio, scanner, IRM.'
+
 export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'OPENAI_API_KEY manquante' }, { status: 500 })
@@ -19,6 +34,7 @@ export async function POST(request: Request) {
   upstream.append('model', 'whisper-1')
   upstream.append('language', 'fr')
   upstream.append('response_format', 'json')
+  upstream.append('prompt', WHISPER_PROMPT)
 
   const start = Date.now()
   let res: Response
