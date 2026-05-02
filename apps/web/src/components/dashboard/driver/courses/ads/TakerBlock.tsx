@@ -1,11 +1,10 @@
 'use client'
-import { Phone, MessageSquare, ReceiptText } from 'lucide-react'
+import { Phone, MessageSquare, MessageCircle } from 'lucide-react'
 import type { DriverProfile } from './adsHelpers'
 
 interface Props {
   driver: DriverProfile | null
   subline?: string
-  showInvoice?: boolean
 }
 
 function initials(name: string | null): string {
@@ -19,11 +18,22 @@ function initials(name: string | null): string {
     .toUpperCase()
 }
 
-export function TakerBlock({ driver, subline, showInvoice }: Props) {
+/**
+ * Normalise un numéro pour wa.me : digits-only, format français "0XYZ" ramené
+ * à "33XYZ". Si déjà international (commence par autre chose), on laisse.
+ */
+function waNumber(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.startsWith('0') && digits.length === 10) return '33' + digits.slice(1)
+  return digits
+}
+
+export function TakerBlock({ driver, subline }: Props) {
   const name = driver?.full_name ?? 'Collègue'
   const phone = driver?.phone
   const tel = phone ? `tel:${phone}` : null
   const sms = phone ? `sms:${phone}` : null
+  const wa = phone ? `https://wa.me/${waNumber(phone)}` : null
 
   return (
     <div className="mt-2.5 flex items-center gap-2.5 p-2.5 rounded-xl bg-paper/70 backdrop-blur-sm">
@@ -34,15 +44,7 @@ export function TakerBlock({ driver, subline, showInvoice }: Props) {
         <p className="text-[13px] font-bold text-ink truncate">{name}</p>
         {subline && <p className="text-[11.5px] text-warm-500 truncate mt-0.5">{subline}</p>}
       </div>
-      {showInvoice ? (
-        <button
-          type="button"
-          aria-label="Voir la facture"
-          className="w-9 h-9 rounded-lg bg-paper border border-warm-200 grid place-items-center text-warm-700 hover:bg-warm-50 transition-colors"
-        >
-          <ReceiptText className="w-4 h-4" strokeWidth={2} />
-        </button>
-      ) : (
+      {phone && (
         <div className="flex gap-1.5">
           {sms && (
             <a
@@ -51,6 +53,17 @@ export function TakerBlock({ driver, subline, showInvoice }: Props) {
               className="w-9 h-9 rounded-lg bg-paper border border-warm-200 grid place-items-center text-ink hover:bg-warm-50 transition-colors"
             >
               <MessageSquare className="w-4 h-4" strokeWidth={2} />
+            </a>
+          )}
+          {wa && (
+            <a
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Envoyer un WhatsApp"
+              className="w-9 h-9 rounded-lg bg-[#25D366] text-paper grid place-items-center hover:opacity-90 transition-opacity"
+            >
+              <MessageCircle className="w-4 h-4" strokeWidth={2.2} />
             </a>
           )}
           {tel && (

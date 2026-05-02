@@ -46,6 +46,21 @@ export function getAdState(m: Mission): AdState {
  */
 export type TrackerStep = 'accepted' | 'enroute' | 'onboard' | 'done'
 
+/**
+ * Format compact "il y a X" partagé par les cartes : "à l'instant",
+ * "12 min", "3 h", "2 j". Garde une seule unité pour rester lisible
+ * dans les sublines des cartes (pas de "1 h 24 min").
+ */
+export function relativeAgo(iso: string | null): string {
+  if (!iso) return ''
+  const diffMin = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000))
+  if (diffMin < 1) return "à l'instant"
+  if (diffMin < 60) return `${diffMin} min`
+  const h = Math.floor(diffMin / 60)
+  if (h < 24) return `${h} h`
+  return `${Math.floor(h / 24)} j`
+}
+
 export function deriveTrackerStep(m: Mission, now: number): TrackerStep {
   if (m.status === 'DONE' || m.dropoff_at) return 'done'
   if (m.pickup_at) return 'onboard'

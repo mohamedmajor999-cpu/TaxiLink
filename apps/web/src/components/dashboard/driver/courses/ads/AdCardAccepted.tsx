@@ -6,7 +6,7 @@ import { formatTime } from '@/lib/dateUtils'
 import { formatMissionPrice } from '@/lib/formatMissionPrice'
 import { AdTracker } from './AdTracker'
 import { TakerBlock } from './TakerBlock'
-import type { DriverProfile } from './adsHelpers'
+import { relativeAgo, type DriverProfile } from './adsHelpers'
 
 interface Props {
   mission: Mission
@@ -14,23 +14,13 @@ interface Props {
   now: number
 }
 
-function timeSinceAccept(acceptedIso: string | null): string {
-  if (!acceptedIso) return ''
-  const diff = Math.max(0, Math.round((Date.now() - new Date(acceptedIso).getTime()) / 60_000))
-  if (diff < 1) return "à l'instant"
-  if (diff < 60) return `il y a ${diff} min`
-  const h = Math.floor(diff / 60)
-  if (h < 24) return `il y a ${h} h`
-  return `il y a ${Math.floor(h / 24)} j`
-}
-
 export function AdCardAccepted({ mission, driver, now }: Props) {
   const time = formatTime(mission.scheduled_at)
   const isCpam = mission.transport_type === 'CPAM'
   const openEdit = useMissionEditSheetStore((s) => s.open)
-  const subline = mission.accepted_at
-    ? `Acceptée ${timeSinceAccept(mission.accepted_at)}`
-    : 'Acceptée'
+  const postedAgo = relativeAgo(mission.created_at)
+  const acceptedAgo = relativeAgo(mission.accepted_at)
+  const subline = acceptedAgo ? `Acceptée il y a ${acceptedAgo}` : 'Acceptée'
 
   return (
     <article className="rounded-2xl px-4 py-3 border border-blue-200 bg-blue-50">
@@ -48,13 +38,20 @@ export function AdCardAccepted({ mission, driver, now }: Props) {
         <span><b className="text-ink font-extrabold">{formatMissionPrice(mission)}</b> · {isCpam ? 'CPAM' : 'Privé'}</span>
         {mission.patient_name && <span className="truncate">{mission.patient_name}</span>}
       </div>
+      {(postedAgo || acceptedAgo) && (
+        <p className="mt-1 text-[11px] text-warm-500">
+          {postedAgo && <>Postée il y a {postedAgo}</>}
+          {postedAgo && acceptedAgo && <span className="mx-1.5 text-warm-300">·</span>}
+          {acceptedAgo && <>Acceptée il y a {acceptedAgo}</>}
+        </p>
+      )}
 
       <TakerBlock driver={driver} subline={subline} />
 
       <AdTracker mission={mission} now={now} />
 
       <div className="mt-2.5 pt-2 border-t border-dashed border-blue-200/60 flex items-center justify-between text-[11.5px] text-warm-500">
-        <span>Infos patient ou adresse incorrectes ?</span>
+        <span>Adresse, téléphone ou patient à corriger ?</span>
         <button
           type="button"
           onClick={() => openEdit(mission, 'corrections')}
