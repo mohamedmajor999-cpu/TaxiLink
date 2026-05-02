@@ -44,7 +44,7 @@ export function AdCardWaiting({ mission }: Props) {
           className="inline-flex items-center gap-1 text-danger font-bold hover:underline"
         >
           <X className="w-3 h-3" strokeWidth={2.4} />
-          Annuler l'annonce
+          Annuler l&apos;annonce
         </button>
       </div>
 
@@ -59,7 +59,7 @@ export function AdCardWaiting({ mission }: Props) {
             className="bg-paper w-full max-w-sm rounded-t-3xl md:rounded-3xl p-5 shadow-soft"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-[18px] font-extrabold text-ink mb-1">Annuler l'annonce ?</h3>
+            <h3 className="text-[18px] font-extrabold text-ink mb-1">Annuler l&apos;annonce ?</h3>
             <p className="text-[13px] text-warm-600 mb-4">
               Elle sera retirée du fil. Tes collègues ne pourront plus la prendre.
             </p>
