@@ -3,6 +3,7 @@ import { Plus, Megaphone } from 'lucide-react'
 import { useAdsTab } from './useAdsTab'
 import { WeekStrip } from '../WeekStrip'
 import { AdCardWaiting } from './AdCardWaiting'
+import { AdCardExpired } from './AdCardExpired'
 import { AdCardAccepted } from './AdCardAccepted'
 import { AdCardDone } from './AdCardDone'
 import { agendaDayLabel, startOfDay, addDays } from '../agendaHelpers'
@@ -85,6 +86,9 @@ export function AdsTab({ onPostCourse }: Props) {
               {visibleGroup.ads.map((ad) => {
                 if (ad.state === 'waiting') {
                   return <AdCardWaiting key={ad.mission.id} mission={ad.mission} />
+                }
+                if (ad.state === 'expired') {
+                  return <AdCardExpired key={ad.mission.id} mission={ad.mission} />
                 }
                 if (ad.state === 'accepted') {
                   return (

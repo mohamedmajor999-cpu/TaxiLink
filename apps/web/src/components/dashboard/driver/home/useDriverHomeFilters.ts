@@ -28,9 +28,9 @@ export const HOME_SORT_OPTIONS: { key: HomeSort; label: string }[] = [
 
 const FAR_AWAY = Number.POSITIVE_INFINITY
 
-// Meme tolerance que le filtre serveur (missionQueries.getAvailable) : une
-// course "vient de demarrer" reste visible jusqu'a 24h dans le passe.
-const PAST_TOLERANCE_MS = 24 * 60 * 60 * 1000
+// Aligne avec missionQueries.getAvailable : une course dont l'heure de depart
+// est passee disparait du pool — un collegue qui la prendrait apres coup ne
+// pourrait plus arriver a temps.
 
 interface Params {
   missions: Mission[]
@@ -58,7 +58,7 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
   }, [groups])
 
   const filtered = useMemo(() => {
-    let list = missions.filter((x) => new Date(x.scheduled_at).getTime() > now - PAST_TOLERANCE_MS)
+    let list = missions.filter((x) => new Date(x.scheduled_at).getTime() > now)
     if (filter !== 'ALL') list = list.filter((x) => x.type === filter)
     if (urgentOnly) {
       list = list.filter((x) => (new Date(x.scheduled_at).getTime() - now) / 60_000 <= 10)
@@ -98,7 +98,7 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
   )
 
   const counts = useMemo(() => {
-    const live = missions.filter((x) => new Date(x.scheduled_at).getTime() > now - PAST_TOLERANCE_MS)
+    const live = missions.filter((x) => new Date(x.scheduled_at).getTime() > now)
     const c: Record<HomeTypeFilter, number> = { ALL: live.length, CPAM: 0, PRIVE: 0 }
     for (const x of live) {
       if (x.type === 'CPAM') c.CPAM++
@@ -114,7 +114,7 @@ export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
   }, [selectedGroupId, groupsById])
 
   const scopeCount = useMemo(() => {
-    let list = missions.filter((x) => new Date(x.scheduled_at).getTime() > now - PAST_TOLERANCE_MS)
+    let list = missions.filter((x) => new Date(x.scheduled_at).getTime() > now)
     if (selectedGroupId === HOME_GROUP_PUBLIC) {
       list = list.filter(isPublicMission)
     } else if (selectedGroupId) {

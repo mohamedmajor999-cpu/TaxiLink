@@ -29,20 +29,27 @@ function makeMission(extra: Partial<Mission> = {}): Mission {
 }
 
 describe('getAdState', () => {
-  it("AVAILABLE → 'waiting'", () => {
+  it("AVAILABLE + scheduled_at futur → 'waiting'", () => {
     expect(getAdState(makeMission({ status: 'AVAILABLE' }))).toBe('waiting')
   })
 
-  it("IN_PROGRESS → 'accepted'", () => {
-    expect(getAdState(makeMission({ status: 'IN_PROGRESS' }))).toBe('accepted')
+  it("AVAILABLE + scheduled_at passé → 'expired'", () => {
+    const past = new Date(FROZEN.getTime() - 60_000).toISOString() // 1 min avant
+    expect(getAdState(makeMission({ status: 'AVAILABLE', scheduled_at: past }))).toBe('expired')
+  })
+
+  it("IN_PROGRESS → 'accepted' (même si scheduled_at passé)", () => {
+    const past = new Date(FROZEN.getTime() - 60_000).toISOString()
+    expect(getAdState(makeMission({ status: 'IN_PROGRESS', scheduled_at: past }))).toBe('accepted')
   })
 
   it("ACCEPTED → 'accepted'", () => {
     expect(getAdState(makeMission({ status: 'ACCEPTED' }))).toBe('accepted')
   })
 
-  it("DONE → 'done'", () => {
-    expect(getAdState(makeMission({ status: 'DONE' }))).toBe('done')
+  it("DONE → 'done' (même si scheduled_at passé)", () => {
+    const past = new Date(FROZEN.getTime() - 60_000).toISOString()
+    expect(getAdState(makeMission({ status: 'DONE', scheduled_at: past }))).toBe('done')
   })
 })
 

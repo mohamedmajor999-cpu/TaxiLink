@@ -80,10 +80,10 @@ export function useAdsTab() {
   const ads = useMemo<AdView[]>(() => {
     return missions.map((m) => ({
       mission: m,
-      state: getAdState(m),
+      state: getAdState(m, nowTick),
       driver: m.driver_id ? profiles[m.driver_id] ?? null : null,
     }))
-  }, [missions, profiles])
+  }, [missions, profiles, nowTick])
 
   const daysGroups = useMemo(() => buildAdDays(ads), [ads])
 
@@ -96,6 +96,7 @@ export function useAdsTab() {
 
   const counts = useMemo(() => ({
     waiting: ads.filter((a) => a.state === 'waiting').length,
+    expired: ads.filter((a) => a.state === 'expired').length,
     accepted: ads.filter((a) => a.state === 'accepted').length,
     done: ads.filter((a) => a.state === 'done').length,
   }), [ads])

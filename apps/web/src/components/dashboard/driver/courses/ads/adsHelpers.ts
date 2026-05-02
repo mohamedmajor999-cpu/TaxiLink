@@ -1,7 +1,7 @@
 import type { Mission } from '@/lib/supabase/types'
 import { sameDay, addDays, startOfDay, agendaDayLabel } from '../agendaHelpers'
 
-export type AdState = 'waiting' | 'accepted' | 'done'
+export type AdState = 'waiting' | 'expired' | 'accepted' | 'done'
 
 export interface DriverProfile {
   full_name: string | null
@@ -23,14 +23,17 @@ export interface AdDayGroup {
 }
 
 /**
- * État dérivé du status DB :
- *  AVAILABLE → waiting (personne ne l'a prise)
+ * État dérivé du status DB + de l'heure prévue :
+ *  AVAILABLE + scheduled_at futur → waiting (personne ne l'a prise)
+ *  AVAILABLE + scheduled_at passé → expired (temps dépassé, pas de preneur)
  *  IN_PROGRESS / ACCEPTED → accepted (un collègue l'a prise, course en cours)
  *  DONE → done (effectuée, prix réel posé)
  */
-export function getAdState(m: Mission): AdState {
-  if (m.status === 'AVAILABLE') return 'waiting'
+export function getAdState(m: Mission, now: number = Date.now()): AdState {
   if (m.status === 'DONE') return 'done'
+  if (m.status === 'AVAILABLE') {
+    return new Date(m.scheduled_at).getTime() < now ? 'expired' : 'waiting'
+  }
   return 'accepted'
 }
 
