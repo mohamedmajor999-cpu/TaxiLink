@@ -31,8 +31,6 @@ const DriverProfilScreen = dynamic(() => import('./DriverProfilScreen').then((m)
 const DocumentsScreen = dynamic(() => import('./profil/DocumentsScreen').then((m) => m.DocumentsScreen), { loading: TabFallback })
 const PersonalInfoScreen = dynamic(() => import('./profil/PersonalInfoScreen').then((m) => m.PersonalInfoScreen), { loading: TabFallback })
 const DepartementsScreen = dynamic(() => import('./profil/DepartementsScreen').then((m) => m.DepartementsScreen), { loading: TabFallback })
-const BankAccountScreen = dynamic(() => import('./profil/BankAccountScreen').then((m) => m.BankAccountScreen), { loading: TabFallback })
-const InvoicesScreen = dynamic(() => import('./profil/InvoicesScreen').then((m) => m.InvoicesScreen), { loading: TabFallback })
 const SupportScreen = dynamic(() => import('./profil/SupportScreen').then((m) => m.SupportScreen), { loading: TabFallback })
 const MissionDetailScreen = dynamic(() => import('./MissionDetailScreen').then((m) => m.MissionDetailScreen), { loading: TabFallback })
 const PartagerMissionModal = dynamic(() => import('./PartagerMissionModal').then((m) => m.PartagerMissionModal))
@@ -145,10 +143,6 @@ export function DriverDashboard() {
                   <PersonalInfoScreen onBack={() => setProfilSub(null)} />
                 ) : profilSub === 'departements' ? (
                   <DepartementsScreen onBack={() => setProfilSub(null)} />
-                ) : profilSub === 'bank' ? (
-                  <BankAccountScreen onBack={() => setProfilSub(null)} />
-                ) : profilSub === 'invoices' ? (
-                  <InvoicesScreen onBack={() => setProfilSub(null)} />
                 ) : profilSub === 'support' ? (
                   <SupportScreen onBack={() => setProfilSub(null)} />
                 ) : (
@@ -157,8 +151,6 @@ export function DriverDashboard() {
                     onOpenDocuments={() => setProfilSub('documents')}
                     onOpenInfos={() => setProfilSub('infos')}
                     onOpenDepartements={() => setProfilSub('departements')}
-                    onOpenBank={() => setProfilSub('bank')}
-                    onOpenInvoices={() => setProfilSub('invoices')}
                     onOpenSupport={() => setProfilSub('support')}
                   />
                 )}

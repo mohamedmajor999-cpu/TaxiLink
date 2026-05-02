@@ -3,7 +3,6 @@ import { useDriverProfilScreen } from './profil/useDriverProfilScreen'
 import { ProfileHeroCard } from './profil/ProfileHeroCard'
 import { ProfileStatsTiles } from './profil/ProfileStatsTiles'
 import { ProfileSectionCompte } from './profil/ProfileSectionCompte'
-import { ProfileSectionPaiements } from './profil/ProfileSectionPaiements'
 import { ProfileSectionApp } from './profil/ProfileSectionApp'
 
 interface Props {
@@ -11,8 +10,6 @@ interface Props {
   onOpenDocuments?: () => void
   onOpenInfos?: () => void
   onOpenDepartements?: () => void
-  onOpenBank?: () => void
-  onOpenInvoices?: () => void
   onOpenSupport?: () => void
 }
 
@@ -21,8 +18,6 @@ export function DriverProfilScreen({
   onOpenDocuments,
   onOpenInfos,
   onOpenDepartements,
-  onOpenBank,
-  onOpenInvoices,
   onOpenSupport,
 }: Props) {
   const s = useDriverProfilScreen(driverName)
@@ -57,12 +52,6 @@ export function DriverProfilScreen({
         onOpenInfos={onOpenInfos}
         onOpenDocuments={onOpenDocuments}
         onOpenDepartements={onOpenDepartements}
-      />
-
-      <ProfileSectionPaiements
-        bankAccount={null}
-        onOpenBank={onOpenBank}
-        onOpenInvoices={onOpenInvoices}
       />
 
       <ProfileSectionApp onOpenSupport={onOpenSupport} />
