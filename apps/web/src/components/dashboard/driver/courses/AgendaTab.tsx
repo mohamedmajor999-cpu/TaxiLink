@@ -1,6 +1,7 @@
 'use client'
 import { useAgendaTab } from './useAgendaTab'
 import { AgendaAddModal } from './AgendaAddModal'
+import { AgendaCardMenu } from './AgendaCardMenu'
 import { WeekStrip } from './WeekStrip'
 import { AgendaDayBlock } from './AgendaDayBlock'
 import { agendaDayLabel, startOfDay, addDays } from './agendaHelpers'
@@ -51,6 +52,7 @@ export function AgendaTab() {
             group={visibleGroup}
             onTap={a.openDetails}
             onAdd={a.openAddModalFor}
+            onMenu={a.openMenuFor}
           />
         )}
       </div>
@@ -63,6 +65,32 @@ export function AgendaTab() {
           onAdded={a.addMission}
           minDate={a.today}
           maxDate={a.maxDate}
+        />
+      )}
+
+      {a.menuMission && (
+        <AgendaCardMenu
+          onClose={a.closeMenu}
+          onDetail={() => {
+            const id = a.menuMission!.id
+            a.closeMenu()
+            a.openDetails(id)
+          }}
+          onEdit={() => a.openEditFor(a.menuMission!.id)}
+          onDelete={() => a.deleteMission(a.menuMission!.id)}
+          removing={a.removingId === a.menuMission.id}
+        />
+      )}
+
+      {a.editMission && (
+        <AgendaAddModal
+          key={`edit-${a.editMission.id}`}
+          selectedDate={new Date(a.editMission.scheduled_at)}
+          mission={a.editMission}
+          minDate={a.today}
+          maxDate={a.maxDate}
+          onClose={a.closeEdit}
+          onAdded={a.updateMission}
         />
       )}
     </div>

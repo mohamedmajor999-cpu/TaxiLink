@@ -40,6 +40,8 @@ function mkMission(overrides: Partial<Mission> = {}): Mission {
     auto_completed: false,
     no_show: false,
     enroute_at: null,
+    arrived_at_pickup_at: null,
+    arrived_at_dest_at: null,
     pickup_at: null,
     dropoff_at: null,
     pickup_signature_url: null,

@@ -7,9 +7,10 @@ interface Props {
   group: AgendaDayGroup
   onTap: (id: string) => void
   onAdd: (date: Date) => void
+  onMenu?: (id: string) => void
 }
 
-export function AgendaDayBlock({ group, onTap, onAdd }: Props) {
+export function AgendaDayBlock({ group, onTap, onAdd, onMenu }: Props) {
   const summary = group.count === 0
     ? 'Rien de prévu'
     : `${group.count} course${group.count > 1 ? 's' : ''}${group.total > 0 ? ` · ${group.total.toFixed(0)} €` : ''}`
@@ -28,7 +29,12 @@ export function AgendaDayBlock({ group, onTap, onAdd }: Props) {
       {group.events.length > 0 && (
         <div className="grid gap-2 mb-2 lg:grid-cols-2 xl:grid-cols-3">
           {group.events.map((e) => (
-            <AgendaEventCard key={e.id} event={e} onTap={() => onTap(e.id)} />
+            <AgendaEventCard
+              key={e.id}
+              event={e}
+              onTap={() => onTap(e.id)}
+              onMenu={onMenu ? () => onMenu(e.id) : undefined}
+            />
           ))}
         </div>
       )}

@@ -8,6 +8,8 @@ import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedMissionAcceptNotifier } from '@/hooks/usePostedMissionAcceptNotifier'
 import { useNightMode } from '@/hooks/useNightMode'
 import { useDriverHeartbeat } from '@/hooks/useDriverHeartbeat'
+import { useGlobalDriverGps } from '@/hooks/useGlobalDriverGps'
+import { useAutoMissionProgress } from '@/hooks/useAutoMissionProgress'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
@@ -58,6 +60,8 @@ export function DriverDashboard() {
   usePostedMissionAcceptNotifier()
   useNightMode()
   useDriverHeartbeat()
+  useGlobalDriverGps()
+  useAutoMissionProgress()
   const unseenAcceptCount = useUnseenAcceptCount()
   const [mapFullscreen, setMapFullscreen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)

@@ -6,6 +6,7 @@ import { missionService } from '@/services/missionService'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 import type { Mission } from '@/lib/supabase/types'
 import { sameDay, addDays, startOfDay, startOfWeek, agendaDayLabel, toEvent, type AgendaEvent } from './agendaHelpers'
+import { useAgendaActions } from './useAgendaActions'
 
 export type { AgendaEvent, AgendaEventStatus } from './agendaHelpers'
 
@@ -87,6 +88,8 @@ export function useAgendaTab() {
   function updateMission(m: Mission) {
     setMissions((prev) => prev.map((x) => (x.id === m.id ? m : x)))
   }
+
+  const actions = useAgendaActions(missions, removeMission, setError)
 
   // Bornes de navigation : on ne saisit que dans [today ; today+MAX_OFFSET].
   const today = useMemo(() => startOfDay(new Date()), [nowTick])
@@ -189,5 +192,6 @@ export function useAgendaTab() {
     removeMission, updateMission,
     today, maxDate,
     canPrevWeek, canNextWeek, goPrevWeek, goNextWeek,
+    ...actions,
   }
 }

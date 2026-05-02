@@ -21,12 +21,42 @@ export const missionProgressMutations = {
     if (error) throw new Error(error.message)
   },
 
+  /**
+   * Le chauffeur est physiquement arrive a l'adresse de prise en charge,
+   * detecte par geofence GPS (rayon 80m, 2min de dwell). Pose juste le
+   * timestamp d'arrivee, le pickup_at viendra quand on quittera la zone.
+   */
+  async markArrivedAtPickup(missionId: string): Promise<void> {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('missions')
+      .update({ arrived_at_pickup_at: new Date().toISOString() })
+      .eq('id', missionId)
+      .eq('status', 'IN_PROGRESS')
+    if (error) throw new Error(error.message)
+  },
+
   /** Le patient est monte dans le vehicule. */
   async markOnBoard(missionId: string): Promise<void> {
     const supabase = createClient()
     const { error } = await supabase
       .from('missions')
       .update({ pickup_at: new Date().toISOString() })
+      .eq('id', missionId)
+      .eq('status', 'IN_PROGRESS')
+    if (error) throw new Error(error.message)
+  },
+
+  /**
+   * Le chauffeur est physiquement arrive a la destination, detecte par
+   * geofence GPS (rayon 100m, 2min de dwell). Pose juste le timestamp
+   * d'arrivee, le dropoff_at viendra quand on quittera la zone.
+   */
+  async markArrivedAtDest(missionId: string): Promise<void> {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('missions')
+      .update({ arrived_at_dest_at: new Date().toISOString() })
       .eq('id', missionId)
       .eq('status', 'IN_PROGRESS')
     if (error) throw new Error(error.message)

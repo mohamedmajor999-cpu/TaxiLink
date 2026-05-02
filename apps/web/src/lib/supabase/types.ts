@@ -198,6 +198,8 @@ export type Database = {
       missions: {
         Row: {
           accepted_at: string | null
+          arrived_at_dest_at: string | null
+          arrived_at_pickup_at: string | null
           auto_completed: boolean
           client_id: string | null
           companion: boolean
@@ -242,6 +244,8 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          arrived_at_dest_at?: string | null
+          arrived_at_pickup_at?: string | null
           auto_completed?: boolean
           client_id?: string | null
           companion?: boolean
@@ -286,6 +290,8 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          arrived_at_dest_at?: string | null
+          arrived_at_pickup_at?: string | null
           auto_completed?: boolean
           client_id?: string | null
           companion?: boolean

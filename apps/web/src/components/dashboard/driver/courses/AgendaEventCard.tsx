@@ -1,25 +1,23 @@
 'use client'
-import { User, Utensils } from 'lucide-react'
+import { MoreVertical, User, Utensils } from 'lucide-react'
 import type { AgendaEvent } from './agendaHelpers'
 
 interface Props {
   event: AgendaEvent
   onTap: () => void
+  onMenu?: () => void
 }
 
 const fmt = (d: Date) => d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
-export function AgendaEventCard({ event, onTap }: Props) {
+export function AgendaEventCard({ event, onTap, onMenu }: Props) {
   const timeRange = `${fmt(event.start)} — ${fmt(event.end)}`
   const isBlock = event.isManual && event.from === event.to
+  const showMenu = event.isManual && onMenu !== undefined
 
   if (isBlock) {
     return (
-      <button
-        type="button"
-        onClick={onTap}
-        className="w-full text-left rounded-2xl bg-[#FEF3C7] border border-[#FDE68A] p-4 transition-colors active:scale-[0.99]"
-      >
+      <CardWrapper onTap={onTap} onMenu={onMenu} showMenu={showMenu} bg="bg-[#FEF3C7] border-[#FDE68A]">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[14px] font-bold text-ink tabular-nums">{timeRange}</span>
           <span className="text-[12px] font-extrabold uppercase tracking-[0.04em] text-[#B45309]">
@@ -30,7 +28,7 @@ export function AgendaEventCard({ event, onTap }: Props) {
           <Utensils className="w-3.5 h-3.5 shrink-0" strokeWidth={1.8} />
           <span className="truncate">{event.from}</span>
         </div>
-      </button>
+      </CardWrapper>
     )
   }
 
@@ -48,11 +46,7 @@ export function AgendaEventCard({ event, onTap }: Props) {
   ].filter(Boolean).join(' · ')
 
   return (
-    <button
-      type="button"
-      onClick={onTap}
-      className="w-full text-left rounded-2xl bg-paper border border-warm-200 p-4 transition-colors active:scale-[0.99]"
-    >
+    <CardWrapper onTap={onTap} onMenu={onMenu} showMenu={showMenu} bg="bg-paper border-warm-200">
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-[14px] font-bold text-ink tabular-nums">{timeRange}</span>
         <span className={`text-[11px] font-extrabold uppercase tracking-[0.04em] ${typeColor}`}>
@@ -66,6 +60,41 @@ export function AgendaEventCard({ event, onTap }: Props) {
         </span>
       </div>
       {meta && <div className="text-[12px] text-warm-500 mt-1 tabular-nums">{meta}</div>}
-    </button>
+    </CardWrapper>
+  )
+}
+
+interface CardWrapperProps {
+  children: React.ReactNode
+  onTap: () => void
+  onMenu?: () => void
+  showMenu: boolean
+  bg: string
+}
+
+function CardWrapper({ children, onTap, onMenu, showMenu, bg }: CardWrapperProps) {
+  return (
+    <div className={`relative w-full rounded-2xl border ${bg} transition-colors active:scale-[0.99]`}>
+      <button
+        type="button"
+        onClick={onTap}
+        className={`w-full text-left p-4 ${showMenu ? 'pr-12' : ''}`}
+      >
+        {children}
+      </button>
+      {showMenu && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onMenu?.()
+          }}
+          aria-label="Actions"
+          className="absolute top-2 right-2 w-9 h-9 rounded-xl flex items-center justify-center text-warm-600 hover:bg-warm-100 transition-colors"
+        >
+          <MoreVertical className="w-4 h-4" strokeWidth={2} />
+        </button>
+      )}
+    </div>
   )
 }
