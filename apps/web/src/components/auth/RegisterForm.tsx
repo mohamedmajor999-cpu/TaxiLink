@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
+import { AuthBrandPanel } from './AuthBrandPanel'
 import { useRegisterForm } from './useRegisterForm'
 import { RegisterStep1 } from './RegisterStep1'
 import { RegisterStep2 } from './RegisterStep2'
@@ -12,7 +13,13 @@ export function RegisterForm() {
 
   if (form.success) {
     return (
-      <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4 py-12">
+      <div className="min-h-screen bg-bgsoft lg:grid lg:grid-cols-2">
+        <AuthBrandPanel
+          eyebrow="Bienvenue"
+          title={<>Bienvenue dans<br />la communauté.</>}
+          lead="Vous rejoignez des milliers de chauffeurs qui partagent leurs courses chaque jour."
+        />
+        <div className="flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md text-center">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
             <Icon name="check_circle" size={40} className="text-green-500" />
@@ -30,17 +37,24 @@ export function RegisterForm() {
             </Link>
           </div>
         </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-bgsoft lg:grid lg:grid-cols-2">
+      <AuthBrandPanel
+        eyebrow="Inscription gratuite"
+        title={<>Rejoignez des<br />chauffeurs<br />engagés.</>}
+        lead="Création de compte en 2 minutes. Aucun engagement, aucune carte bancaire."
+      />
+      <div className="flex items-center justify-center px-4 py-12 lg:py-8">
       <div className="w-full max-w-md">
 
         {/* Logo + titre */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center mb-6" aria-label="TaxiLink Pro">
+          <Link href="/" className="inline-flex items-center mb-6 lg:hidden" aria-label="TaxiLink Pro">
             <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={224} height={40} priority className="h-10 w-auto" />
           </Link>
           <h1 className="text-3xl font-black text-secondary mb-2">Créer un compte</h1>
@@ -88,6 +102,7 @@ export function RegisterForm() {
             />
           )}
         </div>
+      </div>
       </div>
     </div>
   )

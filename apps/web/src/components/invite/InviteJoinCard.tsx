@@ -12,9 +12,28 @@ export function InviteJoinCard({ groupId }: Props) {
   const { isAuthenticated, authLoading, joining, error, done, handleJoin } = useInviteJoinCard(groupId)
 
   return (
-    <div className="min-h-screen bg-paper flex flex-col items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md bg-paper border border-warm-200 rounded-3xl shadow-card p-6 md:p-8 text-center">
-        <div className="flex items-center justify-center mb-4">
+    <div className="min-h-screen bg-paper flex flex-col items-center justify-center px-4 py-8 lg:grid lg:grid-cols-2 lg:py-0 lg:gap-0">
+      <aside className="hidden lg:flex flex-col justify-between bg-ink text-paper p-12 xl:p-16 min-h-screen relative overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-brand/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-brand/10 blur-3xl pointer-events-none" />
+        <Link href="/" className="relative inline-flex items-center" aria-label="TaxiLink Pro">
+          <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={180} height={32} priority className="h-8 w-auto brightness-0 invert" />
+        </Link>
+        <div className="relative max-w-md">
+          <p className="text-brand text-sm font-bold uppercase tracking-wider mb-4">Invitation chauffeur</p>
+          <h2 className="text-4xl xl:text-5xl font-black leading-tight mb-6">Échangez des<br />courses entre<br />collègues.</h2>
+          <p className="text-paper/70 leading-relaxed">Plus de désordre dans le groupe WhatsApp : appui long sur une course, elle est à vous.</p>
+        </div>
+        <div className="relative space-y-2 text-[13px] text-paper/70">
+          <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-brand" strokeWidth={2} /> 100 % RGPD, données en France</div>
+          <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-brand" strokeWidth={2} /> Aucune commission sur vos courses</div>
+          <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-brand" strokeWidth={2} /> Compte gratuit, sans engagement</div>
+        </div>
+      </aside>
+
+      <div className="w-full lg:flex lg:items-center lg:justify-center lg:px-8 lg:min-h-screen">
+      <div className="w-full max-w-md bg-paper border border-warm-200 rounded-3xl shadow-card p-6 md:p-8 text-center mx-auto">
+        <div className="flex items-center justify-center mb-4 lg:hidden">
           <Image
             src="/brand/logo-primary.svg"
             alt="TaxiLink Pro"
@@ -83,11 +102,12 @@ export function InviteJoinCard({ groupId }: Props) {
             Créer un compte
           </Link>
         </p>
-      </div>
 
-      <p className="mt-5 text-[11px] text-warm-500">
-        © TaxiLink Pro · Partage de courses entre chauffeurs
-      </p>
+        <p className="mt-5 text-[11px] text-warm-500 lg:hidden">
+          © TaxiLink Pro · Partage de courses entre chauffeurs
+        </p>
+      </div>
+      </div>
     </div>
   )
 }

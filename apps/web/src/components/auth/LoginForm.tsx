@@ -3,16 +3,23 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
+import { AuthBrandPanel } from './AuthBrandPanel'
 import { useLoginForm } from './useLoginForm'
 
 export function LoginForm() {
   const { email, setEmail, password, setPassword, showPw, setShowPw, loading, googleLoading, error, handleSubmit, handleGoogle } = useLoginForm()
 
   return (
-    <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-bgsoft lg:grid lg:grid-cols-2">
+      <AuthBrandPanel
+        title={<>Vos courses,<br />votre revenu,<br />votre liberté.</>}
+        lead="Partagez vos courses entre chauffeurs, gérez vos missions et suivez vos revenus depuis une seule application."
+      />
+
+      <div className="flex items-center justify-center px-4 py-12 lg:py-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center mb-6" aria-label="TaxiLink Pro">
+          <Link href="/" className="inline-flex items-center mb-6 lg:hidden" aria-label="TaxiLink Pro">
             <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={224} height={40} priority className="h-10 w-auto" />
           </Link>
           <h1 className="text-3xl font-black text-secondary mb-2">Bon retour !</h1>
@@ -97,6 +104,7 @@ export function LoginForm() {
           <Link href="/cgu" className="underline">CGU</Link> et notre{' '}
           <Link href="/confidentialite" className="underline">politique de confidentialité</Link>.
         </p>
+      </div>
       </div>
     </div>
   )

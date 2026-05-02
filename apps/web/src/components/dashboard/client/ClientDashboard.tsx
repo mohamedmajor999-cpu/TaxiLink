@@ -24,7 +24,7 @@ export function ClientDashboard() {
   return (
     <div className="min-h-screen bg-bgsoft">
       <header className="bg-white border-b border-line sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <Link href="/" className="flex items-center" aria-label="TaxiLink Pro">
             <Image src="/brand/icon.svg" alt="TaxiLink Pro" width={32} height={32} priority className="h-8 w-8 sm:hidden" />
             <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={179} height={32} priority className="h-8 w-auto hidden sm:block" />
@@ -43,7 +43,7 @@ export function ClientDashboard() {
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 flex gap-1 -mb-px">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-1 -mb-px">
           {([
             { t: 'reserver' as Tab, icon: 'add_circle', l: 'Réserver un taxi' },
             { t: 'mes-courses' as Tab, icon: 'history', l: 'Mes courses' },
@@ -61,7 +61,7 @@ export function ClientDashboard() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {missionsError && <ErrorBanner message={missionsError} onRetry={refreshMissions} />}
 
         {tab === 'reserver' && (

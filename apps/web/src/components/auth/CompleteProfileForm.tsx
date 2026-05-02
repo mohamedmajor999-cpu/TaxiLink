@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
+import { AuthBrandPanel } from './AuthBrandPanel'
 import { useCompleteProfileForm } from './useCompleteProfileForm'
 
 interface Props {
@@ -22,10 +23,16 @@ export function CompleteProfileForm(props: Props) {
   } = useCompleteProfileForm(props)
 
   return (
-    <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-bgsoft lg:grid lg:grid-cols-2">
+      <AuthBrandPanel
+        eyebrow="Dernière étape"
+        title={<>Encore un<br />instant avant<br />de démarrer.</>}
+        lead="Quelques infos pour personnaliser votre espace et vous mettre en relation avec vos collègues."
+      />
+      <div className="flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center mb-6" aria-label="TaxiLink Pro">
+          <Link href="/" className="inline-flex items-center mb-6 lg:hidden" aria-label="TaxiLink Pro">
             <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={224} height={40} priority className="h-10 w-auto" />
           </Link>
           <h1 className="text-3xl font-black text-secondary mb-2">Dernière étape</h1>
@@ -70,6 +77,7 @@ export function CompleteProfileForm(props: Props) {
             </button>
           </form>
         </div>
+      </div>
       </div>
     </div>
   )

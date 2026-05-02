@@ -28,7 +28,7 @@ export function MissionList({ missions, onReserve }: Props) {
           </button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {missions.map((m) => {
             const s = MISSION_STATUS_LABELS[m.status] ?? m.status
             const color = MISSION_STATUS_COLORS[m.status] ?? 'bg-gray-100 text-gray-700'

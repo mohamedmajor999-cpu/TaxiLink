@@ -16,7 +16,8 @@ export function ReservationForm({ onBookSuccess, onSwitchToMissions }: Props) {
   } = useReservationForm(onBookSuccess, onSwitchToMissions)
 
   return (
-    <div className="max-w-xl">
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8 lg:items-start">
+    <div className="max-w-xl lg:max-w-none">
       <h2 className="text-2xl font-black text-secondary mb-1">Réserver un taxi</h2>
       <p className="text-muted mb-6">Un chauffeur professionnel disponible en quelques minutes</p>
 
@@ -93,6 +94,39 @@ export function ReservationForm({ onBookSuccess, onSwitchToMissions }: Props) {
             : <><Icon name="local_taxi" size={18} />Demander un taxi</>}
         </button>
       </form>
+    </div>
+
+    <aside className="hidden lg:block sticky top-32 space-y-4">
+      <div className="bg-white rounded-2xl shadow-soft p-5 border border-line">
+        <div className="flex items-center gap-2 mb-3">
+          <Icon name="info" size={18} className="text-accent" />
+          <h3 className="font-bold text-secondary text-sm">Comment ça marche ?</h3>
+        </div>
+        <ul className="space-y-3 text-sm text-muted">
+          <li className="flex gap-2">
+            <span className="font-bold text-secondary">1.</span>
+            Saisissez votre départ et votre destination.
+          </li>
+          <li className="flex gap-2">
+            <span className="font-bold text-secondary">2.</span>
+            Un chauffeur professionnel proche accepte votre course.
+          </li>
+          <li className="flex gap-2">
+            <span className="font-bold text-secondary">3.</span>
+            Vous recevez sa confirmation et son contact.
+          </li>
+        </ul>
+      </div>
+
+      <div className="bg-secondary rounded-2xl p-5 text-white">
+        <Icon name="support_agent" size={20} className="text-primary mb-2" />
+        <h3 className="font-bold text-sm mb-1">Besoin d&apos;aide ?</h3>
+        <p className="text-xs text-white/70 mb-3">Une question sur votre réservation ? Notre support est joignable 7/7.</p>
+        <a href="mailto:support@taxilink.fr" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+          support@taxilink.fr<Icon name="arrow_forward" size={14} />
+        </a>
+      </div>
+    </aside>
     </div>
   )
 }

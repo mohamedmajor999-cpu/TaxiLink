@@ -3,16 +3,23 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Icon } from '@/components/ui/Icon'
+import { AuthBrandPanel } from './AuthBrandPanel'
 import { useForgotPasswordForm } from './useForgotPasswordForm'
 
 export function ForgotPasswordForm() {
   const { email, setEmail, loading, sent, error, handleSubmit } = useForgotPasswordForm()
 
   return (
-    <div className="min-h-screen bg-bgsoft flex items-center justify-center px-4">
+    <div className="min-h-screen bg-bgsoft lg:grid lg:grid-cols-2">
+      <AuthBrandPanel
+        eyebrow="Récupération"
+        title={<>On vous remet<br />en selle en<br />30 secondes.</>}
+        lead="Saisissez votre email, on vous envoie un lien sécurisé pour redéfinir votre mot de passe."
+      />
+      <div className="flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center mb-6" aria-label="TaxiLink Pro">
+          <Link href="/" className="inline-flex items-center mb-6 lg:hidden" aria-label="TaxiLink Pro">
             <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={224} height={40} priority className="h-10 w-auto" />
           </Link>
           <h1 className="text-2xl font-black text-secondary">Mot de passe oublié</h1>
@@ -71,6 +78,7 @@ export function ForgotPasswordForm() {
             </form>
           )}
         </div>
+      </div>
       </div>
     </div>
   )
