@@ -65,6 +65,11 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
   })
 
   const isTerminal = TERMINAL_STATUSES.has(mission.status)
+  // Les actions chauffeur (Appeler / Waze / Course terminée / Annuler) ne
+  // doivent apparaître qu'au chauffeur qui a *accepté* la course. L'auteur
+  // qui a posté l'annonce, ou un viewer tiers, ne doit pas voir ces
+  // contrôles — l'annonce reste "lecture seule" tant qu'elle n'est pas prise.
+  const canActAsDriver = !!driverId && mission.driver_id === driverId
 
   return (
     <Shell onBack={onBack}>
@@ -121,7 +126,7 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
 
       <CourseDetailsTable mission={mission} masked={c.isMasked} />
 
-      {!isTerminal && (
+      {!isTerminal && canActAsDriver && (
         <CourseActions
           phone={mission.phone}
           smsHref={c.smsHref}
