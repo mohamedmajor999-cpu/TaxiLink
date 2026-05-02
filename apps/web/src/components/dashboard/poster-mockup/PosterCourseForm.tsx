@@ -102,8 +102,8 @@ export function PosterCourseForm({ c, footerProps }: Props) {
               )}
 
               <FieldRow leadIcon={<Icon name="person" size={19} className="text-warm-500" />}>
-                <FieldLabel>Patient</FieldLabel>
-                <FieldInput value={form.patientName} onChange={form.setPatientName} placeholder="Nom du patient" autoComplete="off" />
+                <FieldLabel>Client</FieldLabel>
+                <FieldInput value={form.patientName} onChange={form.setPatientName} placeholder="Nom du client" autoComplete="off" />
                 {form.type === 'CPAM' && !form.patientName.trim() && (
                   <span className="block mt-0.5 text-[11.5px] text-warm-400 font-medium">Obligatoire pour CPAM</span>
                 )}
@@ -129,7 +129,7 @@ export function PosterCourseForm({ c, footerProps }: Props) {
             </div>
             <textarea
               value={form.notes} onChange={(e) => form.setNotes(e.target.value)}
-              placeholder="Étage, code, particularité du patient, instructions pour le chauffeur…"
+              placeholder="Étage, code, particularité du client, instructions pour le chauffeur…"
               rows={3}
               className="w-full bg-warm-100/60 border border-warm-200 rounded-[14px] px-3.5 py-3 text-[14px] font-medium text-ink placeholder:text-warm-400 placeholder:font-normal focus:outline-none focus:border-ink resize-none"
             />
