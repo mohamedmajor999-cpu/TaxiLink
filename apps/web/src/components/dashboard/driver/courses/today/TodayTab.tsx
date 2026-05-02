@@ -1,6 +1,5 @@
 'use client'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { CurrentCourseStrip } from '../CurrentCourseStrip'
 import { CoursesEmptyOnboarding } from '../CoursesEmptyOnboarding'
 import { useMissionEditSheetStore } from '@/store/missionEditSheetStore'
 import type { Mission } from '@/lib/supabase/types'
@@ -44,23 +43,28 @@ export function TodayTab() {
     return <CoursesEmptyOnboarding onPostCourse={openCreer} />
   }
 
+  // Si une course est en cours, on l'affiche en hero et on rebascule la
+  // "prochaine" dans la liste "Reste de la journée" (sinon elle disparait).
+  const heroMission = t.current ?? t.next
+  const restList = t.current && t.next ? [t.next, ...t.restOfDay] : t.restOfDay
+  const restTotal = restList.reduce((s, m) => s + Number(m.price_eur ?? 0), 0)
+
   return (
     <div>
-      {t.current && <CurrentCourseStrip mission={t.current} />}
-      {t.next && <NextCourseHero mission={t.next} onEdit={handleEdit} />}
+      {heroMission && <NextCourseHero mission={heroMission} onEdit={handleEdit} />}
 
-      {t.restOfDay.length > 0 && (
+      {restList.length > 0 && (
         <section>
           <header className="flex items-end justify-between mb-1 px-1">
             <h3 className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-warm-500">
               Reste de la journée
             </h3>
             <span className="text-[11px] text-warm-500 font-semibold tabular-nums">
-              {t.restOfDay.length} · {t.restOfDay.reduce((s, m) => s + Number(m.price_eur ?? 0), 0)}€
+              {restList.length} · {restTotal}€
             </span>
           </header>
           <ul>
-            {t.restOfDay.map((m) => (
+            {restList.map((m) => (
               <li key={m.id}>
                 <TodayRideRow mission={m} onTap={t.openDetails} onEdit={handleEdit} />
               </li>

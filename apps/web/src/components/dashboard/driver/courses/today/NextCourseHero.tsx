@@ -1,10 +1,11 @@
 'use client'
-import { Navigation2, Phone, AlertCircle, Pencil, Settings2, Star, Clock } from 'lucide-react'
+import { Navigation2, Phone, AlertCircle, Pencil, Settings2, Star, Clock, Car, UserCheck, CheckCircle2 } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { getMinutesUntil, formatTime } from '@/lib/dateUtils'
 import { formatDuration } from '@/lib/formatDuration'
 import { formatMissionPrice } from '@/lib/formatMissionPrice'
 import { gpsAppLabel } from '@/lib/gpsNavigation'
+import type { MissionProgressStep } from '@/lib/missionProgress'
 import { NavigationSheet } from '../NavigationSheet'
 import { useNextCourseHero } from './useNextCourseHero'
 import { StepBar } from './StepBar'
@@ -13,6 +14,17 @@ import { RouteRow } from './RouteRow'
 interface Props {
   mission: Mission
   onEdit: (mission: Mission) => void
+}
+
+const HEADER_BY_PROGRESS: Record<MissionProgressStep, { label: string; Icon: typeof Star }> = {
+  available: { label: 'Prochaine course', Icon: Star },
+  accepted: { label: 'Prochaine course', Icon: Star },
+  enroute: { label: 'En route vers le patient', Icon: Car },
+  onboard: { label: 'Patient à bord', Icon: UserCheck },
+  dropped: { label: 'Patient déposé', Icon: CheckCircle2 },
+  done: { label: 'Course terminée', Icon: CheckCircle2 },
+  no_show: { label: 'Patient absent', Icon: CheckCircle2 },
+  cancelled: { label: 'Annulée', Icon: CheckCircle2 },
 }
 
 export function NextCourseHero({ mission, onEdit }: Props) {
@@ -30,6 +42,7 @@ export function NextCourseHero({ mission, onEdit }: Props) {
   const ctaHandler = isStep2 ? h.goToDestination : h.goToPickup
   const showArrivedBtn = !isStep2 && mission.enroute_at && !mission.pickup_at
   const gpsLabel = h.pref === 'ask' ? 'Demander à chaque fois' : gpsAppLabel(h.pref)
+  const { label: headerLabel, Icon: HeaderIcon } = HEADER_BY_PROGRESS[h.progress]
 
   return (
     <article className="relative overflow-hidden rounded-[22px] bg-ink text-paper p-4 mb-4">
@@ -41,8 +54,8 @@ export function NextCourseHero({ mission, onEdit }: Props) {
 
         <div className="flex items-center justify-between gap-2">
           <div className="inline-flex items-center gap-1.5 text-brand text-[10.5px] font-extrabold uppercase tracking-[0.08em]">
-            <Star className="w-3 h-3 fill-current" strokeWidth={2.4} />
-            <span>Prochaine course</span>
+            <HeaderIcon className={`w-3 h-3 ${h.progress === 'accepted' || h.progress === 'available' ? 'fill-current' : ''}`} strokeWidth={2.4} />
+            <span>{headerLabel}</span>
             <span className={`px-1.5 py-0.5 rounded text-[9.5px] tracking-[0.04em] ${
               isCpam ? 'bg-blue-400/20 text-blue-300' : 'bg-purple-400/20 text-purple-300'
             }`}>
