@@ -19,7 +19,7 @@ export function DriverGroupesScreen() {
     handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
     query, setQuery, filteredGroups,
     sortMode, setSortMode,
-    primaryGroup, primarySummary, sortedGroups,
+    primaryGroup, primarySummary, primaryIsFavorite, sortedGroups,
     globalPulse, summaries, favorites, hasNews,
     openGroup,
   } = useDriverGroupesScreen()
@@ -50,9 +50,10 @@ export function DriverGroupesScreen() {
         <GroupesHeroCard
           group={primaryGroup}
           summary={primarySummary}
+          isFavorite={primaryIsFavorite}
           onOpen={() => openGroup(primaryGroup)}
           onPostCourse={() => openGroup(primaryGroup)}
-          onUnfavorite={() => favorites.toggle(primaryGroup.id)}
+          onToggleFavorite={() => favorites.toggle(primaryGroup.id)}
         />
       )}
 

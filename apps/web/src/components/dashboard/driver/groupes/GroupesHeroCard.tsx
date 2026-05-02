@@ -4,17 +4,19 @@ import type { Group } from '@taxilink/core'
 import type { GroupActivitySummary } from '@/services/groupStatsService'
 
 interface Props {
-  group:        Group
-  summary:      GroupActivitySummary | null
-  onOpen:       () => void
-  onPostCourse: () => void
-  onUnfavorite: () => void
+  group:           Group
+  summary:         GroupActivitySummary | null
+  isFavorite:      boolean
+  onOpen:          () => void
+  onPostCourse:    () => void
+  onToggleFavorite: () => void
 }
 
-// Hero du groupe favori principal — affiché en haut de la liste pour donner
-// un raccourci direct vers l'action la plus fréquente (poster une course)
-// sans devoir entrer dans le détail du groupe.
-export function GroupesHeroCard({ group, summary, onOpen, onPostCourse, onUnfavorite }: Props) {
+// Hero du groupe principal — toujours affiché en haut de la liste pour
+// donner un raccourci direct vers « Poster une course » sans entrer dans
+// le détail. Si le groupe est un favori du chauffeur, badge « FAVORI » et
+// étoile pleine ; sinon hero neutre + étoile vide pour permettre l'ajout.
+export function GroupesHeroCard({ group, summary, isFavorite, onOpen, onPostCourse, onToggleFavorite }: Props) {
   const available = summary?.available ?? 0
   const online = summary?.onlineCount ?? 0
   const exchanged = summary?.exchanged7d ?? 0
@@ -25,10 +27,12 @@ export function GroupesHeroCard({ group, summary, onOpen, onPostCourse, onUnfavo
 
   return (
     <section className="relative mb-4 rounded-3xl border-2 border-ink bg-paper p-4 shadow-card">
-      <span className="absolute -top-2.5 left-4 inline-flex items-center gap-1 bg-brand text-ink text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
-        <Star className="w-3 h-3" strokeWidth={2.4} fill="currentColor" />
-        Favori
-      </span>
+      {isFavorite && (
+        <span className="absolute -top-2.5 left-4 inline-flex items-center gap-1 bg-brand text-ink text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+          <Star className="w-3 h-3" strokeWidth={2.4} fill="currentColor" />
+          Favori
+        </span>
+      )}
 
       <button
         type="button"
@@ -59,11 +63,16 @@ export function GroupesHeroCard({ group, summary, onOpen, onPostCourse, onUnfavo
         </div>
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); onUnfavorite() }}
-          aria-label="Retirer des favoris"
-          className="w-9 h-9 rounded-full bg-brand text-ink flex items-center justify-center shrink-0 hover:brightness-95 transition"
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
+          aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          aria-pressed={isFavorite}
+          className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition border ${
+            isFavorite
+              ? 'bg-brand border-brand text-ink hover:brightness-95'
+              : 'bg-paper border-warm-200 text-warm-500 hover:bg-warm-50'
+          }`}
         >
-          <Star className="w-4 h-4" strokeWidth={2} fill="currentColor" />
+          <Star className="w-4 h-4" strokeWidth={isFavorite ? 2 : 1.8} fill={isFavorite ? 'currentColor' : 'none'} />
         </button>
       </button>
 

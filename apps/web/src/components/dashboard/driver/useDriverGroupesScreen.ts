@@ -31,17 +31,21 @@ export function useDriverGroupesScreen() {
     )
   }, [groupes.groups, query])
 
-  // Le « hero » de la liste = 1er favori. Si le favori a été quitté, on
-  // tombe au suivant. S'il n'y a aucun favori valide, pas de hero (sentinelle).
+  // Le « hero » de la liste = 1er favori valide. Fallback sur le 1er groupe
+  // si aucun favori : on veut toujours afficher le raccourci « Poster une
+  // course » en haut, même pour un chauffeur qui n'a jamais étoilé un groupe
+  // (sinon le bandeau « hero » disparaît et la page ne ressemble pas à la
+  // maquette).
   const primaryGroup = useMemo<Group | null>(() => {
     for (const id of fav.ids) {
       const g = groupes.groups.find((x) => x.id === id)
       if (g) return g
     }
-    return null
+    return groupes.groups[0] ?? null
   }, [fav.ids, groupes.groups])
 
   const primarySummary = primaryGroup ? summaries[primaryGroup.id] ?? null : null
+  const primaryIsFavorite = primaryGroup ? fav.has(primaryGroup.id) : false
 
   // Tri : activité (par défaut) prend "courses dispo desc, puis en ligne desc",
   // récent = ordre de la DB (createdAt desc), name = alpha.
@@ -135,6 +139,7 @@ export function useDriverGroupesScreen() {
     filteredGroups,
     primaryGroup,
     primarySummary,
+    primaryIsFavorite,
     sortedGroups,
     globalPulse,
     summaries,
