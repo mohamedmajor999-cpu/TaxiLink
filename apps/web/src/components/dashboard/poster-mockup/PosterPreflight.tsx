@@ -34,7 +34,7 @@ export function PosterPreflight({
   const canContinue = visibilityOk
 
   return (
-    <div className="px-6 pt-2 pb-8 lg:px-0 lg:max-w-xl">
+    <div className="px-6 pt-2 pb-8 lg:px-0 lg:max-w-xl lg:mx-auto">
       <div className="mb-6">
         <p className="text-[12px] font-bold uppercase tracking-[0.06em] text-warm-500 mb-1">Étape 1/2</p>
         <h2 className="text-[24px] lg:text-[32px] font-extrabold leading-tight tracking-[-0.02em]">
