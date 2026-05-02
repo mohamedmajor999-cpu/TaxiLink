@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink — Mes courses (aujourd'hui) · Refonte hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0A0A0A;
+    --ink-2: #1F1F1F;
+    --paper: #FFFFFF;
+    --warm-50: #F6F4EE;
+    --warm-100: #EDEAE0;
+    --warm-200: #DCD7C8;
+    --warm-300: #BDB6A2;
+    --warm-500: #8A8474;
+    --warm-700: #4F4B40;
+    --warm-800: #2E2C25;
+    --brand: #FFD23F;
+    --brand-soft: #FFF3BF;
+    --brand-deep: #C99A00;
+    --danger: #DC2626;
+    --danger-soft: #FEE2E2;
+    --cpam: #DBEAFE;
+    --cpam-text: #1E40AF;
+    --prive: #F3E8FF;
+    --prive-text: #6B21A8;
+    --green: #059669;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #FFFFFF;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+
+  .page { max-width: 1640px; margin: 0 auto; padding: 32px 24px 80px; }
+  .page h1 { font-size: 26px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .page p.lead { color: #5c5a54; margin: 0 0 28px; font-size: 14px; max-width: 920px; line-height: 1.55; }
+
+  .grid {
+    display: grid; gap: 28px;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  }
+  .col { display: flex; flex-direction: column; gap: 10px; }
+  .label { text-align: center; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.10em; color: #3a3833; }
+  .sub { text-align: center; font-size: 11.5px; color: #6f6c63; margin: -4px 0 12px; min-height: 28px; }
+
+  .frame {
+    background: #FFFFFF;
+    border: 1px solid var(--warm-100);
+    border-radius: 28px;
+    padding: 18px 16px 22px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 14px 40px -22px rgba(0,0,0,0.10);
+  }
+
+  /* ---------- shared mini header ---------- */
+  .mini-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4px 12px;
+  }
+  .mini-head .lhs { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .mini-head .ic {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--ink);
+    display: grid; place-items: center; color: var(--brand); font-weight: 900; font-size: 13px;
+  }
+  .mini-head .ttl { font-size: 15px; font-weight: 800; line-height: 1.1; }
+  .mini-head .dt { font-size: 11px; color: var(--warm-500); margin-top: 1px; text-transform: capitalize; }
+  .chip-earn {
+    display: inline-flex; align-items: center; gap: 4px;
+    height: 28px; padding: 0 10px; border-radius: 999px;
+    background: var(--ink); color: var(--brand);
+    font-size: 11.5px; font-weight: 800; letter-spacing: 0.01em;
+  }
+  .chip-earn .material-symbols-rounded { font-size: 14px; }
+
+  /* ---------- shared tab pills ---------- */
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
+  .tab {
+    height: 36px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; border: 1px solid var(--warm-200); background: var(--paper); color: var(--ink);
+  }
+  .tab.is-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  /* ---------- "rest of day" section (kept identical across variants for fairness) ---------- */
+  .rest-head {
+    display: flex; align-items: end; justify-content: space-between;
+    padding: 14px 4px 6px;
+  }
+  .rest-head h3 {
+    font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--warm-500); margin: 0;
+  }
+  .rest-head .sum { font-size: 11px; color: var(--warm-500); font-weight: 700; }
+  .row {
+    display: flex; gap: 10px; align-items: stretch;
+    background: var(--paper); border: 1px solid var(--warm-200); border-radius: 14px;
+    padding: 9px 10px; margin-bottom: 8px;
+  }
+  .row .time {
+    width: 48px; flex: 0 0 auto; padding-right: 8px; border-right: 1px dashed var(--warm-200);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .row .time .h { font-size: 14px; font-weight: 900; line-height: 1; }
+  .row .time .d { font-size: 10px; font-weight: 700; color: var(--warm-500); margin-top: 4px; }
+  .row .body { flex: 1 1 auto; min-width: 0; align-self: center; }
+  .row .body .name { font-size: 12.5px; font-weight: 700; }
+  .row .body .to { font-size: 11.5px; color: var(--warm-500); margin-top: 2px; }
+  .row .body .to .arrow { color: var(--warm-300); }
+  .row .meta { margin-top: 4px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 10px; font-weight: 600; color: var(--warm-500); }
+  .pill { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 4px; }
+  .pill.cpam { background: var(--cpam); color: var(--cpam-text); }
+  .pill.prive { background: var(--prive); color: var(--prive-text); }
+  .row .price { align-self: center; font-size: 16px; font-weight: 900; padding-right: 4px; font-variant-numeric: tabular-nums; }
+  .row .edit {
+    width: 30px; height: 30px; align-self: center;
+    border-radius: 8px; background: var(--warm-50); border: 1px solid var(--warm-200);
+    display: grid; place-items: center; color: var(--warm-700);
+  }
+  .row .edit .material-symbols-rounded { font-size: 16px; }
+
+  /* ============================================================== */
+  /* VARIANT A — "Light hero, brand accent strip"                    */
+  /* Carte claire ; bandeau jaune en haut ; accents noir minimaux    */
+  /* ============================================================== */
+  .a-hero {
+    position: relative; overflow: hidden;
+    background: var(--paper); border: 1px solid var(--warm-200);
+    border-radius: 22px; padding: 16px 16px 14px;
+    box-shadow: 0 8px 26px -18px rgba(0,0,0,0.18);
+  }
+  .a-hero::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+    background: linear-gradient(180deg, var(--brand), var(--brand-deep));
+  }
+  .a-hero .top { display: flex; align-items: center; justify-content: space-between; }
+  .a-hero .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    color: var(--ink); font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .a-hero .badge .material-symbols-rounded { font-size: 13px; color: var(--brand-deep); }
+  .a-hero .badge .pill { margin-left: 6px; }
+  .a-hero .clock { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--warm-700); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .a-hero .clock .material-symbols-rounded { font-size: 13px; }
+
+  .a-hero .delay { font-size: 30px; font-weight: 900; letter-spacing: -0.02em; line-height: 1; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .a-hero .pat { margin-top: 4px; font-size: 12.5px; color: var(--warm-700); }
+  .a-hero .pat b { color: var(--ink); font-weight: 800; }
+
+  .a-hero .route {
+    margin-top: 12px; padding: 12px 12px;
+    background: var(--warm-50); border-radius: 14px;
+    display: grid; gap: 6px;
+  }
+  .route-row { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+  .route-row .dot {
+    width: 12px; height: 12px; border-radius: 999px; margin-top: 5px; flex-shrink: 0;
+  }
+  .route-row .dot.origin { background: var(--ink); }
+  .route-row .dot.dest { background: var(--brand); border: 2px solid var(--ink); }
+  .route-row .col-text { min-width: 0; }
+  .route-row .lab { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--warm-500); }
+  .route-row .addr { font-size: 13px; font-weight: 700; line-height: 1.25; margin-top: 1px; }
+  .a-hero .route .gap { margin-left: 5px; width: 2px; height: 10px; border-left: 2px dotted var(--warm-300); }
+
+  .a-hero .stats {
+    margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+  }
+  .stat {
+    background: var(--warm-50); border-radius: 10px; padding: 8px 10px;
+  }
+  .stat .k { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--warm-500); }
+  .stat .v { font-size: 14px; font-weight: 900; margin-top: 2px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat.price .v { color: var(--brand-deep); }
+  .stat.price { background: var(--brand-soft); }
+
+  .a-hero .stepbar { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--warm-100); }
+  .stepbar { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .step .b { width: 100%; height: 4px; background: var(--warm-200); border-radius: 999px; }
+  .step.is-done .b { background: var(--ink); }
+  .step.is-active .b { background: var(--brand); }
+  .step .t { font-size: 9.5px; font-weight: 700; color: var(--warm-500); text-transform: uppercase; letter-spacing: 0.04em; }
+  .step.is-active .t, .step.is-done .t { color: var(--ink); }
+
+  .a-hero .ctas { margin-top: 12px; display: flex; gap: 6px; }
+  .btn-cta {
+    flex: 1; height: 46px; border-radius: 14px; border: 0; cursor: pointer;
+    background: var(--ink); color: var(--paper);
+    font-size: 13.5px; font-weight: 900; letter-spacing: -0.005em;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-cta .material-symbols-rounded { font-size: 18px; }
+  .btn-phone {
+    width: 46px; height: 46px; border-radius: 14px;
+    background: var(--warm-50); border: 1px solid var(--warm-200);
+    display: grid; place-items: center; color: var(--ink);
+  }
+  .a-hero .footrow {
+    margin-top: 10px; display: flex; align-items: center; justify-content: space-between;
+    font-size: 10.5px; color: var(--warm-500);
+  }
+  .a-hero .footrow .gps { display: inline-flex; align-items: center; gap: 4px; }
+  .a-hero .footrow .gps .material-symbols-rounded { font-size: 13px; }
+  .a-hero .footrow .corr { color: var(--brand-deep); font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+  .a-hero .footrow .corr .material-symbols-rounded { font-size: 13px; }
+
+  /* ============================================================== */
+  /* VARIANT B — "Soft warm + brand block for price"                 */
+  /* Fond warm-50 ; pas de noir massif ; prix encadré jaune          */
+  /* ============================================================== */
+  .b-hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(180deg, #FFFFFF 0%, var(--warm-50) 100%);
+    border: 1px solid var(--warm-200);
+    border-radius: 22px; padding: 16px;
+    box-shadow: 0 8px 26px -18px rgba(0,0,0,0.16);
+  }
+  .b-hero .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .b-hero .status {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--paper); border: 1px solid var(--warm-200); border-radius: 999px;
+    padding: 4px 9px; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .b-hero .status .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--brand-deep); }
+  .b-hero .clock { font-size: 11.5px; font-weight: 700; color: var(--warm-700); font-variant-numeric: tabular-nums; }
+  .b-hero .grid-main {
+    margin-top: 12px;
+    display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end;
+  }
+  .b-hero .delay { font-size: 32px; font-weight: 900; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .b-hero .delay-sub { font-size: 12px; color: var(--warm-500); font-weight: 700; margin-top: 4px; }
+  .b-hero .delay-sub b { color: var(--ink); font-weight: 800; }
+  .b-hero .pricebox {
+    background: var(--brand); border-radius: 14px; padding: 10px 14px; min-width: 92px;
+    text-align: right;
+  }
+  .b-hero .pricebox .k { font-size: 9.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); opacity: .7; }
+  .b-hero .pricebox .v { font-size: 22px; font-weight: 900; line-height: 1; margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+  .b-hero .route {
+    margin-top: 12px; background: var(--paper); border: 1px solid var(--warm-100);
+    border-radius: 14px; padding: 12px;
+    display: grid; gap: 6px;
+  }
+  .b-hero .gap { margin-left: 5px; width: 2px; height: 10px; border-left: 2px dotted var(--warm-300); }
+
+  .b-hero .meta {
+    margin-top: 10px; display: flex; gap: 14px; padding: 0 4px; font-size: 12px; color: var(--warm-700);
+  }
+  .b-hero .meta b { color: var(--ink); font-weight: 800; }
+  .b-hero .meta .sep { width: 1px; background: var(--warm-200); }
+
+  .b-hero .stepbar { margin-top: 12px; }
+
+  .b-hero .ctas { margin-top: 12px; display: flex; gap: 6px; }
+  .b-hero .footrow { margin-top: 10px; display: flex; justify-content: space-between; font-size: 10.5px; color: var(--warm-500); }
+  .b-hero .footrow .corr { color: var(--ink); font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* ============================================================== */
+  /* VARIANT C — "Ticket split (timeline)"                            */
+  /* Carte façon ticket : à gauche heure + statut, à droite la course */
+  /* ============================================================== */
+  .c-hero {
+    background: var(--paper); border: 1px solid var(--warm-200);
+    border-radius: 22px; overflow: hidden;
+    box-shadow: 0 8px 26px -18px rgba(0,0,0,0.16);
+  }
+  .c-hero .top {
+    background: var(--warm-50); border-bottom: 1px solid var(--warm-100);
+    padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .c-hero .top .left { display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; }
+  .c-hero .top .left .material-symbols-rounded { font-size: 14px; color: var(--brand-deep); }
+  .c-hero .top .right { font-size: 11.5px; color: var(--warm-700); font-variant-numeric: tabular-nums; font-weight: 700; }
+
+  .c-hero .body { display: grid; grid-template-columns: 96px 1fr; }
+  .c-hero .timecol {
+    background: var(--ink); color: var(--paper);
+    padding: 14px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .c-hero .timecol::after {
+    /* notch à la lisière, façon ticket */
+    content: ""; position: absolute; right: -8px; top: 50%; width: 16px; height: 16px;
+    background: var(--paper); border-radius: 999px; transform: translateY(-50%);
+    border: 1px solid var(--warm-200);
+  }
+  .c-hero .timecol .h { font-size: 26px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+  .c-hero .timecol .lab { margin-top: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brand); }
+  .c-hero .timecol .delay { margin-top: 6px; font-size: 11.5px; font-weight: 800; color: var(--paper); opacity: .9; text-align: center; line-height: 1.15; }
+  .c-hero .main { padding: 12px 14px 14px; }
+  .c-hero .main .who { font-size: 13px; font-weight: 800; }
+  .c-hero .main .who .pill { margin-left: 6px; }
+  .c-hero .main .stats { margin-top: 8px; display: flex; gap: 10px; font-size: 12px; color: var(--warm-700); }
+  .c-hero .main .stats b { color: var(--ink); font-weight: 800; }
+  .c-hero .main .price { margin-top: 6px; font-size: 22px; font-weight: 900; color: var(--brand-deep); font-variant-numeric: tabular-nums; }
+
+  .c-hero .route { padding: 12px 14px; border-top: 1px dashed var(--warm-200); display: grid; gap: 6px; }
+  .c-hero .gap { margin-left: 5px; width: 2px; height: 10px; border-left: 2px dotted var(--warm-300); }
+  .c-hero .stepwrap { padding: 12px 14px; border-top: 1px solid var(--warm-100); }
+  .c-hero .ctas { padding: 0 14px 14px; display: flex; gap: 6px; }
+  .c-hero .footrow { padding: 0 14px 14px; display: flex; justify-content: space-between; font-size: 10.5px; color: var(--warm-500); }
+  .c-hero .footrow .corr { color: var(--ink); font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* ============================================================== */
+  /* VARIANT D — "Minimal pro" (le plus calme)                        */
+  /* Très peu de couleur, gros prix à droite, route prend la vedette */
+  /* ============================================================== */
+  .d-hero {
+    background: var(--paper); border: 1.5px solid var(--ink);
+    border-radius: 18px; padding: 18px 18px 16px;
+    box-shadow: 0 4px 18px -14px rgba(0,0,0,0.22);
+  }
+  .d-hero .row1 { display: flex; align-items: center; justify-content: space-between; }
+  .d-hero .lhs { display: flex; align-items: center; gap: 8px; }
+  .d-hero .badge {
+    font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--warm-700);
+  }
+  .d-hero .badge .material-symbols-rounded { font-size: 13px; color: var(--brand-deep); vertical-align: -2px; margin-right: 2px; }
+  .d-hero .clock { font-size: 11.5px; color: var(--warm-700); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .d-hero .row2 {
+    margin-top: 10px;
+    display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end;
+  }
+  .d-hero .row2 .delay { font-size: 28px; font-weight: 900; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .d-hero .row2 .who { font-size: 12px; color: var(--warm-700); margin-top: 4px; }
+  .d-hero .row2 .who b { color: var(--ink); font-weight: 800; }
+  .d-hero .row2 .price {
+    text-align: right;
+  }
+  .d-hero .row2 .price .k { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--warm-500); }
+  .d-hero .row2 .price .v { font-size: 26px; font-weight: 900; line-height: 1; margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+  .d-hero .route {
+    margin-top: 14px; padding: 14px 0; border-top: 1px solid var(--warm-100); border-bottom: 1px solid var(--warm-100);
+    display: grid; gap: 6px;
+  }
+  .d-hero .gap { margin-left: 5px; width: 2px; height: 12px; border-left: 2px dotted var(--warm-300); }
+
+  .d-hero .stepbar { margin-top: 12px; }
+  .d-hero .ctas { margin-top: 14px; display: flex; gap: 6px; }
+  .d-hero .btn-cta { background: var(--brand); color: var(--ink); }
+  .d-hero .footrow { margin-top: 10px; display: flex; justify-content: space-between; font-size: 10.5px; color: var(--warm-500); }
+  .d-hero .footrow .corr { color: var(--ink); font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* ---------- header (page-level) ---------- */
+  .head { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+  .head .crumb { font-size: 12px; font-weight: 700; color: #6f6c63; text-transform: uppercase; letter-spacing: 0.08em; }
+
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="head">
+    <span class="crumb">Mes courses · Aujourd'hui — Refonte hero</span>
+    <h1>4 propositions pour la « Prochaine course »</h1>
+    <p class="lead">
+      Le contenu reste identique : badge CPAM/Privé, délai « Dans 30 min », patient, départ → arrivée, distance / durée / prix, step-bar de progression, CTA principal, téléphone, GPS choisi, lien « Corriger ». On allège le bloc noir massif et on cherche un rendu plus clair, plus pro, plus respirant.
+    </p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ================= VARIANT A ================= -->
+    <div class="col">
+      <div class="label">Variante A — Light + bandeau brand</div>
+      <div class="sub">Carte blanche, accent jaune sur le côté. Le noir disparait du fond, ne reste que sur le CTA.</div>
+      <div class="frame">
+
+        <div class="mini-head">
+          <div class="lhs">
+            <div class="ic">TL</div>
+            <div>
+              <div class="ttl">Mes courses</div>
+              <div class="dt">samedi 2 mai</div>
+            </div>
+          </div>
+          <span class="chip-earn"><span class="material-symbols-rounded">euro</span> 184 € · jour</span>
+        </div>
+
+        <div class="tabs">
+          <div class="tab is-active">Aujourd'hui</div>
+          <div class="tab">Agenda</div>
+          <div class="tab">Annonces</div>
+          <div class="tab">Stats</div>
+        </div>
+
+        <article class="a-hero">
+          <div class="top">
+            <div class="badge">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1;">star</span>
+              Prochaine course
+              <span class="pill cpam">CPAM</span>
+            </div>
+            <span class="clock"><span class="material-symbols-rounded">schedule</span> 14:30</span>
+          </div>
+
+          <div class="delay">Dans 30 min</div>
+          <div class="pat">Mme Dupont · <b>12 km</b> · <b>22 min</b></div>
+
+          <div class="route">
+            <div class="route-row">
+              <div class="dot origin"></div>
+              <div class="col-text">
+                <div class="lab">Départ</div>
+                <div class="addr">14 rue de la Paix, 75002 Paris</div>
+              </div>
+            </div>
+            <div class="gap"></div>
+            <div class="route-row">
+              <div class="dot dest"></div>
+              <div class="col-text">
+                <div class="lab">Arrivée</div>
+                <div class="addr">Hôpital Saint-Antoine, 75012 Paris</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat"><div class="k">Distance</div><div class="v">12 km</div></div>
+            <div class="stat"><div class="k">Durée</div><div class="v">22 min</div></div>
+            <div class="stat price"><div class="k">Prix</div><div class="v">42,80 €</div></div>
+          </div>
+
+          <div class="stepbar">
+            <div class="step is-active"><div class="b"></div><div class="t">Acceptée</div></div>
+            <div class="step"><div class="b"></div><div class="t">En route</div></div>
+            <div class="step"><div class="b"></div><div class="t">À bord</div></div>
+            <div class="step"><div class="b"></div><div class="t">Déposé</div></div>
+          </div>
+
+          <div class="ctas">
+            <button class="btn-cta">
+              <span class="material-symbols-rounded">navigation</span>
+              Je pars chercher Mme Dupont
+            </button>
+            <a class="btn-phone" href="#"><span class="material-symbols-rounded">call</span></a>
+          </div>
+
+          <div class="footrow">
+            <span class="gps"><span class="material-symbols-rounded">tune</span> Ouvre dans <b style="color:#1f1f1f;font-weight:800;margin-left:2px;">Google Maps</b></span>
+            <a class="corr" href="#"><span class="material-symbols-rounded">edit</span> Corriger</a>
+          </div>
+        </article>
+
+        <header class="rest-head">
+          <h3>Reste de la journée</h3>
+          <span class="sum">3 · 142€</span>
+        </header>
+        <div class="row">
+          <div class="time"><div class="h">15:45</div><div class="d">1 h 15</div></div>
+          <div class="body">
+            <div class="name">M. Bernard</div>
+            <div class="to"><span class="arrow">→ </span>Clinique du Parc, Lyon 6e</div>
+            <div class="meta"><span class="pill cpam">CPAM</span><span>· A/R</span><span>· 18 min</span></div>
+          </div>
+          <div class="price">38 €</div>
+          <div class="edit"><span class="material-symbols-rounded">edit</span></div>
+        </div>
+        <div class="row">
+          <div class="time"><div class="h">17:00</div><div class="d">2 h 30</div></div>
+          <div class="body">
+            <div class="name">Mme Roux</div>
+            <div class="to"><span class="arrow">→ </span>Centre dialyse Lyon Sud</div>
+            <div class="meta"><span class="pill cpam">CPAM</span><span>· 24 min</span></div>
+          </div>
+          <div class="price">52 €</div>
+          <div class="edit"><span class="material-symbols-rounded">edit</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= VARIANT B ================= -->
+    <div class="col">
+      <div class="label">Variante B — Warm gradient + prix jaune</div>
+      <div class="sub">Fond crème dégradé, statut en pill propre, prix mis en valeur dans un bloc jaune.</div>
+      <div class="frame">
+
+        <div class="mini-head">
+          <div class="lhs">
+            <div class="ic">TL</div>
+            <div>
+              <div class="ttl">Mes courses</div>
+              <div class="dt">samedi 2 mai</div>
+            </div>
+          </div>
+          <span class="chip-earn"><span class="material-symbols-rounded">euro</span> 184 € · jour</span>
+        </div>
+
+        <div class="tabs">
+          <div class="tab is-active">Aujourd'hui</div>
+          <div class="tab">Agenda</div>
+          <div class="tab">Annonces</div>
+          <div class="tab">Stats</div>
+        </div>
+
+        <article class="b-hero">
+          <div class="top">
+            <div class="status">
+              <span class="dot"></span>
+              Prochaine course
+              <span class="pill cpam" style="margin-left:4px;">CPAM</span>
+            </div>
+            <span class="clock"><span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px;">schedule</span> 14:30</span>
+          </div>
+
+          <div class="grid-main">
+            <div>
+              <div class="delay">Dans 30 min</div>
+              <div class="delay-sub">Mme <b>Dupont</b></div>
+            </div>
+            <div class="pricebox">
+              <div class="k">Prix</div>
+              <div class="v">42,80 €</div>
+            </div>
+          </div>
+
+          <div class="route">
+            <div class="route-row">
+              <div class="dot origin"></div>
+              <div class="col-text">
+                <div class="lab">Départ</div>
+                <div class="addr">14 rue de la Paix, 75002 Paris</div>
+              </div>
+            </div>
+            <div class="gap"></div>
+            <div class="route-row">
+              <div class="dot dest"></div>
+              <div class="col-text">
+                <div class="lab">Arrivée</div>
+                <div class="addr">Hôpital Saint-Antoine, 75012 Paris</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="meta">
+            <span><b>12 km</b> · distance</span>
+            <span class="sep"></span>
+            <span><b>22 min</b> · durée</span>
+            <span class="sep"></span>
+            <span><b>A/R</b> programmé</span>
+          </div>
+
+          <div class="stepbar">
+            <div class="step is-active"><div class="b"></div><div class="t">Acceptée</div></div>
+            <div class="step"><div class="b"></div><div class="t">En route</div></div>
+            <div class="step"><div class="b"></div><div class="t">À bord</div></div>
+            <div class="step"><div class="b"></div><div class="t">Déposé</div></div>
+          </div>
+
+          <div class="ctas">
+            <button class="btn-cta">
+              <span class="material-symbols-rounded">navigation</span>
+              Je pars chercher Mme Dupont
+            </button>
+            <a class="btn-phone" href="#"><span class="material-symbols-rounded">call</span></a>
+          </div>
+
+          <div class="footrow">
+            <span><span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px;">tune</span> Ouvre dans <b style="color:#1f1f1f;font-weight:800;">Google Maps</b></span>
+            <a class="corr" href="#"><span class="material-symbols-rounded" style="font-size:13px;">edit</span> Corriger</a>
+          </div>
+        </article>
+
+        <header class="rest-head">
+          <h3>Reste de la journée</h3>
+          <span class="sum">3 · 142€</span>
+        </header>
+        <div class="row">
+          <div class="time"><div class="h">15:45</div><div class="d">1 h 15</div></div>
+          <div class="body">
+            <div class="name">M. Bernard</div>
+            <div class="to"><span class="arrow">→ </span>Clinique du Parc, Lyon 6e</div>
+            <div class="meta"><span class="pill cpam">CPAM</span><span>· A/R</span><span>· 18 min</span></div>
+          </div>
+          <div class="price">38 €</div>
+          <div class="edit"><span class="material-symbols-rounded">edit</span></div>
+        </div>
+        <div class="row">
+          <div class="time"><div class="h">17:00</div><div class="d">2 h 30</div></div>
+          <div class="body">
+            <div class="name">Mme Roux</div>
+            <div class="to"><span class="arrow">→ </span>Centre dialyse Lyon Sud</div>
+            <div class="meta"><span class="pill cpam">CPAM</span><span>· 24 min</span></div>
+          </div>
+          <div class="price">52 €</div>
+          <div class="edit"><span class="material-symbols-rounded">edit</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= VARIANT C ================= -->
+    <div class="col">
+      <div class="label">Variante C — Ticket scindé</div>
+      <div class="sub">Petite « pastille noire » à gauche pour l'heure, le reste de la carte est clair. Métaphore ticket / billet.</div>
+      <div class="frame">
+
+        <div class="mini-head">
+          <div class="lhs">
+            <div class="ic">TL</div>
+            <div>
+              <div class="ttl">Mes courses</div>
+              <div class="dt">samedi 2 mai</div>
+            </div>
+          </div>
+          <span class="chip-earn"><span class="material-symbols-rounded">euro</span> 184 € · jour</span>
+        </div>
+
+        <div class="tabs">
+          <div class="tab is-active">Aujourd'hui</div>
+          <div class="tab">Agenda</div>
+          <div class="tab">Annonces</div>
+          <div class="tab">Stats</div>
+        </div>
+
+        <article class="c-hero">
+          <div class="top">
+            <div class="left">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1;">star</span>
+              Prochaine course
+              <span class="pill cpam" style="margin-left:4px;">CPAM</span>
+            </div>
+            <div class="right">14:30</div>
+          </div>
+          <div class="body">
+            <div class="timecol">
+              <div class="h">14:30</div>
+              <div class="lab">Aujourd'hui</div>
+              <div class="delay">Dans<br/>30 min</div>
+            </div>
+            <div class="main">
+              <div class="who">Mme Dupont</div>
+              <div class="stats">
+                <span><b>12 km</b></span>
+                <span>· <b>22 min</b></span>
+                <span>· A/R</span>
+              </div>
+              <div class="price">42,80 €</div>
+            </div>
+          </div>
+
+          <div class="route">
+            <div class="route-row">
+              <div class="dot origin"></div>
+              <div class="col-text">
+                <div class="lab">Départ</div>
+                <div class="addr">14 rue de la Paix, 75002 Paris</div>
+              </div>
+            </div>
+            <div class="gap"></div>
+            <div class="route-row">
+              <div class="dot dest"></div>
+              <div class="col-text">
+                <div class="lab">Arrivée</div>
+                <div class="addr">Hôpital Saint-Antoine, 75012 Paris</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stepwrap">
+            <div class="stepbar">
+              <div class="step is-active"><div class="b"></div><div class="t">Acceptée</div></div>
+              <div class="step"><div class="b"></div><div class="t">En route</div></div>
+              <div class="step"><div class="b"></div><div class="t">À bord</div></div>
+              <div class="step"><div class="b"></div><div class="t">Déposé</div></div>
+            </div>
+          </div>
+
+          <div class="ctas">
+            <button class="btn-cta">
+              <span class="material-symbols-rounded">navigation</span>
+              Je pars chercher Mme Dupont
+            </button>
+            <a class="btn-phone" href="#"><span class="material-symbols-rounded">call</span></a>
+          </div>
+
+          <div class="footrow">
+            <span><span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px;">tune</span> Ouvre dans <b style="color:#1f1f1f;font-weight:800;">Google Maps</b></span>
+            <a class="corr" href="#"><span class="material-symbols-rounded" style="font-size:13px;">edit</span> Corriger</a>
+          </div>
+        </article>
+
+        <header class="rest-head">
+          <h3>Reste de la journée</h3>
+          <span class="sum">3 · 142€</span>
+        </header>
+        <div class="row">
+          <div class="time"><div class="h">15:45</div><div class="d">1 h 15</div></div>
+          <div class="body">
+            <div class="name">M. Bernard</div>
+            <div class="to"><span class="arrow">→ </span>Clinique du Parc, Lyon 6e</div>
+            <div class="meta"><span class="pill cpam">CPAM</span><span>· A/R</span><span>· 18 min</span></div>
+          </div>
+          <div class="price">38 €</div>
+          <div class="edit"><span class="material-symbols-rounded">edit</span></div>
+        </div>
+        <div class="row">
+          <div class="time"><div class="h">17:00</div><div class="d">2 h 30</div></div>
+          <div class="body">
+            <div class="name">Mme Roux</div>
+            <div class="to"><span class="arrow">→ </span>Centre dialyse Lyon Sud</div>
+            <div class="meta"><span class="pill cpam">CPAM</span><span>· 24 min</span></div>
+          </div>
+          <div class="price">52 €</div>
+          <div class="edit"><span class="material-symbols-rounded">edit</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= VARIANT D ================= -->
+    <div class="col">
+      <div class="label">Variante D — Minimal pro</div>
+      <div class="sub">La plus calme. Tout blanc, prix gros à droite, CTA jaune (option « pro discret »).</div>
+      <div class="frame">
+
+        <div class="mini-head">
+          <div class="lhs">
+            <div class="ic">TL</div>
+            <div>
+              <div class="ttl">Mes courses</div>
+              <div class="dt">samedi 2 mai</div>
+            </div>
+          </div>
+          <span class="chip-earn"><span class="material-symbols-rounded">euro</span> 184 € · jour</span>
+        </div>
+
+        <div class="tabs">
+          <div class="tab is-active">Aujourd'hui</div>
+          <div class="tab">Agenda</div>
+          <div class="tab">Annonces</div>
+          <div class="tab">Stats</div>
+        </div>
+
+        <article class="d-hero">
+          <div class="row1">
+            <div class="lhs">
+              <div class="badge">
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1;">star</span>
+                Prochaine course
+              </div>
+              <span class="pill cpam">CPAM</span>
+            </div>
+            <span class="clock"><span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px;">schedule</span> 14:30</span>
+          </div>
+
+          <div class="row2">
+            <div>
+              <div class="delay">Dans 30 min</div>
+              <div class="who">Mme <b>Dupont</b> · A/R programmé</div>
+            </div>
+            <div class="price">
+              <div class="k">Prix</div>
+              <div class="v">42,80 €</div>
+            </div>
+          </div>
+
+          <div class="route">
+            <div class="route-row">
+              <div class="dot origin"></div>
+              <div class="col-text">
+                <div class="lab">Départ</div>
+                <div class="addr">14 rue de la Paix, 75002 Paris</div>
+              </div>
+            </div>
+            <div class="gap"></div>
+            <div class="route-row">
+              <div class="dot dest"></div>
+              <div class="col-text">
+                <div class="lab">Arrivée</div>
+                <div class="addr">Hôpital Saint-Antoine, 75012 Paris</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stepbar">
+            <div class="step is-active"><div class="b"></div><div class="t">Acceptée</div></div>
+            <div class="step"><div class="b"></div><div class="t">En route</div></div>
+            <div class="step"><div class="b"></div><div class="t">À bord</div></div>
+            <div class="step"><div class="b"></div><div class="t">Déposé</div></div>
+          </div>
+
+          <div class="ctas">
+            <button class="btn-cta">
+              <span class="material-symbols-rounded">navigation</span>
+              Je pars chercher Mme Dupont
+            </button>
+            <a class="btn-phone" href="#"><span class="material-symbols-rounded">call</span></a>
+          </div>
+
+          <div class="footrow">
+            <span><span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px;">tune</span> Ouvre dans <b style="color:#1f1f1f;font-weight:800;">Google Maps</b></span>
+            <a class="corr" href="#"><span class="material-symbols-rounded" style="font-size:13px;">edit</span> Corriger</a>
+          </div>
+        </article>
+
+        <header class="rest-head">
+          <h3>Reste de la journée</h3>
+          <span class="sum">3 · 142€</span>
+        </header>
+        <div class="row">
+          <div class="time"><div class="h">15:45</div><div class="d">1 h 15</div></div>
+          <div class="body">
+            <div class="name">M. Bernard</div>
+            <div class="to"><span class="arrow">→ </span>Clinique du Parc, Lyon 6e</div>
+            <div class="meta"><span class="pill cpam">CPAM</span><span>· A/R</span><span>· 18 min</span></div>
+          </div>
+          <div class="price">38 €</div>
+          <div class="edit"><span class="material-symbols-rounded">edit</span></div>
+        </div>
+        <div class="row">
+          <div class="time"><div class="h">17:00</div><div class="d">2 h 30</div></div>
+          <div class="body">
+            <div class="name">Mme Roux</div>
+            <div class="to"><span class="arrow">→ </span>Centre dialyse Lyon Sud</div>
+            <div class="meta"><span class="pill cpam">CPAM</span><span>· 24 min</span></div>
+          </div>
+          <div class="price">52 €</div>
+          <div class="edit"><span class="material-symbols-rounded">edit</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

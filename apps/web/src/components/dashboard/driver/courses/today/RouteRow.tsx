@@ -14,15 +14,15 @@ export function RouteRow({ label, address, variant }: Props) {
         aria-hidden
         className={`justify-self-center mt-1.5 rounded-full ${
           isOrigin
-            ? 'w-2.5 h-2.5 bg-paper'
+            ? 'w-3 h-3 bg-ink'
             : 'w-3 h-3 bg-brand ring-2 ring-ink'
         }`}
       />
       <div className="min-w-0">
-        <div className="text-[9px] font-extrabold uppercase tracking-[0.05em] text-paper/50">
+        <div className="text-[9.5px] font-extrabold uppercase tracking-[0.06em] text-warm-500">
           {label}
         </div>
-        <div className="text-[13px] font-semibold text-paper leading-tight mt-0.5">
+        <div className="text-[13px] font-bold text-ink leading-tight mt-0.5">
           {address}
         </div>
       </div>

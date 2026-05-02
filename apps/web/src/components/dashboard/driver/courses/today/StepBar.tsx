@@ -40,21 +40,21 @@ export function StepBar({ progress }: Props) {
               <span
                 aria-hidden
                 className={`absolute top-[7px] left-[-50%] right-[50%] h-[2px] ${
-                  reached ? 'bg-brand' : 'bg-paper/15'
+                  reached ? 'bg-brand' : 'bg-warm-200'
                 }`}
               />
             )}
             <span
               aria-hidden
               className={`absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full grid place-items-center ${
-                reached ? 'bg-brand' : 'bg-paper/15'
+                reached ? 'bg-brand' : 'bg-warm-200'
               } ${isCurrent ? 'shadow-[0_0_0_4px_rgba(255,210,63,0.25)] motion-safe:animate-pulse' : ''}`}
             >
               {isDone && <Check className="w-2.5 h-2.5 text-ink" strokeWidth={3} />}
             </span>
             <span
               className={`block text-[9.5px] font-bold uppercase tracking-[0.04em] leading-tight ${
-                isCurrent ? 'text-paper' : 'text-paper/55'
+                isCurrent ? 'text-ink' : 'text-warm-500'
               }`}
             >
               {step.label}
