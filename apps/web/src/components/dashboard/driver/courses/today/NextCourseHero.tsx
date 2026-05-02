@@ -1,5 +1,5 @@
 'use client'
-import { Navigation2, Phone, MapPin, AlertCircle, Pencil, Settings2 } from 'lucide-react'
+import { Navigation2, Phone, AlertCircle, Pencil, Settings2, Star, Clock } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { getMinutesUntil, formatTime } from '@/lib/dateUtils'
 import { formatDuration } from '@/lib/formatDuration'
@@ -23,72 +23,79 @@ export function NextCourseHero({ mission, onEdit }: Props) {
   const phoneHref = mission.phone ? `tel:${mission.phone}` : null
   const fare = formatMissionPrice(mission)
   const isCpam = mission.transport_type === 'CPAM'
+  const patient = mission.patient_name?.trim() || 'le patient'
 
   const isStep2 = h.step === 'toDestination'
-  const ctaLabel = isStep2 ? 'Y aller — destination' : 'Y aller — chez le patient'
+  const ctaLabel = isStep2 ? 'Démarrer vers la destination' : `Je pars chercher ${patient}`
   const ctaHandler = isStep2 ? h.goToDestination : h.goToPickup
-
   const showArrivedBtn = !isStep2 && mission.enroute_at && !mission.pickup_at
-
   const gpsLabel = h.pref === 'ask' ? 'Demander à chaque fois' : gpsAppLabel(h.pref)
 
   return (
-    <article className="relative overflow-hidden rounded-3xl bg-ink text-paper p-5 mb-5">
+    <article className="relative overflow-hidden rounded-[22px] bg-ink text-paper p-4 mb-4">
       <div
-        aria-hidden="true"
-        className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-brand/10 pointer-events-none"
+        aria-hidden
+        className="absolute -right-12 -top-10 w-36 h-36 rounded-full bg-brand/15 pointer-events-none"
       />
       <div className="relative">
-        <div className="inline-flex items-center gap-1.5 bg-brand/15 text-brand px-2.5 py-1 rounded-full text-[10.5px] font-extrabold tracking-[0.06em] uppercase">
-          <MapPin className="w-3.5 h-3.5" strokeWidth={2.4} />
-          Prochaine
-        </div>
 
-        <div className="mt-3 text-[26px] font-extrabold leading-tight tracking-tight tabular-nums">
-          {delay}
-        </div>
-        <p className="text-[13px] text-paper/65 mt-0.5">
-          {time}{mission.patient_name ? ` · ${mission.patient_name}` : ''}
-        </p>
-
-        <div className="mt-4 space-y-1.5">
-          <RouteRow variant="pickup" address={mission.departure} />
-          <div className="ml-[3px] w-px h-3 border-l-2 border-dotted border-paper/25" />
-          <RouteRow variant="destination" address={mission.destination} />
-        </div>
-
-        <div className="mt-4">
-          <StepBar step={h.step} />
-        </div>
-
-        <div className="mt-4 flex items-center gap-4 pt-3 border-t border-paper/10 text-[12.5px] text-paper/85">
-          {(mission.distance_km || mission.duration_min) && (
-            <span>
-              {mission.distance_km != null && <b className="text-paper">{mission.distance_km} km</b>}
-              {mission.distance_km != null && mission.duration_min != null && ' · '}
-              {mission.duration_min != null && <span>{mission.duration_min} min</span>}
+        <div className="flex items-center justify-between gap-2">
+          <div className="inline-flex items-center gap-1.5 text-brand text-[10.5px] font-extrabold uppercase tracking-[0.08em]">
+            <Star className="w-3 h-3 fill-current" strokeWidth={2.4} />
+            <span>Prochaine course</span>
+            <span className={`px-1.5 py-0.5 rounded text-[9.5px] tracking-[0.04em] ${
+              isCpam ? 'bg-blue-400/20 text-blue-300' : 'bg-purple-400/20 text-purple-300'
+            }`}>
+              {isCpam ? 'CPAM' : 'Privé'}
             </span>
-          )}
-          <span>
-            <b className="text-paper">{fare}</b> {isCpam ? 'CPAM' : 'Privé'}
+          </div>
+          <span className="inline-flex items-center gap-1 text-[11px] text-paper/85 tabular-nums">
+            <Clock className="w-3 h-3" strokeWidth={2.2} />
+            {time}
           </span>
         </div>
 
-        <div className="mt-3.5 flex gap-2">
+        <div className="mt-1.5 text-[26px] font-black leading-none tracking-tight tabular-nums">
+          {delay}
+        </div>
+
+        <p className="mt-1 text-[12.5px] text-paper/65">
+          {mission.patient_name?.trim() || 'Patient'}
+          {mission.distance_km != null && <> · <b className="text-paper">{mission.distance_km} km</b></>}
+          {mission.duration_min != null && <> · <b className="text-paper">{mission.duration_min} min</b></>}
+        </p>
+
+        <div className="mt-2.5 bg-paper/[0.06] rounded-xl p-3 grid gap-1.5">
+          <RouteRow label="Départ" address={mission.departure} variant="origin" />
+          <div aria-hidden className="ml-[7px] w-px h-3 border-l-2 border-dotted border-paper/25" />
+          <RouteRow label="Arrivée" address={mission.destination} variant="destination" />
+        </div>
+
+        <div className="mt-2.5 grid grid-cols-3 gap-2">
+          <Stat k="Distance" v={mission.distance_km != null ? `${mission.distance_km} km` : '—'} />
+          <Stat k="Durée" v={mission.duration_min != null ? `${mission.duration_min} min` : '—'} />
+          <Stat k="Prix" v={fare} highlight />
+        </div>
+
+        <div className="mt-3 pt-3 border-t border-paper/10">
+          <StepBar progress={h.progress} />
+        </div>
+
+        <div className="mt-3 flex gap-1.5">
           <button
             type="button"
             onClick={ctaHandler}
             disabled={h.busy}
-            className="flex-1 h-12 rounded-2xl bg-brand text-ink text-[14px] font-extrabold inline-flex items-center justify-center gap-2 hover:bg-brand/90 disabled:opacity-50 transition-colors"
+            className="flex-1 h-12 rounded-2xl bg-brand text-ink text-[13.5px] font-black inline-flex items-center justify-center gap-1.5 hover:bg-brand/90 disabled:opacity-50 transition-colors px-3"
           >
-            <Navigation2 className="w-4 h-4" strokeWidth={2.4} />
-            {ctaLabel}
+            <Navigation2 className="w-4 h-4 shrink-0" strokeWidth={2.4} />
+            <span className="truncate">{ctaLabel}</span>
           </button>
           {phoneHref && (
             <a
               href={phoneHref}
               aria-label="Appeler le patient"
-              className="w-12 h-12 rounded-2xl border border-paper/15 bg-paper/10 inline-flex items-center justify-center text-paper hover:bg-paper/15 transition-colors"
+              className="w-12 h-12 rounded-2xl border border-paper/15 bg-paper/10 inline-flex items-center justify-center text-paper hover:bg-paper/15 transition-colors shrink-0"
             >
               <Phone className="w-5 h-5" strokeWidth={2} />
             </a>
@@ -100,13 +107,13 @@ export function NextCourseHero({ mission, onEdit }: Props) {
             type="button"
             onClick={h.arrivedAtPatient}
             disabled={h.busy}
-            className="mt-2 w-full h-10 rounded-xl bg-paper/10 border border-paper/15 text-paper text-[13px] font-bold disabled:opacity-50"
+            className="mt-1.5 w-full h-10 rounded-xl bg-paper/10 border border-paper/15 text-paper text-[12.5px] font-bold disabled:opacity-50"
           >
             J&apos;y suis arrivé — patient à bord
           </button>
         )}
 
-        <div className="mt-3 flex items-center justify-between text-[11px] text-paper/55">
+        <div className="mt-2.5 flex items-center justify-between text-[10.5px] text-paper/55">
           <span className="inline-flex items-center gap-1">
             <Settings2 className="w-3 h-3" strokeWidth={2} />
             Ouvre dans <b className="text-paper/85 font-bold">{gpsLabel}</b>
@@ -135,7 +142,7 @@ export function NextCourseHero({ mission, onEdit }: Props) {
             label: 'Aller chercher',
             sublabel: mission.patient_name || undefined,
             address: mission.departure,
-            dotClass: 'bg-ink',
+            dotClass: 'bg-paper',
           }}
           destination={{
             label: 'Aller à destination',
@@ -146,5 +153,18 @@ export function NextCourseHero({ mission, onEdit }: Props) {
         />
       )}
     </article>
+  )
+}
+
+function Stat({ k, v, highlight = false }: { k: string; v: string; highlight?: boolean }) {
+  return (
+    <div className="bg-paper/[0.07] rounded-lg px-2.5 py-2">
+      <div className="text-[9px] font-extrabold uppercase tracking-[0.06em] text-paper/50">{k}</div>
+      <div className={`text-[13.5px] font-extrabold mt-0.5 tabular-nums leading-none ${
+        highlight ? 'text-brand' : 'text-paper'
+      }`}>
+        {v}
+      </div>
+    </div>
   )
 }
