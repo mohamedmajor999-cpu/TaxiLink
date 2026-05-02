@@ -94,6 +94,20 @@ export function useAdsTab() {
     return { date: d, dayShort: FR_DAY_SHORT[d.getDay()], count, key: d.toDateString() }
   }), [weekStart, ads])
 
+  // Bornes de navigation semaine : 30 j en arrière (cutoff de chargement) → +60 j devant.
+  const minWeekStart = useMemo(() => startOfWeek(addDays(new Date(), -30)), [nowTick])
+  const maxWeekStart = useMemo(() => startOfWeek(addDays(new Date(), 60)), [nowTick])
+  const canPrevWeek = weekStart.getTime() > minWeekStart.getTime()
+  const canNextWeek = weekStart.getTime() < maxWeekStart.getTime()
+  const goPrevWeek = useCallback(() => {
+    if (!canPrevWeek) return
+    setSelected((s) => addDays(s, -7))
+  }, [canPrevWeek])
+  const goNextWeek = useCallback(() => {
+    if (!canNextWeek) return
+    setSelected((s) => addDays(s, 7))
+  }, [canNextWeek])
+
   const counts = useMemo(() => ({
     waiting: ads.filter((a) => a.state === 'waiting').length,
     expired: ads.filter((a) => a.state === 'expired').length,
@@ -108,5 +122,6 @@ export function useAdsTab() {
     daysGroups,
     counts,
     nowTick,
+    canPrevWeek, canNextWeek, goPrevWeek, goNextWeek,
   }
 }
