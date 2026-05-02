@@ -17,7 +17,7 @@ export function InviteJoinCard({ groupId }: Props) {
         <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-brand/20 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-brand/10 blur-3xl pointer-events-none" />
         <Link href="/" className="relative inline-flex items-center" aria-label="TaxiLink Pro">
-          <Image src="/brand/logo-primary.svg" alt="TaxiLink Pro" width={180} height={32} priority className="h-8 w-auto brightness-0 invert" />
+          <Image src="/brand/logo-dark.svg" alt="TaxiLink Pro" width={180} height={32} priority className="h-8 w-auto" />
         </Link>
         <div className="relative max-w-md">
           <p className="text-brand text-sm font-bold uppercase tracking-wider mb-4">Invitation chauffeur</p>

@@ -1,22 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 170" width="120" height="170" role="img" aria-label="TaxiLink Pro">
-  <defs>
-    <clipPath id="tlIcPin"><path d="M 60 4 C 30 4 8 26 8 56 C 8 88 60 156 60 156 C 60 156 112 88 112 56 C 112 26 90 4 60 4 Z"/></clipPath>
-    <clipPath id="tlIcZh"><polygon points="0,0 120,0 120,62 0,72"/></clipPath>
-    <clipPath id="tlIcZb"><polygon points="0,72 120,62 120,160 0,160"/></clipPath>
-  </defs>
-  <ellipse cx="60" cy="161" rx="22" ry="7" fill="rgba(0,0,0,0.18)"/>
-  <g clip-path="url(#tlIcPin)">
-    <rect width="120" height="160" fill="#09090B"/>
-    <polygon points="0,72 120,62 120,160 0,160" fill="#FBBF24"/>
-    <g clip-path="url(#tlIcZh)" fill="#FBBF24">
-      <rect x="32" y="22" width="56" height="13" rx="2"/>
-      <rect x="53" y="22" width="14" height="82"/>
-      <rect x="53" y="91" width="35" height="13" rx="2"/>
-    </g>
-    <g clip-path="url(#tlIcZb)" fill="#09090B">
-      <rect x="32" y="22" width="56" height="13" rx="2"/>
-      <rect x="53" y="22" width="14" height="82"/>
-      <rect x="53" y="91" width="35" height="13" rx="2"/>
-    </g>
-  </g>
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TaxiLink Pro — Partage de course">
+  <rect width="120" height="120" rx="24" fill="#09090B"/>
+  <path d="M51.39 58L43.33 58L43.33 26.28L33.50 26.28L33.50 19.26L61.06 19.26L61.06 26.28L51.39 26.28 M86.50 58L62.06 58L62.06 19.26L70.12 19.26L70.12 50.98L86.50 50.98" fill="#FFFFFF"/>
+  <!-- Flèche haut : droite (jaune) -->
+  <path d="M 38 78 L 76 78 M 70 72 L 76 78 L 70 84" stroke="#FBBF24" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Flèche bas : gauche (blanche) -->
+  <path d="M 82 92 L 44 92 M 50 86 L 44 92 L 50 98" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 </svg>
