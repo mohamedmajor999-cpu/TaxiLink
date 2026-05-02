@@ -68,9 +68,6 @@ export function usePosterCourse() {
     form.setVisibility('PUBLIC')
     form.setGroupIds([])
   }
-  const onSelectGroupMode = () => {
-    form.setVisibility('GROUP')
-  }
 
   const onSelectDeparture = (s: AddressSuggestion) => {
     form.setDeparture(s.label)
@@ -179,7 +176,7 @@ export function usePosterCourse() {
     myGroups,
     onSelectDeparture, onSelectDestination,
     toggleGroup,
-    onSelectPublic, onSelectGroupMode,
+    onSelectPublic,
     voice, voiceFlow,
     distanceKm: route.distanceKm,
     durationMin: route.durationMin,

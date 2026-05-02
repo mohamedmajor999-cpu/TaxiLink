@@ -73,7 +73,6 @@ export function PosterCourseMockup() {
             groupIds={form.groupIds}
             onChangeType={form.setType}
             onSelectPublic={c.onSelectPublic}
-            onSelectGroupMode={c.onSelectGroupMode}
             onToggleGroup={c.toggleGroup}
             defaultsRemembered={preflight.matchesSavedDefaults}
             onContinue={preflight.passGate}

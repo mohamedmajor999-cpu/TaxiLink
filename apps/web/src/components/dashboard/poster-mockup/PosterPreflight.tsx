@@ -12,7 +12,6 @@ interface Props {
   groupIds: string[]
   onChangeType: (t: MissionFormType) => void
   onSelectPublic: () => void
-  onSelectGroupMode: () => void
   onToggleGroup: (id: string) => void
   defaultsRemembered: boolean
   onContinue: (rememberAsDefault: boolean) => void
@@ -25,7 +24,7 @@ interface Props {
  */
 export function PosterPreflight({
   myGroups, type, visibility, groupIds,
-  onChangeType, onSelectPublic, onSelectGroupMode, onToggleGroup,
+  onChangeType, onSelectPublic, onToggleGroup,
   defaultsRemembered, onContinue,
 }: Props) {
   const [remember, setRemember] = useState(defaultsRemembered)
@@ -47,63 +46,35 @@ export function PosterPreflight({
       </div>
 
       <section className="mb-5">
-        <h3 className="text-[12px] font-bold uppercase tracking-[0.06em] text-warm-500 mb-2">À qui</h3>
-        <div className="bg-warm-100 rounded-[14px] p-1 grid grid-cols-2 gap-1 mb-2">
-          <button
-            type="button"
-            onClick={onSelectGroupMode}
-            className={`flex items-center justify-center gap-1.5 h-11 rounded-[10px] text-[13px] font-bold transition-colors ${
-              visibility === 'GROUP' ? 'bg-paper text-ink shadow-sm' : 'text-warm-500 hover:text-ink'
-            }`}
-          >
-            <Icon name="groups" size={18} />
-            Mes groupes
-          </button>
-          <button
-            type="button"
-            onClick={onSelectPublic}
-            className={`flex items-center justify-center gap-1.5 h-11 rounded-[10px] text-[13px] font-bold transition-colors ${
-              visibility === 'PUBLIC' ? 'bg-paper text-ink shadow-sm' : 'text-warm-500 hover:text-ink'
-            }`}
-          >
-            <Icon name="public" size={18} />
-            Tous chauffeurs
-          </button>
+        <div className="flex items-baseline justify-between mb-2">
+          <h3 className="text-[12px] font-bold uppercase tracking-[0.06em] text-warm-500">À qui</h3>
+          <span className="text-[10.5px] text-warm-400 font-semibold">Plusieurs groupes possibles</span>
         </div>
-
-        {visibility === 'GROUP' && myGroups.length > 0 && (
-          <div className="mt-2 space-y-1.5">
-            {myGroups.map((g) => {
-              const checked = groupIds.includes(g.id)
-              return (
-                <button
-                  key={g.id}
-                  type="button"
-                  onClick={() => onToggleGroup(g.id)}
-                  className={`w-full flex items-center gap-3 py-3 px-3.5 rounded-xl border text-left transition-colors ${
-                    checked ? 'bg-ink/5 border-ink' : 'bg-paper border-warm-200 hover:border-warm-300'
-                  }`}
-                >
-                  <span className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${
-                    checked ? 'bg-ink' : 'bg-paper border-2 border-warm-300'
-                  }`}>
-                    {checked && <Icon name="check" size={14} className="text-paper" />}
-                  </span>
-                  <span className="flex-1 text-[14px] font-bold text-ink">{g.name}</span>
-                  {typeof g.memberCount === 'number' && (
-                    <span className="text-[11.5px] text-warm-400 font-semibold">{g.memberCount} membres</span>
-                  )}
-                </button>
-              )
-            })}
-            {groupIds.length === 0 && (
-              <p className="mt-2 text-[12.5px] text-danger font-semibold">Sélectionnez au moins un groupe.</p>
-            )}
-          </div>
+        <div className="grid grid-cols-2 gap-2">
+          <PickCard
+            active={visibility === 'PUBLIC'}
+            onClick={onSelectPublic}
+            iconName="public"
+            title="Tous"
+            sub="Chauffeurs"
+          />
+          {myGroups.map((g) => (
+            <PickCard
+              key={g.id}
+              active={visibility === 'GROUP' && groupIds.includes(g.id)}
+              onClick={() => onToggleGroup(g.id)}
+              iconName="groups"
+              title={g.name}
+              sub={typeof g.memberCount === 'number' ? `${g.memberCount} membres` : 'Groupe'}
+            />
+          ))}
+        </div>
+        {visibility === 'GROUP' && groupIds.length === 0 && myGroups.length > 0 && (
+          <p className="mt-2 text-[12.5px] text-danger font-semibold">Sélectionnez au moins un groupe.</p>
         )}
-        {visibility === 'GROUP' && myGroups.length === 0 && (
+        {myGroups.length === 0 && visibility !== 'PUBLIC' && (
           <p className="mt-2 text-[12.5px] text-warm-500">
-            Aucun groupe. Choisis « Tous chauffeurs » pour publier.
+            Aucun groupe. Choisis « Tous » pour publier.
           </p>
         )}
       </section>
@@ -111,14 +82,14 @@ export function PosterPreflight({
       <section className="mb-5">
         <h3 className="text-[12px] font-bold uppercase tracking-[0.06em] text-warm-500 mb-2">Type de course</h3>
         <div className="grid grid-cols-2 gap-2">
-          <TypeCard
+          <PickCard
             active={type === 'PRIVE'}
             onClick={() => onChangeType('PRIVE')}
             iconName="local_taxi"
             title="Standard"
             sub="Privé"
           />
-          <TypeCard
+          <PickCard
             active={type === 'CPAM'}
             onClick={() => onChangeType('CPAM')}
             iconName="medical_services"
@@ -163,21 +134,21 @@ export function PosterPreflight({
   )
 }
 
-function TypeCard({
+function PickCard({
   active, onClick, iconName, title, sub,
 }: { active: boolean; onClick: () => void; iconName: string; title: string; sub: string }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-start gap-1.5 p-4 rounded-2xl border-2 transition-colors ${
+      className={`flex flex-col items-start gap-1.5 p-4 rounded-2xl border-2 transition-colors text-left ${
         active ? 'bg-ink text-paper border-ink' : 'bg-paper text-ink border-warm-200 hover:bg-warm-50'
       }`}
     >
       <span className={active ? 'text-brand' : 'text-warm-500'}>
         <Icon name={iconName} size={22} />
       </span>
-      <span className="text-[16px] font-bold leading-none">{title}</span>
+      <span className="text-[15px] font-bold leading-tight line-clamp-2 break-words">{title}</span>
       <span className={`text-[11px] uppercase tracking-wide font-semibold ${active ? 'text-paper/70' : 'text-warm-500'}`}>{sub}</span>
     </button>
   )

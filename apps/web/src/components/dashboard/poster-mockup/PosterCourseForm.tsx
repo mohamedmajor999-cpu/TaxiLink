@@ -1,6 +1,6 @@
 'use client'
 import { Icon } from '@/components/ui/Icon'
-import { Chip, FieldRow, FieldLabel, FieldInput, WhenPill } from './posterMockupParts'
+import { FieldRow, FieldLabel, FieldInput, WhenPill } from './posterMockupParts'
 import { AddressLineInput } from './AddressLineInput'
 import { PosterCpamBlock } from './PosterCpamBlock'
 import { PosterFooter } from './PosterFooter'
@@ -51,13 +51,7 @@ export function PosterCourseForm({ c, footerProps }: Props) {
           <PosterMicCta flow={c.voiceFlow} />
 
           <div className="px-6 lg:px-0">
-            <div className="text-[11px] font-bold tracking-[0.04em] uppercase text-warm-500 mb-2">Type de course</div>
-            <div className="flex gap-2 pb-5">
-              <Chip active={form.type === 'PRIVE'} onClick={() => form.setType('PRIVE')} icon="local_taxi" label="Standard" />
-              <Chip active={form.type === 'CPAM'} onClick={() => form.setType('CPAM')} icon="medical_services" label="CPAM" />
-            </div>
-
-            <div className="mt-[5px] border-t border-warm-200">
+            <div className="border-t border-warm-200">
               <FieldRow leadIcon={<span className="w-3 h-3 rounded-full bg-ink" />}>
                 <AddressLineInput
                   label="Départ" placeholder="Adresse de prise en charge"
