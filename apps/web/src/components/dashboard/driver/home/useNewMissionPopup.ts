@@ -4,6 +4,7 @@ import type { Mission } from '@/lib/supabase/types'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 import { useDriverStore } from '@/store/driverStore'
 import { useUserPrefs } from '@/store/userPrefsStore'
+import { useAuth } from '@/hooks/useAuth'
 import { haversineKm, type LatLng } from '@/lib/geoDistance'
 
 const WINDOW_MS = 2 * 60 * 60 * 1000 // 2 heures
@@ -11,7 +12,6 @@ const RADIUS_KM = 15
 
 interface Args {
   userCoords: LatLng | null
-  authorIdToSkip?: string | null
 }
 
 /**
@@ -19,16 +19,24 @@ interface Args {
  * popups. Filtre : popupEnabled + isOnline + not own + 2h window + 15km radius.
  * Channel dedie pour eviter le conflit de subscribe avec useDriverMissions.
  */
-export function useNewMissionPopup({ userCoords, authorIdToSkip }: Args) {
+export function useNewMissionPopup({ userCoords }: Args) {
   const [queue, setQueue] = useState<Mission[]>([])
   const popupEnabled = useUserPrefs((s) => s.popupNewMission)
   const isOnline = useDriverStore((s) => s.driver.isOnline)
+  const { user } = useAuth()
+  const driverId = useDriverStore((s) => s.driver.id)
+  // Source de verite pour "est-ce ma propre annonce" : on prefere user.id de
+  // useAuth (defini des l'auth resolue) avec fallback sur driverStore. Si
+  // aucune des deux n'est connue, on n'affiche rien (mieux que de risquer un
+  // faux positif sur l'auteur).
+  const ownId = user?.id ?? driverId ?? null
 
   useMissionRealtime({
     channelName: 'missions-realtime-newpopup',
     onInsert: (m) => {
       if (!popupEnabled || !isOnline) return
-      if (authorIdToSkip && m.shared_by === authorIdToSkip) return
+      if (!ownId) return
+      if (m.shared_by === ownId) return
       if (!matchesWindow(m)) return
       if (!matchesRadius(m, userCoords)) return
       setQueue((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]))

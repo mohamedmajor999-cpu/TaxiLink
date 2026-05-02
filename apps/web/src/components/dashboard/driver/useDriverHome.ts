@@ -71,7 +71,7 @@ export function useDriverHome() {
 
   const f = useDriverHomeFilters({ missions: m.missions, groups, userCoords })
   useDriverPositionPush(userCoords)
-  const popup = useNewMissionPopup({ userCoords, authorIdToSkip: driver.id })
+  const popup = useNewMissionPopup({ userCoords })
 
   const mappableMissions = useMemo(
     () => f.filteredMissions.filter((x) => x.departure_lat != null && x.departure_lng != null),
