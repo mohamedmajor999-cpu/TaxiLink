@@ -2,6 +2,7 @@
 import { Truck, Pencil } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { useMissionEditSheetStore } from '@/store/missionEditSheetStore'
+import { usePostedAcceptStore, useIsMissionUnseen } from '@/store/postedAcceptStore'
 import { formatTime } from '@/lib/dateUtils'
 import { formatMissionPrice } from '@/lib/formatMissionPrice'
 import { AdTracker } from './AdTracker'
@@ -21,14 +22,28 @@ export function AdCardAccepted({ mission, driver, now }: Props) {
   const postedAgo = relativeAgo(mission.created_at)
   const acceptedAgo = relativeAgo(mission.accepted_at)
   const subline = acceptedAgo ? `Acceptée il y a ${acceptedAgo}` : 'Acceptée'
+  const isUnseen = useIsMissionUnseen(mission.id)
+  const markSeen = usePostedAcceptStore((s) => s.markSeen)
 
   return (
-    <article className="rounded-2xl px-4 py-3 border border-blue-200 bg-blue-50">
+    <article
+      onClick={isUnseen ? () => markSeen(mission.id) : undefined}
+      className={`rounded-2xl px-4 py-3 border bg-blue-50 transition-colors ${
+        isUnseen
+          ? 'border-brand ring-2 ring-brand/40 cursor-pointer'
+          : 'border-blue-200'
+      }`}
+    >
       <header className="flex items-center gap-2 mb-2">
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-200 text-blue-900 text-[10.5px] font-extrabold uppercase tracking-[0.04em]">
           <Truck className="w-3 h-3" strokeWidth={2.4} />
           Acceptée
         </span>
+        {isUnseen && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-brand text-ink text-[10px] font-extrabold uppercase tracking-[0.04em]">
+            Nouveau
+          </span>
+        )}
         <span className="ml-auto text-[12px] font-bold text-ink tabular-nums">{time}</span>
       </header>
       <p className="text-[14px] font-semibold text-ink leading-tight">

@@ -79,6 +79,13 @@ export function DriverDashboard() {
     // setActiveTab fait un seul push qui clear tab + mission + creer.
     // Le store d'edition n'est pas dans l'URL → on le reset ici.
     clearEdit()
+    // Si le badge "annonces acceptees" est visible, on emmene directement
+    // l'utilisateur sur le sous-onglet Annonces (sinon il atterrit sur
+    // Aujourd'hui et ne voit pas a quoi le chiffre correspond).
+    if (tab === 'courses' && unseenAcceptCount > 0) {
+      router.push('/dashboard/chauffeur?tab=courses&subtab=ads')
+      return
+    }
     setActiveTab(tab)
   }
   // TEMPORAIRE : pendant la validation du redesign v4, le bouton "+" pointe sur

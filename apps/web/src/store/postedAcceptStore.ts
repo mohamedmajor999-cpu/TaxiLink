@@ -14,6 +14,7 @@ interface PostedAcceptState {
   popup: AcceptedMissionInfo | null
   add: (info: AcceptedMissionInfo) => void
   dismissPopup: () => void
+  markSeen: (missionId: string) => void
   clearUnseen: () => void
   reset: () => void
 }
@@ -32,6 +33,12 @@ export const usePostedAcceptStore = create<PostedAcceptState>((set, get) => ({
 
   dismissPopup: () => set({ popup: null }),
 
+  markSeen: (missionId) => set((s) => {
+    if (!s.unseen[missionId]) return s
+    const { [missionId]: _, ...rest } = s.unseen
+    return { unseen: rest }
+  }),
+
   clearUnseen: () => set({ unseen: {} }),
 
   reset: () => set({ unseen: {}, popup: null }),
@@ -39,4 +46,8 @@ export const usePostedAcceptStore = create<PostedAcceptState>((set, get) => ({
 
 export function useUnseenAcceptCount(): number {
   return usePostedAcceptStore((s) => Object.keys(s.unseen).length)
+}
+
+export function useIsMissionUnseen(missionId: string): boolean {
+  return usePostedAcceptStore((s) => Boolean(s.unseen[missionId]))
 }

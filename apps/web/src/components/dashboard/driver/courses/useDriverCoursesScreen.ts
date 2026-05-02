@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
-import { usePostedAcceptStore, useUnseenAcceptCount } from '@/store/postedAcceptStore'
+import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
 
 export type CoursesTab = 'today' | 'agenda' | 'ads' | 'stats'
 const VALID_SUBTABS: CoursesTab[] = ['today', 'agenda', 'ads', 'stats']
@@ -28,7 +28,6 @@ export function useDriverCoursesScreen() {
   })()
 
   const unseenAccepts = useUnseenAcceptCount()
-  const clearUnseen = usePostedAcceptStore((s) => s.clearUnseen)
 
   const setActive = (tab: CoursesTab) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -36,12 +35,7 @@ export function useDriverCoursesScreen() {
     else params.set('subtab', tab)
     const qs = params.toString()
     router.push(qs ? `${pathname}?${qs}` : pathname)
-    if (tab === 'ads') clearUnseen()
   }
-
-  useEffect(() => {
-    if (active === 'ads' && unseenAccepts > 0) clearUnseen()
-  }, [active, unseenAccepts, clearUnseen])
 
   // Si l'utilisateur arrive avec un nom legacy dans l'URL, on normalise en arrière-plan.
   useEffect(() => {

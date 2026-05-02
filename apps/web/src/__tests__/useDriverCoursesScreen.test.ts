@@ -127,11 +127,11 @@ describe('useDriverCoursesScreen — subTabs + badge', () => {
 })
 
 describe('useDriverCoursesScreen — effets sur acceptations non vues', () => {
-  it("setActive('ads') vide les acceptations non vues", () => {
+  it("setActive('ads') NE VIDE PAS les unseen (clear desormais par carte)", () => {
     seedUnseen('m1')
     const { result } = renderHook(() => useDriverCoursesScreen())
     act(() => { result.current.setActive('ads') })
-    expect(Object.keys(usePostedAcceptStore.getState().unseen)).toHaveLength(0)
+    expect(usePostedAcceptStore.getState().unseen['m1']).toBeTruthy()
   })
 
   it("setActive('agenda') ne vide pas les acceptations non vues", () => {
@@ -141,10 +141,10 @@ describe('useDriverCoursesScreen — effets sur acceptations non vues', () => {
     expect(usePostedAcceptStore.getState().unseen['m1']).toBeTruthy()
   })
 
-  it("arriver deja sur ?subtab=ads avec des unseen les vide", () => {
+  it("arriver deja sur ?subtab=ads NE VIDE PAS les unseen (clear desormais par carte)", () => {
     seedUnseen('m1')
     currentSearch = 'tab=courses&subtab=ads'
     renderHook(() => useDriverCoursesScreen())
-    expect(Object.keys(usePostedAcceptStore.getState().unseen)).toHaveLength(0)
+    expect(usePostedAcceptStore.getState().unseen['m1']).toBeTruthy()
   })
 })
