@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { groupService } from '@/services/groupService'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
-import { usePublishedFeedbackStore } from '@/store/publishedFeedbackStore'
 import type { Group } from '@taxilink/core'
 import type { AddressSuggestion } from '@/services/addressService'
 import { buildScheduledAt, defaultDate, defaultTime } from '@/components/dashboard/driver/missionFormHelpers'
@@ -22,12 +21,12 @@ export function usePosterCourse() {
   const router = useRouter()
   const driverId = useDriverStore((s) => s.driver.id)
   const form = useMissionFormState(undefined)
-  const publishFeedback = usePublishedFeedbackStore((s) => s.publish)
 
   const [myGroups, setMyGroups] = useState<Group[]>([])
   const [when, setWhen] = useState<WhenMode>('now')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [published, setPublished] = useState(false)
 
   // En CPAM, seed les valeurs requises au calcul tarif (l'UI ne les expose pas en saisie libre).
   useEffect(() => {
@@ -155,17 +154,20 @@ export function usePosterCourse() {
         groupIds: form.groupIds,
       })
       if (driverId) await useMissionStore.getState().load(driverId)
-      const priceValue = previewFare.value
-      publishFeedback({
-        type: form.type,
-        destination: form.destination,
-        priceLabel: priceValue ? `${priceValue.toFixed(2).replace('.', ',')} €` : '—',
-      })
-      router.push('/dashboard/chauffeur')
+      // Pas de redirection immediate : on bascule sur l'ecran "publiee" plein
+      // ecran (pouce vert + Bravo). MissionPublishedCelebration appelle
+      // dismissCelebration apres 2.5s qui redirige. Le toast sur le
+      // dashboard fait doublon avec la celebration plein ecran -> on le
+      // retire.
+      setPublished(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la publication')
       setSaving(false)
     }
+  }
+
+  const dismissCelebration = () => {
+    router.push('/dashboard/chauffeur')
   }
 
   return {
@@ -184,5 +186,6 @@ export function usePosterCourse() {
     previewFare,
     canSubmit, saving, error,
     submit,
+    published, dismissCelebration,
   }
 }

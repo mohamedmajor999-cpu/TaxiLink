@@ -6,11 +6,11 @@ import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
 import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import type { DriverTab } from '@/components/taxilink/navTypes'
-import { PosterFooter } from './PosterFooter'
 import { PosterHeader } from './PosterHeader'
 import { PosterVoiceBanner } from './PosterVoiceBanner'
 import { PosterPreflight } from './PosterPreflight'
 import { PosterCourseForm } from './PosterCourseForm'
+import { MissionPublishedCelebration } from '@/components/ui/MissionPublishedCelebration'
 import { usePosterCourse } from './usePosterCourse'
 import { usePosterPreflight } from './usePosterPreflight'
 
@@ -81,6 +81,8 @@ export function PosterCourseMockup() {
 
         {preflight.gatePassed && <PosterCourseForm c={c} footerProps={footerProps} />}
       </main>
+
+      {c.published && <MissionPublishedCelebration onDone={c.dismissCelebration} />}
 
       <MobileNavDrawer
         open={drawerOpen}
