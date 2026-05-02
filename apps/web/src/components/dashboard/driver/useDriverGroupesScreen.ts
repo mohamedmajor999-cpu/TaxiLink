@@ -4,23 +4,21 @@ import { createClient } from '@/lib/supabase/client'
 import { groupStatsService, type GroupActivitySummary } from '@/services/groupStatsService'
 import type { Group } from '@taxilink/core'
 import { useDriverGroupes } from './useDriverGroupes'
+import { useGroupFavorites } from './useGroupFavorites'
+import { useGroupsLastVisited } from './useGroupsLastVisited'
 
-const PIN_KEY = 'taxilink:driver:pinnedGroupId'
 const REFRESH_DEBOUNCE_MS = 600
 
-function loadPin(): string | null {
-  if (typeof window === 'undefined') return null
-  try { return window.localStorage.getItem(PIN_KEY) } catch { return null }
-}
+export type SortMode = 'activity' | 'recent' | 'name'
 
 export function useDriverGroupesScreen() {
   const groupes = useDriverGroupes()
   const router = useRouter()
+  const fav = useGroupFavorites()
+  const visited = useGroupsLastVisited()
   const [query, setQuery] = useState('')
-  const [pinnedId, setPinnedId] = useState<string | null>(null)
+  const [sortMode, setSortMode] = useState<SortMode>('activity')
   const [summaries, setSummaries] = useState<Record<string, GroupActivitySummary>>({})
-
-  useEffect(() => { setPinnedId(loadPin()) }, [])
 
   const filteredGroups = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -31,13 +29,55 @@ export function useDriverGroupesScreen() {
     )
   }, [groupes.groups, query])
 
-  // L'actif n'est plus le premier de la liste (UX trompeuse) : c'est le pin user.
-  // Si le pin pointe sur un groupe quitté, on ne le force pas — l'écran reste sans actif.
-  const activeGroupId = pinnedId && groupes.groups.some((g) => g.id === pinnedId) ? pinnedId : null
-  const activeSummary = activeGroupId ? summaries[activeGroupId] ?? null : null
+  // Le « hero » de la liste = 1er favori. Si le favori a été quitté, on
+  // tombe au suivant. S'il n'y a aucun favori valide, pas de hero (sentinelle).
+  const primaryGroup = useMemo<Group | null>(() => {
+    for (const id of fav.ids) {
+      const g = groupes.groups.find((x) => x.id === id)
+      if (g) return g
+    }
+    return null
+  }, [fav.ids, groupes.groups])
 
-  // Pastille de vie sur chaque carte : on charge tous les summaries en parallèle.
-  // Coût : 3 requêtes Supabase par groupe. Acceptable jusqu'à ~10 groupes/chauffeur.
+  const primarySummary = primaryGroup ? summaries[primaryGroup.id] ?? null : null
+
+  // Tri : activité (par défaut) prend "courses dispo desc, puis en ligne desc",
+  // récent = ordre de la DB (createdAt desc), name = alpha.
+  // Le primaryGroup est exclu car il est déjà rendu en hero.
+  const sortedGroups = useMemo<Group[]>(() => {
+    const list = filteredGroups.filter((g) => !primaryGroup || g.id !== primaryGroup.id)
+    if (sortMode === 'name') {
+      return [...list].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+    }
+    if (sortMode === 'recent') return list
+    return [...list].sort((a, b) => {
+      const sa = summaries[a.id]; const sb = summaries[b.id]
+      const va = (sa?.available ?? 0) * 1000 + (sa?.onlineCount ?? 0)
+      const vb = (sb?.available ?? 0) * 1000 + (sb?.onlineCount ?? 0)
+      return vb - va
+    })
+  }, [filteredGroups, primaryGroup, sortMode, summaries])
+
+  // Bandeau noir « X courses · Y en ligne » — somme sur tous les groupes du chauffeur.
+  const globalPulse = useMemo(() => {
+    let availableTotal = 0
+    let onlineTotal = 0
+    for (const g of groupes.groups) {
+      const s = summaries[g.id]
+      if (!s) continue
+      availableTotal += s.available
+      onlineTotal += s.onlineCount
+    }
+    return { availableTotal, onlineTotal }
+  }, [groupes.groups, summaries])
+
+  // Pastille « nouveau » par groupe : true si lastEventAt > lastVisited.
+  const hasNews = useCallback((g: Group): boolean => {
+    const s = summaries[g.id]
+    return visited.isNewSinceVisit(g.id, s?.lastEventAt ?? null)
+  }, [summaries, visited])
+
+  // Coût : 1 requête Supabase par groupe (on parallélise). Acceptable jusqu'à ~10 groupes.
   const loadSummaries = useCallback(async (groupList: Group[]) => {
     if (groupList.length === 0) { setSummaries({}); return }
     const results = await Promise.allSettled(
@@ -59,12 +99,9 @@ export function useDriverGroupesScreen() {
     return () => { cancelled = true }
   }, [groupes.groups, loadSummaries])
 
-  // Real-time : refetch les summaries dès qu'une mission entre/sort/change dans un
-  // groupe du chauffeur. Sans ça les compteurs « N courses dispo » étaient un
-  // snapshot HTTP figé au mount — plus de signal que la page est vivante.
-  // Stratégie : un seul canal par user, debounce 600ms côté client. Le filtre
-  // « group_id IN myGroups » ne s'exprime pas dans Supabase realtime — on filtre
-  // donc côté client.
+  // Real-time : refetch des summaries dès qu'une mission entre/sort/change dans
+  // un groupe du chauffeur. Sans ça, les compteurs étaient un snapshot HTTP figé.
+  // Stratégie : un seul canal par user, debounce 600ms côté client.
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
     if (groupes.groups.length === 0) return
@@ -88,15 +125,6 @@ export function useDriverGroupesScreen() {
     }
   }, [groupes.groups, loadSummaries])
 
-  const togglePin = (groupId: string) => {
-    const next = pinnedId === groupId ? null : groupId
-    setPinnedId(next)
-    try {
-      if (next) window.localStorage.setItem(PIN_KEY, next)
-      else window.localStorage.removeItem(PIN_KEY)
-    } catch { /* noop */ }
-  }
-
   const openGroup = (group: Group) => {
     router.push(`/dashboard/chauffeur/groupe/${group.id}`)
   }
@@ -104,11 +132,15 @@ export function useDriverGroupesScreen() {
   return {
     ...groupes,
     query, setQuery,
+    sortMode, setSortMode,
     filteredGroups,
-    activeGroupId,
-    activeSummary,
+    primaryGroup,
+    primarySummary,
+    sortedGroups,
+    globalPulse,
     summaries,
-    togglePin,
+    favorites: fav,
+    hasNews,
     openGroup,
   }
 }

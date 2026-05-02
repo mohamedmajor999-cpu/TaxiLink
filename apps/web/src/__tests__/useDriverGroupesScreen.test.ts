@@ -24,7 +24,7 @@ vi.mock('@/components/dashboard/driver/useDriverGroupes', () => ({
 vi.mock('@/services/groupStatsService', () => ({
   groupStatsService: {
     getActivitySummary: vi.fn().mockResolvedValue({
-      available: 0, exchanged7d: 0, reprisePercent: 0, onlineCount: 0,
+      available: 0, exchanged7d: 0, reprisePercent: 0, onlineCount: 0, lastEventAt: null,
     }),
   },
 }))

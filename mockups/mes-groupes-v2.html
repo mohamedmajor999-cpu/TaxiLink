@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink — Refonte Mes groupes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0A0A0A;
+    --paper: #FFFFFF;
+    --brand: #FFD23F;
+    --brand-soft: #FFF4C2;
+    --warm-50: #FAF8F4;
+    --warm-100: #F4F1EA;
+    --warm-200: #E8E3D8;
+    --warm-300: #D4CDBE;
+    --warm-400: #A89F8A;
+    --warm-500: #7A7363;
+    --warm-600: #524D42;
+    --warm-700: #2F2C26;
+    --warm-800: #1A1815;
+    --danger: #DC2626;
+    --success: #059669;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #EDE9E2;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 36px 24px 80px; }
+  .page h1 { font-size: 26px; font-weight: 900; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .page p.lead { color: #5c5a54; margin: 0 0 32px; font-size: 14px; max-width: 760px; line-height: 1.55; }
+
+  /* Phone frame */
+  .phone {
+    width: 390px; margin: 0 auto;
+    background: #fff; border-radius: 44px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.25), 0 0 0 8px #111 inset, 0 0 0 14px #111;
+    overflow: hidden; position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute; top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 28px;
+    background: #111; border-radius: 20px; z-index: 40;
+  }
+  .screen {
+    height: 880px; position: relative;
+    background: var(--paper); overflow-y: auto; overflow-x: hidden;
+    padding-top: 44px;
+  }
+  .screen::-webkit-scrollbar { width: 0; }
+  .container { padding: 14px 18px 90px; }
+
+  /* Header */
+  .header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+  .header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .logo {
+    width: 40px; height: 40px; flex-shrink: 0;
+    background: var(--ink); border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--brand); font-weight: 900; font-size: 19px;
+  }
+  .header h1 { font-size: 20px; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin: 0; }
+  .header .sub { font-size: 12px; color: var(--warm-500); margin-top: 2px; }
+  .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .btn-pill {
+    height: 38px; padding: 0 14px; border-radius: 999px;
+    border: 1px solid var(--warm-200); background: var(--paper);
+    color: var(--ink); font-size: 13px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+  .btn-pill.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn-pill .material-symbols-rounded { font-size: 18px; }
+
+  /* Bandeau résumé global */
+  .pulse-bar {
+    background: var(--ink); color: var(--paper);
+    border-radius: 18px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 14px;
+  }
+  .pulse-bar .pulse-icon {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: rgba(255, 210, 63, 0.15);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--brand); flex-shrink: 0;
+  }
+  .pulse-bar .pulse-text { flex: 1; min-width: 0; line-height: 1.3; }
+  .pulse-bar .pulse-text strong { color: var(--brand); font-weight: 800; }
+  .pulse-bar .pulse-headline { font-size: 13.5px; font-weight: 600; }
+  .pulse-bar .pulse-meta { font-size: 11.5px; color: rgba(255,255,255,.55); margin-top: 2px; }
+
+  /* Hero du groupe épinglé */
+  .hero {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 22px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 30px -12px rgba(0,0,0,.15);
+    position: relative;
+  }
+  .hero-tag {
+    position: absolute; top: -10px; left: 16px;
+    background: var(--brand); color: var(--ink);
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em;
+    padding: 4px 9px; border-radius: 6px;
+    text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .hero-tag .material-symbols-rounded { font-size: 13px; }
+  .hero-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .hero-avatar {
+    width: 52px; height: 52px; border-radius: 16px;
+    background: var(--ink); color: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 22px; flex-shrink: 0;
+    position: relative;
+  }
+  .hero-avatar::after {
+    content: ""; position: absolute; bottom: -2px; right: -2px;
+    width: 14px; height: 14px; border-radius: 999px;
+    background: var(--success); border: 3px solid var(--paper);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .hero-info { flex: 1; min-width: 0; }
+  .hero-info .name { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+  .hero-info .desc { font-size: 12.5px; color: var(--warm-500); margin-top: 2px; }
+  .hero-fav {
+    width: 36px; height: 36px; border-radius: 999px;
+    background: var(--brand); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; flex-shrink: 0;
+  }
+  .hero-fav .material-symbols-rounded { font-size: 20px; font-variation-settings: 'FILL' 1; }
+
+  .hero-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    background: var(--warm-50); border-radius: 14px;
+    padding: 12px 8px; margin-bottom: 14px;
+  }
+  .hero-stat { text-align: center; position: relative; }
+  .hero-stat + .hero-stat::before {
+    content: ""; position: absolute; left: 0; top: 8px; bottom: 8px;
+    width: 1px; background: var(--warm-200);
+  }
+  .hero-stat .v { font-size: 21px; font-weight: 900; line-height: 1; letter-spacing: -0.02em; }
+  .hero-stat .v.brand { color: var(--ink); }
+  .hero-stat .v .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 999px;
+    background: var(--success); margin-right: 4px; vertical-align: middle;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .hero-stat .l { font-size: 10.5px; color: var(--warm-500); margin-top: 5px; font-weight: 500; }
+
+  .hero-cta {
+    width: 100%; height: 50px; border-radius: 14px;
+    background: var(--ink); color: var(--paper);
+    font-size: 14.5px; font-weight: 800; letter-spacing: -0.01em;
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .hero-cta .material-symbols-rounded { font-size: 20px; color: var(--brand); }
+
+  /* Search */
+  .search {
+    position: relative; margin-bottom: 16px;
+  }
+  .search input {
+    width: 100%; height: 42px; border-radius: 999px;
+    border: 1px solid var(--warm-200); background: var(--paper);
+    padding: 0 14px 0 38px; font-size: 13px; color: var(--ink);
+    font-family: inherit; outline: none;
+  }
+  .search input::placeholder { color: var(--warm-500); }
+  .search .material-symbols-rounded {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--warm-500); font-size: 18px;
+  }
+  .search-chips {
+    display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 11.5px; font-weight: 600; padding: 5px 11px;
+    border-radius: 999px; border: 1px solid var(--warm-200);
+    background: var(--paper); color: var(--warm-600); cursor: pointer;
+  }
+  .chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  /* Section label */
+  .section-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--warm-500);
+    margin: 18px 4px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-label .count {
+    background: var(--warm-100); color: var(--warm-700);
+    padding: 2px 7px; border-radius: 999px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0;
+  }
+
+  /* Cards */
+  .group-list { display: flex; flex-direction: column; gap: 10px; }
+  .group-card {
+    background: var(--paper); border: 1px solid var(--warm-200);
+    border-radius: 18px; padding: 13px;
+    display: flex; align-items: center; gap: 12px;
+    position: relative;
+    cursor: pointer;
+  }
+  .group-card.has-news { border-color: var(--brand); background: #FFFEF6; }
+  .group-card .avatar {
+    width: 44px; height: 44px; border-radius: 13px;
+    background: var(--ink); color: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; flex-shrink: 0;
+    position: relative;
+  }
+  .group-card .avatar .alive {
+    position: absolute; bottom: -2px; right: -2px;
+    width: 11px; height: 11px; border-radius: 999px;
+    background: var(--success); border: 2.5px solid var(--paper);
+  }
+  .group-card .avatar .dead {
+    position: absolute; bottom: -2px; right: -2px;
+    width: 11px; height: 11px; border-radius: 999px;
+    background: var(--warm-300); border: 2.5px solid var(--paper);
+  }
+  .group-card .body { flex: 1; min-width: 0; }
+  .group-card .top {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 2px;
+  }
+  .group-card .top .name {
+    font-size: 14.5px; font-weight: 700; letter-spacing: -0.01em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .group-card .news-dot {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: var(--brand); flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(255, 210, 63, 0.25);
+  }
+  .group-card .desc {
+    font-size: 12px; color: var(--warm-500);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .group-card .meta {
+    display: flex; align-items: center; gap: 6px; margin-top: 5px;
+    font-size: 11.5px; color: var(--warm-600); flex-wrap: wrap;
+  }
+  .group-card .meta .sep { color: var(--warm-300); }
+  .group-card .meta .live { color: var(--ink); font-weight: 700; }
+  .group-card .meta .live-pill {
+    background: var(--brand-soft); color: var(--ink);
+    padding: 2px 7px; border-radius: 999px;
+    font-weight: 700; font-size: 10.5px;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .group-card .meta .live-pill .dot {
+    width: 5px; height: 5px; border-radius: 999px; background: var(--ink);
+  }
+  .group-card .right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .group-card .icon-btn {
+    width: 30px; height: 30px; border-radius: 999px;
+    border: 1px solid var(--warm-200); background: var(--paper);
+    color: var(--warm-500); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .group-card .icon-btn.fav-on {
+    background: var(--brand); border-color: var(--brand); color: var(--ink);
+  }
+  .group-card .icon-btn .material-symbols-rounded { font-size: 16px; }
+  .group-card .icon-btn.fav-on .material-symbols-rounded { font-variation-settings: 'FILL' 1; }
+  .group-card .chev { color: var(--warm-400); }
+  .group-card .chev .material-symbols-rounded { font-size: 20px; }
+
+  /* Bottom nav (visuel) */
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 64px; background: var(--paper);
+    border-top: 1px solid var(--warm-100);
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 12px;
+  }
+  .bottom-nav .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--warm-500); font-size: 10px; font-weight: 600;
+  }
+  .bottom-nav .nav-item.active { color: var(--ink); }
+  .bottom-nav .nav-item .material-symbols-rounded { font-size: 22px; }
+
+  /* Variants layout */
+  .variants {
+    display: grid; gap: 36px;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    justify-items: center;
+  }
+
+  /* Annotation panel */
+  .notes {
+    background: var(--paper); border: 1px solid var(--warm-200);
+    border-radius: 18px; padding: 24px; margin-top: 36px;
+  }
+  .notes h2 {
+    font-size: 16px; font-weight: 800; margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  .notes ul { margin: 0; padding-left: 18px; line-height: 1.7; font-size: 13.5px; color: var(--warm-700); }
+  .notes ul li { margin-bottom: 6px; }
+  .notes ul li strong { color: var(--ink); }
+  .notes .legend {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    padding-top: 14px; margin-top: 14px;
+    border-top: 1px solid var(--warm-100);
+    font-size: 12.5px; color: var(--warm-700);
+  }
+  .notes .legend span {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .notes .legend .swatch {
+    width: 12px; height: 12px; border-radius: 999px; display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1>Mes groupes — refonte v2</h1>
+  <p class="lead">
+    Hero du groupe favori en haut, bandeau d'activité globale, tri par activité, pastille jaune sur les groupes avec du nouveau, et favoris multiples (au lieu d'un seul pin).
+  </p>
+
+  <div class="phone">
+    <div class="screen">
+      <div class="container">
+
+        <!-- Header (sans doublon Rejoindre en bas) -->
+        <header class="header">
+          <div class="header-left">
+            <div class="logo">T</div>
+            <div>
+              <h1>Mes groupes</h1>
+              <p class="sub">3 groupes · 2 favoris</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="btn-pill" title="Rejoindre avec un code">
+              <span class="material-symbols-rounded">link</span>
+            </button>
+            <button class="btn-pill primary">
+              <span class="material-symbols-rounded">add</span>
+              Créer
+            </button>
+          </div>
+        </header>
+
+        <!-- Bandeau résumé global -->
+        <div class="pulse-bar">
+          <div class="pulse-icon">
+            <span class="material-symbols-rounded">bolt</span>
+          </div>
+          <div class="pulse-text">
+            <div class="pulse-headline"><strong>4 courses</strong> à prendre · <strong>7 collègues</strong> en ligne</div>
+            <div class="pulse-meta">Sur tous tes groupes maintenant</div>
+          </div>
+        </div>
+
+        <!-- Hero — groupe favori principal -->
+        <section class="hero">
+          <span class="hero-tag">
+            <span class="material-symbols-rounded">star</span>
+            Favori
+          </span>
+          <div class="hero-top">
+            <div class="hero-avatar">M</div>
+            <div class="hero-info">
+              <div class="name">Major Taxis</div>
+              <div class="desc">Île-de-France · 4 membres</div>
+            </div>
+            <button class="hero-fav" title="Retirer des favoris">
+              <span class="material-symbols-rounded">star</span>
+            </button>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="v"><span class="dot"></span>3</div>
+              <div class="l">Courses dispo</div>
+            </div>
+            <div class="hero-stat">
+              <div class="v">5</div>
+              <div class="l">En ligne</div>
+            </div>
+            <div class="hero-stat">
+              <div class="v">8</div>
+              <div class="l">Échangées (7j)</div>
+            </div>
+          </div>
+
+          <button class="hero-cta">
+            <span class="material-symbols-rounded">add</span>
+            Poster une course
+          </button>
+        </section>
+
+        <!-- Recherche + chips de tri -->
+        <div class="search">
+          <span class="material-symbols-rounded">search</span>
+          <input type="text" placeholder="Rechercher dans mes groupes" />
+        </div>
+        <div class="search-chips">
+          <button class="chip active">Plus actifs</button>
+          <button class="chip">Récents</button>
+          <button class="chip">A → Z</button>
+        </div>
+
+        <!-- Liste triée par activité -->
+        <div class="section-label">
+          Mes autres groupes
+          <span class="count">2</span>
+        </div>
+
+        <div class="group-list">
+          <!-- Carte avec nouveau (pastille jaune) -->
+          <div class="group-card has-news">
+            <div class="avatar">
+              R
+              <span class="alive"></span>
+            </div>
+            <div class="body">
+              <div class="top">
+                <span class="news-dot" title="Nouvelle course"></span>
+                <span class="name">Réseau Roissy CDG</span>
+              </div>
+              <div class="desc">Aéroport · longue distance</div>
+              <div class="meta">
+                <span>12 membres</span>
+                <span class="sep">·</span>
+                <span class="live-pill">
+                  <span class="dot"></span>
+                  1 nouvelle course
+                </span>
+              </div>
+            </div>
+            <div class="right">
+              <button class="icon-btn" title="Ajouter aux favoris">
+                <span class="material-symbols-rounded">star</span>
+              </button>
+              <span class="chev"><span class="material-symbols-rounded">chevron_right</span></span>
+            </div>
+          </div>
+
+          <!-- Carte normale -->
+          <div class="group-card">
+            <div class="avatar">
+              C
+              <span class="dead"></span>
+            </div>
+            <div class="body">
+              <div class="top">
+                <span class="name">Club G7 Sud</span>
+              </div>
+              <div class="desc">Réservations particulières</div>
+              <div class="meta">
+                <span>8 membres</span>
+                <span class="sep">·</span>
+                <span>2 en ligne</span>
+              </div>
+            </div>
+            <div class="right">
+              <button class="icon-btn fav-on" title="Retirer des favoris">
+                <span class="material-symbols-rounded">star</span>
+              </button>
+              <span class="chev"><span class="material-symbols-rounded">chevron_right</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- (plus de doublon « Rejoindre avec un code » en bas) -->
+
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="bottom-nav">
+        <div class="nav-item">
+          <span class="material-symbols-rounded">home</span>
+          Accueil
+        </div>
+        <div class="nav-item">
+          <span class="material-symbols-rounded">list_alt</span>
+          Courses
+        </div>
+        <div class="nav-item active">
+          <span class="material-symbols-rounded">groups</span>
+          Groupes
+        </div>
+        <div class="nav-item">
+          <span class="material-symbols-rounded">person</span>
+          Profil
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes de design -->
+  <div class="notes">
+    <h2>Ce qui change vs aujourd'hui</h2>
+    <ul>
+      <li><strong>1. Hero du favori</strong> — la grosse carte noire en haut avec ses stats live et un bouton <em>« Poster une course »</em> direct. Plus besoin d'ouvrir le détail pour partager.</li>
+      <li><strong>2. Bandeau résumé global</strong> — la barre noire qui agrège tous les groupes (« 4 courses à prendre · 7 collègues en ligne »).</li>
+      <li><strong>3. Tri par activité</strong> — les chips sous la recherche : <em>Plus actifs</em> (par défaut) / <em>Récents</em> / <em>A→Z</em>. Les groupes morts redescendent.</li>
+      <li><strong>4. Une seule entrée « Rejoindre »</strong> — supprimée du bas de page, on ne la garde qu'en header (icône <em>link</em>).</li>
+      <li><strong>5. Pastille jaune « nouveau »</strong> — apparaît sur la carte quand une course a été postée depuis ta dernière visite (couleur brand TaxiLink, jamais rouge).</li>
+      <li><strong>Favoris multiples</strong> — le pin devient une étoile, on peut en avoir plusieurs. Le premier favori passe en hero ; les autres remontent en haut de liste.</li>
+    </ul>
+    <div class="legend">
+      <span><span class="swatch" style="background: #FFD23F;"></span> Pastille « nouveau » (jaune brand)</span>
+      <span><span class="swatch" style="background: #059669;"></span> Présence en ligne (vert)</span>
+      <span><span class="swatch" style="background: #D4CDBE;"></span> Groupe inactif (gris)</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

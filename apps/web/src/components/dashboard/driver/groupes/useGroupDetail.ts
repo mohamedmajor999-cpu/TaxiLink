@@ -7,15 +7,19 @@ import {
   type GroupActivitySummary,
   type GroupDailyActivity,
 } from '@/services/groupStatsService'
+import { groupActivityService, type GroupActivityEvent } from '@/services/groupActivityService'
 import type { Group, GroupMemberStats } from '@taxilink/core'
+import { useGroupsLastVisited } from '../useGroupsLastVisited'
 
 export function useGroupDetail(groupId: string) {
   const { user } = useAuth()
   const router = useRouter()
+  const { markVisited } = useGroupsLastVisited()
   const [group, setGroup]         = useState<Group | null>(null)
   const [summary, setSummary]     = useState<GroupActivitySummary | null>(null)
   const [daily, setDaily]         = useState<GroupDailyActivity[]>([])
   const [members, setMembers]     = useState<GroupMemberStats[]>([])
+  const [events, setEvents]       = useState<GroupActivityEvent[]>([])
   const [loading, setLoading]     = useState(true)
   const [leaving, setLeaving]     = useState(false)
   const [error, setError]         = useState<string | null>(null)
@@ -29,12 +33,13 @@ export function useGroupDetail(groupId: string) {
       setGroup(found)
       if (!found) return
       const since = new Date(Date.now() - 7 * 86_400_000).toISOString()
-      const [s, d, m] = await Promise.all([
+      const [s, d, m, e] = await Promise.all([
         groupStatsService.getActivitySummary(groupId),
         groupStatsService.getDailyActivity(groupId, 7),
         groupStatsService.getMemberStats(groupId, since),
+        groupActivityService.getRecentEvents(groupId, 5).catch(() => [] as GroupActivityEvent[]),
       ])
-      setSummary(s); setDaily(d); setMembers(m)
+      setSummary(s); setDaily(d); setMembers(m); setEvents(e)
     } catch {
       setError('Impossible de charger le groupe')
     } finally {
@@ -43,6 +48,13 @@ export function useGroupDetail(groupId: string) {
   }, [groupId, user?.id])
 
   useEffect(() => { load() }, [load])
+
+  // Marque la visite dès que le groupe est résolu — la pastille « nouveau »
+  // sur la liste disparaît au retour. On ne wait pas le summary pour être
+  // tolérant au cas réseau partiel.
+  useEffect(() => {
+    if (group?.id) markVisited(group.id)
+  }, [group?.id, markVisited])
 
   const isAdmin = !!group && group.createdBy === user?.id
 
@@ -86,9 +98,14 @@ export function useGroupDetail(groupId: string) {
     }
   })()
 
+  // Action de la pastille « Voir les courses dispo » : retour au dashboard
+  // missions ouvertes. Le filtrage par groupe sera ajouté une fois le param
+  // d'URL supporté côté DriverDashboard.
+  const viewAvailable = () => router.push('/dashboard/chauffeur')
+
   return {
-    group, summary, daily, members, myStats,
+    group, summary, daily, members, events, myStats,
     loading, error, leaving, isAdmin,
-    leave, back, postCourse,
+    leave, back, postCourse, viewAvailable,
   }
 }

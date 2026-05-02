@@ -19,6 +19,10 @@ export interface GroupActivitySummary {
   exchanged7d:    number
   reprisePercent: number
   onlineCount:    number
+  /** ISO date du dernier événement (post ou acceptation) sur les 7 derniers
+   *  jours. Null si aucun événement. Utilisé côté client pour décider
+   *  d'afficher la pastille « nouveau » si > lastVisited. */
+  lastEventAt:    string | null
 }
 
 export interface GroupDailyActivity {
@@ -85,7 +89,7 @@ export const groupStatsService = {
         .select('drivers(is_online, last_seen_at)')
         .eq('group_id', groupId),
       supabase.from('mission_groups')
-        .select('missions!inner(driver_id, created_at)')
+        .select('missions!inner(driver_id, created_at, accepted_at)')
         .eq('group_id', groupId)
         .gte('missions.created_at', since),
       supabase.from('mission_groups')
@@ -94,12 +98,17 @@ export const groupStatsService = {
         .eq('missions.status', 'OFFERED'),
     ])
     const onlineCount   = ((onlineRes.data   ?? []) as any[]).filter((r) => isFreshlyOnline(r.drivers?.is_online, r.drivers?.last_seen_at)).length
-    const rows          = ((exchangedRes.data ?? []) as Array<{ missions: { driver_id: string | null } | null }>)
+    const rows          = ((exchangedRes.data ?? []) as Array<{ missions: { driver_id: string | null; created_at: string; accepted_at: string | null } | null }>)
     const exchanged7d   = rows.length
     const accepted7d    = rows.filter((r) => !!r.missions?.driver_id).length
     const reprisePercent = exchanged7d > 0 ? Math.round((accepted7d / exchanged7d) * 100) : 0
     const available     = (availableRes.data ?? []).length
-    return { available, exchanged7d, reprisePercent, onlineCount }
+    let lastEventAt: string | null = null
+    for (const r of rows) {
+      const ts = r.missions?.accepted_at ?? r.missions?.created_at ?? null
+      if (ts && (!lastEventAt || ts > lastEventAt)) lastEventAt = ts
+    }
+    return { available, exchanged7d, reprisePercent, onlineCount, lastEventAt }
   },
 
   /** Nombre de courses partagées par jour sur les N derniers jours (pour la mini-barre) */

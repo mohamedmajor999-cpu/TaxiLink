@@ -1,6 +1,6 @@
 'use client'
 
-import { Users, ChevronRight, Pin, PinOff } from 'lucide-react'
+import { Users, ChevronRight, Star } from 'lucide-react'
 import type { Group } from '@taxilink/core'
 import type { GroupActivitySummary } from '@/services/groupStatsService'
 import { useGroupCard } from './useGroupCard'
@@ -8,17 +8,22 @@ import { ConfirmWithPasswordModal } from './ConfirmWithPasswordModal'
 import { GroupCardMenu } from './GroupCardMenu'
 
 interface Props {
-  group:        Group
-  isAdmin:      boolean
-  summary?:     GroupActivitySummary | null
-  isActive?:    boolean
-  onOpen:       (group: Group) => void
-  onLeave:      (groupId: string) => void
-  onDelete:     (groupId: string) => void
-  onTogglePin?: () => void
+  group:             Group
+  isAdmin:           boolean
+  summary?:          GroupActivitySummary | null
+  isFavorite?:       boolean
+  hasNews?:          boolean
+  onOpen:            (group: Group) => void
+  onLeave:           (groupId: string) => void
+  onDelete:          (groupId: string) => void
+  onToggleFavorite?: () => void
 }
 
-export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, onLeave, onDelete, onTogglePin }: Props) {
+export function GroupCard({
+  group, isAdmin, summary,
+  isFavorite = false, hasNews = false,
+  onOpen, onLeave, onDelete, onToggleFavorite,
+}: Props) {
   const {
     menuOpen, setMenuOpen, menuRef,
     copied, copyId,
@@ -34,27 +39,25 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
   return (
     <>
       <div
-        className={`relative bg-paper rounded-2xl overflow-visible ${
-          isActive ? 'border-2 border-ink shadow-card' : 'border border-warm-200'
+        className={`relative bg-paper rounded-2xl overflow-visible border ${
+          hasNews ? 'border-brand bg-brand/[0.04]' : 'border-warm-200'
         }`}
       >
         <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
-          {onTogglePin && (
+          {onToggleFavorite && (
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); onTogglePin() }}
-              aria-label={isActive ? 'Désépingler ce groupe' : 'Épingler ce groupe'}
-              aria-pressed={isActive}
-              title={isActive ? 'Désépingler' : 'Épingler comme actif'}
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
+              aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              aria-pressed={isFavorite}
+              title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               className={`w-8 h-8 rounded-full border flex items-center justify-center transition-colors ${
-                isActive
+                isFavorite
                   ? 'bg-brand border-brand text-ink'
                   : 'bg-paper border-warm-200 text-warm-500 hover:bg-warm-50'
               }`}
             >
-              {isActive
-                ? <Pin className="w-4 h-4" strokeWidth={2} />
-                : <PinOff className="w-4 h-4" strokeWidth={1.8} />}
+              <Star className="w-4 h-4" strokeWidth={isFavorite ? 2 : 1.8} fill={isFavorite ? 'currentColor' : 'none'} />
             </button>
           )}
           <GroupCardMenu
@@ -92,7 +95,17 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[15px] font-bold text-ink truncate">{group.name}</p>
+            <div className="flex items-center gap-1.5">
+              {hasNews && (
+                <span
+                  aria-label="Nouvelle activité"
+                  title="Nouveau depuis ta dernière visite"
+                  className="w-2 h-2 rounded-full bg-brand shrink-0 motion-safe:animate-pulse"
+                  style={{ boxShadow: '0 0 0 2px rgba(255, 210, 63, 0.25)' }}
+                />
+              )}
+              <p className="text-[15px] font-bold text-ink truncate">{group.name}</p>
+            </div>
             {group.description && (
               <p className="text-[12.5px] text-warm-500 mt-0.5 truncate">{group.description}</p>
             )}
@@ -118,25 +131,8 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
               )}
             </div>
           </div>
-          {!isActive && (
-            <ChevronRight className="w-5 h-5 text-warm-400 shrink-0 self-center" strokeWidth={1.8} />
-          )}
+          <ChevronRight className="w-5 h-5 text-warm-400 shrink-0 self-center" strokeWidth={1.8} />
         </button>
-
-        {isActive && summary && (
-          <>
-            <div className="h-px bg-warm-100 mx-4" />
-            <div className="grid grid-cols-3 px-4 py-3 gap-2">
-              <Stat value={`${summary.available}`}       label="Courses dispo" />
-              <Stat value={`${summary.exchanged7d}`}     label="Partagées (7j)" />
-              <Stat
-                value={`${summary.reprisePercent}%`}
-                label="Acceptées"
-                hint="Part des courses partagées qui ont été acceptées par un membre du groupe."
-              />
-            </div>
-          </>
-        )}
       </div>
 
       {pendingAction === 'delete' && (
@@ -159,14 +155,5 @@ export function GroupCard({ group, isAdmin, summary, isActive = false, onOpen, o
         />
       )}
     </>
-  )
-}
-
-function Stat({ value, label, hint }: { value: string; label: string; hint?: string }) {
-  return (
-    <div className="text-center" title={hint}>
-      <p className="text-[20px] font-bold text-ink leading-none tabular-nums">{value}</p>
-      <p className="text-[10px] text-warm-500 mt-1 leading-tight">{label}</p>
-    </div>
   )
 }

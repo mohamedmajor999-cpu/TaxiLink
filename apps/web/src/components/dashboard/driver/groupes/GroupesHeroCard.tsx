@@ -1,0 +1,99 @@
+'use client'
+import { Plus, Star } from 'lucide-react'
+import type { Group } from '@taxilink/core'
+import type { GroupActivitySummary } from '@/services/groupStatsService'
+
+interface Props {
+  group:        Group
+  summary:      GroupActivitySummary | null
+  onOpen:       () => void
+  onPostCourse: () => void
+  onUnfavorite: () => void
+}
+
+// Hero du groupe favori principal — affiché en haut de la liste pour donner
+// un raccourci direct vers l'action la plus fréquente (poster une course)
+// sans devoir entrer dans le détail du groupe.
+export function GroupesHeroCard({ group, summary, onOpen, onPostCourse, onUnfavorite }: Props) {
+  const available = summary?.available ?? 0
+  const online = summary?.onlineCount ?? 0
+  const exchanged = summary?.exchanged7d ?? 0
+
+  return (
+    <section className="relative mb-4 rounded-3xl border-2 border-ink bg-paper p-4 shadow-card">
+      <span className="absolute -top-2.5 left-4 inline-flex items-center gap-1 bg-brand text-ink text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+        <Star className="w-3 h-3" strokeWidth={2.4} fill="currentColor" />
+        Favori
+      </span>
+
+      <button
+        type="button"
+        onClick={onOpen}
+        className="w-full flex items-center gap-3 text-left mb-3"
+        aria-label={`Ouvrir le groupe ${group.name}`}
+      >
+        <div className="relative shrink-0">
+          <div className="w-[52px] h-[52px] rounded-2xl bg-ink flex items-center justify-center">
+            <span className="text-brand text-[22px] font-bold">
+              {group.name.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <span
+            aria-hidden
+            className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-[3px] border-paper ${
+              available > 0 ? 'bg-emerald-500 motion-safe:animate-pulse' : 'bg-warm-300'
+            }`}
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[17px] font-bold text-ink leading-tight tracking-tight truncate">
+            {group.name}
+          </p>
+          {group.description && (
+            <p className="text-[12.5px] text-warm-500 mt-0.5 truncate">{group.description}</p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onUnfavorite() }}
+          aria-label="Retirer des favoris"
+          className="w-9 h-9 rounded-full bg-brand text-ink flex items-center justify-center shrink-0 hover:brightness-95 transition"
+        >
+          <Star className="w-4 h-4" strokeWidth={2} fill="currentColor" />
+        </button>
+      </button>
+
+      <div className="grid grid-cols-3 bg-warm-50 rounded-xl py-3 mb-3">
+        <Stat
+          value={
+            <>
+              {available > 0 && <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 align-middle mr-1 motion-safe:animate-pulse" />}
+              {available}
+            </>
+          }
+          label="Courses dispo"
+        />
+        <Stat value={online} label="En ligne" border />
+        <Stat value={exchanged} label="Échangées (7j)" border />
+      </div>
+
+      <button
+        type="button"
+        onClick={onPostCourse}
+        className="w-full h-12 rounded-2xl bg-ink text-paper text-[14.5px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+      >
+        <Plus className="w-5 h-5 text-brand" strokeWidth={2.5} />
+        Poster une course
+      </button>
+    </section>
+  )
+}
+
+function Stat({ value, label, border = false }: { value: React.ReactNode; label: string; border?: boolean }) {
+  return (
+    <div className={`text-center ${border ? 'border-l border-warm-200' : ''}`}>
+      <p className="text-[20px] font-bold text-ink leading-none tabular-nums">{value}</p>
+      <p className="text-[10.5px] text-warm-500 mt-1.5 font-medium">{label}</p>
+    </div>
+  )
+}

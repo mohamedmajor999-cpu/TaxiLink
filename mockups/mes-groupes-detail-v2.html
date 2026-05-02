@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink — Détail d'un groupe (refonte v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0A0A0A;
+    --paper: #FFFFFF;
+    --brand: #FFD23F;
+    --brand-soft: #FFF4C2;
+    --warm-50: #FAF8F4;
+    --warm-100: #F4F1EA;
+    --warm-200: #E8E3D8;
+    --warm-300: #D4CDBE;
+    --warm-400: #A89F8A;
+    --warm-500: #7A7363;
+    --warm-600: #524D42;
+    --warm-700: #2F2C26;
+    --warm-800: #1A1815;
+    --danger: #DC2626;
+    --danger-soft: #FEE2E2;
+    --success: #059669;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #EDE9E2;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 36px 24px 80px; }
+  .page h1 { font-size: 26px; font-weight: 900; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .page p.lead { color: #5c5a54; margin: 0 0 32px; font-size: 14px; max-width: 760px; line-height: 1.55; }
+
+  /* Phone frame */
+  .phone {
+    width: 390px; margin: 0 auto;
+    background: #fff; border-radius: 44px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.25), 0 0 0 8px #111 inset, 0 0 0 14px #111;
+    overflow: hidden; position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute; top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 28px;
+    background: #111; border-radius: 20px; z-index: 40;
+  }
+  .screen {
+    height: 880px; position: relative;
+    background: var(--warm-50); overflow-y: auto; overflow-x: hidden;
+    padding-top: 44px;
+  }
+  .screen::-webkit-scrollbar { width: 0; }
+
+  /* Top bar — back + share + menu */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px 8px;
+  }
+  .topbar .back {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700; color: var(--warm-600);
+    background: none; border: none; cursor: pointer;
+  }
+  .topbar .back .material-symbols-rounded { font-size: 20px; }
+  .topbar .actions { display: flex; align-items: center; gap: 8px; }
+  .icon-circle {
+    width: 36px; height: 36px; border-radius: 999px;
+    background: var(--paper); border: 1px solid var(--warm-200);
+    color: var(--warm-700); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .icon-circle .material-symbols-rounded { font-size: 18px; }
+
+  /* Hero du groupe */
+  .hero {
+    margin: 8px 16px 12px;
+    background: var(--paper);
+    border: 1px solid var(--warm-200);
+    border-radius: 22px;
+    padding: 20px 18px 16px;
+    text-align: center;
+  }
+  .hero-avatar {
+    width: 68px; height: 68px; border-radius: 20px;
+    background: var(--ink); color: var(--brand);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 30px;
+    margin-bottom: 10px;
+  }
+  .hero h1 {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .hero .desc {
+    font-size: 12.5px; color: var(--warm-500);
+    margin-top: 4px;
+  }
+  .hero .fav-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--brand); color: var(--ink);
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.04em;
+    padding: 3px 9px; border-radius: 999px;
+    margin-top: 10px; text-transform: uppercase;
+  }
+  .hero .fav-pill .material-symbols-rounded { font-size: 13px; font-variation-settings: 'FILL' 1; }
+
+  /* Bandeau "courses à prendre maintenant" — gros call to action */
+  .live-banner {
+    margin: 0 16px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: 18px; padding: 16px;
+    display: flex; align-items: center; gap: 14px;
+    position: relative; overflow: hidden;
+  }
+  .live-banner::before {
+    content: ""; position: absolute; top: -30px; right: -30px;
+    width: 110px; height: 110px; border-radius: 999px;
+    background: rgba(255, 210, 63, 0.12);
+  }
+  .live-banner .badge {
+    width: 44px; height: 44px; border-radius: 14px;
+    background: var(--brand); color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 22px; flex-shrink: 0;
+    position: relative;
+  }
+  .live-banner .badge::after {
+    content: ""; position: absolute; top: -3px; right: -3px;
+    width: 10px; height: 10px; border-radius: 999px;
+    background: var(--brand); border: 2px solid var(--ink);
+    animation: pulseDot 1.5s ease-in-out infinite;
+  }
+  @keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+  }
+  .live-banner .text { flex: 1; min-width: 0; }
+  .live-banner .text .h { font-size: 14.5px; font-weight: 800; line-height: 1.2; }
+  .live-banner .text .s { font-size: 11.5px; color: rgba(255,255,255,.65); margin-top: 2px; }
+  .live-banner .arrow {
+    width: 32px; height: 32px; border-radius: 999px;
+    background: var(--brand); color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative;
+  }
+  .live-banner .arrow .material-symbols-rounded { font-size: 18px; }
+
+  /* Stats compact */
+  .stats-row {
+    margin: 0 16px 12px;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    background: var(--paper);
+    border: 1px solid var(--warm-200);
+    border-radius: 16px;
+    padding: 12px 4px;
+  }
+  .stats-row .stat { text-align: center; position: relative; }
+  .stats-row .stat + .stat::before {
+    content: ""; position: absolute; left: 0; top: 8px; bottom: 8px;
+    width: 1px; background: var(--warm-200);
+  }
+  .stats-row .stat .v {
+    font-size: 19px; font-weight: 900; line-height: 1;
+    letter-spacing: -0.02em; color: var(--ink);
+  }
+  .stats-row .stat .v .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 999px;
+    background: var(--success); margin-right: 4px; vertical-align: middle;
+  }
+  .stats-row .stat .l {
+    font-size: 10.5px; color: var(--warm-500);
+    margin-top: 5px; font-weight: 500;
+  }
+
+  /* Bande d'avatars — qui est en ligne maintenant */
+  .online-strip {
+    margin: 0 16px 12px;
+    background: var(--paper);
+    border: 1px solid var(--warm-200);
+    border-radius: 16px;
+    padding: 12px 14px;
+  }
+  .online-strip .label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--warm-500);
+    margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .online-strip .label .live-dot {
+    display: inline-flex; align-items: center; gap: 5px;
+    color: var(--success); letter-spacing: 0;
+  }
+  .online-strip .label .live-dot::before {
+    content: ""; width: 6px; height: 6px; border-radius: 999px;
+    background: var(--success); animation: pulseDot 2s ease-in-out infinite;
+  }
+  .online-strip .avatars {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .av {
+    width: 34px; height: 34px; border-radius: 999px;
+    background: var(--ink); color: var(--brand);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px;
+    border: 2px solid var(--paper);
+    position: relative;
+  }
+  .av .ring {
+    position: absolute; inset: -3px;
+    border-radius: 999px; border: 2px solid var(--success);
+  }
+  .av.more {
+    background: var(--warm-100); color: var(--warm-700);
+    font-size: 11px; font-weight: 700;
+  }
+
+  /* Boutons d'action principaux */
+  .actions-stack {
+    margin: 0 16px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .btn-primary {
+    width: 100%; height: 52px; border-radius: 16px;
+    background: var(--ink); color: var(--paper);
+    font-size: 15px; font-weight: 800; letter-spacing: -0.01em;
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary .material-symbols-rounded { font-size: 22px; color: var(--brand); }
+  .btn-secondary {
+    width: 100%; height: 44px; border-radius: 14px;
+    background: var(--paper); color: var(--ink);
+    border: 1px solid var(--warm-200);
+    font-size: 13.5px; font-weight: 700;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-secondary .material-symbols-rounded { font-size: 18px; color: var(--warm-600); }
+
+  /* Section title */
+  .section-title {
+    margin: 18px 16px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-title h2 {
+    font-size: 14px; font-weight: 800; margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .section-title .more {
+    font-size: 11.5px; font-weight: 700; color: var(--warm-600);
+    display: inline-flex; align-items: center; gap: 2px;
+    cursor: pointer;
+  }
+  .section-title .more .material-symbols-rounded { font-size: 16px; }
+
+  /* Mes stats privé */
+  .my-stats {
+    margin: 0 16px 12px;
+    background: var(--paper);
+    border: 1px solid var(--warm-200);
+    border-radius: 16px;
+    padding: 14px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .my-stats .icon-box {
+    width: 38px; height: 38px; border-radius: 12px;
+    background: var(--brand-soft); color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .my-stats .icon-box .material-symbols-rounded { font-size: 20px; }
+  .my-stats .body { flex: 1; min-width: 0; }
+  .my-stats .label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--warm-500);
+  }
+  .my-stats .text {
+    font-size: 13.5px; color: var(--ink);
+    margin-top: 4px; line-height: 1.45;
+  }
+  .my-stats .text strong { font-weight: 800; }
+  .my-stats .top {
+    color: var(--success); font-weight: 700;
+    font-size: 12.5px; margin-top: 4px;
+  }
+
+  /* Activité — feed plutôt que graphe seul */
+  .activity {
+    margin: 0 16px 12px;
+    background: var(--paper);
+    border: 1px solid var(--warm-200);
+    border-radius: 16px;
+    padding: 14px;
+  }
+  .activity .head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .activity .head .total .v {
+    font-size: 26px; font-weight: 900; letter-spacing: -0.02em; line-height: 1;
+  }
+  .activity .head .total .l {
+    font-size: 11px; color: var(--warm-500); margin-top: 4px;
+  }
+  .activity .head .bars {
+    display: flex; align-items: flex-end; gap: 4px; height: 36px;
+  }
+  .activity .head .bars .bar {
+    width: 8px; border-radius: 3px 3px 0 0;
+    background: var(--warm-200);
+  }
+  .activity .head .bars .bar.today { background: var(--brand); }
+
+  .feed { display: flex; flex-direction: column; gap: 10px; }
+  .feed-item {
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .feed-item .av-sm {
+    width: 28px; height: 28px; border-radius: 999px;
+    background: var(--ink); color: var(--brand);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 11px; flex-shrink: 0;
+  }
+  .feed-item .text {
+    flex: 1; font-size: 12.5px; line-height: 1.4; color: var(--warm-700);
+  }
+  .feed-item .text strong { color: var(--ink); font-weight: 700; }
+  .feed-item .text .when {
+    color: var(--warm-500); font-size: 11px; margin-top: 2px;
+    display: block;
+  }
+  .feed-item .badge-sm {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 0.04em;
+    padding: 2px 6px; border-radius: 6px;
+    text-transform: uppercase; flex-shrink: 0;
+  }
+  .badge-share { background: var(--brand-soft); color: var(--ink); }
+  .badge-accept { background: #DCFCE7; color: var(--success); }
+
+  /* Membres */
+  .members { margin: 0 16px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .member-row {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--paper); border: 1px solid var(--warm-200);
+    border-radius: 14px; padding: 10px 12px;
+  }
+  .member-row .av-md {
+    width: 38px; height: 38px; border-radius: 999px;
+    background: var(--ink); color: var(--brand);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px;
+    position: relative; flex-shrink: 0;
+  }
+  .member-row .av-md .status {
+    position: absolute; bottom: -2px; right: -2px;
+    width: 11px; height: 11px; border-radius: 999px;
+    border: 2px solid var(--paper);
+  }
+  .status.on { background: var(--success); }
+  .status.off { background: var(--warm-300); }
+  .member-row .info { flex: 1; min-width: 0; }
+  .member-row .info .n { font-size: 13.5px; font-weight: 700; }
+  .member-row .info .s { font-size: 11.5px; color: var(--warm-500); margin-top: 1px; }
+  .member-row .pill {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em;
+    padding: 3px 8px; border-radius: 999px;
+    text-transform: uppercase; flex-shrink: 0;
+  }
+  .pill-admin { background: var(--brand); color: var(--ink); }
+
+  /* Quitter */
+  .leave-btn {
+    margin: 16px 16px 24px;
+    width: calc(100% - 32px); height: 44px;
+    border-radius: 14px; border: 1px solid var(--warm-200);
+    background: var(--paper); color: var(--danger);
+    font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+
+  /* Annotation panel */
+  .notes {
+    background: var(--paper); border: 1px solid var(--warm-200);
+    border-radius: 18px; padding: 24px; margin-top: 36px;
+  }
+  .notes h2 {
+    font-size: 16px; font-weight: 800; margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  .notes ul { margin: 0; padding-left: 18px; line-height: 1.7; font-size: 13.5px; color: var(--warm-700); }
+  .notes ul li { margin-bottom: 8px; }
+  .notes ul li strong { color: var(--ink); }
+  .notes .compare {
+    margin-top: 16px; padding: 14px; background: var(--warm-50);
+    border-radius: 12px; font-size: 12.5px; color: var(--warm-700);
+  }
+  .notes .compare strong { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1>Détail d'un groupe — refonte v2</h1>
+  <p class="lead">
+    On garde l'esprit de la page actuelle mais on met en avant ce qui se passe <em>maintenant</em> :
+    courses à prendre, qui est en ligne, et un feed d'activité réel à la place du seul graphe.
+  </p>
+
+  <div class="phone">
+    <div class="screen">
+
+      <!-- Top bar -->
+      <div class="topbar">
+        <button class="back">
+          <span class="material-symbols-rounded">arrow_back</span>
+          Retour
+        </button>
+        <div class="actions">
+          <button class="icon-circle" title="Inviter un confrère">
+            <span class="material-symbols-rounded">person_add</span>
+          </button>
+          <button class="icon-circle" title="Plus d'options">
+            <span class="material-symbols-rounded">more_vert</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-avatar">M</div>
+        <h1>Major Taxis</h1>
+        <p class="desc">Île-de-France · longue distance</p>
+        <span class="fav-pill">
+          <span class="material-symbols-rounded">star</span>
+          Favori
+        </span>
+      </section>
+
+      <!-- Bandeau live "courses à prendre maintenant" -->
+      <div class="live-banner">
+        <div class="badge">3</div>
+        <div class="text">
+          <div class="h">3 courses à prendre maintenant</div>
+          <div class="s">Postées par tes confrères du groupe</div>
+        </div>
+        <div class="arrow">
+          <span class="material-symbols-rounded">arrow_forward</span>
+        </div>
+      </div>
+
+      <!-- Stats compact -->
+      <div class="stats-row">
+        <div class="stat">
+          <div class="v">12</div>
+          <div class="l">Membres</div>
+        </div>
+        <div class="stat">
+          <div class="v"><span class="dot"></span>5</div>
+          <div class="l">En ligne</div>
+        </div>
+        <div class="stat">
+          <div class="v">8</div>
+          <div class="l">Échangées (7j)</div>
+        </div>
+      </div>
+
+      <!-- Bande d'avatars — qui est en ligne -->
+      <div class="online-strip">
+        <div class="label">
+          <span>En ligne maintenant</span>
+          <span class="live-dot">5 actifs</span>
+        </div>
+        <div class="avatars">
+          <div class="av">K<div class="ring"></div></div>
+          <div class="av">S<div class="ring"></div></div>
+          <div class="av">A<div class="ring"></div></div>
+          <div class="av">M<div class="ring"></div></div>
+          <div class="av more">+1</div>
+        </div>
+      </div>
+
+      <!-- Actions principales -->
+      <div class="actions-stack">
+        <button class="btn-primary">
+          <span class="material-symbols-rounded">add</span>
+          Poster une course
+        </button>
+        <button class="btn-secondary">
+          <span class="material-symbols-rounded">person_add</span>
+          Inviter un confrère
+        </button>
+      </div>
+
+      <!-- Mes stats privé -->
+      <div class="section-title">
+        <h2>Mes stats dans ce groupe</h2>
+      </div>
+      <div class="my-stats">
+        <div class="icon-box">
+          <span class="material-symbols-rounded">trending_up</span>
+        </div>
+        <div class="body">
+          <div class="label">Privé · visible uniquement par toi</div>
+          <div class="text">Tu as <strong>partagé 8</strong> courses et <strong>accepté 1</strong> course dans ce groupe.</div>
+          <div class="top">🔥 Top 25% du groupe sur l'activité</div>
+        </div>
+      </div>
+
+      <!-- Activité -->
+      <div class="section-title">
+        <h2>Activité du groupe</h2>
+        <span class="more">7 derniers jours <span class="material-symbols-rounded">expand_more</span></span>
+      </div>
+      <div class="activity">
+        <div class="head">
+          <div class="total">
+            <div class="v">8</div>
+            <div class="l">Courses échangées</div>
+          </div>
+          <div class="bars">
+            <div class="bar" style="height: 30%"></div>
+            <div class="bar" style="height: 18%"></div>
+            <div class="bar" style="height: 50%"></div>
+            <div class="bar" style="height: 22%"></div>
+            <div class="bar" style="height: 12%"></div>
+            <div class="bar" style="height: 35%"></div>
+            <div class="bar today" style="height: 88%"></div>
+          </div>
+        </div>
+        <div class="feed">
+          <div class="feed-item">
+            <div class="av-sm">K</div>
+            <div class="text">
+              <strong>Karim</strong> a partagé <strong>Roissy → Paris 16e</strong>
+              <span class="when">Il y a 5 min</span>
+            </div>
+            <span class="badge-sm badge-share">Postée</span>
+          </div>
+          <div class="feed-item">
+            <div class="av-sm">S</div>
+            <div class="text">
+              <strong>Salim</strong> a accepté ta course <strong>Orly → Disneyland</strong>
+              <span class="when">Il y a 1h</span>
+            </div>
+            <span class="badge-sm badge-accept">Acceptée</span>
+          </div>
+          <div class="feed-item">
+            <div class="av-sm">A</div>
+            <div class="text">
+              <strong>Ahmed</strong> a partagé <strong>Gare du Nord → Versailles</strong>
+              <span class="when">Il y a 3h</span>
+            </div>
+            <span class="badge-sm badge-share">Postée</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Membres -->
+      <div class="section-title">
+        <h2>Membres</h2>
+        <span class="more">Voir les 12 <span class="material-symbols-rounded">chevron_right</span></span>
+      </div>
+      <div class="members">
+        <div class="member-row">
+          <div class="av-md">M<span class="status on"></span></div>
+          <div class="info">
+            <div class="n">Major M.</div>
+            <div class="s">42 activités</div>
+          </div>
+          <span class="pill pill-admin">Admin</span>
+        </div>
+        <div class="member-row">
+          <div class="av-md">K<span class="status on"></span></div>
+          <div class="info">
+            <div class="n">Karim B.</div>
+            <div class="s">En ligne</div>
+          </div>
+        </div>
+        <div class="member-row">
+          <div class="av-md">S<span class="status on"></span></div>
+          <div class="info">
+            <div class="n">Salim D.</div>
+            <div class="s">En ligne</div>
+          </div>
+        </div>
+        <div class="member-row">
+          <div class="av-md">A<span class="status off"></span></div>
+          <div class="info">
+            <div class="n">Ahmed L.</div>
+            <div class="s">Hors ligne</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quitter -->
+      <button class="leave-btn">Quitter le groupe</button>
+
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="notes">
+    <h2>Ce qui change vs page actuelle</h2>
+    <ul>
+      <li><strong>1. Bandeau noir « 3 courses à prendre maintenant »</strong> juste sous le hero — c'est le signal qui pousse à agir. Aujourd'hui on voit « 0 / 3 / 5 » dans la grille de stats sans CTA.</li>
+      <li><strong>2. Bande d'avatars « En ligne maintenant »</strong> — d'un coup d'œil on voit qui bosse, comme sur Slack. Aujourd'hui c'est juste un chiffre « 5 en ligne ».</li>
+      <li><strong>3. Bouton « Inviter un confrère »</strong> visible direct (et icône <em>person_add</em> en top bar). Aujourd'hui il faut passer par le menu trois points sur la liste.</li>
+      <li><strong>4. Feed d'activité réel</strong> sous le graphe : « Karim a partagé Roissy → Paris il y a 5 min ». Le graphe seul est trop abstrait — le feed donne une vraie vie au groupe.</li>
+      <li><strong>5. Stats compactées</strong> en 3 colonnes plus serrées pour libérer de la place pour le contenu vivant.</li>
+      <li><strong>Pastille « Favori »</strong> sous le titre, cohérente avec la maquette de la liste (étoile jaune brand, jamais rouge).</li>
+    </ul>
+    <div class="compare">
+      <strong>Hiérarchie de l'écran :</strong> Identité (qui) → Action urgente (courses live) → Pulse (stats + en ligne) → Mes actions (poster / inviter) → Mes stats → Activité → Membres → Quitter.
+      <br />Avant : Identité + stats fusionnés → Poster → Mes stats → Activité → Membres → Quitter (pas de signal d'urgence, pas de visages).
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

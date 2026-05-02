@@ -5,6 +5,9 @@ import { GroupCard } from './GroupCard'
 import { CreateGroupModal } from './groupes/CreateGroupModal'
 import { JoinGroupModal } from './groupes/JoinGroupModal'
 import { GroupesHeader } from './groupes/GroupesHeader'
+import { GroupesGlobalPulse } from './groupes/GroupesGlobalPulse'
+import { GroupesHeroCard } from './groupes/GroupesHeroCard'
+import { GroupesSortChips } from './groupes/GroupesSortChips'
 import { useDriverGroupesScreen } from './useDriverGroupesScreen'
 
 export function DriverGroupesScreen() {
@@ -15,19 +18,46 @@ export function DriverGroupesScreen() {
     joinId, setJoinId, saving,
     handleCreate, handleJoin, handleLeave, handleDelete, isAdmin,
     query, setQuery, filteredGroups,
-    activeGroupId, summaries, togglePin, openGroup,
+    sortMode, setSortMode,
+    primaryGroup, primarySummary, sortedGroups,
+    globalPulse, summaries, favorites, hasNews,
+    openGroup,
   } = useDriverGroupesScreen()
 
   return (
     <div className="max-w-2xl mx-auto pb-4">
       <GroupesHeader
-        privateCount={groups.length}
+        totalCount={groups.length}
+        favoriteCount={favorites.ids.filter((id) => groups.some((g) => g.id === id)).length}
         onCreate={() => setShowCreate(true)}
         onJoin={() => setShowJoin(true)}
       />
 
+      {error && (
+        <div className="mb-4 rounded-2xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
+          {error}
+        </div>
+      )}
+
+      {!loading && groups.length > 0 && (
+        <GroupesGlobalPulse
+          availableTotal={globalPulse.availableTotal}
+          onlineTotal={globalPulse.onlineTotal}
+        />
+      )}
+
+      {primaryGroup && (
+        <GroupesHeroCard
+          group={primaryGroup}
+          summary={primarySummary}
+          onOpen={() => openGroup(primaryGroup)}
+          onPostCourse={() => openGroup(primaryGroup)}
+          onUnfavorite={() => favorites.toggle(primaryGroup.id)}
+        />
+      )}
+
       {groups.length > 0 && (
-        <div className="relative mb-5">
+        <div className="relative mb-3">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-warm-500" strokeWidth={1.8} />
           <input
             value={query}
@@ -38,10 +68,8 @@ export function DriverGroupesScreen() {
         </div>
       )}
 
-      {error && (
-        <div className="mb-4 rounded-2xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
-          {error}
-        </div>
+      {sortedGroups.length > 0 && (
+        <GroupesSortChips value={sortMode} onChange={setSortMode} />
       )}
 
       {loading ? (
@@ -52,33 +80,33 @@ export function DriverGroupesScreen() {
         <div className="rounded-2xl border border-warm-200 bg-paper p-8 text-center text-[13px] text-warm-600 mb-6">
           Aucun groupe ne correspond à « {query} »
         </div>
+      ) : sortedGroups.length === 0 ? (
+        // Tous les groupes filtrés sont déjà dans le hero — rien à afficher en plus.
+        null
       ) : (
-        <div className="flex flex-col gap-3 mb-6">
-          {filteredGroups.map((group) => (
-            <GroupCard
-              key={group.id}
-              group={group}
-              isAdmin={isAdmin(group)}
-              isActive={group.id === activeGroupId}
-              summary={summaries[group.id] ?? null}
-              onOpen={openGroup}
-              onLeave={handleLeave}
-              onDelete={handleDelete}
-              onTogglePin={() => togglePin(group.id)}
-            />
-          ))}
-        </div>
-      )}
-
-      {groups.length > 0 && (
-        <button
-          type="button"
-          onClick={() => setShowJoin(true)}
-          className="w-full text-center text-[12.5px] font-semibold text-warm-600 hover:text-ink py-2 inline-flex items-center justify-center gap-1.5 transition-colors"
-        >
-          <Link2 className="w-3.5 h-3.5" strokeWidth={1.8} />
-          Rejoindre un autre groupe avec un code
-        </button>
+        <>
+          {primaryGroup && (
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-warm-500 mb-2 px-1">
+              Mes autres groupes
+            </p>
+          )}
+          <div className="flex flex-col gap-3 mb-6">
+            {sortedGroups.map((group) => (
+              <GroupCard
+                key={group.id}
+                group={group}
+                isAdmin={isAdmin(group)}
+                isFavorite={favorites.has(group.id)}
+                hasNews={hasNews(group)}
+                summary={summaries[group.id] ?? null}
+                onOpen={openGroup}
+                onLeave={handleLeave}
+                onDelete={handleDelete}
+                onToggleFavorite={() => favorites.toggle(group.id)}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       {showCreate && (

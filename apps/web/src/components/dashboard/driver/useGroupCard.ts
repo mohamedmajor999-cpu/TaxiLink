@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Group } from '@taxilink/core'
+import { useDriverStore } from '@/store/driverStore'
+import { buildGroupInviteText } from '@/lib/groupInvite'
 
 export type PendingAction = 'delete' | 'leave' | null
 
 export function useGroupCard(group: Group) {
+  const driverName = useDriverStore((s) => s.driver.name)
   const [menuOpen, setMenuOpen]           = useState(false)
   const [copied, setCopied]               = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
@@ -20,15 +23,9 @@ export function useGroupCard(group: Group) {
     return () => document.removeEventListener('mousedown', close)
   }, [menuOpen])
 
-  const buildInviteText = useCallback(() => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://taxilink.fr'
-    const link = `${origin}/rejoindre/${group.id}`
-    return (
-      `🚖 TaxiLink Pro — la plateforme de partage de courses entre taxis.\n\n` +
-      `Tu es invité(e) à rejoindre le groupe « ${group.name} ».\n\n` +
-      `Rejoindre le groupe :\n${link}`
-    )
-  }, [group.id, group.name])
+  const buildInviteText = useCallback(() => buildGroupInviteText({
+    groupId: group.id, groupName: group.name, inviterName: driverName,
+  }), [group.id, group.name, driverName])
 
   const copyId = useCallback(async () => {
     await navigator.clipboard.writeText(group.id)
