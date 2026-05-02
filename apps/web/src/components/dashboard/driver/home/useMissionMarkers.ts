@@ -47,7 +47,7 @@ export function useMissionMarkers({ mapRef, missions, selectedId, onSelect }: Pa
       // tous les markers (spider/expand state perdu, flicker visuel).
       if (!clusterGroupRef.current) {
         const group = L.markerClusterGroup({
-          maxClusterRadius: 60,
+          maxClusterRadius: 35,
           spiderfyOnMaxZoom: true,
           showCoverageOnHover: false,
           zoomToBoundsOnClick: true,
