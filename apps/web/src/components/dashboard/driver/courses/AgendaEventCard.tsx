@@ -13,7 +13,7 @@ const fmt = (d: Date) => d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute
 export function AgendaEventCard({ event, onTap, onMenu }: Props) {
   const timeRange = `${fmt(event.start)} — ${fmt(event.end)}`
   const isBlock = event.isManual && event.from === event.to
-  const showMenu = event.isManual && onMenu !== undefined
+  const showMenu = onMenu !== undefined
 
   if (isBlock) {
     return (

@@ -5,6 +5,8 @@ import { AgendaCardMenu } from './AgendaCardMenu'
 import { WeekStrip } from './WeekStrip'
 import { AgendaDayBlock } from './AgendaDayBlock'
 import { agendaDayLabel, startOfDay, addDays } from './agendaHelpers'
+import { CancelMissionDialog } from '../course/CancelMissionDialog'
+import { ConfirmDeleteCourseDialog } from './ConfirmDeleteCourseDialog'
 
 export function AgendaTab() {
   const a = useAgendaTab()
@@ -70,6 +72,7 @@ export function AgendaTab() {
 
       {a.menuMission && (
         <AgendaCardMenu
+          isManual={a.isManualMenu}
           onClose={a.closeMenu}
           onDetail={() => {
             const id = a.menuMission!.id
@@ -77,8 +80,7 @@ export function AgendaTab() {
             a.openDetails(id)
           }}
           onEdit={() => a.openEditFor(a.menuMission!.id)}
-          onDelete={() => a.deleteMission(a.menuMission!.id)}
-          removing={a.removingId === a.menuMission.id}
+          onDelete={() => a.requestDelete(a.menuMission!.id)}
         />
       )}
 
@@ -93,6 +95,20 @@ export function AgendaTab() {
           onAdded={a.updateMission}
         />
       )}
+
+      <ConfirmDeleteCourseDialog
+        open={a.deletingMission !== null}
+        busy={a.busyId === a.deletingMission?.id}
+        onCancel={a.closeDeleteConfirm}
+        onConfirm={() => a.deletingMission && a.deleteMission(a.deletingMission.id)}
+      />
+
+      <CancelMissionDialog
+        open={a.cancelOpenId !== null}
+        submitting={a.busyId === a.cancelOpenId}
+        onClose={a.closeCancel}
+        onSubmit={(reason) => a.cancelOpenId && a.cancelMission(a.cancelOpenId, reason)}
+      />
     </div>
   )
 }
