@@ -40,18 +40,18 @@ export function MissionPreviewStep({
 
   return (
     <div className="bg-paper pb-24 md:pb-6">
-      <div className="px-4 md:px-8 pt-4 md:pt-6 pb-2 max-w-2xl mx-auto">
-        <h2 className="text-[20px] font-bold text-ink leading-tight tracking-tight">
+      <div className="px-4 md:px-8 pt-4 md:pt-6 pb-2 max-w-2xl lg:max-w-5xl mx-auto">
+        <h2 className="text-[20px] lg:text-[26px] font-bold text-ink leading-tight tracking-tight">
           Aperçu de la course
         </h2>
-        <p className="text-[12px] text-warm-500 mt-0.5">
+        <p className="text-[12px] lg:text-[13px] text-warm-500 mt-0.5">
           Vérifiez tout, puis publiez. Touchez un champ pour le corriger.
         </p>
       </div>
 
-      <div className="px-4 md:px-8 py-4 max-w-2xl mx-auto">
+      <div className="px-4 md:px-8 py-4 max-w-2xl lg:max-w-5xl mx-auto">
         {hasMap && (
-          <div className="relative h-48 md:h-56 rounded-2xl overflow-hidden border border-warm-200 mb-4">
+          <div className="relative h-48 md:h-56 lg:h-72 rounded-2xl overflow-hidden border border-warm-200 mb-4">
             <CourseMap from={departureCoords!} to={destinationCoords!} routeGeometry={routeGeometry ?? null} />
           </div>
         )}

@@ -21,7 +21,7 @@ export function AdCardDone({ mission, driver }: Props) {
   const openEdit = useMissionEditSheetStore((s) => s.open)
 
   return (
-    <article className="rounded-2xl px-4 py-3 mb-2.5 border border-emerald-200 bg-emerald-50">
+    <article className="rounded-2xl px-4 py-3 border border-emerald-200 bg-emerald-50">
       <header className="flex items-center gap-2 mb-2">
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-200 text-emerald-900 text-[10.5px] font-extrabold uppercase tracking-[0.04em]">
           <CheckCircle2 className="w-3 h-3" strokeWidth={2.4} />

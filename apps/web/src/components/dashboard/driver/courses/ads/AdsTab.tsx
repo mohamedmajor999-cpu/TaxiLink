@@ -60,7 +60,7 @@ export function AdsTab({ onPostCourse }: Props) {
   const dayLabel = visibleGroup?.label ?? agendaDayLabel(a.selected, today, tomorrow)
 
   return (
-    <div className="pb-24 md:pb-6">
+    <div className="pb-24 md:pb-6 lg:max-w-5xl lg:mx-auto">
       <WeekStrip days={a.weekDays} selected={a.selected} onSelect={a.setSelected} />
 
       <div className="mt-4">
@@ -80,22 +80,26 @@ export function AdsTab({ onPostCourse }: Props) {
             </div>
           )}
 
-          {visibleGroup?.ads.map((ad) => {
-            if (ad.state === 'waiting') {
-              return <AdCardWaiting key={ad.mission.id} mission={ad.mission} />
-            }
-            if (ad.state === 'accepted') {
-              return (
-                <AdCardAccepted
-                  key={ad.mission.id}
-                  mission={ad.mission}
-                  driver={ad.driver}
-                  now={a.nowTick}
-                />
-              )
-            }
-            return <AdCardDone key={ad.mission.id} mission={ad.mission} driver={ad.driver} />
-          })}
+          {visibleGroup?.ads.length ? (
+            <div className="grid gap-2 lg:grid-cols-2 xl:grid-cols-3">
+              {visibleGroup.ads.map((ad) => {
+                if (ad.state === 'waiting') {
+                  return <AdCardWaiting key={ad.mission.id} mission={ad.mission} />
+                }
+                if (ad.state === 'accepted') {
+                  return (
+                    <AdCardAccepted
+                      key={ad.mission.id}
+                      mission={ad.mission}
+                      driver={ad.driver}
+                      now={a.nowTick}
+                    />
+                  )
+                }
+                return <AdCardDone key={ad.mission.id} mission={ad.mission} driver={ad.driver} />
+              })}
+            </div>
+          ) : null}
         </section>
       </div>
     </div>

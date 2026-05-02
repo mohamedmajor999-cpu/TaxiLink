@@ -25,7 +25,7 @@ export function AgendaTab() {
     }
 
   return (
-    <div className="mt-2 pb-24 md:pb-6">
+    <div className="mt-2 pb-24 md:pb-6 lg:max-w-5xl lg:mx-auto">
       <p className="text-[12px] text-warm-500 -mt-3 mb-1 capitalize">{a.weekRangeLabel}</p>
 
       <WeekStrip days={a.weekDays} selected={a.selected} onSelect={a.setSelected} />

@@ -49,12 +49,18 @@ export function TodayTab() {
   const restList = t.current && t.next ? [t.next, ...t.restOfDay] : t.restOfDay
   const restTotal = restList.reduce((s, m) => s + Number(m.price_eur ?? 0), 0)
 
+  const hasGrid = heroMission && restList.length > 0
+
   return (
-    <div>
-      {heroMission && <NextCourseHero mission={heroMission} onEdit={handleEdit} />}
+    <div className={hasGrid ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-6 lg:items-start' : ''}>
+      {heroMission && (
+        <div className={`${hasGrid ? 'lg:sticky lg:top-6' : 'lg:max-w-2xl lg:mx-auto'}`}>
+          <NextCourseHero mission={heroMission} onEdit={handleEdit} />
+        </div>
+      )}
 
       {restList.length > 0 && (
-        <section>
+        <section className={!heroMission ? 'lg:max-w-3xl lg:mx-auto' : ''}>
           <header className="flex items-end justify-between mb-1 px-1">
             <h3 className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-warm-500">
               Reste de la journée

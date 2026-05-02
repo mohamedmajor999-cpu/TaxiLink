@@ -95,13 +95,13 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
 
   return (
     <div className="bg-paper pb-24 md:pb-6">
-      <div className="px-4 md:px-8 pt-4 md:pt-6 pb-2 max-w-2xl mx-auto">
+      <div className="px-4 md:px-8 pt-4 md:pt-6 pb-2 max-w-2xl lg:max-w-4xl mx-auto">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-[20px] font-bold text-ink leading-tight tracking-tight">
+            <h2 className="text-[20px] lg:text-[26px] font-bold text-ink leading-tight tracking-tight">
               {f.isEdit ? 'Modifier la course' : 'Nouvelle course'}
             </h2>
-            <p className="text-[12px] text-warm-500 mt-0.5">
+            <p className="text-[12px] lg:text-[13px] text-warm-500 mt-0.5">
               {f.preview
                 ? 'Aperçu avant publication'
                 : mode === 'GUIDED' ? 'Assistance pas à pas'
@@ -127,7 +127,7 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
         </div>
       )}
       {!isGuided && !isVocal && !f.preview && (
-        <div className="px-4 md:px-8 py-4 max-w-2xl mx-auto">
+        <div className="px-4 md:px-8 py-4 max-w-2xl lg:max-w-4xl mx-auto">
           <MissionFormLibre f={f} voice={voice} />
         </div>
       )}
