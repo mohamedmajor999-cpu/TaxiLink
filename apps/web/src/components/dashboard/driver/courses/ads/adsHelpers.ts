@@ -66,6 +66,12 @@ export function relativeAgo(iso: string | null): string {
 
 export function deriveTrackerStep(m: Mission, now: number): TrackerStep {
   if (m.status === 'DONE' || m.dropoff_at) return 'done'
+  // Course planifiee pour plus tard : aucune auto-progression possible — on
+  // reste sur "Acceptee" tant que l'heure prevue n'est pas atteinte. Empeche
+  // l'affichage trompeur "client a bord" pour une course de demain quand un
+  // timestamp aurait ete pose par erreur (button manuel, GPS sur mission
+  // anterieure, etc.).
+  if (new Date(m.scheduled_at).getTime() > now) return 'accepted'
   if (m.pickup_at) return 'onboard'
   if (m.enroute_at) {
     const enrouteMs = new Date(m.enroute_at).getTime()

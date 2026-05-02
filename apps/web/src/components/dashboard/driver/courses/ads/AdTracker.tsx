@@ -10,7 +10,7 @@ interface Props {
 const STEPS: { key: TrackerStep; label: string }[] = [
   { key: 'accepted', label: 'Acceptée' },
   { key: 'enroute', label: 'En route' },
-  { key: 'onboard', label: 'Patient à bord' },
+  { key: 'onboard', label: 'Client à bord' },
   { key: 'done', label: 'Terminée' },
 ]
 

@@ -39,6 +39,7 @@ const config: Config = {
           'brand-soft': '#3A2F12', // fond subtil pour selections "brand" en nuit
         },
         danger: { DEFAULT: '#A32D2D', soft: '#FCEBEB' },
+        success: { DEFAULT: '#16A34A', soft: '#DCFCE7' },
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'sans-serif'],

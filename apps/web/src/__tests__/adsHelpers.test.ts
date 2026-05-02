@@ -55,26 +55,41 @@ describe('getAdState', () => {
 
 describe('deriveTrackerStep', () => {
   const now = FROZEN.getTime()
+  const pastSchedule = new Date(now - 60 * 60_000).toISOString() // 1 h avant FROZEN
 
   it("status='IN_PROGRESS' sans timestamp → 'accepted'", () => {
     expect(deriveTrackerStep(makeMission({ status: 'IN_PROGRESS' }), now)).toBe('accepted')
   })
 
+  it("scheduled_at futur + enroute_at posé → reste 'accepted' (pas de fausse progression)", () => {
+    // Course de demain : meme si enroute_at a ete pose par erreur et que
+    // 25 min se sont ecoulees, le tracker doit rester sur "Acceptee".
+    const enrouteAt = new Date(now - 25 * 60_000).toISOString()
+    const m = makeMission({ status: 'IN_PROGRESS', enroute_at: enrouteAt, duration_min: 20 })
+    expect(deriveTrackerStep(m, now)).toBe('accepted')
+  })
+
+  it("scheduled_at futur + pickup_at posé → reste 'accepted'", () => {
+    const pickupAt = new Date(now - 5 * 60_000).toISOString()
+    const m = makeMission({ status: 'IN_PROGRESS', pickup_at: pickupAt })
+    expect(deriveTrackerStep(m, now)).toBe('accepted')
+  })
+
   it("enroute_at posé, durée non écoulée → 'enroute'", () => {
     const enrouteAt = new Date(now - 5 * 60_000).toISOString() // 5 min avant
-    const m = makeMission({ status: 'IN_PROGRESS', enroute_at: enrouteAt, duration_min: 20 })
+    const m = makeMission({ status: 'IN_PROGRESS', scheduled_at: pastSchedule, enroute_at: enrouteAt, duration_min: 20 })
     expect(deriveTrackerStep(m, now)).toBe('enroute')
   })
 
   it("enroute_at posé, durée écoulée → bascule sur 'onboard' auto-déduit", () => {
     const enrouteAt = new Date(now - 25 * 60_000).toISOString() // 25 min avant, durée 20 → écoulé
-    const m = makeMission({ status: 'IN_PROGRESS', enroute_at: enrouteAt, duration_min: 20 })
+    const m = makeMission({ status: 'IN_PROGRESS', scheduled_at: pastSchedule, enroute_at: enrouteAt, duration_min: 20 })
     expect(deriveTrackerStep(m, now)).toBe('onboard')
   })
 
   it("pickup_at posé → 'onboard'", () => {
     const pickupAt = new Date(now - 5 * 60_000).toISOString()
-    const m = makeMission({ status: 'IN_PROGRESS', pickup_at: pickupAt })
+    const m = makeMission({ status: 'IN_PROGRESS', scheduled_at: pastSchedule, pickup_at: pickupAt })
     expect(deriveTrackerStep(m, now)).toBe('onboard')
   })
 
@@ -82,7 +97,7 @@ describe('deriveTrackerStep', () => {
     expect(deriveTrackerStep(makeMission({ status: 'DONE' }), now)).toBe('done')
   })
 
-  it("dropoff_at posé → 'done'", () => {
+  it("dropoff_at posé → 'done' (même si scheduled_at est futur)", () => {
     const dropoffAt = new Date(now - 1 * 60_000).toISOString()
     const m = makeMission({ status: 'IN_PROGRESS', dropoff_at: dropoffAt })
     expect(deriveTrackerStep(m, now)).toBe('done')

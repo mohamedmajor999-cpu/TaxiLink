@@ -47,7 +47,7 @@ export function StatsTab() {
       />
 
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-4 lg:items-start">
-        {s.missions.length > 0 && <HistoryHeatmap cells={heatmapCells} />}
+        <HistoryHeatmap cells={heatmapCells} />
 
         <section className="rounded-2xl border border-warm-200 bg-paper p-3.5 lg:p-4 lg:sticky lg:top-6">
           <h3 className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-warm-500 mb-2.5">
