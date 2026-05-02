@@ -8,6 +8,7 @@ import { buildPreviewCard, findGroupName } from './missionPreview'
 import { MissionPreviewStep } from './MissionPreviewStep'
 import { MissionFormLibre, getLibreFieldAnchor } from './MissionFormLibre'
 import { MissionFormVocal } from './MissionFormVocal'
+import { MissionLivePreview } from './MissionLivePreview'
 import { MissionModeToggle, type MissionCreationMode } from './MissionModeToggle'
 import { GuidedMissionFlow } from './guided/GuidedMissionFlow'
 import type { GuidedSetters } from './guided/useGuidedAnswerApplier'
@@ -93,9 +94,12 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
     departure: f.departure, destination: f.destination,
   })
 
+  const showLibreSplit = !isGuided && !isVocal && !f.preview
+  const scheduledAtIso = buildScheduledAt(f.date, f.time)
+
   return (
     <div className="bg-paper pb-24 md:pb-6">
-      <div className="px-4 md:px-8 pt-4 md:pt-6 pb-2 max-w-2xl lg:max-w-4xl mx-auto">
+      <div className={`px-4 md:px-8 pt-4 md:pt-6 pb-2 mx-auto ${showLibreSplit ? 'max-w-2xl lg:max-w-6xl' : 'max-w-2xl lg:max-w-4xl'}`}>
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-[20px] lg:text-[26px] font-bold text-ink leading-tight tracking-tight">
@@ -126,9 +130,14 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
           />
         </div>
       )}
-      {!isGuided && !isVocal && !f.preview && (
-        <div className="px-4 md:px-8 py-4 max-w-2xl lg:max-w-4xl mx-auto">
-          <MissionFormLibre f={f} voice={voice} />
+      {showLibreSplit && (
+        <div className="px-4 md:px-8 py-4 max-w-2xl lg:max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8 lg:items-start">
+          <div className="min-w-0">
+            <MissionFormLibre f={f} voice={voice} />
+          </div>
+          <aside className="hidden lg:block lg:sticky lg:top-6">
+            <MissionLivePreview f={f} groupLabel={groupLabel} scheduledAtIso={scheduledAtIso} />
+          </aside>
         </div>
       )}
       {isVocal && !f.preview && (
