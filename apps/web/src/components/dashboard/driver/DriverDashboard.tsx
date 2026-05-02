@@ -131,12 +131,12 @@ export function DriverDashboard() {
             {activeTab === 'home' && <DriverHome onPostCourse={handlePostCourse} onShowMissionDetail={setDetailMissionId} onGoToProfile={() => handleTabChange('profil')} mapFullscreen={mapFullscreen} onMapFullscreenChange={setMapFullscreen} />}
             {activeTab === 'courses' && <DriverCoursesScreen onPostCourse={handlePostCourse} />}
             {activeTab === 'groupes' && (
-              <div className="px-4 md:px-8 pt-[calc(56px+env(safe-area-inset-top))] pb-4 md:pt-6 md:pb-6 max-w-6xl mx-auto">
+              <div className="px-4 md:px-8 pt-[calc(66px+env(safe-area-inset-top))] pb-4 md:pt-6 md:pb-6 max-w-6xl mx-auto">
                 <DriverGroupesScreen />
               </div>
             )}
             {activeTab === 'profil' && (
-              <div className="px-4 md:px-8 pt-[calc(56px+env(safe-area-inset-top))] pb-4 md:pt-6 md:pb-6 max-w-6xl mx-auto">
+              <div className="px-4 md:px-8 pt-[calc(66px+env(safe-area-inset-top))] pb-4 md:pt-6 md:pb-6 max-w-6xl mx-auto">
                 {profilSub === 'documents' ? (
                   <DocumentsScreen onBack={() => setProfilSub(null)} />
                 ) : profilSub === 'infos' ? (
