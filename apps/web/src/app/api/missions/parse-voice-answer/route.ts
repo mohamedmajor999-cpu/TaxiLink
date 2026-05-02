@@ -1,26 +1,20 @@
 import { NextResponse } from 'next/server'
 import { logAiUsage } from '@/lib/aiUsageLogger'
-
-const CLAUDE_URL = 'https://api.anthropic.com/v1/messages'
-const CLAUDE_MODEL = 'claude-haiku-4-5'
-const CLAUDE_TIMEOUT_MS = 10000
-
-interface ClaudeResponse {
-  content?: { type: string; text?: string }[]
-  usage?: { input_tokens?: number; output_tokens?: number }
-}
+import { transcribeAudio, TranscribeError } from '@/lib/openai/transcribe'
+import { chatJson, ChatError, GPT_MINI_MODEL } from '@/lib/openai/chat'
 
 interface AnswerRequest {
-  questionId?: string
-  kind?: string
-  prompt?: string
+  questionId: string
+  kind: string
+  prompt: string
   options?: { value: string; label: string; aliases?: string[] }[]
   availableGroups?: { id: string; name: string }[]
-  allQuestionIds?: string[]
-  transcript?: string
+  allQuestionIds: string[]
 }
 
-function buildPrompt(req: AnswerRequest, todayIso: string): string {
+const SYSTEM_PROMPT = 'Tu réponds UNIQUEMENT avec un JSON valide, sans markdown ni commentaire.'
+
+function buildUserPrompt(req: AnswerRequest, transcript: string, todayIso: string): string {
   const optionsList = (req.options ?? [])
     .map((o) => `- ${o.value} (libellé: ${o.label}${o.aliases?.length ? `, synonymes: ${o.aliases.join(', ')}` : ''})`)
     .join('\n')
@@ -42,7 +36,7 @@ Ids de toutes les questions existantes: ${idsList}
 Date d'aujourd'hui : ${todayIso}
 
 Transcription vocale :
-"""${req.transcript}"""
+"""${transcript}"""
 
 Retourne UNIQUEMENT un JSON valide, sans markdown :
 {
@@ -70,66 +64,62 @@ Règles value selon kind :
 - groups       → array d'IDs de groupes choisis parmi la liste ci-dessus. Match tolérant: ignore la casse, les accents, les espaces, les tirets. Exemple: "taxi 13" → id du groupe "taxi13". Si aucun match certain, renvoie un array vide.`
 }
 
-export async function POST(request: Request) {
-  const claudeKey = process.env.ANTHROPIC_API_KEY
-  if (!claudeKey) return NextResponse.json({ error: 'Configuration IA manquante' }, { status: 500 })
+function readMeta(form: FormData): AnswerRequest | null {
+  const raw = form.get('meta')
+  if (typeof raw !== 'string') return null
+  try {
+    const parsed = JSON.parse(raw) as AnswerRequest
+    if (!parsed.questionId || !parsed.kind) return null
+    return parsed
+  } catch { return null }
+}
 
-  let body: AnswerRequest
-  try { body = await request.json() } catch {
+export async function POST(request: Request) {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) return NextResponse.json({ error: 'OPENAI_API_KEY manquante' }, { status: 500 })
+
+  let form: FormData
+  try { form = await request.formData() } catch {
     return NextResponse.json({ error: 'Requête invalide' }, { status: 400 })
   }
 
-  const transcript = (body.transcript ?? '').trim()
-  if (transcript.length < 1) return NextResponse.json({ error: 'Transcription vide' }, { status: 400 })
-  if (transcript.length > 500) return NextResponse.json({ error: 'Transcription trop longue' }, { status: 400 })
-  if (!body.questionId || !body.kind) return NextResponse.json({ error: 'Question manquante' }, { status: 400 })
+  const meta = readMeta(form)
+  if (!meta) return NextResponse.json({ error: 'Métadonnées manquantes' }, { status: 400 })
+
+  const audio = form.get('audio')
+  if (!(audio instanceof File)) return NextResponse.json({ error: 'Fichier audio manquant' }, { status: 400 })
+  if (audio.size === 0) return NextResponse.json({ error: 'Audio vide' }, { status: 400 })
+  if (audio.size > 10 * 1024 * 1024) return NextResponse.json({ error: 'Audio trop volumineux' }, { status: 400 })
+
+  let transcript = ''
+  try {
+    const r = await transcribeAudio(audio, apiKey)
+    transcript = r.text
+  } catch (err) {
+    if (err instanceof TranscribeError) return NextResponse.json({ error: err.message }, { status: err.status })
+    throw err
+  }
+
+  if (transcript.length < 1) return NextResponse.json({ error: 'Transcription vide', transcript }, { status: 422 })
+  if (transcript.length > 500) return NextResponse.json({ error: 'Transcription trop longue', transcript }, { status: 422 })
 
   const today = new Date()
   const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-  const prompt = buildPrompt(body, todayIso)
+  const userPrompt = buildUserPrompt(meta, transcript, todayIso)
 
-  let res: Response
+  let parseText = ''
   try {
-    res = await fetch(CLAUDE_URL, {
-      method: 'POST',
-      headers: {
-        'x-api-key': claudeKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: CLAUDE_MODEL,
-        max_tokens: 256,
-        temperature: 0,
-        system: 'Tu réponds UNIQUEMENT avec un JSON valide, sans markdown ni commentaire.',
-        messages: [{ role: 'user', content: prompt }],
-      }),
-      signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS),
-    })
+    const r = await chatJson({ apiKey, systemPrompt: SYSTEM_PROMPT, userPrompt, maxTokens: 256, temperature: 0 })
+    parseText = r.text
+    await logAiUsage({ endpoint: 'parse-voice-answer', model: GPT_MINI_MODEL, inputTokens: r.inputTokens, outputTokens: r.outputTokens })
   } catch (err) {
-    console.error('[parse-voice-answer] network error', (err as Error).message)
-    return NextResponse.json({ error: 'Délai IA dépassé' }, { status: 504 })
+    if (err instanceof ChatError) return NextResponse.json({ error: err.message, transcript }, { status: err.status })
+    throw err
   }
 
-  if (!res.ok) {
-    const t = await res.text().catch(() => '')
-    console.error(`[parse-voice-answer] ${res.status}`, t.slice(0, 200))
-    if (res.status === 429) return NextResponse.json({ error: 'Quota IA atteint' }, { status: 429 })
-    return NextResponse.json({ error: `Erreur IA (${res.status})` }, { status: 502 })
-  }
-
-  const json = (await res.json()) as ClaudeResponse
-  const text = json.content?.[0]?.text?.trim() ?? ''
-  const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
-  await logAiUsage({
-    endpoint:     'parse-voice-answer',
-    model:        CLAUDE_MODEL,
-    inputTokens:  json.usage?.input_tokens ?? 0,
-    outputTokens: json.usage?.output_tokens ?? 0,
-  })
   try {
-    return NextResponse.json(JSON.parse(cleaned))
+    return NextResponse.json({ ...JSON.parse(parseText), transcript })
   } catch {
-    return NextResponse.json({ error: 'Réponse IA illisible' }, { status: 502 })
+    return NextResponse.json({ error: 'Réponse IA illisible', transcript }, { status: 502 })
   }
 }

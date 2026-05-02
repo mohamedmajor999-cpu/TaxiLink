@@ -31,7 +31,7 @@ export function PosterVoiceBanner({ flow }: Props) {
   const body = tone === 'asking'
     ? (flow.lastQuestion ?? '')
     : tone === 'listening'
-      ? (flow.interimTranscript || flow.transcript || 'Parlez maintenant. Le micro se coupe au silence.')
+      ? 'Parlez maintenant, puis touchez le micro pour arrêter.'
       : 'Je remplis les champs avec votre dictée.'
 
   return (

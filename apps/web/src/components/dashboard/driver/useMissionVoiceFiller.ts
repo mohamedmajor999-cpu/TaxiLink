@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useVoiceDictation } from '@/hooks/useVoiceDictation'
-import { parseVoiceTranscript, type ParsedMissionFields } from '@/services/voiceParseService'
+import { useCallback, useRef, useState } from 'react'
+import { useAudioRecorder } from '@/hooks/useAudioRecorder'
+import { parseVoiceAudio, type ParsedMissionFields } from '@/services/voiceParseService'
 import type { MissionFormType } from './missionFormHelpers'
 import type { MedicalMotif, MissionVisibility, TransportType } from '@/lib/validators'
 import type { Group } from '@taxilink/core'
@@ -42,19 +42,9 @@ export function useMissionVoiceFiller(args: Args) {
   const [transcript, setTranscript] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [parseError, setParseError] = useState<string | null>(null)
+  const [recorderError, setRecorderError] = useState<string | null>(null)
   const [parsedFields, setParsedFields] = useState<Set<string>>(() => new Set())
-  const transcriptRef = useRef('')
-  const shouldProcessRef = useRef(false)
   const parsedFieldsRef = useRef<Set<string>>(new Set())
-
-  const voice = useVoiceDictation({
-    lang: 'fr-FR',
-    continuous: true,
-    onFinalTranscript: (text) => {
-      transcriptRef.current = transcriptRef.current ? `${transcriptRef.current} ${text}` : text
-      setTranscript(transcriptRef.current)
-    },
-  })
 
   const applyParsed = useCallback(async (parsed: ParsedMissionFields) => {
     const a = argsRef.current
@@ -80,7 +70,6 @@ export function useMissionVoiceFiller(args: Args) {
     if (parsed.passengers != null) a.setPassengers(parsed.passengers)
     if (parsed.date) a.setDate(parsed.date)
     if (parsed.time) a.setTime(parsed.time)
-    // Privé avec fourchette : renseigne min + max (et laisse `price` vide).
     if (parsed.price_min_eur != null && parsed.price_max_eur != null) {
       a.setPriceMin(String(parsed.price_min_eur))
       a.setPriceMax(String(parsed.price_max_eur))
@@ -110,27 +99,34 @@ export function useMissionVoiceFiller(args: Args) {
     }
   }, [])
 
-  useEffect(() => {
-    if (voice.isListening || !shouldProcessRef.current) return
-    shouldProcessRef.current = false
-    const full = transcriptRef.current.trim()
-    if (full.length < 3) return
+  const handleAudio = useCallback(async (blob: Blob) => {
+    if (blob.size === 0) return
     setIsProcessing(true)
-    parseVoiceTranscript(full)
-      .then(applyParsed)
-      .catch((err) => setParseError(err instanceof Error ? err.message : 'Erreur IA'))
-      .finally(() => setIsProcessing(false))
-  }, [voice.isListening, applyParsed])
+    setParseError(null)
+    try {
+      const parsed = await parseVoiceAudio(blob)
+      setTranscript(parsed.transcript ?? '')
+      await applyParsed(parsed)
+    } catch (err) {
+      setParseError(err instanceof Error ? err.message : 'Erreur IA')
+    } finally {
+      setIsProcessing(false)
+    }
+  }, [applyParsed])
+
+  const recorder = useAudioRecorder({
+    onStop: handleAudio,
+    onError: (code) => setRecorderError(code),
+  })
 
   const start = useCallback(() => {
-    transcriptRef.current = ''
     setTranscript('')
     setParseError(null)
-    shouldProcessRef.current = true
-    voice.start()
-  }, [voice])
+    setRecorderError(null)
+    void recorder.start()
+  }, [recorder])
 
-  const stop = useCallback(() => { voice.stop() }, [voice])
+  const stop = useCallback(() => { recorder.stop() }, [recorder])
 
   const resetParsedFields = useCallback(() => {
     parsedFieldsRef.current = new Set()
@@ -138,12 +134,12 @@ export function useMissionVoiceFiller(args: Args) {
   }, [])
 
   return {
-    isSupported: voice.isSupported,
-    isListening: voice.isListening,
+    isSupported: recorder.isSupported,
+    isListening: recorder.isRecording,
     isProcessing,
-    interimTranscript: voice.interimTranscript,
+    interimTranscript: '',
     transcript,
-    error: micErrorLabel(voice.error) ?? parseError,
+    error: micErrorLabel(recorderError) ?? parseError,
     parsedFields,
     resetParsedFields,
     start, stop,

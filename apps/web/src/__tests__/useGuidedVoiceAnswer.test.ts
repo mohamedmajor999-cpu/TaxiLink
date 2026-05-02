@@ -3,27 +3,24 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 import { useGuidedVoiceAnswer } from '@/components/dashboard/driver/guided/useGuidedVoiceAnswer'
 import type { GuidedQuestion } from '@/components/dashboard/driver/guided/guidedTypes'
 
-// ─── Mocks ────────────────────────────────────────────────────────────────────
 const mockParseVoiceAnswer = vi.fn()
 
 vi.mock('@/services/voiceAnswerService', () => ({
   parseVoiceAnswer: (...a: unknown[]) => mockParseVoiceAnswer(...a),
 }))
 
-let capturedVoiceOpts: { onFinalTranscript?: (text: string) => void } = {}
-const mockVoiceState = {
+let capturedRecorderOpts: { onStop?: (b: Blob) => void; onError?: (e: string) => void } = {}
+const mockRecorderState = {
   isSupported: true,
-  isListening: false,
-  interimTranscript: '',
-  error: null as string | null,
+  isRecording: false,
   start: vi.fn(),
   stop: vi.fn(),
 }
 
-vi.mock('@/hooks/useVoiceDictation', () => ({
-  useVoiceDictation: vi.fn((opts) => {
-    capturedVoiceOpts = opts
-    return mockVoiceState
+vi.mock('@/hooks/useAudioRecorder', () => ({
+  useAudioRecorder: vi.fn((opts) => {
+    capturedRecorderOpts = opts
+    return mockRecorderState
   }),
 }))
 
@@ -43,84 +40,83 @@ function makeOpts(overrides = {}) {
   }
 }
 
+const fakeBlob = () => new Blob([new Uint8Array([1, 2, 3])], { type: 'audio/webm' })
+
 beforeEach(() => {
   vi.clearAllMocks()
-  mockVoiceState.isListening = false
-  mockVoiceState.error = null
-  mockParseVoiceAnswer.mockResolvedValue({ intent: 'answer', value: 'CPAM' })
+  mockRecorderState.isRecording = false
+  mockParseVoiceAnswer.mockResolvedValue({ intent: 'answer', value: 'CPAM', targetQuestionId: null, transcript: 'CPAM' })
+  capturedRecorderOpts = {}
 })
 
-// ─── start / stop ─────────────────────────────────────────────────────────────
 describe('useGuidedVoiceAnswer — start / stop', () => {
-  it('start appelle voice.start', () => {
+  it('start appelle recorder.start', () => {
     const { result } = renderHook(() => useGuidedVoiceAnswer(makeOpts()))
     act(() => { result.current.start() })
-    expect(mockVoiceState.start).toHaveBeenCalled()
+    expect(mockRecorderState.start).toHaveBeenCalled()
   })
 
-  it('stop appelle voice.stop', () => {
+  it('stop appelle recorder.stop', () => {
     const { result } = renderHook(() => useGuidedVoiceAnswer(makeOpts()))
     act(() => { result.current.stop() })
-    expect(mockVoiceState.stop).toHaveBeenCalled()
+    expect(mockRecorderState.stop).toHaveBeenCalled()
   })
 
-  it('isSupported expose voice.isSupported', () => {
+  it('isSupported expose recorder.isSupported', () => {
     const { result } = renderHook(() => useGuidedVoiceAnswer(makeOpts()))
     expect(result.current.isSupported).toBe(true)
   })
 })
 
-// ─── micError ─────────────────────────────────────────────────────────────────
 describe('useGuidedVoiceAnswer — micError', () => {
-  it("error='no-speech' → message humain", () => {
-    mockVoiceState.error = 'no-speech'
+  it("error 'not-allowed' → message refus micro", async () => {
     const { result } = renderHook(() => useGuidedVoiceAnswer(makeOpts()))
-    expect(result.current.error).toBe('Aucune voix détectée.')
+    act(() => { capturedRecorderOpts.onError?.('not-allowed') })
+    await waitFor(() => expect(result.current.error).toBe('Accès micro refusé.'))
   })
 
-  it("error='not-allowed' → message refus micro", () => {
-    mockVoiceState.error = 'not-allowed'
+  it("error 'unsupported' → message non supporté", async () => {
     const { result } = renderHook(() => useGuidedVoiceAnswer(makeOpts()))
-    expect(result.current.error).toBe('Accès micro refusé.')
+    act(() => { capturedRecorderOpts.onError?.('unsupported') })
+    await waitFor(() => expect(result.current.error).toBe('Micro non supporté par ce navigateur.'))
   })
 
-  it("error inconnue → message générique", () => {
-    mockVoiceState.error = 'custom-error'
+  it("error inconnue → message générique avec code", async () => {
     const { result } = renderHook(() => useGuidedVoiceAnswer(makeOpts()))
-    expect(result.current.error).toContain('custom-error')
+    act(() => { capturedRecorderOpts.onError?.('custom-error') })
+    await waitFor(() => expect(result.current.error).toContain('custom-error'))
   })
 })
 
-// ─── Traitement de transcript ──────────────────────────────────────────────────
-describe('useGuidedVoiceAnswer — traitement transcript', () => {
-  it('quand voice.isListening passe à false et transcript existe → parse + onResult', async () => {
+describe('useGuidedVoiceAnswer — traitement audio', () => {
+  it('audio reçu → parseVoiceAnswer appelé avec meta + blob, puis onResult', async () => {
     const onResult = vi.fn()
-    const { result, rerender } = renderHook(() => useGuidedVoiceAnswer(makeOpts({ onResult })))
+    renderHook(() => useGuidedVoiceAnswer(makeOpts({ onResult })))
 
-    // Simuler phase d'écoute
-    mockVoiceState.isListening = true
-    act(() => { rerender() })
-    act(() => { capturedVoiceOpts.onFinalTranscript?.('CPAM') })
+    await act(async () => { await capturedRecorderOpts.onStop?.(fakeBlob()) })
 
-    // Simuler fin d'écoute
-    mockVoiceState.isListening = false
-    act(() => { rerender() })
+    await waitFor(() => expect(onResult).toHaveBeenCalledWith(
+      expect.objectContaining({ intent: 'answer', value: 'CPAM' }),
+    ))
+    expect(mockParseVoiceAnswer).toHaveBeenCalledTimes(1)
+    const [meta, blob] = mockParseVoiceAnswer.mock.calls[0]
+    expect(meta).toMatchObject({ questionId: 'type', kind: 'choice' })
+    expect(blob).toBeInstanceOf(Blob)
+  })
 
-    await waitFor(() => expect(onResult).toHaveBeenCalledWith({ intent: 'answer', value: 'CPAM' }))
-    expect(mockParseVoiceAnswer).toHaveBeenCalledWith(
-      expect.objectContaining({ transcript: 'CPAM', questionId: 'type' }),
-    )
+  it('blob vide → ne déclenche pas de parse', async () => {
+    renderHook(() => useGuidedVoiceAnswer(makeOpts()))
+    await act(async () => {
+      await capturedRecorderOpts.onStop?.(new Blob([], { type: 'audio/webm' }))
+    })
+    expect(mockParseVoiceAnswer).not.toHaveBeenCalled()
   })
 
   it('parseError si parseVoiceAnswer rejette', async () => {
     mockParseVoiceAnswer.mockRejectedValueOnce(new Error('IA KO'))
-    const { result, rerender } = renderHook(() => useGuidedVoiceAnswer(makeOpts()))
+    const { result } = renderHook(() => useGuidedVoiceAnswer(makeOpts()))
 
-    mockVoiceState.isListening = true
-    act(() => { rerender() })
-    act(() => { capturedVoiceOpts.onFinalTranscript?.('test') })
-    mockVoiceState.isListening = false
-    act(() => { rerender() })
+    await act(async () => { await capturedRecorderOpts.onStop?.(fakeBlob()) })
 
     await waitFor(() => expect(result.current.error).toBe('IA KO'))
   })

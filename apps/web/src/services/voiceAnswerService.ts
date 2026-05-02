@@ -7,6 +7,7 @@ export interface VoiceAnswerResult {
   intent: VoiceAnswerIntent
   value: unknown
   targetQuestionId: string | null
+  transcript: string
 }
 
 export interface VoiceAnswerRequest {
@@ -17,9 +18,13 @@ export interface VoiceAnswerRequest {
   /** Pour kind='groups' : liste des groupes dispo (id + nom) pour que l'IA matche. */
   availableGroups?: { id: string; name: string }[]
   allQuestionIds: string[]
-  transcript: string
 }
 
-export async function parseVoiceAnswer(req: VoiceAnswerRequest): Promise<VoiceAnswerResult> {
-  return api.post<VoiceAnswerResult>('/api/missions/parse-voice-answer', req)
+export async function parseVoiceAnswer(req: VoiceAnswerRequest, audio: Blob): Promise<VoiceAnswerResult> {
+  const ext = (audio.type || 'audio/webm').includes('mp4') ? 'mp4' : 'webm'
+  const file = new File([audio], `audio.${ext}`, { type: audio.type || 'audio/webm' })
+  const form = new FormData()
+  form.append('audio', file)
+  form.append('meta', JSON.stringify(req))
+  return api.postForm<VoiceAnswerResult>('/api/missions/parse-voice-answer', form)
 }

@@ -61,7 +61,7 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete, editFie
   }
 
   const listeningLabel = s.voice.isListening
-    ? (s.voice.interimTranscript || 'À vous, parlez maintenant…')
+    ? 'À vous, parlez maintenant… touchez pour arrêter.'
     : s.voice.isProcessing
       ? 'Analyse en cours…'
       : s.prompt.isSpeaking

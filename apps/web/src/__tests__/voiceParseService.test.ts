@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { parseVoiceTranscript, type ParsedMissionFields } from '@/services/voiceParseService'
+import { parseVoiceAudio, type ParsedMissionFields } from '@/services/voiceParseService'
 import { api } from '@/lib/api'
 
-vi.mock('@/lib/api', () => ({ api: { post: vi.fn() } }))
+vi.mock('@/lib/api', () => ({ api: { postForm: vi.fn() } }))
 
 const parsed: ParsedMissionFields = {
   type: 'CPAM',
@@ -23,35 +23,45 @@ const parsed: ParsedMissionFields = {
   phone: null,
   visibility: 'PUBLIC',
   group_names: [],
+  transcript: 'Paris Lyon le 1er mai à 10h',
 }
 
 beforeEach(() => { vi.clearAllMocks() })
 
-describe('parseVoiceTranscript', () => {
-  it('POST le transcript à /api/missions/parse-voice et retourne la réponse', async () => {
-    vi.mocked(api.post).mockResolvedValue(parsed)
+describe('parseVoiceAudio', () => {
+  it('POST un FormData audio à /api/missions/parse-voice et retourne la réponse', async () => {
+    vi.mocked(api.postForm).mockResolvedValue(parsed)
 
-    const result = await parseVoiceTranscript('Paris Lyon le 1er mai à 10h')
+    const blob = new Blob([new Uint8Array([1, 2, 3])], { type: 'audio/webm' })
+    const result = await parseVoiceAudio(blob)
 
-    expect(api.post).toHaveBeenCalledWith('/api/missions/parse-voice', {
-      transcript: 'Paris Lyon le 1er mai à 10h',
-    })
+    expect(api.postForm).toHaveBeenCalledTimes(1)
+    const [path, form] = vi.mocked(api.postForm).mock.calls[0]
+    expect(path).toBe('/api/missions/parse-voice')
+    expect(form).toBeInstanceOf(FormData)
+    const file = (form as FormData).get('audio')
+    expect(file).toBeInstanceOf(File)
+    expect((file as File).type).toBe('audio/webm')
+    expect((file as File).name).toBe('audio.webm')
     expect(result).toEqual(parsed)
   })
 
-  it('propage l erreur API sans la transformer', async () => {
-    vi.mocked(api.post).mockRejectedValue(new Error('Parse LLM échoué'))
+  it('utilise l extension mp4 quand le Blob est de type audio/mp4 (iOS Safari)', async () => {
+    vi.mocked(api.postForm).mockResolvedValue(parsed)
 
-    await expect(parseVoiceTranscript('xxx')).rejects.toThrow('Parse LLM échoué')
+    const blob = new Blob([new Uint8Array([1, 2, 3])], { type: 'audio/mp4' })
+    await parseVoiceAudio(blob)
+
+    const [, form] = vi.mocked(api.postForm).mock.calls[0]
+    const file = (form as FormData).get('audio') as File
+    expect(file.name).toBe('audio.mp4')
+    expect(file.type).toBe('audio/mp4')
   })
 
-  it('passe le transcript tel quel (sans trim ni normalisation)', async () => {
-    vi.mocked(api.post).mockResolvedValue(parsed)
+  it('propage l erreur API sans la transformer', async () => {
+    vi.mocked(api.postForm).mockRejectedValue(new Error('Parse LLM échoué'))
 
-    await parseVoiceTranscript('  Paris  ')
-
-    expect(api.post).toHaveBeenCalledWith('/api/missions/parse-voice', {
-      transcript: '  Paris  ',
-    })
+    const blob = new Blob([new Uint8Array([1])], { type: 'audio/webm' })
+    await expect(parseVoiceAudio(blob)).rejects.toThrow('Parse LLM échoué')
   })
 })

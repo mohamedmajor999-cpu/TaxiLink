@@ -21,8 +21,13 @@ export interface ParsedMissionFields {
   phone: string | null
   visibility: MissionVisibility | null
   group_names: string[]
+  transcript: string
 }
 
-export async function parseVoiceTranscript(transcript: string): Promise<ParsedMissionFields> {
-  return api.post<ParsedMissionFields>('/api/missions/parse-voice', { transcript })
+export async function parseVoiceAudio(audio: Blob): Promise<ParsedMissionFields> {
+  const ext = (audio.type || 'audio/webm').includes('mp4') ? 'mp4' : 'webm'
+  const file = new File([audio], `audio.${ext}`, { type: audio.type || 'audio/webm' })
+  const form = new FormData()
+  form.append('audio', file)
+  return api.postForm<ParsedMissionFields>('/api/missions/parse-voice', form)
 }

@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { parseVoiceAnswer, type VoiceAnswerRequest, type VoiceAnswerResult } from '@/services/voiceAnswerService'
 import { api } from '@/lib/api'
 
-vi.mock('@/lib/api', () => ({ api: { post: vi.fn() } }))
+vi.mock('@/lib/api', () => ({ api: { postForm: vi.fn() } }))
 
 beforeEach(() => { vi.clearAllMocks() })
+
+const fakeBlob = (mime = 'audio/webm') => new Blob([new Uint8Array([1, 2, 3])], { type: mime })
 
 describe('parseVoiceAnswer', () => {
   const baseRequest: VoiceAnswerRequest = {
@@ -12,57 +14,66 @@ describe('parseVoiceAnswer', () => {
     kind: 'address',
     prompt: 'Adresse de départ ?',
     allQuestionIds: ['q-departure', 'q-destination', 'q-time'],
-    transcript: 'Hôpital Timone Marseille',
   }
 
-  it('POST la requête à /api/missions/parse-voice-answer et retourne le résultat', async () => {
+  it('POST FormData (audio + meta JSON) à /api/missions/parse-voice-answer', async () => {
     const expected: VoiceAnswerResult = {
       intent: 'answer',
       value: 'Hôpital Timone Marseille',
       targetQuestionId: null,
+      transcript: 'hôpital timone marseille',
     }
-    vi.mocked(api.post).mockResolvedValue(expected)
+    vi.mocked(api.postForm).mockResolvedValue(expected)
 
-    const result = await parseVoiceAnswer(baseRequest)
+    const result = await parseVoiceAnswer(baseRequest, fakeBlob())
 
-    expect(api.post).toHaveBeenCalledWith('/api/missions/parse-voice-answer', baseRequest)
+    expect(api.postForm).toHaveBeenCalledTimes(1)
+    const [path, form] = vi.mocked(api.postForm).mock.calls[0]
+    expect(path).toBe('/api/missions/parse-voice-answer')
+    expect(form).toBeInstanceOf(FormData)
+    const audio = (form as FormData).get('audio')
+    expect(audio).toBeInstanceOf(File)
+    expect((audio as File).name).toBe('audio.webm')
+    const meta = JSON.parse(((form as FormData).get('meta') ?? '') as string)
+    expect(meta).toMatchObject({ questionId: 'q-departure', kind: 'address' })
     expect(result).toEqual(expected)
   })
 
-  it('transmet options et availableGroups quand fournis', async () => {
+  it('encode options et availableGroups dans le meta JSON', async () => {
     const request: VoiceAnswerRequest = {
       ...baseRequest,
       kind: 'choice',
       options: [{ value: 'CPAM', label: 'CPAM' }, { value: 'PRIVE', label: 'Privé' }],
       availableGroups: [{ id: 'g1', name: 'Groupe A' }],
     }
-    vi.mocked(api.post).mockResolvedValue({ intent: 'answer', value: 'CPAM', targetQuestionId: null })
+    vi.mocked(api.postForm).mockResolvedValue({
+      intent: 'answer', value: 'CPAM', targetQuestionId: null, transcript: 'CPAM',
+    })
 
-    await parseVoiceAnswer(request)
+    await parseVoiceAnswer(request, fakeBlob())
 
-    const payload = vi.mocked(api.post).mock.calls[0][1]
-    expect(payload).toMatchObject({
+    const [, form] = vi.mocked(api.postForm).mock.calls[0]
+    const meta = JSON.parse(((form as FormData).get('meta') ?? '') as string)
+    expect(meta).toMatchObject({
       options: [{ value: 'CPAM', label: 'CPAM' }, { value: 'PRIVE', label: 'Privé' }],
       availableGroups: [{ id: 'g1', name: 'Groupe A' }],
     })
   })
 
-  it('propage l intent "back" / "goto" / "skip" / "unclear"', async () => {
-    vi.mocked(api.post).mockResolvedValue({
-      intent: 'goto',
-      value: null,
-      targetQuestionId: 'q-time',
-    })
+  it('utilise l extension mp4 quand le Blob est de type audio/mp4', async () => {
+    vi.mocked(api.postForm).mockResolvedValue({ intent: 'unclear', value: null, targetQuestionId: null, transcript: '' })
 
-    const result = await parseVoiceAnswer(baseRequest)
+    await parseVoiceAnswer(baseRequest, fakeBlob('audio/mp4'))
 
-    expect(result.intent).toBe('goto')
-    expect(result.targetQuestionId).toBe('q-time')
+    const [, form] = vi.mocked(api.postForm).mock.calls[0]
+    const audio = (form as FormData).get('audio') as File
+    expect(audio.name).toBe('audio.mp4')
+    expect(audio.type).toBe('audio/mp4')
   })
 
   it('propage l erreur API sans la transformer', async () => {
-    vi.mocked(api.post).mockRejectedValue(new Error('LLM indisponible'))
+    vi.mocked(api.postForm).mockRejectedValue(new Error('LLM indisponible'))
 
-    await expect(parseVoiceAnswer(baseRequest)).rejects.toThrow('LLM indisponible')
+    await expect(parseVoiceAnswer(baseRequest, fakeBlob())).rejects.toThrow('LLM indisponible')
   })
 })

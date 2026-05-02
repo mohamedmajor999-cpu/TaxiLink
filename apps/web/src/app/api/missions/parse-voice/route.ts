@@ -1,157 +1,59 @@
 import { NextResponse } from 'next/server'
 import { SYSTEM_PROMPT } from './prompt'
 import { logAiUsage } from '@/lib/aiUsageLogger'
-import { computeCostUsd } from '@/lib/aiPricing'
-
-const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash']
-const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models'
-const GEMINI_TIMEOUT_MS = 5000
-const CLAUDE_URL = 'https://api.anthropic.com/v1/messages'
-const CLAUDE_MODEL = 'claude-haiku-4-5'
-const CLAUDE_TIMEOUT_MS = 10000
-
-interface GeminiResponse {
-  candidates?: { content?: { parts?: { text?: string }[] } }[]
-}
-
-interface ClaudeResponse {
-  content?: { type: string; text?: string }[]
-  usage?: { input_tokens?: number; output_tokens?: number }
-}
-
-async function callGemini(model: string, apiKey: string, prompt: string): Promise<Response> {
-  return fetch(`${GEMINI_BASE}/${model}:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.1, responseMimeType: 'application/json' },
-    }),
-    signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
-  })
-}
-
-async function callClaude(apiKey: string, prompt: string): Promise<Response> {
-  return fetch(CLAUDE_URL, {
-    method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: 1024,
-      temperature: 0.1,
-      system: 'Tu réponds UNIQUEMENT avec un JSON valide, sans markdown ni commentaire.',
-      messages: [{ role: 'user', content: prompt }],
-    }),
-    signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS),
-  })
-}
+import { transcribeAudio, TranscribeError } from '@/lib/openai/transcribe'
+import { chatJson, ChatError, GPT_MINI_MODEL } from '@/lib/openai/chat'
 
 export async function POST(request: Request) {
-  const apiKey = process.env.GEMINI_API_KEY
-  const claudeKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey && !claudeKey) {
-    return NextResponse.json({ error: 'Configuration IA manquante' }, { status: 500 })
-  }
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) return NextResponse.json({ error: 'OPENAI_API_KEY manquante' }, { status: 500 })
 
-  let body: { transcript?: string }
-  try {
-    body = await request.json()
-  } catch {
+  let form: FormData
+  try { form = await request.formData() } catch {
     return NextResponse.json({ error: 'Requête invalide' }, { status: 400 })
   }
+  const audio = form.get('audio')
+  if (!(audio instanceof File)) return NextResponse.json({ error: 'Fichier audio manquant' }, { status: 400 })
+  if (audio.size === 0) return NextResponse.json({ error: 'Audio vide' }, { status: 400 })
+  if (audio.size > 25 * 1024 * 1024) return NextResponse.json({ error: 'Audio trop volumineux (>25 Mo)' }, { status: 400 })
 
-  const transcript = (body.transcript ?? '').trim()
-  if (transcript.length < 3) return NextResponse.json({ error: 'Transcription trop courte' }, { status: 400 })
-  if (transcript.length > 2000) return NextResponse.json({ error: 'Transcription trop longue' }, { status: 400 })
+  const totalStart = Date.now()
+  let transcript = ''
+  try {
+    const r = await transcribeAudio(audio, apiKey)
+    transcript = r.text
+    console.log(`[parse-voice] whisper → ${transcript.length} chars in ${r.elapsedMs}ms`)
+  } catch (err) {
+    if (err instanceof TranscribeError) return NextResponse.json({ error: err.message }, { status: err.status })
+    throw err
+  }
+
+  if (transcript.length < 3) return NextResponse.json({ error: 'Transcription trop courte', transcript }, { status: 422 })
+  if (transcript.length > 2000) return NextResponse.json({ error: 'Transcription trop longue', transcript }, { status: 422 })
 
   const today = new Date()
   const weekday = today.toLocaleDateString('fr-FR', { weekday: 'long' })
   const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-  const prompt = `${SYSTEM_PROMPT}\n\nDate d'aujourd'hui : ${todayIso} (${weekday}).\nTexte du chauffeur :\n"${transcript}"`
+  const userPrompt = `Date d'aujourd'hui : ${todayIso} (${weekday}).\nTexte du chauffeur :\n"${transcript}"`
 
-  let text: string | null = null
-  let usedProvider = ''
-  let lastStatus = 0
-  const totalStart = Date.now()
-
-  // 1) Claude Haiku en primaire (Gemini instable côté Google actuellement).
-  if (claudeKey) {
-    const start = Date.now()
-    try {
-      const res = await callClaude(claudeKey, prompt)
-      const elapsed = Date.now() - start
-      if (res.ok) {
-        const json = (await res.json()) as ClaudeResponse
-        text = json.content?.[0]?.text ?? null
-        usedProvider = CLAUDE_MODEL
-        const inTok = json.usage?.input_tokens ?? 0
-        const outTok = json.usage?.output_tokens ?? 0
-        const cost = computeCostUsd(CLAUDE_MODEL, inTok, outTok)
-        console.log(`[parse-voice] ${CLAUDE_MODEL} → 200 in ${elapsed}ms (in:${inTok} out:${outTok} = $${cost.toFixed(6)})`)
-        await logAiUsage({ endpoint: 'parse-voice', model: CLAUDE_MODEL, inputTokens: inTok, outputTokens: outTok })
-      } else {
-        lastStatus = res.status
-        const errBody = await res.text().catch(() => '')
-        console.error(`[parse-voice] ${CLAUDE_MODEL} → ${res.status} in ${elapsed}ms`, errBody.slice(0, 200))
-      }
-    } catch (err) {
-      const elapsed = Date.now() - start
-      console.error(`[parse-voice] ${CLAUDE_MODEL} → error after ${elapsed}ms`, (err as Error).message)
-    }
-  }
-
-  // 2) Fallback Gemini si Claude a raté (key absente, rate limit, timeout…).
-  if (!text && apiKey) {
-    outer: for (const model of MODEL_CHAIN) {
-      for (let attempt = 1; attempt <= 2; attempt++) {
-        if (attempt > 1) await new Promise((r) => setTimeout(r, 800))
-        const start = Date.now()
-        let res: Response
-        try {
-          res = await callGemini(model, apiKey, prompt)
-        } catch (err) {
-          const elapsed = Date.now() - start
-          const isTimeout = (err as Error).name === 'TimeoutError' || (err as Error).name === 'AbortError'
-          console.error(`[parse-voice] ${model} #${attempt} → ${isTimeout ? 'timeout' : 'network error'} after ${elapsed}ms`)
-          if (!isTimeout) break outer
-          continue
-        }
-        const elapsed = Date.now() - start
-        if (res.ok) {
-          const json = (await res.json()) as GeminiResponse
-          text = json.candidates?.[0]?.content?.parts?.[0]?.text ?? null
-          usedProvider = model
-          console.log(`[parse-voice] ${model} #${attempt} → 200 in ${elapsed}ms`)
-          break outer
-        }
-        lastStatus = res.status
-        const errBody = await res.text().catch(() => '')
-        console.error(`[parse-voice] ${model} #${attempt} → ${res.status} in ${elapsed}ms`, errBody.slice(0, 200))
-        if (res.status !== 503 && res.status !== 429) continue outer
-      }
-    }
-  }
-
-  if (!text) {
-    if (lastStatus === 429) return NextResponse.json({ error: 'Quota IA atteint, réessayez dans 1 minute' }, { status: 429 })
-    if (lastStatus === 503) return NextResponse.json({ error: 'Serveurs IA saturés, réessayez dans quelques secondes' }, { status: 503 })
-    if (lastStatus === 0) return NextResponse.json({ error: 'Délai IA dépassé, réessayez' }, { status: 504 })
-    return NextResponse.json({ error: `Erreur IA (${lastStatus})` }, { status: 502 })
-  }
-
-  // Claude peut wrapper le JSON dans ```json ... ``` malgré la consigne ; on strip.
-  const cleanText = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
-  let parsed: unknown
+  let parseText = ''
   try {
-    parsed = JSON.parse(cleanText)
-  } catch {
-    return NextResponse.json({ error: 'Réponse IA illisible' }, { status: 502 })
+    const r = await chatJson({ apiKey, systemPrompt: SYSTEM_PROMPT, userPrompt })
+    parseText = r.text
+    console.log(`[parse-voice] ${GPT_MINI_MODEL} → 200 in ${r.elapsedMs}ms (in:${r.inputTokens} out:${r.outputTokens})`)
+    await logAiUsage({ endpoint: 'parse-voice', model: GPT_MINI_MODEL, inputTokens: r.inputTokens, outputTokens: r.outputTokens })
+  } catch (err) {
+    if (err instanceof ChatError) return NextResponse.json({ error: err.message, transcript }, { status: err.status })
+    throw err
   }
 
-  console.log(`[parse-voice] total ${Date.now() - totalStart}ms via ${usedProvider}`)
-  return NextResponse.json(parsed)
+  let parsed: Record<string, unknown>
+  try {
+    parsed = JSON.parse(parseText) as Record<string, unknown>
+  } catch {
+    return NextResponse.json({ error: 'Réponse IA illisible', transcript }, { status: 502 })
+  }
+
+  console.log(`[parse-voice] total ${Date.now() - totalStart}ms`)
+  return NextResponse.json({ ...parsed, transcript })
 }

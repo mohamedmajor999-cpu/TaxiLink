@@ -7,9 +7,10 @@ import type { ApiError } from './api.types'
 export { ApiRequestError } from './api.types'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const isForm = init?.body instanceof FormData
   const res = await fetch(path, {
     ...init,
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    headers: isForm ? init?.headers : { 'Content-Type': 'application/json', ...init?.headers },
   })
   const json = await res.json().catch(() => ({}))
   if (!res.ok) {
@@ -21,8 +22,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  post<T>(path: string, body: unknown):   Promise<T> { return request<T>(path, { method: 'POST',   body: JSON.stringify(body) }) },
-  get<T>(path: string):                   Promise<T> { return request<T>(path, { method: 'GET'   }) },
-  patch<T>(path: string, body: unknown):  Promise<T> { return request<T>(path, { method: 'PATCH',  body: JSON.stringify(body) }) },
-  delete<T>(path: string):                Promise<T> { return request<T>(path, { method: 'DELETE' }) },
+  post<T>(path: string, body: unknown):     Promise<T> { return request<T>(path, { method: 'POST',   body: JSON.stringify(body) }) },
+  postForm<T>(path: string, form: FormData): Promise<T> { return request<T>(path, { method: 'POST',   body: form }) },
+  get<T>(path: string):                     Promise<T> { return request<T>(path, { method: 'GET'   }) },
+  patch<T>(path: string, body: unknown):    Promise<T> { return request<T>(path, { method: 'PATCH',  body: JSON.stringify(body) }) },
+  delete<T>(path: string):                  Promise<T> { return request<T>(path, { method: 'DELETE' }) },
 }

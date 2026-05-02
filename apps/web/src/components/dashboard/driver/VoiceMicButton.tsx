@@ -7,7 +7,6 @@ interface Props {
   isListening: boolean
   isProcessing: boolean
   transcript: string
-  interimTranscript: string
   error: string | null
   onStart: () => void
   onStop: () => void
@@ -15,7 +14,7 @@ interface Props {
 
 export function VoiceMicButton({
   isSupported, isListening, isProcessing,
-  transcript, interimTranscript, error,
+  transcript, error,
   onStart, onStop,
 }: Props) {
   const disabled = !isSupported || isProcessing
@@ -36,10 +35,10 @@ export function VoiceMicButton({
     : isProcessing
       ? 'Analyse en cours…'
       : isListening
-        ? (transcript
-            ? `${transcript}${interimTranscript ? ' ' + interimTranscript : ''}`
-            : interimTranscript || 'J’écoute…')
-        : 'Touchez le micro et dictez : type, adresses, heure, prix…'
+        ? 'J’écoute… Touchez à nouveau le micro pour arrêter.'
+        : transcript
+          ? transcript
+          : 'Touchez le micro et dictez : type, adresses, heure, prix…'
 
   return (
     <div className="flex flex-col items-center text-center gap-3 mb-6">

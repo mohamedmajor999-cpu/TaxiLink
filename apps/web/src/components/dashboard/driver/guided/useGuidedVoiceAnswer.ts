@@ -1,18 +1,15 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { Group } from '@taxilink/core'
-import { useVoiceDictation } from '@/hooks/useVoiceDictation'
+import { useAudioRecorder } from '@/hooks/useAudioRecorder'
 import { parseVoiceAnswer, type VoiceAnswerResult } from '@/services/voiceAnswerService'
 import type { GuidedQuestion } from './guidedTypes'
 
 const MIC_ERRORS: Record<string, string> = {
-  'no-speech': 'Aucune voix détectée.',
-  'audio-capture': 'Micro indisponible.',
   'not-allowed': 'Accès micro refusé.',
-  'service-not-allowed': 'Accès micro refusé.',
-  'network': 'Pas de réseau.',
-  'aborted': 'Dictée interrompue.',
+  'unsupported': 'Micro non supporté par ce navigateur.',
+  'record-error': 'Erreur d’enregistrement.',
 }
 
 interface Options {
@@ -23,62 +20,70 @@ interface Options {
 }
 
 /**
- * Capture une réponse vocale à la question courante, puis délègue le parsing
- * (intent + valeur) à Claude Haiku via /api/missions/parse-voice-answer.
+ * Capture une réponse vocale à la question courante via MediaRecorder, puis
+ * délègue transcription + parsing à /api/missions/parse-voice-answer (Whisper
+ * + GPT-4o-mini).
  */
 export function useGuidedVoiceAnswer({ question, allQuestionIds, myGroups, onResult }: Options) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [parseError, setParseError] = useState<string | null>(null)
-  const transcriptRef = useRef('')
+  const [recorderError, setRecorderError] = useState<string | null>(null)
   const onResultRef = useRef(onResult)
   onResultRef.current = onResult
+  const questionRef = useRef(question)
+  questionRef.current = question
+  const idsRef = useRef(allQuestionIds)
+  idsRef.current = allQuestionIds
+  const groupsRef = useRef(myGroups)
+  groupsRef.current = myGroups
 
-  const voice = useVoiceDictation({
-    lang: 'fr-FR',
-    continuous: false,
-    onFinalTranscript: (text) => {
-      transcriptRef.current = transcriptRef.current ? `${transcriptRef.current} ${text}` : text
-    },
-  })
-
-  useEffect(() => {
-    if (voice.isListening) return
-    const full = transcriptRef.current.trim()
-    if (!full) return
-    transcriptRef.current = ''
+  const handleAudio = useCallback(async (blob: Blob) => {
+    if (blob.size === 0) return
     setIsProcessing(true)
     setParseError(null)
-    parseVoiceAnswer({
-      questionId: question.id,
-      kind: question.kind,
-      prompt: question.prompt,
-      options: question.options,
-      availableGroups: question.kind === 'groups'
-        ? myGroups.map((g) => ({ id: g.id, name: g.name }))
-        : undefined,
-      allQuestionIds,
-      transcript: full,
-    })
-      .then((r) => onResultRef.current(r))
-      .catch((err) => setParseError(err instanceof Error ? err.message : 'Erreur IA'))
-      .finally(() => setIsProcessing(false))
-  }, [voice.isListening, question, allQuestionIds, myGroups])
+    try {
+      const q = questionRef.current
+      const r = await parseVoiceAnswer(
+        {
+          questionId: q.id,
+          kind: q.kind,
+          prompt: q.prompt,
+          options: q.options,
+          availableGroups: q.kind === 'groups'
+            ? groupsRef.current.map((g) => ({ id: g.id, name: g.name }))
+            : undefined,
+          allQuestionIds: idsRef.current,
+        },
+        blob,
+      )
+      onResultRef.current(r)
+    } catch (err) {
+      setParseError(err instanceof Error ? err.message : 'Erreur IA')
+    } finally {
+      setIsProcessing(false)
+    }
+  }, [])
+
+  const recorder = useAudioRecorder({
+    onStop: handleAudio,
+    onError: (code) => setRecorderError(code),
+  })
 
   const start = useCallback(() => {
-    transcriptRef.current = ''
     setParseError(null)
-    voice.start()
-  }, [voice])
+    setRecorderError(null)
+    void recorder.start()
+  }, [recorder])
 
-  const stop = useCallback(() => { voice.stop() }, [voice])
+  const stop = useCallback(() => { recorder.stop() }, [recorder])
 
-  const micError = voice.error ? (MIC_ERRORS[voice.error] ?? `Erreur micro (${voice.error})`) : null
+  const micError = recorderError ? (MIC_ERRORS[recorderError] ?? `Erreur micro (${recorderError})`) : null
 
   return {
-    isSupported: voice.isSupported,
-    isListening: voice.isListening,
+    isSupported: recorder.isSupported,
+    isListening: recorder.isRecording,
     isProcessing,
-    interimTranscript: voice.interimTranscript,
+    interimTranscript: '',
     error: micError ?? parseError,
     start, stop,
   }

@@ -51,7 +51,7 @@ export function MissionFormLibre({ f, voice }: Props) {
       <VoiceMicButton
         isSupported={voice.isSupported} isListening={voice.isListening}
         isProcessing={voice.isProcessing} transcript={voice.transcript}
-        interimTranscript={voice.interimTranscript} error={voice.error}
+        error={voice.error}
         onStart={voice.start} onStop={voice.stop}
       />
 

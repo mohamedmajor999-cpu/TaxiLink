@@ -2,36 +2,32 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useMissionVoiceFiller } from '@/components/dashboard/driver/useMissionVoiceFiller'
 
-// ─── Mocks ────────────────────────────────────────────────────────────────────
-const mockParseVoiceTranscript = vi.fn()
+const mockParseVoiceAudio = vi.fn()
 const mockSmartAddressLookup = vi.fn()
 
 vi.mock('@/services/voiceParseService', () => ({
-  parseVoiceTranscript: (...a: unknown[]) => mockParseVoiceTranscript(...a),
+  parseVoiceAudio: (...a: unknown[]) => mockParseVoiceAudio(...a),
 }))
 
 vi.mock('@/components/dashboard/driver/smartAddressLookup', () => ({
   smartAddressLookup: (...a: unknown[]) => mockSmartAddressLookup(...a),
 }))
 
-let capturedVoiceOpts: { onFinalTranscript?: (text: string) => void } = {}
-const mockVoiceState = {
+let capturedRecorderOpts: { onStop?: (b: Blob) => void; onError?: (e: string) => void } = {}
+const mockRecorderState = {
   isSupported: true,
-  isListening: false,
-  interimTranscript: '',
-  error: null as string | null,
+  isRecording: false,
   start: vi.fn(),
   stop: vi.fn(),
 }
 
-vi.mock('@/hooks/useVoiceDictation', () => ({
-  useVoiceDictation: vi.fn((opts) => {
-    capturedVoiceOpts = opts
-    return mockVoiceState
+vi.mock('@/hooks/useAudioRecorder', () => ({
+  useAudioRecorder: vi.fn((opts) => {
+    capturedRecorderOpts = opts
+    return mockRecorderState
   }),
 }))
 
-// micErrorLabel est une fonction exportée de voiceFillerHelpers - on ne la mocke pas
 vi.mock('@/components/dashboard/driver/voiceFillerHelpers', () => ({
   matchGroupIds: vi.fn().mockReturnValue([]),
   micErrorLabel: (err: string | null) => err ? `Erreur micro (${err})` : null,
@@ -50,43 +46,38 @@ function makeArgs() {
   }
 }
 
+const fakeBlob = () => new Blob([new Uint8Array([1, 2])], { type: 'audio/webm' })
+const baseParsed = { transcript: 'course' }
+
 beforeEach(() => {
   vi.clearAllMocks()
-  mockVoiceState.isListening = false
-  mockVoiceState.error = null
-  mockParseVoiceTranscript.mockResolvedValue({})
+  mockRecorderState.isRecording = false
+  mockParseVoiceAudio.mockResolvedValue(baseParsed)
   mockSmartAddressLookup.mockResolvedValue(null)
-  capturedVoiceOpts = {}
+  capturedRecorderOpts = {}
 })
 
-// ─── start / stop ─────────────────────────────────────────────────────────────
 describe('useMissionVoiceFiller — start / stop', () => {
-  it('start appelle voice.start et remet le transcript à zéro', () => {
+  it('start appelle recorder.start et remet le transcript à zéro', () => {
     const { result } = renderHook(() => useMissionVoiceFiller(makeArgs()))
     act(() => { result.current.start() })
-    expect(mockVoiceState.start).toHaveBeenCalled()
+    expect(mockRecorderState.start).toHaveBeenCalled()
     expect(result.current.transcript).toBe('')
   })
 
-  it('stop appelle voice.stop', () => {
+  it('stop appelle recorder.stop', () => {
     const { result } = renderHook(() => useMissionVoiceFiller(makeArgs()))
     act(() => { result.current.stop() })
-    expect(mockVoiceState.stop).toHaveBeenCalled()
+    expect(mockRecorderState.stop).toHaveBeenCalled()
   })
 
   it('resetParsedFields vide le set parsedFields', async () => {
     const args = makeArgs()
-    mockParseVoiceTranscript.mockResolvedValueOnce({ type: 'CPAM' })
-    const { result, rerender } = renderHook(() => useMissionVoiceFiller(args))
+    mockParseVoiceAudio.mockResolvedValueOnce({ type: 'CPAM', transcript: 'CPAM pour Mr Dupont' })
+    const { result } = renderHook(() => useMissionVoiceFiller(args))
 
-    // Déclencher un parsing
     act(() => { result.current.start() })
-    mockVoiceState.isListening = true
-    act(() => { rerender() })
-    act(() => { capturedVoiceOpts.onFinalTranscript?.('CPAM pour Mr Dupont') })
-    mockVoiceState.isListening = false
-    act(() => { rerender() })
-
+    await act(async () => { await capturedRecorderOpts.onStop?.(fakeBlob()) })
     await waitFor(() => expect(result.current.isProcessing).toBe(false))
 
     act(() => { result.current.resetParsedFields() })
@@ -94,53 +85,66 @@ describe('useMissionVoiceFiller — start / stop', () => {
   })
 })
 
-// ─── Traitement du transcript ─────────────────────────────────────────────────
 describe('useMissionVoiceFiller — traitement', () => {
-  it("isProcessing=true pendant le parsing, false après", async () => {
+  it('isProcessing=true pendant le parsing, false après', async () => {
     let resolve!: (v: object) => void
-    mockParseVoiceTranscript.mockImplementationOnce(
+    mockParseVoiceAudio.mockImplementationOnce(
       () => new Promise<object>((res) => { resolve = res }),
     )
 
-    const { result, rerender } = renderHook(() => useMissionVoiceFiller(makeArgs()))
+    const { result } = renderHook(() => useMissionVoiceFiller(makeArgs()))
     act(() => { result.current.start() })
-    mockVoiceState.isListening = true
-    act(() => { rerender() })
-    act(() => { capturedVoiceOpts.onFinalTranscript?.('course CPAM demain') })
-    mockVoiceState.isListening = false
-    act(() => { rerender() })
+    void capturedRecorderOpts.onStop?.(fakeBlob())
 
     await waitFor(() => expect(result.current.isProcessing).toBe(true))
-    await act(async () => { resolve({}) })
-    expect(result.current.isProcessing).toBe(false)
+    await act(async () => { resolve({ transcript: 'x' }) })
+    await waitFor(() => expect(result.current.isProcessing).toBe(false))
   })
 
-  it('parseError si parseVoiceTranscript rejette', async () => {
-    mockParseVoiceTranscript.mockRejectedValueOnce(new Error('IA KO'))
-    const { result, rerender } = renderHook(() => useMissionVoiceFiller(makeArgs()))
+  it('parseError si parseVoiceAudio rejette', async () => {
+    mockParseVoiceAudio.mockRejectedValueOnce(new Error('IA KO'))
+    const { result } = renderHook(() => useMissionVoiceFiller(makeArgs()))
 
     act(() => { result.current.start() })
-    mockVoiceState.isListening = true
-    act(() => { rerender() })
-    act(() => { capturedVoiceOpts.onFinalTranscript?.('course') })
-    mockVoiceState.isListening = false
-    act(() => { rerender() })
+    await act(async () => { await capturedRecorderOpts.onStop?.(fakeBlob()) })
 
     await waitFor(() => expect(result.current.error).toBe('IA KO'))
   })
 
   it('type parsé → setType appelé', async () => {
     const args = makeArgs()
-    mockParseVoiceTranscript.mockResolvedValueOnce({ type: 'PRIVE' })
-    const { result, rerender } = renderHook(() => useMissionVoiceFiller(args))
+    mockParseVoiceAudio.mockResolvedValueOnce({ type: 'PRIVE', transcript: 'course privée' })
+    const { result } = renderHook(() => useMissionVoiceFiller(args))
 
     act(() => { result.current.start() })
-    mockVoiceState.isListening = true
-    act(() => { rerender() })
-    act(() => { capturedVoiceOpts.onFinalTranscript?.('course privée') })
-    mockVoiceState.isListening = false
-    act(() => { rerender() })
+    await act(async () => { await capturedRecorderOpts.onStop?.(fakeBlob()) })
 
     await waitFor(() => expect(args.setType).toHaveBeenCalledWith('PRIVE'))
+  })
+
+  it('transcript renvoyé par le serveur est exposé sur le hook', async () => {
+    mockParseVoiceAudio.mockResolvedValueOnce({ transcript: 'voici le texte transcrit' })
+    const { result } = renderHook(() => useMissionVoiceFiller(makeArgs()))
+
+    act(() => { result.current.start() })
+    await act(async () => { await capturedRecorderOpts.onStop?.(fakeBlob()) })
+
+    await waitFor(() => expect(result.current.transcript).toBe('voici le texte transcrit'))
+  })
+
+  it('blob vide ne déclenche pas de parse', async () => {
+    const { result } = renderHook(() => useMissionVoiceFiller(makeArgs()))
+    act(() => { result.current.start() })
+    await act(async () => {
+      await capturedRecorderOpts.onStop?.(new Blob([], { type: 'audio/webm' }))
+    })
+    expect(mockParseVoiceAudio).not.toHaveBeenCalled()
+    expect(result.current.isProcessing).toBe(false)
+  })
+
+  it('erreur recorder est exposée via micErrorLabel', async () => {
+    const { result } = renderHook(() => useMissionVoiceFiller(makeArgs()))
+    act(() => { capturedRecorderOpts.onError?.('not-allowed') })
+    await waitFor(() => expect(result.current.error).toBe('Erreur micro (not-allowed)'))
   })
 })

@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useVoiceDictation } from '@/hooks/useVoiceDictation'
+import { useCallback, useRef, useState } from 'react'
+import { useAudioRecorder } from '@/hooks/useAudioRecorder'
+import { transcribeAudioBlob } from '@/services/transcribeService'
 import { smartAddressLookup } from './smartAddressLookup'
 import type { AddressSuggestion } from '@/services/addressService'
 
@@ -12,8 +13,8 @@ interface Args {
 
 /**
  * Dictée vocale ciblée sur un champ adresse unique.
- * - Enregistre une phrase (mode non continu).
- * - À la fin, tente un lookup multi-sources (BAN + Photon + Mapbox).
+ * - Enregistre une phrase (audio).
+ * - Whisper transcrit, puis lookup multi-sources (BAN + Photon + Mapbox).
  * - Renseigne la suggestion si trouvée, sinon le texte brut.
  */
 export function useAddressFieldVoice({ onResolved, onFallbackText }: Args) {
@@ -23,50 +24,43 @@ export function useAddressFieldVoice({ onResolved, onFallbackText }: Args) {
   onFallbackRef.current = onFallbackText
 
   const [isProcessing, setIsProcessing] = useState(false)
-  const transcriptRef = useRef('')
-  const shouldProcessRef = useRef(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const voice = useVoiceDictation({
-    lang: 'fr-FR',
-    continuous: false,
-    onFinalTranscript: (text) => {
-      transcriptRef.current = transcriptRef.current
-        ? `${transcriptRef.current} ${text}`
-        : text
-    },
+  const handleAudio = useCallback(async (blob: Blob) => {
+    if (blob.size === 0) return
+    setIsProcessing(true)
+    setError(null)
+    try {
+      const { text } = await transcribeAudioBlob(blob)
+      const raw = text.trim()
+      if (raw.length < 3) return
+      const match = await smartAddressLookup(raw).catch(() => null)
+      if (match) onResolvedRef.current(match)
+      else onFallbackRef.current(raw)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur transcription')
+    } finally {
+      setIsProcessing(false)
+    }
+  }, [])
+
+  const recorder = useAudioRecorder({
+    onStop: handleAudio,
+    onError: (code) => setError(code),
   })
 
-  useEffect(() => {
-    if (voice.isListening || !shouldProcessRef.current) return
-    shouldProcessRef.current = false
-    const raw = transcriptRef.current.trim()
-    transcriptRef.current = ''
-    if (raw.length < 3) return
-    setIsProcessing(true)
-    smartAddressLookup(raw)
-      .then((match) => {
-        if (match) onResolvedRef.current(match)
-        else onFallbackRef.current(raw)
-      })
-      .catch(() => onFallbackRef.current(raw))
-      .finally(() => setIsProcessing(false))
-  }, [voice.isListening])
-
   const start = useCallback(() => {
-    transcriptRef.current = ''
-    shouldProcessRef.current = true
-    voice.start()
-  }, [voice])
+    setError(null)
+    void recorder.start()
+  }, [recorder])
 
-  const stop = useCallback(() => {
-    voice.stop()
-  }, [voice])
+  const stop = useCallback(() => { recorder.stop() }, [recorder])
 
   return {
-    isSupported: voice.isSupported,
-    isListening: voice.isListening,
+    isSupported: recorder.isSupported,
+    isListening: recorder.isRecording,
     isProcessing,
-    error: voice.error,
+    error,
     start,
     stop,
   }

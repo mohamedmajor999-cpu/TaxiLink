@@ -33,9 +33,7 @@ export function MissionFormVocal({ filler, snapshot, onComplete }: Props) {
       : flow.isProcessing
         ? 'Analyse en cours…'
         : flow.isListening
-          ? (flow.transcript
-              ? `${flow.transcript}${flow.interimTranscript ? ' ' + flow.interimTranscript : ''}`
-              : flow.interimTranscript || 'J’écoute…')
+          ? 'J’écoute… appuyez à nouveau pour arrêter.'
           : flow.status === 'idle' && flow.relanceCount === 0
             ? 'Appuyez pour parler. Dites le type, les adresses, la date et l’heure.'
             : 'Appuyez pour continuer.'

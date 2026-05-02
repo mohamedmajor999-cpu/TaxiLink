@@ -18,12 +18,9 @@ interface Args {
 /**
  * Pilote la dictée IN-PAGE de la page « Poster une course ».
  *
- * - Dictée initiale : continue, stop manuel uniquement (l'utilisateur clique
- *   « Arrêter »). Pas d'auto-stop sur silence (cause de coupure prématurée).
- * - Relances vocales : single-shot. La voix pose la question, le micro s'ouvre,
- *   on stoppe dès le premier final reçu (pas d'auto-restart Chrome → pas de
- *   doublons sur les relances).
- * - 3 tentatives max par champ (1 + 2 relances). Au-delà : champ skip, on passe.
+ * Flow audio : enregistrement complet → upload → Whisper + GPT-4o-mini.
+ * L'utilisateur clique le micro pour arrêter (pas d'auto-stop sur silence).
+ * 3 tentatives max par champ (1 + 2 relances). Au-delà : champ skip, on passe.
  */
 export function usePosterVoiceFlow({ filler, form }: Args) {
   const tts = useGuidedVoicePrompt()
@@ -34,8 +31,6 @@ export function usePosterVoiceFlow({ filler, form }: Args) {
 
   const wasProcessingRef = useRef(false)
   const activeRef = useRef(false)
-  const relanceModeRef = useRef(false)
-  const baseTranscriptLenRef = useRef(0)
   const skippedRef = useRef<Set<string>>(new Set())
   const attemptsRef = useRef<Map<string, number>>(new Map())
   const formRef = useRef(form)
@@ -43,7 +38,6 @@ export function usePosterVoiceFlow({ filler, form }: Args) {
 
   const stop = useCallback(() => {
     activeRef.current = false
-    relanceModeRef.current = false
     tts.stop()
     filler.stop()
     setStatus('idle')
@@ -54,7 +48,6 @@ export function usePosterVoiceFlow({ filler, form }: Args) {
     const next = all.find((m) => !skippedRef.current.has(m.id))
     if (!next) {
       activeRef.current = false
-      relanceModeRef.current = false
       setCurrentQuestionId(null)
       setStatus('idle')
       return
@@ -78,8 +71,6 @@ export function usePosterVoiceFlow({ filler, form }: Args) {
 
     tts.speak(prompt).then(() => {
       if (!activeRef.current) return
-      relanceModeRef.current = true
-      baseTranscriptLenRef.current = filler.transcript.length
       filler.start()
     })
   }, [filler, tts])
@@ -100,21 +91,9 @@ export function usePosterVoiceFlow({ filler, form }: Args) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filler.isListening, filler.isProcessing, filler.error])
 
-  // En mode relance : stoppe le micro dès le 1er final reçu (single-shot, pas
-  // d'auto-restart, pas de doublons).
-  useEffect(() => {
-    if (!relanceModeRef.current || !filler.isListening) return
-    if (filler.transcript.length > baseTranscriptLenRef.current && filler.transcript.trim()) {
-      relanceModeRef.current = false
-      filler.stop()
-    }
-  }, [filler.isListening, filler.transcript, filler])
-
   const start = useCallback(() => {
     activeRef.current = true
-    relanceModeRef.current = false
     wasProcessingRef.current = false
-    baseTranscriptLenRef.current = 0
     skippedRef.current = new Set()
     attemptsRef.current = new Map()
     filler.resetParsedFields()
