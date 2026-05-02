@@ -62,7 +62,15 @@ export function AdsTab({ onPostCourse }: Props) {
 
   return (
     <div className="pb-24 md:pb-6 lg:max-w-5xl lg:mx-auto">
-      <WeekStrip days={a.weekDays} selected={a.selected} onSelect={a.setSelected} />
+      <WeekStrip
+        days={a.weekDays}
+        selected={a.selected}
+        onSelect={a.setSelected}
+        onPrev={a.goPrevWeek}
+        onNext={a.goNextWeek}
+        canPrev={a.canPrevWeek}
+        canNext={a.canNextWeek}
+      />
 
       <div className="mt-4">
         <section className="mb-5">

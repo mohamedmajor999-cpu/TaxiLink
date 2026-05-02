@@ -1,4 +1,5 @@
 'use client'
+import { useRef, type TouchEvent } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface WeekDay {
@@ -19,10 +20,36 @@ interface Props {
   canNext?: boolean
 }
 
+const SWIPE_THRESHOLD = 50
+
 export function WeekStrip({ days, selected, onSelect, onPrev, onNext, canPrev = false, canNext = false }: Props) {
   const selectedKey = selected.toDateString()
+  const startX = useRef<number | null>(null)
+  const startY = useRef<number | null>(null)
+
+  function handleTouchStart(e: TouchEvent<HTMLDivElement>) {
+    startX.current = e.touches[0].clientX
+    startY.current = e.touches[0].clientY
+  }
+
+  function handleTouchEnd(e: TouchEvent<HTMLDivElement>) {
+    if (startX.current === null || startY.current === null) return
+    const dx = e.changedTouches[0].clientX - startX.current
+    const dy = e.changedTouches[0].clientY - startY.current
+    startX.current = null
+    startY.current = null
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return
+    if (Math.abs(dy) > Math.abs(dx)) return
+    if (dx < 0 && canNext) onNext?.()
+    else if (dx > 0 && canPrev) onPrev?.()
+  }
+
   return (
-    <div className="flex items-center gap-1.5 mt-3">
+    <div
+      className="flex items-center gap-1.5 mt-3 touch-pan-y select-none"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <NavBtn direction="prev" onClick={onPrev} disabled={!canPrev} />
       <div className="grid grid-cols-7 gap-1.5 flex-1">
         {days.map((d) => {
