@@ -5,6 +5,7 @@ import { useDriverCoursesScreen, type CoursesTab } from './courses/useDriverCour
 import { TodayTab } from './courses/today/TodayTab'
 import { AgendaTab } from './courses/AgendaTab'
 import { AdsTab } from './courses/ads/AdsTab'
+import { StatsTab } from './courses/StatsTab'
 import { CoursesEarningsChip } from './courses/CoursesEarningsChip'
 import type { EarningsChipVariant } from './courses/useCoursesEarningsChip'
 
@@ -16,6 +17,7 @@ const CHIP_VARIANT_BY_TAB: Record<CoursesTab, EarningsChipVariant> = {
   today: 'today',
   agenda: 'week',
   ads: 'pendingAds',
+  stats: 'week',
 }
 
 export function DriverCoursesScreen({ onPostCourse }: Props) {
@@ -48,7 +50,7 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
         </div>
       </header>
 
-      <nav className="grid grid-cols-3 gap-2 mb-5 md:max-w-2xl">
+      <nav className="grid grid-cols-4 gap-1.5 mb-5 md:max-w-2xl">
         {subTabs.map((t) => <TabPill key={t.id} tab={t} active={active} onClick={setActive} />)}
       </nav>
 
@@ -56,6 +58,7 @@ export function DriverCoursesScreen({ onPostCourse }: Props) {
         {active === 'today' && <TodayTab />}
         {active === 'agenda' && <AgendaTab />}
         {active === 'ads' && <AdsTab onPostCourse={onPostCourse} />}
+        {active === 'stats' && <StatsTab />}
       </div>
     </div>
   )
@@ -74,13 +77,13 @@ function TabPill({
     <button
       type="button"
       onClick={() => onClick(tab.id)}
-      className={`relative inline-flex items-center justify-center gap-2 h-11 px-3 rounded-full text-[13px] font-semibold transition-colors ${
+      className={`relative inline-flex items-center justify-center gap-1 h-11 px-2 rounded-full text-[12.5px] font-semibold transition-colors min-w-0 ${
         isActive
           ? 'bg-ink text-paper'
           : 'bg-paper text-ink border border-warm-200 hover:bg-warm-50'
       }`}
     >
-      <span>{tab.label}</span>
+      <span className="truncate">{tab.label}</span>
       {hasBadge && (
         <span
           aria-label={`${tab.badge} nouvelle${tab.badge! > 1 ? 's' : ''} notification${tab.badge! > 1 ? 's' : ''}`}

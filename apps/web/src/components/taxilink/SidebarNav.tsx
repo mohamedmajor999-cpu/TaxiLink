@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Home, List, Plus, Users, BarChart3, User, LogOut } from 'lucide-react'
+import { Home, List, Plus, Users, User, LogOut } from 'lucide-react'
 import { OnlineDot } from './OnlineDot'
 import { useDriverStore } from '@/store/driverStore'
 import type { DriverTab, NavBadge } from './navTypes'
@@ -21,7 +21,6 @@ const ITEMS: { key: DriverTab; label: string; icon: typeof Home }[] = [
   { key: 'home', label: 'Accueil', icon: Home },
   { key: 'courses', label: 'Mes courses', icon: List },
   { key: 'groupes', label: 'Groupes', icon: Users },
-  { key: 'stats', label: 'Statistiques', icon: BarChart3 },
   { key: 'profil', label: 'Mon profil', icon: User },
 ]
 

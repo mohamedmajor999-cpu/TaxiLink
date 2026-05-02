@@ -1,5 +1,5 @@
 'use client'
-import { Home, List, Plus, Users, BarChart3, User, LogOut, X } from 'lucide-react'
+import { Home, List, Plus, Users, User, LogOut, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useDriverStore } from '@/store/driverStore'
 import { OnlineDot } from './OnlineDot'
@@ -22,7 +22,6 @@ const ITEMS: { key: DriverTab; label: string; icon: typeof Home }[] = [
   { key: 'home', label: 'Accueil', icon: Home },
   { key: 'courses', label: 'Mes courses', icon: List },
   { key: 'groupes', label: 'Groupes', icon: Users },
-  { key: 'stats', label: 'Statistiques', icon: BarChart3 },
   { key: 'profil', label: 'Mon profil', icon: User },
 ]
 

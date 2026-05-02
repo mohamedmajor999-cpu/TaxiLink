@@ -25,7 +25,6 @@ const TabFallback = () => (
 )
 const DriverCoursesScreen = dynamic(() => import('./DriverCoursesScreen').then((m) => m.DriverCoursesScreen), { loading: TabFallback })
 const DriverGroupesScreen = dynamic(() => import('./DriverGroupesScreen').then((m) => m.DriverGroupesScreen), { loading: TabFallback })
-const DriverStatsScreen = dynamic(() => import('./stats/DriverStatsScreen').then((m) => m.DriverStatsScreen), { loading: TabFallback })
 const DriverProfilScreen = dynamic(() => import('./DriverProfilScreen').then((m) => m.DriverProfilScreen), { loading: TabFallback })
 const DocumentsScreen = dynamic(() => import('./profil/DocumentsScreen').then((m) => m.DocumentsScreen), { loading: TabFallback })
 const PersonalInfoScreen = dynamic(() => import('./profil/PersonalInfoScreen').then((m) => m.PersonalInfoScreen), { loading: TabFallback })
@@ -134,7 +133,6 @@ export function DriverDashboard() {
                 <DriverGroupesScreen />
               </div>
             )}
-            {activeTab === 'stats' && <DriverStatsScreen />}
             {activeTab === 'profil' && (
               <div className="px-4 md:px-8 pt-[calc(56px+env(safe-area-inset-top))] pb-4 md:pt-6 md:pb-6 max-w-6xl mx-auto">
                 {profilSub === 'documents' ? (

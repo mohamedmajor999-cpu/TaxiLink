@@ -69,11 +69,11 @@ describe('useDriverCoursesScreen — rétro-compat URL legacy', () => {
     expect(result.current.active).toBe('ads')
   })
 
-  it("?subtab=history est interprété comme 'today' (fallback) et l'URL est normalisée via replace", () => {
+  it("?subtab=history est redirige vers 'stats' (l'historique est integre a Stats)", () => {
     currentSearch = 'tab=courses&subtab=history'
     const { result } = renderHook(() => useDriverCoursesScreen())
-    expect(result.current.active).toBe('today')
-    expect(mockReplace).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses')
+    expect(result.current.active).toBe('stats')
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses&subtab=stats')
   })
 
   it("?subtab=posted normalise l'URL via replace en ads", () => {
@@ -105,10 +105,10 @@ describe('useDriverCoursesScreen — setActive (push URL)', () => {
 })
 
 describe('useDriverCoursesScreen — subTabs + badge', () => {
-  it("subTabs contient 3 entrées (Aujourd'hui, Agenda, Mes annonces)", () => {
+  it("subTabs contient 4 entrées (Aujourd'hui, Agenda, Annonces, Stats)", () => {
     const { result } = renderHook(() => useDriverCoursesScreen())
-    expect(result.current.subTabs).toHaveLength(3)
-    expect(result.current.subTabs.map((t) => t.id)).toEqual(['today', 'agenda', 'ads'])
+    expect(result.current.subTabs).toHaveLength(4)
+    expect(result.current.subTabs.map((t) => t.id)).toEqual(['today', 'agenda', 'ads', 'stats'])
   })
 
   it('dateLabel est une chaine non vide', () => {

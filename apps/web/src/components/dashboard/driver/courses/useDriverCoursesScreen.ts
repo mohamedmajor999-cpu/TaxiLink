@@ -3,15 +3,15 @@ import { useEffect } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { usePostedAcceptStore, useUnseenAcceptCount } from '@/store/postedAcceptStore'
 
-export type CoursesTab = 'today' | 'agenda' | 'ads'
-const VALID_SUBTABS: CoursesTab[] = ['today', 'agenda', 'ads']
+export type CoursesTab = 'today' | 'agenda' | 'ads' | 'stats'
+const VALID_SUBTABS: CoursesTab[] = ['today', 'agenda', 'ads', 'stats']
 
-// Rétro-compat URL : anciens noms → nouveaux. `history` a disparu (migré vers ?tab=stats),
-// on le mappe vers `today` à défaut pour ne pas laisser l'utilisateur sur un écran cassé.
+// Rétro-compat URL : anciens noms → nouveaux. `history` ramene desormais sur
+// l'onglet Stats integre (anciennement page hamburger DriverStatsScreen).
 const LEGACY_MAP: Record<string, CoursesTab> = {
   upcoming: 'today',
   posted: 'ads',
-  history: 'today',
+  history: 'stats',
 }
 
 export function useDriverCoursesScreen() {
@@ -63,7 +63,8 @@ export function useDriverCoursesScreen() {
   const subTabs: { id: CoursesTab; label: string; icon?: string; badge?: number }[] = [
     { id: 'today', label: "Aujourd'hui" },
     { id: 'agenda', label: 'Agenda' },
-    { id: 'ads', label: 'Mes annonces', badge: unseenAccepts },
+    { id: 'ads', label: 'Annonces', badge: unseenAccepts },
+    { id: 'stats', label: 'Stats' },
   ]
 
   return { active, setActive, subTabs, dateLabel, postedBadge: unseenAccepts }
