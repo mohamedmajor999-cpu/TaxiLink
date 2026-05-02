@@ -3,7 +3,7 @@ import { Navigation2, Phone, AlertCircle, Pencil, Settings2, Star, Clock, Car, U
 import type { Mission } from '@/lib/supabase/types'
 import { getMinutesUntil, formatTime } from '@/lib/dateUtils'
 import { formatDuration } from '@/lib/formatDuration'
-import { formatMissionPrice } from '@/lib/formatMissionPrice'
+import { computeDisplayFare } from '@/lib/missionFare'
 import { gpsAppLabel } from '@/lib/gpsNavigation'
 import type { MissionProgressStep } from '@/lib/missionProgress'
 import { NavigationSheet } from '../NavigationSheet'
@@ -33,7 +33,8 @@ export function NextCourseHero({ mission, onEdit }: Props) {
   const time = formatTime(mission.scheduled_at)
   const delay = minutesUntil <= 0 ? 'Maintenant' : `Dans ${formatDuration(minutesUntil)}`
   const phoneHref = mission.phone ? `tel:${mission.phone}` : null
-  const fare = formatMissionPrice(mission)
+  const fareInfo = computeDisplayFare(mission)
+  const fare = fareInfo.value > 0 ? `${fareInfo.value.toFixed(0)} €` : '—'
   const isCpam = mission.transport_type === 'CPAM'
   const patient = mission.patient_name?.trim() || 'le patient'
 
@@ -82,7 +83,7 @@ export function NextCourseHero({ mission, onEdit }: Props) {
         </div>
         <div className="text-right shrink-0">
           <div className="text-[9.5px] font-extrabold uppercase tracking-[0.08em] text-warm-500">
-            Prix
+            {fareInfo.isEstimated ? 'Prix estimé' : 'Prix'}
           </div>
           <div className="text-[26px] font-black leading-none tabular-nums text-ink mt-0.5">
             {fare}
