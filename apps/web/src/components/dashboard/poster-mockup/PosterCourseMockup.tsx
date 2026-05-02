@@ -62,7 +62,6 @@ export function PosterCourseMockup() {
         <PosterHeader
           onMenu={() => setDrawerOpen(true)}
           hasNotif={unseenAcceptCount > 0}
-          flow={c.voiceFlow}
         />
         <PosterVoiceBanner flow={c.voiceFlow} />
 

@@ -4,7 +4,6 @@ import { Chip, FieldRow, FieldLabel, FieldInput, WhenPill } from './posterMockup
 import { AddressLineInput } from './AddressLineInput'
 import { PosterCpamBlock } from './PosterCpamBlock'
 import { PosterFooter } from './PosterFooter'
-import { PosterVisibilitySection } from './PosterVisibilitySection'
 import { PosterMicCta } from './PosterMicCta'
 import type { usePosterCourse } from './usePosterCourse'
 
@@ -129,12 +128,6 @@ export function PosterCourseForm({ c, footerProps }: Props) {
                 tpmr={c.tpmr} setTpmr={c.setTpmr}
               />
             )}
-
-            <PosterVisibilitySection
-              visibility={form.visibility} groupIds={form.groupIds} myGroups={c.myGroups}
-              setVisibility={form.setVisibility} setGroupIds={form.setGroupIds}
-              toggleGroup={c.toggleGroup}
-            />
 
             <div className="pt-7 pb-3 flex items-baseline justify-between">
               <h2 className="text-[18px] font-extrabold tracking-[-0.015em]">Remarques</h2>
