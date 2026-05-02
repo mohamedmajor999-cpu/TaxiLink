@@ -7,13 +7,14 @@ import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
 import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
 import type { DriverTab } from '@/components/taxilink/navTypes'
 import {
-  Chip, FieldRow, FieldLabel, FieldInput, WhenPill, VisBtn, Checkbox,
+  Chip, FieldRow, FieldLabel, FieldInput, WhenPill,
 } from './posterMockupParts'
 import { AddressLineInput } from './AddressLineInput'
 import { PosterCpamBlock } from './PosterCpamBlock'
 import { PosterFooter } from './PosterFooter'
 import { PosterHeader } from './PosterHeader'
 import { PosterVoiceBanner } from './PosterVoiceBanner'
+import { PosterVisibilitySection } from './PosterVisibilitySection'
 import { usePosterCourse } from './usePosterCourse'
 
 function computeInitials(name: string): string {
@@ -30,8 +31,15 @@ export function PosterCourseMockup() {
   const initials = computeInitials(driver.name || '')
   const goToTab = (tab: DriverTab) => router.push(`/dashboard/chauffeur?tab=${tab}`)
 
+  const footerProps = {
+    type: form.type, medicalMotif: form.medicalMotif, returnTrip: form.returnTrip, tpmr: c.tpmr,
+    previewFare: c.previewFare, distanceKm: c.distanceKm, durationMin: c.durationMin,
+    loadingRoute: c.loadingRoute, saving: c.saving, canSubmit: c.canSubmit, error: c.error,
+    onSubmit: c.submit,
+  }
+
   return (
-    <div className="bg-paper min-h-[100dvh] pb-[200px] max-w-[480px] mx-auto" style={{ fontFeatureSettings: '"tnum"' }}>
+    <div className="bg-paper min-h-[100dvh] pb-[200px] max-w-[480px] lg:max-w-6xl lg:pb-12 mx-auto" style={{ fontFeatureSettings: '"tnum"' }}>
       <PosterHeader
         onMenu={() => setDrawerOpen(true)}
         hasNotif={unseenAcceptCount > 0}
@@ -39,13 +47,18 @@ export function PosterCourseMockup() {
       />
       <PosterVoiceBanner flow={c.voiceFlow} />
 
-      <div className="px-6 pt-4 pb-5">
-        <div className="text-[34px] font-extrabold leading-[1.05] tracking-[-0.025em]">
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12 lg:px-6 lg:pt-2">
+      <div>
+      <div className="px-6 pt-4 pb-5 lg:px-0">
+        <div className="text-[34px] lg:text-[56px] font-extrabold leading-[1.05] tracking-[-0.025em]">
           Nouvelle<br/><span className="text-warm-300">course</span>
         </div>
+        <p className="hidden lg:block mt-4 text-[14px] text-warm-500 max-w-md leading-relaxed">
+          Saisissez les détails de votre course. Le récapitulatif à droite se met à jour en direct, prêt à être publié.
+        </p>
       </div>
 
-      <div className="px-6">
+      <div className="px-6 lg:px-0">
         <div className="text-[11px] font-bold tracking-[0.04em] uppercase text-warm-500 mb-2">Type de course</div>
         <div className="flex gap-2 pb-5">
           <Chip active={form.type === 'PRIVE'} onClick={() => form.setType('PRIVE')} icon="local_taxi" label="Standard" />
@@ -126,31 +139,11 @@ export function PosterCourseMockup() {
           />
         )}
 
-        <div className="pt-7 pb-3 flex items-baseline justify-between">
-          <h2 className="text-[18px] font-extrabold tracking-[-0.015em]">À qui</h2>
-          <span className="text-[11.5px] text-warm-400 font-semibold">Diffusion</span>
-        </div>
-        <div className="bg-warm-100 rounded-[14px] p-1 grid grid-cols-2 gap-1 mb-3">
-          <VisBtn active={form.visibility === 'GROUP'} onClick={() => form.setVisibility('GROUP')} icon="groups" label="Mes groupes" />
-          <VisBtn active={form.visibility === 'PUBLIC'} onClick={() => { form.setVisibility('PUBLIC'); form.setGroupIds([]) }} icon="public" label="Tous les chauffeurs" />
-        </div>
-        {form.visibility === 'GROUP' && c.myGroups.length > 0 && (
-          <div>
-            {c.myGroups.map((g) => (
-              <button key={g.id} type="button" onClick={() => c.toggleGroup(g.id)}
-                className="w-full flex items-center gap-3 py-3 border-b border-warm-200 last:border-0 text-left">
-                <Checkbox checked={form.groupIds.includes(g.id)} />
-                <span className="flex-1 text-[14px] font-bold">{g.name}</span>
-                {typeof g.memberCount === 'number' && (
-                  <span className="text-[11.5px] text-warm-400 font-semibold">{g.memberCount} membres</span>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-        {form.visibility === 'GROUP' && c.myGroups.length === 0 && (
-          <p className="py-3 text-[12.5px] text-warm-500">Vous n&apos;êtes encore dans aucun groupe. Choisissez « Tous les chauffeurs » pour publier.</p>
-        )}
+        <PosterVisibilitySection
+          visibility={form.visibility} groupIds={form.groupIds} myGroups={c.myGroups}
+          setVisibility={form.setVisibility} setGroupIds={form.setGroupIds}
+          toggleGroup={c.toggleGroup}
+        />
 
         <div className="pt-7 pb-3 flex items-baseline justify-between">
           <h2 className="text-[18px] font-extrabold tracking-[-0.015em]">Remarques</h2>
@@ -163,13 +156,16 @@ export function PosterCourseMockup() {
           className="w-full bg-warm-100/60 border border-warm-200 rounded-[14px] px-3.5 py-3 text-[14px] font-medium text-ink placeholder:text-warm-400 placeholder:font-normal focus:outline-none focus:border-ink resize-none"
         />
       </div>
+      </div>
 
-      <PosterFooter
-        type={form.type} medicalMotif={form.medicalMotif} returnTrip={form.returnTrip} tpmr={c.tpmr}
-        previewFare={c.previewFare} distanceKm={c.distanceKm} durationMin={c.durationMin}
-        loadingRoute={c.loadingRoute} saving={c.saving} canSubmit={c.canSubmit} error={c.error}
-        onSubmit={c.submit}
-      />
+      <aside className="hidden lg:block lg:sticky lg:top-6 lg:self-start">
+        <PosterFooter {...footerProps} />
+      </aside>
+      </div>
+
+      <div className="lg:hidden">
+        <PosterFooter {...footerProps} />
+      </div>
 
       <MobileNavDrawer
         open={drawerOpen}
