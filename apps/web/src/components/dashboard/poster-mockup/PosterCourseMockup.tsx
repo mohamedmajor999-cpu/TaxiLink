@@ -5,6 +5,7 @@ import { Icon } from '@/components/ui/Icon'
 import { useDriverStore } from '@/store/driverStore'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
 import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
+import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import type { DriverTab } from '@/components/taxilink/navTypes'
 import {
   Chip, FieldRow, FieldLabel, FieldInput, WhenPill,
@@ -39,7 +40,19 @@ export function PosterCourseMockup() {
   }
 
   return (
-    <div className="bg-paper min-h-[100dvh] pb-[200px] max-w-[480px] lg:max-w-6xl lg:pb-12 mx-auto" style={{ fontFeatureSettings: '"tnum"' }}>
+    <div className="bg-paper min-h-[100dvh] md:flex" style={{ fontFeatureSettings: '"tnum"' }}>
+      <SidebarNav
+        activeTab={'courses' as DriverTab}
+        onTabChange={goToTab}
+        onPostCourse={() => { /* on est déjà sur la page poster */ }}
+        driverName={driver.name || 'Chauffeur'}
+        driverInitials={initials}
+        groupName="Taxi13"
+        isOnline={driver.isOnline}
+        badges={{ coursesNotif: unseenAcceptCount }}
+      />
+
+      <main className="flex-1 min-w-0 pb-[200px] max-w-[480px] md:max-w-none lg:pb-12 mx-auto md:mx-0">
       <PosterHeader
         onMenu={() => setDrawerOpen(true)}
         hasNotif={unseenAcceptCount > 0}
@@ -47,7 +60,7 @@ export function PosterCourseMockup() {
       />
       <PosterVoiceBanner flow={c.voiceFlow} />
 
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12 lg:px-6 lg:pt-2">
+      <div className="md:px-6 md:pt-2 lg:max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12">
       <div>
       <div className="px-6 pt-4 pb-5 lg:px-0">
         <div className="text-[34px] lg:text-[56px] font-extrabold leading-[1.05] tracking-[-0.025em]">
@@ -166,6 +179,7 @@ export function PosterCourseMockup() {
       <div className="lg:hidden">
         <PosterFooter {...footerProps} />
       </div>
+      </main>
 
       <MobileNavDrawer
         open={drawerOpen}

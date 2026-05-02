@@ -17,10 +17,10 @@ interface Props {
 export function PosterHeader({ onMenu, hasNotif, flow }: Props) {
   const listening = flow.status === 'listening'
   return (
-    <div className="px-6 pt-4 pb-1 flex items-center justify-between">
+    <div className="px-6 pt-4 pb-1 flex items-center justify-between md:justify-end md:px-0">
       <button
         type="button" aria-label="Ouvrir le menu" onClick={onMenu}
-        className="relative w-9 h-9 rounded-full hover:bg-warm-100 flex items-center justify-center -ml-2 text-ink"
+        className="md:hidden relative w-9 h-9 rounded-full hover:bg-warm-100 flex items-center justify-center -ml-2 text-ink"
       >
         <Icon name="menu" size={24} />
         {hasNotif && (
