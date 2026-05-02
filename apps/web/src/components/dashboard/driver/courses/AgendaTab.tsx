@@ -28,7 +28,15 @@ export function AgendaTab() {
     <div className="mt-2 pb-24 md:pb-6 lg:max-w-5xl lg:mx-auto">
       <p className="text-[12px] text-warm-500 -mt-3 mb-1 capitalize">{a.weekRangeLabel}</p>
 
-      <WeekStrip days={a.weekDays} selected={a.selected} onSelect={a.setSelected} />
+      <WeekStrip
+        days={a.weekDays}
+        selected={a.selected}
+        onSelect={a.setSelected}
+        onPrev={a.goPrevWeek}
+        onNext={a.goNextWeek}
+        canPrev={a.canPrevWeek}
+        canNext={a.canNextWeek}
+      />
 
       <div className="mt-4">
         {a.loading && (
@@ -53,6 +61,8 @@ export function AgendaTab() {
           selectedDate={a.addModalDate ?? a.selected}
           onClose={a.closeAddModal}
           onAdded={a.addMission}
+          minDate={a.today}
+          maxDate={a.maxDate}
         />
       )}
     </div>

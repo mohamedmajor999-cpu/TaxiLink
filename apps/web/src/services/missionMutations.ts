@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { api } from '@/lib/api'
 import { broadcastMissionAccepted } from '@/lib/missionBroadcast'
-import { extractDepartement } from '@/lib/departement'
 import type { Mission } from '@/lib/supabase/types'
 import type { MissionInput } from '@/lib/validators'
 
@@ -106,35 +105,4 @@ export const missionMutations = {
     return data as Mission
   },
 
-  /** Créer une course manuellement dans l'agenda (saisie chauffeur) */
-  async createManual(driverId: string, data: {
-    departure: string
-    destination: string
-    scheduledAt: string
-    type: 'CPAM' | 'PRIVE' | 'TAXILINK'
-    priceEur: number | null
-    patientName: string | null
-    notes: string | null
-  }): Promise<Mission> {
-    const supabase = createClient()
-    const { data: mission, error } = await supabase
-      .from('missions')
-      .insert({
-        driver_id: driverId,
-        departure: data.departure,
-        departement: extractDepartement(data.departure),
-        destination: data.destination,
-        scheduled_at: data.scheduledAt,
-        type: data.type,
-        price_eur: data.priceEur,
-        patient_name: data.patientName,
-        notes: data.notes,
-        status: 'ACCEPTED',
-        visibility: 'PRIVATE',
-      })
-      .select()
-      .single()
-    if (error) throw new Error(error.message)
-    return mission
-  },
 }

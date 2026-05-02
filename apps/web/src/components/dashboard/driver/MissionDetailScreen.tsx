@@ -12,6 +12,10 @@ import { CourseTopStats } from './course/CourseTopStats'
 import { CourseDetailsTable } from './course/CourseDetailsTable'
 import { CourseActions } from './course/CourseActions'
 import { CourseCorrections } from './course/CourseCorrections'
+import { ManualCourseActions } from './course/ManualCourseActions'
+import { AgendaAddModal } from './courses/AgendaAddModal'
+import { MAX_OFFSET } from './courses/useAgendaTab'
+import { startOfDay, addDays } from './courses/agendaHelpers'
 
 const CourseMap = dynamic(() => import('./course/CourseMap').then((m) => m.CourseMap), { ssr: false })
 
@@ -132,12 +136,31 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
         />
       )}
 
+      {c.isManual && (
+        <ManualCourseActions
+          onEdit={() => c.setEditOpen(true)}
+          onConfirmDelete={c.remove}
+          removing={c.removing}
+        />
+      )}
+
       <CancelMissionDialog
         open={c.cancelOpen}
         submitting={c.cancelling}
         onClose={() => c.setCancelOpen(false)}
         onSubmit={c.cancel}
       />
+
+      {c.isManual && c.editOpen && (
+        <AgendaAddModal
+          selectedDate={new Date(mission.scheduled_at)}
+          mission={mission}
+          minDate={startOfDay(new Date())}
+          maxDate={addDays(startOfDay(new Date()), MAX_OFFSET)}
+          onClose={() => c.setEditOpen(false)}
+          onAdded={c.applyEdit}
+        />
+      )}
     </Shell>
   )
 }

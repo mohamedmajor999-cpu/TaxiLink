@@ -141,10 +141,10 @@ describe('useAgendaTab — addMission', () => {
 
 // ─── Vue multi-jours (daysGroups) ─────────────────────────────────────────────
 describe('useAgendaTab — daysGroups', () => {
-  it('expose 14 jours futurs à partir d\'aujourd\'hui', async () => {
+  it('expose 16 jours futurs à partir d\'aujourd\'hui (J → J+15)', async () => {
     const { result } = renderHook(() => useAgendaTab())
     await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.daysGroups).toHaveLength(14)
+    expect(result.current.daysGroups).toHaveLength(16)
   })
 
   it('le 1er groupe correspond à aujourd\'hui avec label commençant par "Aujourd\'hui"', async () => {
@@ -180,6 +180,38 @@ describe('useAgendaTab — daysGroups', () => {
     const { result } = renderHook(() => useAgendaTab())
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.daysGroups.every((g) => g.count === 0)).toBe(true)
+  })
+})
+
+// ─── Navigation hebdo (J → J+15) ──────────────────────────────────────────────
+describe('useAgendaTab — navigation hebdo', () => {
+  it('today / maxDate délimitent une fenêtre de 16 jours', async () => {
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    const days = (result.current.maxDate.getTime() - result.current.today.getTime()) / 86_400_000
+    expect(Math.round(days)).toBe(15)
+  })
+
+  it("canPrevWeek=false sur la semaine d'aujourd'hui", async () => {
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.canPrevWeek).toBe(false)
+  })
+
+  it('canNextWeek=true tant que la semaine suivante chevauche la fenêtre', async () => {
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.canNextWeek).toBe(true)
+  })
+
+  it('removeMission retire la mission du state', async () => {
+    mockGetAgenda.mockResolvedValueOnce([
+      makeMission('m1', '2026-05-03T09:00:00.000Z', { status: 'ACCEPTED' }),
+    ])
+    const { result } = renderHook(() => useAgendaTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    result.current.removeMission('m1')
+    await waitFor(() => expect(result.current.daysGroups[2].count).toBe(0))
   })
 })
 

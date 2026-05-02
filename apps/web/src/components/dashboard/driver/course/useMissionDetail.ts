@@ -84,6 +84,29 @@ export function useMissionDetail(missionId: string) {
     }
   }
 
+  // Course manuelle = saisie chauffeur (ni publiée, ni venant d'un client),
+  // toujours en statut ACCEPTED tant qu'elle n'est pas démarrée.
+  const isManual = Boolean(
+    mission && mission.shared_by === null && mission.client_id === null && mission.status === 'ACCEPTED',
+  )
+
+  const [removing, setRemoving] = useState(false)
+  const remove = async () => {
+    if (!mission || !isManual) return
+    setRemoving(true)
+    try {
+      await missionService.removeManual(mission.id)
+      router.back()
+    } catch {
+      setRemoving(false)
+    }
+  }
+
+  const [editOpen, setEditOpen] = useState(false)
+  const applyEdit = (updated: Mission) => {
+    setMission(maskMissionForViewer(updated, driver.id || null))
+  }
+
   const complete = async () => {
     if (!mission) return
     setCompleting(true)
@@ -124,6 +147,8 @@ export function useMissionDetail(missionId: string) {
     complete, completing,
     correct, correcting,
     step, advanceStep, advancing,
+    isManual, remove, removing,
+    editOpen, setEditOpen, applyEdit,
   }
 }
 

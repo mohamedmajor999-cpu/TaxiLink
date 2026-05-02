@@ -18,6 +18,7 @@ export interface AddModalForm {
 }
 
 function fmtDate(d: Date) { return d.toISOString().slice(0, 10) }
+function fmtTime(d: Date) { return d.toTimeString().slice(0, 5) }
 function fmtNow() { return new Date().toTimeString().slice(0, 5) }
 
 function emptyForm(date: Date): AddModalForm {
@@ -33,9 +34,30 @@ function emptyForm(date: Date): AddModalForm {
   }
 }
 
-export function useAgendaAddModal(selectedDate: Date, onAdded: (m: Mission) => void) {
+function fromMission(m: Mission): AddModalForm {
+  const d = new Date(m.scheduled_at)
+  return {
+    date: fmtDate(d),
+    time: fmtTime(d),
+    departure: m.departure ?? '',
+    destination: m.destination ?? '',
+    type: (['CPAM', 'PRIVE', 'TAXILINK'].includes(m.type) ? m.type : 'PRIVE') as ManualType,
+    priceEur: m.price_eur != null ? String(m.price_eur) : '',
+    patientName: m.patient_name ?? '',
+    notes: m.notes ?? '',
+  }
+}
+
+export function useAgendaAddModal(
+  selectedDate: Date,
+  onSaved: (m: Mission) => void,
+  mission: Mission | null = null,
+) {
   const { user } = useAuth()
-  const [form, setForm] = useState<AddModalForm>(() => emptyForm(selectedDate))
+  const isEdit = mission !== null
+  const [form, setForm] = useState<AddModalForm>(() =>
+    mission ? fromMission(mission) : emptyForm(selectedDate),
+  )
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -53,7 +75,7 @@ export function useAgendaAddModal(selectedDate: Date, onAdded: (m: Mission) => v
     setSubmitting(true)
     try {
       const scheduledAt = new Date(`${form.date}T${form.time}:00`).toISOString()
-      const mission = await missionService.createManual(user.id, {
+      const payload = {
         departure: form.departure.trim(),
         destination: form.destination.trim(),
         scheduledAt,
@@ -61,14 +83,17 @@ export function useAgendaAddModal(selectedDate: Date, onAdded: (m: Mission) => v
         priceEur: form.priceEur ? Number(form.priceEur) : null,
         patientName: form.type === 'CPAM' ? form.patientName.trim() || null : null,
         notes: form.notes.trim() || null,
-      })
-      onAdded(mission)
+      }
+      const saved = isEdit && mission
+        ? await missionService.updateManual(mission.id, payload)
+        : await missionService.createManual(user.id, payload)
+      onSaved(saved)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur lors de la création')
+      setError(e instanceof Error ? e.message : 'Erreur lors de la sauvegarde')
     } finally {
       setSubmitting(false)
     }
   }
 
-  return { form, set, submit, submitting, error }
+  return { form, set, submit, submitting, error, isEdit }
 }

@@ -10,7 +10,10 @@ import { sameDay, addDays, startOfDay, startOfWeek, agendaDayLabel, toEvent, typ
 export type { AgendaEvent, AgendaEventStatus } from './agendaHelpers'
 
 const FR_DAY_SHORT = ['DIM', 'LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM']
-const VISIBLE_DAYS = 14
+// Fenêtre J → J+15 = 16 jours pendant lesquels une course manuelle peut être
+// créée, modifiée ou supprimée. Au-delà, plus de saisie possible.
+export const VISIBLE_DAYS = 16
+export const MAX_OFFSET = VISIBLE_DAYS - 1
 
 export interface AgendaDayGroup {
   key: string
@@ -77,12 +80,45 @@ export function useAgendaTab() {
     setAddModalDate(null)
   }
 
+  function removeMission(id: string) {
+    setMissions((prev) => prev.filter((m) => m.id !== id))
+  }
+
+  function updateMission(m: Mission) {
+    setMissions((prev) => prev.map((x) => (x.id === m.id ? m : x)))
+  }
+
+  // Bornes de navigation : on ne saisit que dans [today ; today+MAX_OFFSET].
+  const today = useMemo(() => startOfDay(new Date()), [nowTick])
+  const maxDate = useMemo(() => addDays(today, MAX_OFFSET), [today])
+
   const weekStart = useMemo(() => startOfWeek(selected), [selected])
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => {
     const d = addDays(weekStart, i)
     const count = missions.filter((m) => sameDay(new Date(m.scheduled_at), d)).length
-    return { date: d, dayShort: FR_DAY_SHORT[d.getDay()], count, key: d.toDateString() }
-  }), [weekStart, missions])
+    const inWindow = d.getTime() >= today.getTime() && d.getTime() <= maxDate.getTime()
+    return { date: d, dayShort: FR_DAY_SHORT[d.getDay()], count, key: d.toDateString(), disabled: !inWindow }
+  }), [weekStart, missions, today, maxDate])
+
+  const canPrevWeek = weekStart.getTime() > today.getTime()
+  const canNextWeek = addDays(weekStart, 7).getTime() <= maxDate.getTime()
+
+  function clamp(d: Date) {
+    const t = d.getTime()
+    if (t < today.getTime()) return today
+    if (t > maxDate.getTime()) return maxDate
+    return d
+  }
+
+  function goPrevWeek() {
+    if (!canPrevWeek) return
+    setSelected((s) => clamp(addDays(s, -7)))
+  }
+
+  function goNextWeek() {
+    if (!canNextWeek) return
+    setSelected((s) => clamp(addDays(s, 7)))
+  }
 
   const weekRangeLabel = useMemo(() => {
     const start = weekDays[0].date
@@ -117,11 +153,11 @@ export function useAgendaTab() {
       .reduce((s, m) => s + Number(m.distance_km ?? 0), 0),
   }), [events, missions, selected])
 
-  // Vue multi-jours : 14 jours à partir d'aujourd'hui, chacun avec ses events.
-  // Les jours vides sont conservés (tu peux y ajouter une course manuellement).
+  // Vue multi-jours : VISIBLE_DAYS jours à partir d'aujourd'hui, chacun avec
+  // ses events. Les jours vides sont conservés (tu peux y ajouter une course
+  // manuellement).
   const daysGroups = useMemo<AgendaDayGroup[]>(() => {
     if (!user) return []
-    const today = startOfDay(new Date())
     const tomorrow = addDays(today, 1)
     return Array.from({ length: VISIBLE_DAYS }, (_, i) => {
       const d = addDays(today, i)
@@ -150,5 +186,8 @@ export function useAgendaTab() {
     showAddModal, setShowAddModal,
     addModalDate, openAddModalFor, closeAddModal,
     openDetails, addMission,
+    removeMission, updateMission,
+    today, maxDate,
+    canPrevWeek, canNextWeek, goPrevWeek, goNextWeek,
   }
 }

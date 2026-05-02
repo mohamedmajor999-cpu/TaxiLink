@@ -16,13 +16,20 @@ interface Props {
   selectedDate: Date
   onClose: () => void
   onAdded: (m: Mission) => void
+  mission?: Mission | null
+  minDate?: Date
+  maxDate?: Date
 }
 
-export function AgendaAddModal({ selectedDate, onClose, onAdded }: Props) {
-  const m = useAgendaAddModal(selectedDate, (mission) => {
-    onAdded(mission)
+function fmtDate(d: Date) { return d.toISOString().slice(0, 10) }
+
+export function AgendaAddModal({ selectedDate, onClose, onAdded, mission = null, minDate, maxDate }: Props) {
+  const m = useAgendaAddModal(selectedDate, (saved) => {
+    onAdded(saved)
     onClose()
-  })
+  }, mission)
+  const minStr = minDate ? fmtDate(minDate) : undefined
+  const maxStr = maxDate ? fmtDate(maxDate) : undefined
 
   return (
     <div
@@ -34,7 +41,9 @@ export function AgendaAddModal({ selectedDate, onClose, onAdded }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <header className="sticky top-0 bg-paper z-10 px-5 pt-5 pb-4 border-b border-warm-200 flex items-center justify-between">
-          <h2 className="text-[18px] font-bold text-ink tracking-tight">Ajouter une course</h2>
+          <h2 className="text-[18px] font-bold text-ink tracking-tight">
+            {m.isEdit ? 'Modifier la course' : 'Ajouter une course'}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -75,6 +84,8 @@ export function AgendaAddModal({ selectedDate, onClose, onAdded }: Props) {
               <input
                 type="date"
                 value={m.form.date}
+                min={minStr}
+                max={maxStr}
                 onChange={(e) => m.set('date', e.target.value)}
                 className={FIELD}
               />
@@ -158,7 +169,7 @@ export function AgendaAddModal({ selectedDate, onClose, onAdded }: Props) {
             className="w-full h-14 rounded-xl bg-ink text-paper text-[16px] font-bold flex items-center justify-center gap-2 disabled:opacity-60 transition-opacity active:scale-[0.98]"
           >
             {m.submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-            Ajouter la course
+            {m.isEdit ? 'Enregistrer' : 'Ajouter la course'}
           </button>
         </div>
       </div>
