@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import { AiUsageSection } from './AiUsageSection'
 import { GoogleCostsSection } from './GoogleCostsSection'
 import { MissionsSection } from './MissionsSection'
+import { GpsTrackingSection } from './GpsTrackingSection'
 import { UsersSection } from './UsersSection'
 import { TopDriversSection } from './TopDriversSection'
 import { TopGroupsSection } from './TopGroupsSection'
@@ -38,13 +39,14 @@ export function AdminDashboard() {
           <Stagger index={0}><UsersSection /></Stagger>
           <Stagger index={1}><OnlineDriversMap /></Stagger>
           <Stagger index={2}><MissionsSection /></Stagger>
-          <Stagger index={3}><FunnelSection /></Stagger>
-          <Stagger index={4}><HeatmapSection /></Stagger>
-          <Stagger index={5}><BreakdownSection /></Stagger>
-          <Stagger index={6}><TopDriversSection /></Stagger>
-          <Stagger index={7}><TopGroupsSection /></Stagger>
-          <Stagger index={8}><AiUsageSection /></Stagger>
-          <Stagger index={9}><GoogleCostsSection /></Stagger>
+          <Stagger index={3}><GpsTrackingSection /></Stagger>
+          <Stagger index={4}><FunnelSection /></Stagger>
+          <Stagger index={5}><HeatmapSection /></Stagger>
+          <Stagger index={6}><BreakdownSection /></Stagger>
+          <Stagger index={7}><TopDriversSection /></Stagger>
+          <Stagger index={8}><TopGroupsSection /></Stagger>
+          <Stagger index={9}><AiUsageSection /></Stagger>
+          <Stagger index={10}><GoogleCostsSection /></Stagger>
         </div>
       </div>
     </main>

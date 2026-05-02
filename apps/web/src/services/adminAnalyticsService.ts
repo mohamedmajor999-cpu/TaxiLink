@@ -7,6 +7,7 @@ import type {
   GoogleCostItem,
   GoogleCostUpsert,
 } from './adminAnalyticsTypes'
+import type { GpsTrackingReport } from './adminGpsTrackingTypes'
 import type {
   DriverRanking,
   GroupRanking,
@@ -16,6 +17,7 @@ import type {
 
 export * from './adminAnalyticsTypes'
 export * from './adminRankingTypes'
+export * from './adminGpsTrackingTypes'
 
 export const adminAnalyticsService = {
   getAiUsage(): Promise<AiUsageReport> {
@@ -38,6 +40,9 @@ export const adminAnalyticsService = {
   },
   getOnlineDrivers(): Promise<{ items: OnlineDriver[] }> {
     return api.get<{ items: OnlineDriver[] }>('/api/admin/online-drivers')
+  },
+  getGpsTracking(): Promise<GpsTrackingReport> {
+    return api.get<GpsTrackingReport>('/api/admin/gps-tracking')
   },
   listGoogleCosts(): Promise<{ items: GoogleCostItem[] }> {
     return api.get<{ items: GoogleCostItem[] }>('/api/admin/google-costs')

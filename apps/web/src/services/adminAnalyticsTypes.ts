@@ -122,3 +122,4 @@ export interface UserStatsReport {
   weekly:  LoginBucket[]
   monthly: LoginBucket[]
 }
+
