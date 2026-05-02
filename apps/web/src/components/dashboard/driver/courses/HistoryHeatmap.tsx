@@ -6,11 +6,11 @@ interface Props {
 }
 
 const INTENSITY_BG: Record<HeatmapCell['intensity'], string> = {
-  0: 'bg-warm-100',
-  1: 'bg-brand/30',
-  2: 'bg-brand/55',
-  3: 'bg-brand/80',
-  4: 'bg-brand',
+  0: '#F1EFE8',
+  1: '#FFEC80',
+  2: '#FFE04D',
+  3: '#FFD629',
+  4: '#FFD11A',
 }
 
 const MONTHS_FR = ['Janv.', 'Févr.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.']
@@ -97,7 +97,8 @@ export function HistoryHeatmap({ cells }: Props) {
                     role="gridcell"
                     title={formatTooltip(cell)}
                     aria-label={formatTooltip(cell)}
-                    className={`w-3 h-3 rounded-[3px] ${INTENSITY_BG[cell.intensity]}`}
+                    className="w-3 h-3 rounded-[3px]"
+                    style={{ backgroundColor: INTENSITY_BG[cell.intensity] }}
                   />
                 ))}
               </div>
@@ -114,7 +115,12 @@ function Legend() {
     <div className="flex items-center gap-1 text-[10px] text-warm-500">
       <span>Moins</span>
       {([0, 1, 2, 3, 4] as const).map((i) => (
-        <span key={i} className={`w-2.5 h-2.5 rounded-[2px] ${INTENSITY_BG[i]}`} aria-hidden="true" />
+        <span
+          key={i}
+          className="w-2.5 h-2.5 rounded-[2px]"
+          style={{ backgroundColor: INTENSITY_BG[i] }}
+          aria-hidden="true"
+        />
       ))}
       <span>Plus</span>
     </div>
