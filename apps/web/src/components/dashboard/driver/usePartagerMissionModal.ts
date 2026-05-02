@@ -47,11 +47,12 @@ export function usePartagerMissionModal(onClose: () => void, mission?: Mission) 
     ]).then(([groups, existingGroupIds]) => {
       if (cancelled) return
       setMyGroups(groups)
-      form.setGroupIds((cur) => {
-        if (cur.length > 0) return cur
-        if (existingGroupIds.length > 0) return existingGroupIds
-        return groups[0] ? [groups[0].id] : []
-      })
+      // En edition : on respecte les groupes deja attaches a la mission.
+      // En creation : on laisse `useMissionPreflight` poser les defauts du
+      // profil (sinon vide -> le sas force l'utilisateur a choisir).
+      if (mission && existingGroupIds.length > 0) {
+        form.setGroupIds((cur) => (cur.length > 0 ? cur : existingGroupIds))
+      }
       if (!mission && groups.length === 0) form.setVisibility('PUBLIC')
     }).catch(() => { /* silencieux */ })
     return () => { cancelled = true }
@@ -144,6 +145,7 @@ export function usePartagerMissionModal(onClose: () => void, mission?: Mission) 
 
   return {
     isEdit,
+    driverId,
     ...form,
     myGroups,
     onSelectDeparture, onSelectDestination,

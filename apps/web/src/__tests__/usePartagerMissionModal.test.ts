@@ -91,13 +91,16 @@ describe('usePartagerMissionModal — chargement des groupes', () => {
     expect(mockGetMyGroups).toHaveBeenCalledWith('drv-1')
   })
 
-  it('pre-selectionne le premier groupe pour une nouvelle mission', async () => {
+  it('ne pre-selectionne pas de groupe pour une nouvelle mission (le sas Preflight choisit)', async () => {
     const g1 = { id: 'g1', name: 'Groupe 1' }
     const g2 = { id: 'g2', name: 'Groupe 2' }
     mockGetMyGroups.mockResolvedValueOnce([g1, g2])
 
     const { result } = renderHook(() => usePartagerMissionModal(vi.fn()))
-    await waitFor(() => expect(result.current.groupIds).toEqual(['g1']))
+    await waitFor(() => expect(result.current.myGroups).toEqual([g1, g2]))
+    // Plus de fallback `groups[0]` : c'est `useMissionPreflight` qui pose le
+    // defaut (depuis les prereglages utilisateur) ou laisse le user choisir.
+    expect(result.current.groupIds).toEqual([])
   })
 
   it('bascule en visibility PUBLIC si aucun groupe (nouvelle mission)', async () => {
@@ -133,7 +136,12 @@ describe('usePartagerMissionModal — visibilite', () => {
     mockGetMyGroups.mockResolvedValueOnce([g1])
 
     const { result } = renderHook(() => usePartagerMissionModal(vi.fn()))
-    await waitFor(() => expect(result.current.groupIds).toEqual(['g1']))
+    await waitFor(() => expect(result.current.myGroups).toEqual([g1]))
+
+    // Simule un choix utilisateur dans le sas (Preflight) avant de basculer
+    // en public, sinon groupIds est deja vide (defaut sans prereglages).
+    act(() => { result.current.onToggleGroup('g1') })
+    expect(result.current.groupIds).toEqual(['g1'])
 
     act(() => { result.current.onSelectPublic() })
     expect(result.current.visibility).toBe('PUBLIC')

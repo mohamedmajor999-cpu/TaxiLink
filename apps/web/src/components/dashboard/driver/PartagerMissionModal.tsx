@@ -3,6 +3,8 @@ import { useMemo, useState } from 'react'
 import type { Mission } from '@/lib/supabase/types'
 import { useMissionVoiceFiller } from './useMissionVoiceFiller'
 import { usePartagerMissionModal } from './usePartagerMissionModal'
+import { useMissionPreflight } from './useMissionPreflight'
+import { MissionPreflight } from './MissionPreflight'
 import { buildScheduledAt } from './missionFormHelpers'
 import { buildPreviewCard, findGroupName } from './missionPreview'
 import { MissionPreviewStep } from './MissionPreviewStep'
@@ -23,6 +25,15 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
   const f = usePartagerMissionModal(onClose, mission)
   const [mode, setMode] = useState<MissionCreationMode>('FREE')
   const [editFieldId, setEditFieldId] = useState<string | null>(null)
+  const preflight = useMissionPreflight({
+    isEdit: f.isEdit,
+    driverId: f.driverId,
+    setType: f.setType,
+    setVisibility: f.setVisibility,
+    setGroupIds: f.setGroupIds,
+  })
+  const preflightSnapshot = { type: f.type, visibility: f.visibility, groupIds: f.groupIds }
+  const showPreflight = !f.isEdit && !preflight.gatePassed && !f.preview
 
   const voice = useMissionVoiceFiller({
     setType: f.setType, setMedicalMotif: f.setMedicalMotif,
@@ -94,7 +105,7 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
     departure: f.departure, destination: f.destination,
   })
 
-  const showLibreSplit = !isGuided && !isVocal && !f.preview
+  const showLibreSplit = !isGuided && !isVocal && !f.preview && !showPreflight
   const scheduledAtIso = buildScheduledAt(f.date, f.time)
 
   return (
@@ -113,12 +124,26 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
                 : 'Formulaire libre'}
             </p>
           </div>
-          {!f.isEdit && !f.preview && <MissionModeToggle mode={mode} onChange={setMode} />}
+          {!f.isEdit && !f.preview && !showPreflight && <MissionModeToggle mode={mode} onChange={setMode} />}
         </div>
       </div>
 
+      {showPreflight && (
+        <MissionPreflight
+          myGroups={f.myGroups}
+          type={f.type}
+          visibility={f.visibility}
+          groupIds={f.groupIds}
+          onChangeType={(t) => { f.setType(t); if (t === 'PRIVE') f.setMedicalMotif(null) }}
+          onSelectPublic={f.onSelectPublic}
+          onToggleGroup={f.onToggleGroup}
+          defaultsRemembered={preflight.matchesSavedDefaults(preflightSnapshot)}
+          onContinue={(remember) => preflight.passGate(preflightSnapshot, remember)}
+        />
+      )}
+
       {/* Flux guidé : monté en continu pour préserver la position quand l'aperçu se ferme. */}
-      {isGuided && (
+      {isGuided && !showPreflight && (
         <div className={f.preview ? 'hidden' : ''}>
           <GuidedMissionFlow
             form={f}
@@ -140,7 +165,7 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
           </aside>
         </div>
       )}
-      {isVocal && !f.preview && (
+      {isVocal && !f.preview && !showPreflight && (
         <MissionFormVocal filler={voice} snapshot={vocalSnapshot} onComplete={f.showPreview} />
       )}
 

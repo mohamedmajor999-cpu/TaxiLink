@@ -5,6 +5,28 @@ import {
   isValidGpsPreference,
   type GpsPreference,
 } from '@/lib/gpsNavigation'
+import type { MissionVisibility } from '@/lib/validators'
+
+/**
+ * Préréglages que le chauffeur peut mémoriser pour ne pas avoir à re-choisir
+ * groupe + type de course à chaque création d'annonce. Stocké dans
+ * `auth.users.raw_user_meta_data.mission_defaults`. Pas critique : si la
+ * lecture échoue, on retombe sur les valeurs par défaut côté UI.
+ */
+export interface MissionDefaults {
+  type: 'CPAM' | 'PRIVE' | null
+  visibility: MissionVisibility | null
+  groupIds: string[]
+}
+
+const EMPTY_DEFAULTS: MissionDefaults = { type: null, visibility: null, groupIds: [] }
+
+function isMissionType(v: unknown): v is 'CPAM' | 'PRIVE' {
+  return v === 'CPAM' || v === 'PRIVE'
+}
+function isVisibility(v: unknown): v is MissionVisibility {
+  return v === 'PUBLIC' || v === 'GROUP'
+}
 
 export const userPrefsService = {
   async getNotificationPrefs(): Promise<Record<string, boolean> | null> {
@@ -56,6 +78,26 @@ export const userPrefsService = {
     if (!isValidGpsPreference(pref)) throw new Error('Préférence GPS invalide')
     const supabase = createClient()
     const { error } = await supabase.auth.updateUser({ data: { gps_pref: pref } })
+    if (error) throw new Error(error.message)
+  },
+
+  async getMissionDefaults(): Promise<MissionDefaults> {
+    const supabase = createClient()
+    const { data, error } = await supabase.auth.getUser()
+    if (error) return EMPTY_DEFAULTS
+    const raw = data.user?.user_metadata?.mission_defaults
+    if (!raw || typeof raw !== 'object') return EMPTY_DEFAULTS
+    const obj = raw as Record<string, unknown>
+    return {
+      type: isMissionType(obj.type) ? obj.type : null,
+      visibility: isVisibility(obj.visibility) ? obj.visibility : null,
+      groupIds: Array.isArray(obj.groupIds) ? obj.groupIds.filter((v): v is string => typeof v === 'string') : [],
+    }
+  },
+
+  async updateMissionDefaults(defaults: MissionDefaults): Promise<void> {
+    const supabase = createClient()
+    const { error } = await supabase.auth.updateUser({ data: { mission_defaults: defaults } })
     if (error) throw new Error(error.message)
   },
 }
