@@ -100,4 +100,24 @@ export const userPrefsService = {
     const { error } = await supabase.auth.updateUser({ data: { mission_defaults: defaults } })
     if (error) throw new Error(error.message)
   },
+
+  /**
+   * Groupes mis en favori par le chauffeur. Stocké côté serveur pour survivre
+   * aux évictions de localStorage (iOS Safari PWA, nettoyage navigateur).
+   */
+  async getFavoriteGroupIds(): Promise<string[]> {
+    const supabase = createClient()
+    const { data, error } = await supabase.auth.getUser()
+    if (error) return []
+    const raw = data.user?.user_metadata?.favorite_group_ids
+    if (!Array.isArray(raw)) return []
+    return raw.filter((v): v is string => typeof v === 'string')
+  },
+
+  async updateFavoriteGroupIds(ids: string[]): Promise<void> {
+    const clean = Array.from(new Set(ids.filter((v): v is string => typeof v === 'string')))
+    const supabase = createClient()
+    const { error } = await supabase.auth.updateUser({ data: { favorite_group_ids: clean } })
+    if (error) throw new Error(error.message)
+  },
 }

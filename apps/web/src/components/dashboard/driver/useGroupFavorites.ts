@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
+import { userPrefsService } from '@/services/userPrefsService'
 
 const FAV_KEY = 'taxilink:driver:favoriteGroupIds'
 const EVT     = 'taxilink:favs-changed'
 
 // Stockage : tableau ordonné (le 1er entré est le « hero » de la liste).
-// Choix de l'array vs Set : on a besoin de l'ordre stable pour décider
-// quel groupe est promu en hero — Set non-ordonné en pratique.
-function load(): string[] {
+// localStorage = cache pour l'affichage instantané au mount ; serveur
+// (user_metadata.favorite_group_ids) = source de verite pour survivre aux
+// evictions (iOS PWA, nettoyage navigateur).
+function loadCache(): string[] {
   if (typeof window === 'undefined') return []
   try {
     const raw = window.localStorage.getItem(FAV_KEY)
     if (!raw) {
-      // Fallback : migration depuis l'ancien pin unique (taxilink:driver:pinnedGroupId)
       const legacy = window.localStorage.getItem('taxilink:driver:pinnedGroupId')
       return legacy ? [legacy] : []
     }
@@ -20,10 +21,10 @@ function load(): string[] {
   } catch { return [] }
 }
 
-function persist(ids: string[]) {
+function persistCache(ids: string[]) {
   try {
     window.localStorage.setItem(FAV_KEY, JSON.stringify(ids))
-    // Notification intra-tab : `storage` event ne se déclenche que cross-tab.
+    // Notification intra-tab : `storage` event ne se declenche que cross-tab.
     window.dispatchEvent(new CustomEvent(EVT))
   } catch { /* noop */ }
 }
@@ -32,8 +33,16 @@ export function useGroupFavorites() {
   const [ids, setIds] = useState<string[]>([])
 
   useEffect(() => {
-    setIds(load())
-    const sync = () => setIds(load())
+    // 1) cache local immediat (evite le flash "non favori")
+    setIds(loadCache())
+    // 2) refresh autoritatif depuis le serveur
+    userPrefsService.getFavoriteGroupIds()
+      .then((server) => {
+        setIds(server)
+        persistCache(server)
+      })
+      .catch(() => { /* silencieux : on garde le cache */ })
+    const sync = () => setIds(loadCache())
     window.addEventListener('storage', sync)
     window.addEventListener(EVT, sync)
     return () => {
@@ -45,7 +54,10 @@ export function useGroupFavorites() {
   const toggle = useCallback((id: string) => {
     setIds((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [id, ...prev]
-      persist(next)
+      persistCache(next)
+      // Persistance serveur en arriere-plan ; un echec laisse le cache local
+      // intact, l'UI reste coherente jusqu'au prochain refresh autoritatif.
+      userPrefsService.updateFavoriteGroupIds(next).catch(() => { /* silencieux */ })
       return next
     })
   }, [])
