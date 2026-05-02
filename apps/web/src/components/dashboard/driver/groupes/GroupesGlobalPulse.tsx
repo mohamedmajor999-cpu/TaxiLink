@@ -23,7 +23,7 @@ export function GroupesGlobalPulse({ availableTotal, onlineTotal }: Props) {
           )}
           {availableTotal > 0 && onlineTotal > 0 && ' · '}
           {onlineTotal > 0 && (
-            <><span className="text-brand font-bold">{onlineTotal} confrère{onlineTotal > 1 ? 's' : ''}</span> en ligne</>
+            <><span className="text-brand font-bold">{onlineTotal} collègue{onlineTotal > 1 ? 's' : ''}</span> en ligne</>
           )}
         </p>
         <p className="text-[11px] text-paper/55 mt-0.5">Sur tous tes groupes maintenant</p>

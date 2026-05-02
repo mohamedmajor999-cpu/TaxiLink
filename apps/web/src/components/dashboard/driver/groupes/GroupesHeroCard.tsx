@@ -18,6 +18,10 @@ export function GroupesHeroCard({ group, summary, onOpen, onPostCourse, onUnfavo
   const available = summary?.available ?? 0
   const online = summary?.onlineCount ?? 0
   const exchanged = summary?.exchanged7d ?? 0
+  const members = group.memberCount ?? 0
+  const subtitle = group.description
+    ? (members > 0 ? `${group.description} · ${members} membre${members > 1 ? 's' : ''}` : group.description)
+    : (members > 0 ? `${members} membre${members > 1 ? 's' : ''}` : null)
 
   return (
     <section className="relative mb-4 rounded-3xl border-2 border-ink bg-paper p-4 shadow-card">
@@ -49,8 +53,8 @@ export function GroupesHeroCard({ group, summary, onOpen, onPostCourse, onUnfavo
           <p className="text-[17px] font-bold text-ink leading-tight tracking-tight truncate">
             {group.name}
           </p>
-          {group.description && (
-            <p className="text-[12.5px] text-warm-500 mt-0.5 truncate">{group.description}</p>
+          {subtitle && (
+            <p className="text-[12.5px] text-warm-500 mt-0.5 truncate">{subtitle}</p>
           )}
         </div>
         <button

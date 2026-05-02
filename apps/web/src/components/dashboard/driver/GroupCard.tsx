@@ -121,7 +121,16 @@ export function GroupCard({
                   </span>
                 </>
               )}
-              {isAlive && (
+              {isAlive && hasNews && (
+                <>
+                  <span className="text-warm-300">·</span>
+                  <span className="inline-flex items-center gap-1 bg-brand-soft text-ink px-2 py-0.5 rounded-full text-[10.5px] font-bold">
+                    <span className="w-1 h-1 rounded-full bg-ink" />
+                    {available} nouvelle{available > 1 ? 's' : ''} course{available > 1 ? 's' : ''}
+                  </span>
+                </>
+              )}
+              {isAlive && !hasNews && (
                 <>
                   <span className="text-warm-300">·</span>
                   <span className="inline-flex items-center gap-1 font-semibold text-ink">
