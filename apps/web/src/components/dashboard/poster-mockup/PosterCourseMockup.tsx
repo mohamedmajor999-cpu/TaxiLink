@@ -72,7 +72,16 @@ export function PosterCourseMockup() {
             type={form.type}
             visibility={form.visibility}
             groupIds={form.groupIds}
-            onChangeType={form.setType}
+            onChangeType={(t) => {
+              form.setType(t)
+              // Switch vers Standard : nettoie les champs CPAM pour eviter
+              // qu'ils soient envoyes au submit ou re-affiches si l'user
+              // re-bascule sur CPAM. Le bloc "Detail de la prescription"
+              // est deja gate par form.type === 'CPAM' dans
+              // PosterCourseForm — cette ligne assure juste l'hygiene de
+              // l'etat.
+              if (t === 'PRIVE') form.setMedicalMotif(null)
+            }}
             onSelectPublic={c.onSelectPublic}
             onToggleGroup={c.toggleGroup}
             defaultsRemembered={preflight.matchesSavedDefaults}
