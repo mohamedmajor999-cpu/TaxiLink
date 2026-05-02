@@ -70,14 +70,17 @@ describe('canSeeFullMission', () => {
   it('false pour viewer null', () => {
     expect(canSeeFullMission(makeMission(), null)).toBe(false)
   })
-  it('true pour shared_by (auteur)', () => {
-    expect(canSeeFullMission(makeMission({ shared_by: 'me' }), 'me')).toBe(true)
+  it("false pour shared_by si la mission est encore AVAILABLE (RGPD strict avant acceptation)", () => {
+    expect(canSeeFullMission(makeMission({ shared_by: 'me', status: 'AVAILABLE' }), 'me')).toBe(false)
   })
-  it('true pour driver_id assigne', () => {
-    expect(canSeeFullMission(makeMission({ driver_id: 'me' }), 'me')).toBe(true)
+  it("true pour shared_by une fois la mission acceptee (IN_PROGRESS)", () => {
+    expect(canSeeFullMission(makeMission({ shared_by: 'me', status: 'IN_PROGRESS' }), 'me')).toBe(true)
   })
-  it('true pour client_id', () => {
-    expect(canSeeFullMission(makeMission({ client_id: 'me' }), 'me')).toBe(true)
+  it('true pour driver_id assigne (IN_PROGRESS)', () => {
+    expect(canSeeFullMission(makeMission({ driver_id: 'me', status: 'IN_PROGRESS' }), 'me')).toBe(true)
+  })
+  it('true pour client_id (IN_PROGRESS)', () => {
+    expect(canSeeFullMission(makeMission({ client_id: 'me', status: 'IN_PROGRESS' }), 'me')).toBe(true)
   })
   it('false pour viewer tiers (autre chauffeur du groupe)', () => {
     expect(canSeeFullMission(makeMission(), 'other-driver')).toBe(false)
@@ -105,16 +108,24 @@ describe('maskMissionForViewer', () => {
     expect(masked.distance_km).toBe(5.2)
   })
 
-  it('renvoie la mission complete pour le shared_by', () => {
-    const m = makeMission({ shared_by: 'me' })
+  it('masque pour le shared_by tant que la mission est AVAILABLE (RGPD strict)', () => {
+    const m = makeMission({ shared_by: 'me', status: 'AVAILABLE' })
+    const result = maskMissionForViewer(m, 'me')
+    expect(result.patient_name).toBe('J. D.')
+    expect(result.phone).toBeNull()
+    expect(result.notes).toBeNull()
+  })
+
+  it('renvoie la mission complete pour le shared_by une fois la mission acceptee', () => {
+    const m = makeMission({ shared_by: 'me', status: 'IN_PROGRESS' })
     const result = maskMissionForViewer(m, 'me')
     expect(result.patient_name).toBe('Jean Dupont')
     expect(result.phone).toBe('0601020304')
     expect(result.notes).toBe('Patient sous oxygène')
   })
 
-  it('renvoie la mission complete pour le driver_id', () => {
-    const m = makeMission({ driver_id: 'me' })
+  it('renvoie la mission complete pour le driver_id (IN_PROGRESS)', () => {
+    const m = makeMission({ driver_id: 'me', status: 'IN_PROGRESS' })
     const result = maskMissionForViewer(m, 'me')
     expect(result.patient_name).toBe('Jean Dupont')
   })

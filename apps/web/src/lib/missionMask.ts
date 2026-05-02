@@ -20,6 +20,12 @@ import type { Mission } from '@/lib/supabase/types'
 
 export function canSeeFullMission(mission: Mission, viewerId: string | null): boolean {
   if (!viewerId) return false
+  // RGPD strict : tant qu'aucun chauffeur n'a accepte (status AVAILABLE),
+  // les donnees patient sont masquees pour TOUS les viewers de la fiche
+  // detail — y compris l'auteur. L'auteur peut toujours editer ses donnees
+  // via l'onglet "Mes annonces" (sas d'edition); le detail public reste
+  // neutre tant que personne ne s'est engage sur la course.
+  if (mission.status === 'AVAILABLE') return false
   return (
     mission.shared_by === viewerId ||
     mission.driver_id === viewerId ||
