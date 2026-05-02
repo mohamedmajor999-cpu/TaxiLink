@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { groupStatsService, type GroupActivitySummary } from '@/services/groupStatsService'
+import { groupActivityService } from '@/services/groupActivityService'
 import type { Group } from '@taxilink/core'
 import { useDriverGroupes } from './useDriverGroupes'
 import { useGroupFavorites } from './useGroupFavorites'
@@ -19,6 +20,7 @@ export function useDriverGroupesScreen() {
   const [query, setQuery] = useState('')
   const [sortMode, setSortMode] = useState<SortMode>('activity')
   const [summaries, setSummaries] = useState<Record<string, GroupActivitySummary>>({})
+  const [globalPulse, setGlobalPulse] = useState<{ availableTotal: number; onlineTotal: number }>({ availableTotal: 0, onlineTotal: 0 })
 
   const filteredGroups = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -58,39 +60,36 @@ export function useDriverGroupesScreen() {
     })
   }, [filteredGroups, primaryGroup, sortMode, summaries])
 
-  // Bandeau noir « X courses · Y en ligne » — somme sur tous les groupes du chauffeur.
-  const globalPulse = useMemo(() => {
-    let availableTotal = 0
-    let onlineTotal = 0
-    for (const g of groupes.groups) {
-      const s = summaries[g.id]
-      if (!s) continue
-      availableTotal += s.available
-      onlineTotal += s.onlineCount
-    }
-    return { availableTotal, onlineTotal }
-  }, [groupes.groups, summaries])
-
   // Pastille « nouveau » par groupe : true si lastEventAt > lastVisited.
   const hasNews = useCallback((g: Group): boolean => {
     const s = summaries[g.id]
     return visited.isNewSinceVisit(g.id, s?.lastEventAt ?? null)
   }, [summaries, visited])
 
-  // Coût : 1 requête Supabase par groupe (on parallélise). Acceptable jusqu'à ~10 groupes.
+  // Coût : 1 requête Supabase par groupe pour les summaries (parallélisées) +
+  // 1 batch query pour le pulse global. Le pulse a sa propre route pour
+  // dédupliquer chauffeurs/missions partagés à plusieurs groupes — sans ça
+  // un confrère présent dans 2 groupes serait compté 2 fois.
   const loadSummaries = useCallback(async (groupList: Group[]) => {
-    if (groupList.length === 0) { setSummaries({}); return }
-    const results = await Promise.allSettled(
-      groupList.map((g) => groupStatsService.getActivitySummary(g.id).then((s) => [g.id, s] as const))
-    )
+    if (groupList.length === 0) {
+      setSummaries({}); setGlobalPulse({ availableTotal: 0, onlineTotal: 0 }); return
+    }
+    const ids = groupList.map((g) => g.id)
+    const [perGroup, pulse] = await Promise.all([
+      Promise.allSettled(
+        groupList.map((g) => groupStatsService.getActivitySummary(g.id).then((s) => [g.id, s] as const))
+      ),
+      groupActivityService.getGlobalPulse(ids).catch(() => ({ availableTotal: 0, onlineTotal: 0 })),
+    ])
     const next: Record<string, GroupActivitySummary> = {}
-    for (const r of results) {
+    for (const r of perGroup) {
       if (r.status === 'fulfilled') {
         const [id, s] = r.value
         next[id] = s
       }
     }
     setSummaries(next)
+    setGlobalPulse(pulse)
   }, [])
 
   useEffect(() => {

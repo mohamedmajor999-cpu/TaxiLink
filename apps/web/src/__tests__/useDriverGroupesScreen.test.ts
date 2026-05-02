@@ -29,6 +29,12 @@ vi.mock('@/services/groupStatsService', () => ({
   },
 }))
 
+vi.mock('@/services/groupActivityService', () => ({
+  groupActivityService: {
+    getGlobalPulse: vi.fn().mockResolvedValue({ availableTotal: 0, onlineTotal: 0 }),
+  },
+}))
+
 // Le hook s'abonne maintenant à un canal Supabase realtime au mount.
 // On mock createClient pour que les tests d'unité ne dépendent pas
 // d'une session Supabase réelle.
