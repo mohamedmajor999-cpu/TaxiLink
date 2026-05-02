@@ -8,9 +8,7 @@ import { useMissionStore } from '@/store/missionStore'
 import { usePublishedFeedbackStore } from '@/store/publishedFeedbackStore'
 import type { Group } from '@taxilink/core'
 import type { AddressSuggestion } from '@/services/addressService'
-import {
-  buildScheduledAt, defaultDate, defaultTime,
-} from '@/components/dashboard/driver/missionFormHelpers'
+import { buildScheduledAt, defaultDate, defaultTime } from '@/components/dashboard/driver/missionFormHelpers'
 import { useMissionFormState } from '@/components/dashboard/driver/useMissionFormState'
 import { useMissionRoute } from '@/components/dashboard/driver/useMissionRoute'
 import { useMissionPricing } from '@/components/dashboard/driver/useMissionPricing'
@@ -54,15 +52,25 @@ export function usePosterCourse() {
       .then((groups) => {
         if (cancelled) return
         setMyGroups(groups)
-        // Pré-sélectionne le 1er groupe si l'utilisateur en a au moins un.
-        // Si aucun groupe : bascule la visibilité en PUBLIC pour qu'il puisse poster.
-        form.setGroupIds((cur) => (cur.length > 0 ? cur : groups[0] ? [groups[0].id] : []))
-        if (groups.length === 0) form.setVisibility('PUBLIC')
+        // Cas degenere : aucun groupe -> bascule en PUBLIC tout de suite
+        // (le sas Preflight n'a plus rien a proposer cote groupe).
+        if (groups.length === 0) {
+          form.setVisibility('PUBLIC')
+          form.setGroupIds([])
+        }
       })
       .catch(() => { /* silencieux */ })
     return () => { cancelled = true }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverId])
+
+  const onSelectPublic = () => {
+    form.setVisibility('PUBLIC')
+    form.setGroupIds([])
+  }
+  const onSelectGroupMode = () => {
+    form.setVisibility('GROUP')
+  }
 
   const onSelectDeparture = (s: AddressSuggestion) => {
     form.setDeparture(s.label)
@@ -82,27 +90,16 @@ export function usePosterCourse() {
   const setTpmr = (v: boolean) => form.setTransportType(v ? 'WHEELCHAIR' : 'SEATED')
 
   const voice = useMissionVoiceFiller({
-    setType: form.setType,
-    setMedicalMotif: form.setMedicalMotif,
-    setTransportType: form.setTransportType,
-    setReturnTrip: form.setReturnTrip,
-    setReturnTime: form.setReturnTime,
-    setCompanion: form.setCompanion,
-    setPassengers: form.setPassengers,
-    setDeparture: form.setDeparture,
-    setDestination: form.setDestination,
+    setType: form.setType, setMedicalMotif: form.setMedicalMotif,
+    setTransportType: form.setTransportType, setReturnTrip: form.setReturnTrip,
+    setReturnTime: form.setReturnTime, setCompanion: form.setCompanion, setPassengers: form.setPassengers,
+    setDeparture: form.setDeparture, setDestination: form.setDestination,
     setDate: (d) => { setWhen('later'); form.setDate(d) },
     setTime: (t) => { setWhen('later'); form.setTime(t) },
-    setPrice: form.setPrice,
-    setPriceMin: form.setPriceMin,
-    setPriceMax: form.setPriceMax,
-    setPatientName: form.setPatientName,
-    setPhone: form.setPhone,
-    setVisibility: form.setVisibility,
-    setGroupIds: form.setGroupIds,
-    myGroups,
-    setDepartureCoords: route.setDepartureCoords,
-    setDestinationCoords: route.setDestinationCoords,
+    setPrice: form.setPrice, setPriceMin: form.setPriceMin, setPriceMax: form.setPriceMax,
+    setPatientName: form.setPatientName, setPhone: form.setPhone,
+    setVisibility: form.setVisibility, setGroupIds: form.setGroupIds, myGroups,
+    setDepartureCoords: route.setDepartureCoords, setDestinationCoords: route.setDestinationCoords,
   })
 
   const voiceFlow = usePosterVoiceFlow({ filler: voice, form })
@@ -176,11 +173,13 @@ export function usePosterCourse() {
 
   return {
     form,
+    driverId,
     when, setWhen,
     tpmr, setTpmr,
     myGroups,
     onSelectDeparture, onSelectDestination,
     toggleGroup,
+    onSelectPublic, onSelectGroupMode,
     voice, voiceFlow,
     distanceKm: route.distanceKm,
     durationMin: route.durationMin,

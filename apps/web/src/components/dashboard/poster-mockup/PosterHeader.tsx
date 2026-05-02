@@ -32,15 +32,15 @@ export function PosterHeader({ onMenu, hasNotif, flow }: Props) {
         onClick={flow.toggle}
         disabled={!flow.isSupported}
         aria-pressed={flow.isActive}
-        className={`relative h-10 pl-1.5 pr-4 rounded-full flex items-center gap-2 text-[12.5px] font-bold shadow-[0_4px_12px_-2px_rgba(0,0,0,0.25)] disabled:opacity-50 transition-colors ${
-          listening ? 'bg-danger text-paper' : flow.isActive ? 'bg-warm-700 text-paper' : 'bg-ink text-paper'
+        className={`relative h-12 pl-2 pr-5 rounded-full flex items-center gap-2.5 text-[13.5px] font-extrabold shadow-fab disabled:opacity-50 transition-colors ${
+          listening ? 'bg-danger text-paper' : flow.isActive ? 'bg-warm-700 text-paper' : 'bg-ink text-paper hover:bg-warm-800'
         }`}
       >
-        {listening && <span className="absolute inset-0 rounded-full ring-2 ring-danger/50 motion-safe:animate-ping" aria-hidden="true" />}
-        <span className={`relative w-7 h-7 rounded-full flex items-center justify-center ${
+        {listening && <span className="absolute inset-0 rounded-full ring-2 ring-danger/60 motion-safe:animate-ping" aria-hidden="true" />}
+        <span className={`relative w-9 h-9 rounded-full flex items-center justify-center ${
           listening ? 'bg-paper text-danger' : 'bg-brand text-ink'
         }`}>
-          <Icon name="mic" size={15} className="relative" />
+          <Icon name="mic" size={20} className="relative" />
         </span>
         <span className="relative">
           {flow.isActive ? 'Arrêter' : 'Tout dicter'}
