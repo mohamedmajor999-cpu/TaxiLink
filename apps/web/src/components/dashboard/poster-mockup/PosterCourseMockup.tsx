@@ -61,6 +61,7 @@ export function PosterCourseMockup() {
       <main className="flex-1 min-w-0 pb-[200px] max-w-[480px] md:max-w-none lg:pb-12 mx-auto md:mx-0">
         <PosterHeader
           onMenu={() => setDrawerOpen(true)}
+          onBack={() => goToTab('home')}
           hasNotif={unseenAcceptCount > 0}
         />
         <PosterVoiceBanner flow={c.voiceFlow} />
