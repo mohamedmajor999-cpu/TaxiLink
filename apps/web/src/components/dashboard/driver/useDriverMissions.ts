@@ -7,6 +7,7 @@ import { missionService } from '@/services/missionService'
 import { type MissionTypeFilter } from '@/constants/missionTypes'
 import type { Mission } from '@/lib/supabase/types'
 import { usePublishedFeedbackStore } from '@/store/publishedFeedbackStore'
+import { playNotificationSound } from '@/lib/playNotificationSound'
 
 const TYPE_LABEL: Record<'CPAM' | 'PRIVE' | 'PRESCRIPTION', string> = {
   CPAM: 'CPAM',
@@ -100,6 +101,7 @@ export function useDriverMissions() {
     // Celebration optimiste : on declenche le pouce + confettis IMMEDIATEMENT,
     // avant l'appel reseau. Si l'acceptation echoue (mission deja prise), on l'annule.
     setShowConfetti(true)
+    playNotificationSound()
     try {
       await missionService.accept(id, user.id)
       await loadMissions()
