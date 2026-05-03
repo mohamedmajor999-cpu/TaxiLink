@@ -18,9 +18,9 @@ export function AgendaEventCard({ event, onTap, onMenu }: Props) {
   if (isBlock) {
     return (
       <CardWrapper onTap={onTap} onMenu={onMenu} showMenu={showMenu} bg="bg-[#FEF3C7] border-[#FDE68A]">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[14px] font-bold text-ink tabular-nums">{timeRange}</span>
-          <span className="text-[12px] font-extrabold uppercase tracking-[0.04em] text-[#B45309]">
+        <div className="flex items-center justify-between gap-2 mb-1.5 min-w-0">
+          <span className="text-[14px] font-bold text-ink tabular-nums shrink-0">{timeRange}</span>
+          <span className="text-[12px] font-extrabold uppercase tracking-[0.04em] text-[#B45309] shrink-0">
             Indisponible
           </span>
         </div>
@@ -47,9 +47,9 @@ export function AgendaEventCard({ event, onTap, onMenu }: Props) {
 
   return (
     <CardWrapper onTap={onTap} onMenu={onMenu} showMenu={showMenu} bg="bg-paper border-warm-200">
-      <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[14px] font-bold text-ink tabular-nums">{timeRange}</span>
-        <span className={`text-[11px] font-extrabold uppercase tracking-[0.04em] ${typeColor}`}>
+      <div className="flex items-center justify-between gap-2 mb-1.5 min-w-0">
+        <span className="text-[14px] font-bold text-ink tabular-nums shrink-0">{timeRange}</span>
+        <span className={`text-[11px] font-extrabold uppercase tracking-[0.04em] shrink-0 ${typeColor}`}>
           {typeLabel}
         </span>
       </div>
@@ -74,11 +74,11 @@ interface CardWrapperProps {
 
 function CardWrapper({ children, onTap, onMenu, showMenu, bg }: CardWrapperProps) {
   return (
-    <div className={`relative w-full rounded-2xl border ${bg} transition-colors active:scale-[0.99]`}>
+    <div className={`relative w-full min-w-0 overflow-hidden rounded-2xl border ${bg} transition-colors active:scale-[0.99]`}>
       <button
         type="button"
         onClick={onTap}
-        className={`w-full text-left p-4 ${showMenu ? 'pr-12' : ''}`}
+        className={`block w-full min-w-0 text-left p-4 ${showMenu ? 'pr-12' : ''}`}
       >
         {children}
       </button>

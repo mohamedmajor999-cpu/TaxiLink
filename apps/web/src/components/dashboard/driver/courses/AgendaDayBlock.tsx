@@ -27,7 +27,7 @@ export function AgendaDayBlock({ group, onTap, onAdd, onMenu }: Props) {
       </header>
 
       {group.events.length > 0 && (
-        <div className="grid gap-2 mb-2 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 mb-2 lg:grid-cols-2 xl:grid-cols-3">
           {group.events.map((e) => (
             <AgendaEventCard
               key={e.id}
