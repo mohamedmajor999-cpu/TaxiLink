@@ -7,10 +7,26 @@
 
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 
+/* iOS Safari : empeche le debordement horizontal (rotation, gros titres clamp,
+   ombres et blurs) qui faisait "sortir" la page de l'ecran sur iPhone, et
+   bloque le zoom auto au passage portrait <-> paysage. */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-inter), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* min-height: 100dvh evite le saut de viewport quand la barre URL Safari
+     se retracte (100vh inclut la zone cachee, le contenu sortait dessous). */
+  min-height: 100dvh;
 }
 
 /* Material Symbols — self-hosted */
@@ -258,10 +274,18 @@ body {
 .dark .hover\:bg-warm-100:hover { background-color: #5F5E5A; }
 .dark .hover\:border-warm-300:hover { border-color: #888780; }
 
-/* PWA standalone : safe-areas iOS (notch) + contenu au ras des bords système */
+/* Safe-areas iOS (notch + home indicator).
+   Appliquees TOUJOURS, pas seulement en PWA : sur iPhone X+ en Safari aussi
+   (mode paysage notamment, ou avec viewportFit: cover dans <head>) la valeur
+   env(...) est non nulle. Sur le reste des devices, env(...) vaut 0 donc
+   ces classes sont neutres -> aucun effet de bord. */
+.pwa-safe-top    { padding-top:    env(safe-area-inset-top); }
+.pwa-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Marges de securite (utile pour les CTA sticky sous le home indicator) */
+.pwa-safe-bottom-mb { margin-bottom: env(safe-area-inset-bottom); }
+
 @media (display-mode: standalone) {
-  .pwa-safe-top    { padding-top:    env(safe-area-inset-top); }
-  .pwa-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
   /* En PWA la nav marketing est inutile : on la masque pour donner la priorité au contenu */
   .pwa-hide { display: none !important; }
 }
