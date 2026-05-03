@@ -30,7 +30,7 @@ export function NoShowDialog({ open, submitting, onClose, onSubmit }: Props) {
         <div className="flex items-center justify-between p-5 border-b border-warm-200">
           <div>
             <h2 id="noshow-title" className="text-[18px] font-bold text-ink tracking-tight">
-              Patient absent
+              Client absent
             </h2>
             <p className="text-[11.5px] text-warm-500 mt-0.5">
               La course sera clôturée mais ne comptera pas dans votre CA.

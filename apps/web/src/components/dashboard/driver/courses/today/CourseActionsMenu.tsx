@@ -46,7 +46,7 @@ export function CourseActionsMenu({ mission, onEdit }: Props) {
             </MenuItem>
             <div role="separator" className="h-px bg-warm-100 mx-1.5 my-1" />
             <MenuItem icon={<UserX className="w-3.5 h-3.5" strokeWidth={1.8} />} onClick={m.openNoShow}>
-              Patient absent
+              Client absent
             </MenuItem>
             <MenuItem icon={<X className="w-3.5 h-3.5" strokeWidth={1.8} />} onClick={m.openCancel} danger>
               Annuler la course
