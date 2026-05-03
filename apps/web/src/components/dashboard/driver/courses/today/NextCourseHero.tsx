@@ -1,31 +1,29 @@
 'use client'
-import { Navigation2, Phone, AlertCircle, Pencil, Settings2, Star, Clock, Car, UserCheck, UserMinus, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, Phone, AlertCircle } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { getMinutesUntil, formatTime } from '@/lib/dateUtils'
 import { formatDuration } from '@/lib/formatDuration'
 import { computeDisplayFare } from '@/lib/missionFare'
-import { gpsAppLabel } from '@/lib/gpsNavigation'
 import type { MissionProgressStep } from '@/lib/missionProgress'
 import { NavigationSheet } from '../NavigationSheet'
 import { useNextCourseHero } from './useNextCourseHero'
 import { StepBar } from './StepBar'
-import { RouteRow } from './RouteRow'
-import { GpsStatusBadge } from './GpsStatusBadge'
+import { CourseActionsMenu } from './CourseActionsMenu'
 
 interface Props {
   mission: Mission
   onEdit: (mission: Mission) => void
 }
 
-const HEADER_BY_PROGRESS: Record<MissionProgressStep, { label: string; Icon: typeof Star }> = {
-  available: { label: 'Prochaine course', Icon: Star },
-  accepted: { label: 'Prochaine course', Icon: Star },
-  enroute: { label: 'En route vers le patient', Icon: Car },
-  onboard: { label: 'Patient à bord', Icon: UserCheck },
-  dropped: { label: 'Patient déposé', Icon: CheckCircle2 },
-  done: { label: 'Course terminée', Icon: CheckCircle2 },
-  no_show: { label: 'Patient absent', Icon: CheckCircle2 },
-  cancelled: { label: 'Annulée', Icon: CheckCircle2 },
+const STATUS_LABEL: Record<MissionProgressStep, string> = {
+  available: 'Prochaine course',
+  accepted:  'Prochaine course',
+  enroute:   'En route vers le patient',
+  onboard:   'Patient à bord',
+  dropped:   'Patient déposé',
+  done:      'Course terminée',
+  no_show:   'Patient absent',
+  cancelled: 'Annulée',
 }
 
 export function NextCourseHero({ mission, onEdit }: Props) {
@@ -33,142 +31,89 @@ export function NextCourseHero({ mission, onEdit }: Props) {
   const minutesUntil = getMinutesUntil(mission.scheduled_at)
   const time = formatTime(mission.scheduled_at)
   const delay = minutesUntil <= 0 ? 'Maintenant' : `Dans ${formatDuration(minutesUntil)}`
-  const phoneHref = mission.phone ? `tel:${mission.phone}` : null
   const fareInfo = computeDisplayFare(mission)
-  const fare = fareInfo.value > 0 ? `${fareInfo.value.toFixed(0)} €` : '—'
+  const fare = fareInfo.value > 0 ? fareInfo.value.toFixed(0) : '—'
   const isCpam = mission.transport_type === 'CPAM'
   const patient = mission.patient_name?.trim() || 'le patient'
 
-  const isDropped = h.progress === 'dropped'
-  const isStep2 = h.step === 'toDestination' && !isDropped
-  const CtaIcon = isDropped ? CheckCircle2 : Navigation2
-  const ctaLabel = isDropped
-    ? 'Course terminée'
-    : isStep2
-      ? 'Démarrer vers la destination'
-      : `Je pars chercher ${patient}`
-  const ctaHandler = isDropped ? h.completeMission : isStep2 ? h.goToDestination : h.goToPickup
-  const showArrivedBtn = h.progress === 'enroute'
-  const showDroppedBtn = h.progress === 'onboard'
-  const gpsLabel = h.pref === 'ask' ? 'Demander à chaque fois' : gpsAppLabel(h.pref)
-  const { label: headerLabel, Icon: HeaderIcon } = HEADER_BY_PROGRESS[h.progress]
-  const isStarHeader = h.progress === 'available' || h.progress === 'accepted'
+  // Le CTA porte UNE seule action — la prochaine étape logique. Les autres
+  // (annuler, no-show, prévenir, modifier) sont dans le menu "...".
+  const cta = pickCta(h.progress, patient)
+  const ctaHandler = cta.action === 'goToPickup' ? h.goToPickup
+    : cta.action === 'arrivedAtPatient' ? h.arrivedAtPatient
+    : cta.action === 'markDropped' ? h.markDropped
+    : h.completeMission
+
+  const [from, to] = [shortPlace(mission.departure), shortPlace(mission.destination)]
 
   return (
-    <article className="relative rounded-[18px] bg-paper border-[1.5px] border-ink p-[18px] mb-4 shadow-[0_4px_18px_-14px_rgba(0,0,0,0.22)]">
+    <article className="relative rounded-[14px] bg-paper border border-warm-100 p-[18px] mb-4">
+      {/* Statut + chip type */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-warm-700">
-            <HeaderIcon
-              className={`w-3.5 h-3.5 text-amber-600 ${isStarHeader ? 'fill-current' : ''}`}
-              strokeWidth={2.4}
-            />
-            <span className="truncate">{headerLabel}</span>
-          </span>
-          <span className={`px-1.5 py-0.5 rounded text-[9.5px] font-extrabold uppercase tracking-[0.04em] shrink-0 ${
-            isCpam ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
-          }`}>
-            {isCpam ? 'CPAM' : 'Privé'}
-          </span>
-        </div>
-        <span className="inline-flex items-center gap-1 text-[11.5px] text-warm-700 font-bold tabular-nums shrink-0">
-          <Clock className="w-3 h-3" strokeWidth={2.2} />
-          {time}
+        <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold tracking-[0.02em] text-warm-500">
+          <span className="w-1.5 h-1.5 rounded-full bg-brand motion-safe:animate-pulse" />
+          {STATUS_LABEL[h.progress]}
+        </span>
+        <span className={`text-[10px] font-bold uppercase tracking-[0.1em] px-1.5 py-0.5 rounded-full ${
+          isCpam ? 'text-blue-800 bg-blue-100' : 'text-warm-700 bg-warm-100'
+        }`}>
+          {isCpam ? 'CPAM' : 'Privé'}
         </span>
       </div>
 
-      <div className="mt-1.5"><GpsStatusBadge /></div>
+      {/* Countdown + prix */}
+      <div className="mt-3.5 flex items-baseline justify-between gap-3">
+        <span className="text-[18px] font-bold tracking-[-0.015em] tabular-nums truncate">
+          {delay}
+          <span className="font-normal text-warm-500"> · {time}</span>
+        </span>
+        <span className="text-[14px] font-semibold text-warm-700 tabular-nums shrink-0">
+          {fare}<span className="text-warm-400">€</span>
+        </span>
+      </div>
 
-      <div className="mt-2.5 grid grid-cols-[1fr_auto] gap-3 items-end">
-        <div className="min-w-0">
-          <div className="text-[28px] font-black tracking-tight leading-none tabular-nums text-ink">
-            {delay}
-          </div>
-          <p className="mt-1 text-[12px] text-warm-700 truncate">
-            <b className="text-ink font-bold">{mission.patient_name?.trim() || 'Patient'}</b>
-            {mission.distance_km != null && <> · <b className="text-ink font-bold">{mission.distance_km} km</b></>}
-            {mission.duration_min != null && <> · <b className="text-ink font-bold">{mission.duration_min} min</b></>}
+      {/* Trajet inline */}
+      <p className="mt-2.5 text-[13.5px] text-ink font-medium leading-snug">
+        <span className="font-semibold">{from}</span>
+        <span className="mx-1.5 text-warm-400">→</span>
+        <span className="font-semibold">{to}</span>
+        {(mission.distance_km != null || mission.duration_min != null) && (
+          <span className="text-warm-500 font-normal text-[12px] ml-1">
+            {' · '}
+            {mission.distance_km != null && <>{mission.distance_km} km</>}
+            {mission.distance_km != null && mission.duration_min != null && ' · '}
+            {mission.duration_min != null && <>{mission.duration_min} min</>}
             {mission.return_trip && <> · A/R</>}
-          </p>
-        </div>
-        <div className="text-right shrink-0">
-          <div className="text-[9.5px] font-extrabold uppercase tracking-[0.08em] text-warm-500">
-            {fareInfo.isEstimated ? 'Prix estimé' : 'Prix'}
-          </div>
-          <div className="text-[26px] font-black leading-none tabular-nums text-ink mt-0.5">
-            {fare}
-          </div>
-        </div>
-      </div>
+          </span>
+        )}
+      </p>
 
-      <div className="mt-3.5 py-3.5 border-t border-b border-warm-100 grid gap-1.5">
-        <RouteRow label="Départ" address={mission.departure} variant="origin" />
-        <div aria-hidden className="ml-[5px] w-px h-3 border-l-2 border-dotted border-warm-300" />
-        <RouteRow label="Arrivée" address={mission.destination} variant="destination" />
-      </div>
-
-      <div className="mt-3">
+      {/* Stepper 4 segments */}
+      <div className="mt-[18px] pt-3.5 border-t border-warm-100">
         <StepBar progress={h.progress} />
       </div>
 
-      <div className="mt-3.5 flex gap-1.5">
+      {/* Actions : CTA + tel + menu */}
+      <div className="mt-[18px] flex items-center gap-1.5">
         <button
           type="button"
           onClick={ctaHandler}
           disabled={h.busy}
-          className="flex-1 h-12 rounded-2xl bg-brand text-ink text-[13.5px] font-black inline-flex items-center justify-center gap-1.5 hover:bg-brand/90 disabled:opacity-50 transition-colors px-3"
+          className="flex-1 h-[38px] rounded-lg bg-ink text-paper text-[12.5px] font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] disabled:opacity-50 transition-colors px-3"
         >
-          <CtaIcon className="w-4 h-4 shrink-0" strokeWidth={2.4} />
-          <span className="truncate">{ctaLabel}</span>
+          <span className="truncate">{cta.label}</span>
+          <ArrowRight className="w-3 h-3 shrink-0" strokeWidth={2.4} />
         </button>
-        {phoneHref && !isDropped && (
+        {mission.phone && (
           <a
-            href={phoneHref}
+            href={`tel:${mission.phone}`}
             aria-label="Appeler le patient"
-            className="w-12 h-12 rounded-2xl border border-warm-200 bg-warm-50 inline-flex items-center justify-center text-ink hover:bg-warm-100 transition-colors shrink-0"
+            className="w-[38px] h-[38px] rounded-lg border border-warm-200 inline-flex items-center justify-center text-warm-700 hover:bg-warm-50 hover:text-ink transition-colors shrink-0"
           >
-            <Phone className="w-5 h-5" strokeWidth={2} />
+            <Phone className="w-3.5 h-3.5" strokeWidth={1.8} />
           </a>
         )}
-      </div>
-
-      {showArrivedBtn && (
-        <button
-          type="button"
-          onClick={h.arrivedAtPatient}
-          disabled={h.busy}
-          className="mt-1.5 w-full h-10 rounded-xl bg-warm-50 border border-warm-200 text-ink text-[12.5px] font-bold disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
-        >
-          <UserCheck className="w-3.5 h-3.5" strokeWidth={2.2} />
-          J&apos;y suis arrivé — patient à bord
-        </button>
-      )}
-
-      {showDroppedBtn && (
-        <button
-          type="button"
-          onClick={h.markDropped}
-          disabled={h.busy}
-          className="mt-1.5 w-full h-10 rounded-xl bg-warm-50 border border-warm-200 text-ink text-[12.5px] font-bold disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
-        >
-          <UserMinus className="w-3.5 h-3.5" strokeWidth={2.2} />
-          Patient déposé
-        </button>
-      )}
-
-      <div className="mt-2.5 flex items-center justify-between text-[10.5px] text-warm-500">
-        <span className="inline-flex items-center gap-1">
-          <Settings2 className="w-3 h-3" strokeWidth={2} />
-          Ouvre dans <b className="text-ink font-bold">{gpsLabel}</b>
-        </span>
-        <button
-          type="button"
-          onClick={() => onEdit(mission)}
-          className="inline-flex items-center gap-1 text-ink font-bold hover:underline"
-        >
-          <Pencil className="w-3 h-3" strokeWidth={2} />
-          Corriger
-        </button>
+        <CourseActionsMenu mission={mission} onEdit={onEdit} />
       </div>
 
       {h.error && (
@@ -196,4 +141,20 @@ export function NextCourseHero({ mission, onEdit }: Props) {
       )}
     </article>
   )
+}
+
+type CtaAction = 'goToPickup' | 'arrivedAtPatient' | 'markDropped' | 'completeMission'
+
+function pickCta(progress: MissionProgressStep, patient: string): { label: string; action: CtaAction } {
+  if (progress === 'dropped') return { label: 'Course terminée', action: 'completeMission' }
+  if (progress === 'onboard') return { label: 'Patient déposé', action: 'markDropped' }
+  if (progress === 'enroute') return { label: "J'y suis arrivé — patient à bord", action: 'arrivedAtPatient' }
+  return { label: `Je pars chercher ${patient}`, action: 'goToPickup' }
+}
+
+// Garde uniquement la 1re partie de l'adresse (ville/quartier) pour l'affichage
+// inline ; l'adresse complète reste accessible via le menu Modifier.
+function shortPlace(address: string): string {
+  const first = address.split(',')[0]?.trim()
+  return first || address
 }

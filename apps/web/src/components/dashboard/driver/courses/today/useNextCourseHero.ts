@@ -5,6 +5,7 @@ import { missionService } from '@/services/missionService'
 import { useMissionStore } from '@/store/missionStore'
 import { getMissionProgress } from '@/lib/missionProgress'
 import { buildGpsUrl, type GpsApp } from '@/lib/gpsNavigation'
+import { notifyPatientSms } from '@/lib/notifyPatientSms'
 import { useGpsPreference } from '../useGpsPreference'
 import type { Mission } from '@/lib/supabase/types'
 
@@ -47,6 +48,9 @@ export function useNextCourseHero({ mission }: Options) {
       if (mission.status === 'IN_PROGRESS' && !mission.enroute_at) {
         await missionProgressMutations.markEnRoute(mission.id)
       }
+      // SMS auto au patient pour le prévenir du départ. Ouvre l'app SMS native
+      // pré-remplie ; sur mobile, ne ferme pas le navigateur (deep link).
+      if (mission.phone) notifyPatientSms(mission)
       if (pref === 'ask') setAskPicker('toPickup')
       else launchGps(pref)
     } catch (e) {
