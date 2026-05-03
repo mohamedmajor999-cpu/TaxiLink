@@ -40,10 +40,10 @@ export function MissionPublishedCelebration({ onDone, durationMs = 2500 }: Props
         className="fixed inset-0 z-[10000] bg-paper flex flex-col items-center justify-center px-6"
       >
         <div
-          className="w-[140px] h-[140px] rounded-full bg-emerald-600 flex items-center justify-center shadow-[0_18px_36px_rgba(5,150,105,0.22),0_0_0_4px_rgba(5,150,105,0.08)]"
+          className="w-[140px] h-[140px] rounded-full bg-emerald-400 flex items-center justify-center shadow-[0_18px_36px_rgba(52,211,153,0.28),0_0_0_6px_rgba(52,211,153,0.12)]"
           style={{ animation: 'published-thumb-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
         >
-          <ThumbsUp className="w-20 h-20 text-white" strokeWidth={2.4} fill="currentColor" />
+          <ThumbsUp className="w-20 h-20 text-white" strokeWidth={2.2} fill="currentColor" />
         </div>
         <div
           className="mt-8 text-center"
@@ -52,7 +52,7 @@ export function MissionPublishedCelebration({ onDone, durationMs = 2500 }: Props
           <h2 className="text-[28px] font-black text-ink leading-tight tracking-tight">
             Votre course est publiée
           </h2>
-          <p className="mt-2 text-[18px] font-bold text-emerald-600">
+          <p className="mt-2 text-[18px] font-bold text-emerald-500">
             Bravo&nbsp;!
           </p>
         </div>
