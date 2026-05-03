@@ -38,7 +38,7 @@ export function CourseActionsMenu({ mission, onEdit }: Props) {
           >
             {hasPhone && (
               <MenuItem icon={<MessageSquare className="w-3.5 h-3.5" strokeWidth={1.8} />} onClick={m.notifyPatient}>
-                Prévenir le patient
+                Prévenir le client
               </MenuItem>
             )}
             <MenuItem icon={<Pencil className="w-3.5 h-3.5" strokeWidth={1.8} />} onClick={() => { onEdit(mission); m.close() }}>

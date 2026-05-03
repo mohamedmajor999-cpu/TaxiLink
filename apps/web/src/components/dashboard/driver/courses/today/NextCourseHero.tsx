@@ -99,7 +99,7 @@ export function NextCourseHero({ mission, onEdit }: Props) {
           type="button"
           onClick={ctaHandler}
           disabled={h.busy}
-          className="flex-1 h-[38px] rounded-lg bg-ink text-paper text-[12.5px] font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] disabled:opacity-50 transition-colors px-3"
+          className="flex-1 min-w-0 h-[38px] rounded-lg bg-ink text-paper text-[12.5px] font-semibold inline-flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] disabled:opacity-50 transition-colors px-3"
         >
           <span className="truncate">{cta.label}</span>
           <ArrowRight className="w-3 h-3 shrink-0" strokeWidth={2.4} />
