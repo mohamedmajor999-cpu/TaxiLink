@@ -4,9 +4,10 @@ import { useDriverStore } from '@/store/driverStore'
 import { useAuth } from '@/hooks/useAuth'
 import { driverService } from '@/services/driverService'
 import { documentService } from '@/services/documentService'
+import { missionService } from '@/services/missionService'
 import { useDeptPreferences } from '@/hooks/useDeptPreferences'
 import { useDriverStats } from '../useDriverStats'
-import type { Document } from '@/lib/supabase/types'
+import type { Document, Mission } from '@/lib/supabase/types'
 import { computeStatus, MANDATORY_DOCS } from './documentStatus'
 
 const DEPT_TO_CITY: Record<string, string> = {
@@ -30,6 +31,7 @@ export function useDriverProfilScreen(driverName: string) {
   const { depts } = useDeptPreferences()
   const [proNumber, setProNumber] = useState<string | null>(null)
   const [docs, setDocs] = useState<Document[]>([])
+  const [activeMissions, setActiveMissions] = useState<Mission[]>([])
 
   useEffect(() => {
     if (!user) return
@@ -37,11 +39,13 @@ export function useDriverProfilScreen(driverName: string) {
     Promise.all([
       driverService.getDriver(user.id),
       documentService.getDocuments(user.id),
+      missionService.getAgenda(user.id),
     ])
-      .then(([d, docList]) => {
+      .then(([d, docList, agenda]) => {
         if (cancelled) return
         if (d) setProNumber(d.pro_number)
         setDocs(docList)
+        setActiveMissions(agenda.filter((m) => m.status === 'ACCEPTED' || m.status === 'IN_PROGRESS'))
       })
       .catch(() => { /* silencieux : valeurs par défaut */ })
     return () => { cancelled = true }
@@ -51,15 +55,17 @@ export function useDriverProfilScreen(driverName: string) {
     return driverName.split(' ').map((p) => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'YB'
   }, [driverName])
 
-  const monthlyRevenue = useMemo(() => {
+  const monthly = useMemo(() => {
     const now = new Date()
-    return missions
-      .filter((m) => {
-        const d = new Date(m.completed_at ?? m.scheduled_at)
-        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
-      })
-      .reduce((s, m) => s + Number(m.price_eur ?? 0), 0)
-  }, [missions])
+    const inMonth = [...missions, ...activeMissions].filter((m) => {
+      const d = new Date(m.completed_at ?? m.scheduled_at)
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+    })
+    return {
+      revenue: inMonth.reduce((s, m) => s + Number(m.price_eur ?? 0), 0),
+      count: inMonth.length,
+    }
+  }, [missions, activeMissions])
 
   const documentsWarning = useMemo(() => {
     const byType = new Map(docs.map((d) => [d.type, d]))
@@ -80,9 +86,8 @@ export function useDriverProfilScreen(driverName: string) {
     phone: driver.phone ?? '',
     initials,
     proNumber,
-    rating: driver.rating ?? null,
-    courseCount: missions.length,
-    monthlyRevenue,
+    courseCount: monthly.count,
+    monthlyRevenue: monthly.revenue,
     documentsWarning,
     departements: depts,
     city,

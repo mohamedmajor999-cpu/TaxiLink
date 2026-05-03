@@ -41,7 +41,6 @@ export function DriverProfilScreen({
       <ProfileStatsTiles
         revenue={s.monthlyRevenue}
         courseCount={s.courseCount}
-        rating={s.rating}
       />
 
       <ProfileSectionCompte

@@ -30,17 +30,22 @@ vi.mock('@/hooks/useDeptPreferences', () => ({
 
 const mockGetDriver = vi.fn()
 const mockGetDocuments = vi.fn()
+const mockGetAgenda = vi.fn()
 vi.mock('@/services/driverService', () => ({
   driverService: { getDriver: (...a: unknown[]) => mockGetDriver(...a) },
 }))
 vi.mock('@/services/documentService', () => ({
   documentService: { getDocuments: (...a: unknown[]) => mockGetDocuments(...a) },
 }))
+vi.mock('@/services/missionService', () => ({
+  missionService: { getAgenda: (...a: unknown[]) => mockGetAgenda(...a) },
+}))
 
 beforeEach(() => {
   vi.clearAllMocks()
   mockGetDriver.mockResolvedValue({ pro_number: 'PRO-123', is_verified: true })
   mockGetDocuments.mockResolvedValue([])
+  mockGetAgenda.mockResolvedValue([])
 })
 
 describe('useDriverProfilScreen', () => {
@@ -73,6 +78,18 @@ describe('useDriverProfilScreen', () => {
     const { result } = renderHook(() => useDriverProfilScreen('Jean Dupont'))
     expect(result.current.monthlyRevenue).toBe(80)
     expect(result.current.courseCount).toBe(2)
+  })
+
+  it('inclut les missions ACCEPTED/IN_PROGRESS du mois et exclut les CANCELLED', async () => {
+    mockGetAgenda.mockResolvedValue([
+      { scheduled_at: new Date().toISOString(), completed_at: null, price_eur: 40, status: 'ACCEPTED' },
+      { scheduled_at: new Date().toISOString(), completed_at: null, price_eur: 60, status: 'IN_PROGRESS' },
+      { scheduled_at: new Date().toISOString(), completed_at: null, price_eur: 99, status: 'CANCELLED' },
+    ])
+    const { useDriverProfilScreen } = await import('@/components/dashboard/driver/profil/useDriverProfilScreen')
+    const { result } = renderHook(() => useDriverProfilScreen('Jean Dupont'))
+    await waitFor(() => expect(result.current.courseCount).toBe(4))
+    expect(result.current.monthlyRevenue).toBe(80 + 40 + 60)
   })
 
   it('expose departements et déduit la ville depuis le département principal', async () => {

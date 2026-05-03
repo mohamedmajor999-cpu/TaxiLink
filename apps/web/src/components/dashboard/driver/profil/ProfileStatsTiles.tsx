@@ -1,40 +1,24 @@
 'use client'
-import { Star } from 'lucide-react'
 
 interface Props {
   revenue: number
   courseCount: number
-  rating: number | null
 }
 
 function formatRevenue(value: number): string {
   return `${Math.round(value).toLocaleString('fr-FR')} €`
 }
 
-function formatRating(value: number | null): string {
-  if (value === null || value === 0) return '—'
-  return value.toFixed(1).replace('.', ',')
-}
-
-export function ProfileStatsTiles({ revenue, courseCount, rating }: Props) {
+export function ProfileStatsTiles({ revenue, courseCount }: Props) {
   return (
-    <section className="grid grid-cols-3 gap-3 mb-6">
-      <Tile label="Ce mois" value={formatRevenue(revenue)} />
-      <Tile label="Courses" value={String(courseCount)} />
-      <Tile
-        label="Note"
-        value={formatRating(rating)}
-        suffix={
-          <Star className="w-3.5 h-3.5 text-ink fill-ink" strokeWidth={1.5} />
-        }
-      />
+    <section className="grid grid-cols-2 gap-3 mb-6">
+      <Tile label="Gains ce mois" value={formatRevenue(revenue)} />
+      <Tile label="Courses ce mois" value={String(courseCount)} />
     </section>
   )
 }
 
-function Tile({
-  label, value, suffix,
-}: { label: string; value: string; suffix?: React.ReactNode }) {
+function Tile({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-paper border border-warm-200 rounded-2xl px-3 py-3.5">
       <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-warm-500">
@@ -44,7 +28,6 @@ function Tile({
         <span className="text-[18px] font-bold text-ink leading-none tabular-nums tracking-tight">
           {value}
         </span>
-        {suffix}
       </div>
     </div>
   )

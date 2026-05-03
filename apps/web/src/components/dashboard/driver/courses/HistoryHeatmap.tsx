@@ -72,12 +72,13 @@ export function HistoryHeatmap({ cells }: Props) {
   const totalDays = cells.filter((c) => c.count > 0).length
   const totalCourses = cells.reduce((s, c) => s + c.count, 0)
   const colCount = cols.length || 1
+  const months = Math.max(1, Math.round(cells.length / 30))
 
   return (
     <article className="rounded-2xl border border-warm-200 bg-paper p-4">
       <header className="flex items-end justify-between mb-3">
         <div>
-          <h3 className="text-[13px] font-extrabold text-ink leading-tight">Activité 12 mois</h3>
+          <h3 className="text-[13px] font-extrabold text-ink leading-tight">Activité {months} mois</h3>
           <p className="text-[11px] text-warm-500 mt-0.5">
             {totalCourses} courses · {totalDays} jours actifs
           </p>
