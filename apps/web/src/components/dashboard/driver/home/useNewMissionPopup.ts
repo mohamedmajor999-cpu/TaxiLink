@@ -6,6 +6,7 @@ import { useDriverStore } from '@/store/driverStore'
 import { useUserPrefs } from '@/store/userPrefsStore'
 import { useAuth } from '@/hooks/useAuth'
 import { haversineKm, type LatLng } from '@/lib/geoDistance'
+import { playNotificationSound } from '@/lib/playNotificationSound'
 
 const WINDOW_MS = 2 * 60 * 60 * 1000 // 2 heures
 const RADIUS_KM = 15
@@ -39,7 +40,11 @@ export function useNewMissionPopup({ userCoords }: Args) {
       if (m.shared_by === ownId) return
       if (!matchesWindow(m)) return
       if (!matchesRadius(m, userCoords)) return
-      setQueue((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]))
+      setQueue((prev) => {
+        if (prev.some((x) => x.id === m.id)) return prev
+        playNotificationSound()
+        return [...prev, m]
+      })
     },
     onDelete: ({ id }) => setQueue((prev) => prev.filter((m) => m.id !== id)),
     onUpdate: (m) => {

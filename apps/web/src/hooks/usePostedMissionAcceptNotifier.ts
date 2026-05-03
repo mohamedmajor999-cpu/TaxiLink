@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from './useAuth'
 import { createClient } from '@/lib/supabase/client'
 import { usePostedAcceptStore } from '@/store/postedAcceptStore'
+import { playNotificationSound } from '@/lib/playNotificationSound'
 import type { Mission } from '@/lib/supabase/types'
 
 const POSTED_ADS_PATH = '/dashboard/chauffeur?tab=courses&subtab=ads'
@@ -65,6 +66,7 @@ export function usePostedMissionAcceptNotifier() {
               driverName,
               driverPhone,
             })
+            playNotificationSound()
 
             if (typeof window !== 'undefined' && typeof Notification !== 'undefined'
               && Notification.permission === 'granted') {

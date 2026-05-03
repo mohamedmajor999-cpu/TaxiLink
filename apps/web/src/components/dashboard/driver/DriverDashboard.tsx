@@ -11,6 +11,7 @@ import { useDriverHeartbeat } from '@/hooks/useDriverHeartbeat'
 import { useGlobalDriverGps } from '@/hooks/useGlobalDriverGps'
 import { useAutoMissionProgress } from '@/hooks/useAutoMissionProgress'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
+import { armNotificationAudio } from '@/lib/playNotificationSound'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
 import { MobileTopbar } from '@/components/taxilink/MobileTopbar'
@@ -69,6 +70,7 @@ export function DriverDashboard() {
   useEffect(() => {
     if (!isEditerUrl && editingMission) clearEdit()
   }, [isEditerUrl, editingMission, clearEdit])
+  useEffect(() => armNotificationAudio(), [])
   const showModal = showCreer || Boolean(editingMission)
   const closeModal = () => {
     // Les deux modals (creer et editer) ont une entree d'historique → router.back()
