@@ -2,10 +2,12 @@
 import { useEffect, useRef, type RefObject } from 'react'
 
 // Fractions de la hauteur d'ecran. 'one' est le mode "carte plein ecran" :
-// on ne laisse que la barre de drag visible (~handle 40px + petit margin),
-// l'utilisateur tire vers le haut pour deployer la liste. Default = one.
+// on laisse la barre de drag + ~35px de marge sous elle pour que la handle
+// (40px) ne tombe pas dans la zone home indicator iOS (~34px) ou les gestes
+// systeme empechent de tirer. l'utilisateur tire vers le haut pour deployer
+// la liste. Default = one.
 export type SheetSnap = 'one' | 'two' | 'three' | 'four'
-export const SHEET_FRACTION: Record<SheetSnap, number> = { one: 0.05, two: 0.4, three: 0.6, four: 0.8 }
+export const SHEET_FRACTION: Record<SheetSnap, number> = { one: 0.09, two: 0.4, three: 0.6, four: 0.8 }
 const TAP_THRESHOLD_PX = 6
 
 const TAP_CYCLE: Record<SheetSnap, SheetSnap> = { two: 'three', three: 'four', four: 'one', one: 'two' }
