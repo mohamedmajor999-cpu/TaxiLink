@@ -1,6 +1,6 @@
 'use client'
 
-import { Mic, Loader2, Volume2, CheckCircle2, ArrowRight } from 'lucide-react'
+import { Mic, Loader2, Volume2, CheckCircle2, ArrowRight, ArrowLeft } from 'lucide-react'
 import type { useMissionVoiceFiller } from './useMissionVoiceFiller'
 import { useVoiceFreeFlow } from './vocal/useVoiceFreeFlow'
 import type { VocalFormSnapshot } from './vocal/missingCriticalFields'
@@ -9,10 +9,12 @@ interface Props {
   filler: ReturnType<typeof useMissionVoiceFiller>
   snapshot: () => VocalFormSnapshot
   onComplete: () => void
+  /** Bouton "Retour" : ramene au sas (a qui partager + Standard/CPAM). */
+  onBack?: () => void
 }
 
 /** Écran immersif « Mains libres » : gros micro, TTS de relance, transcript live. */
-export function MissionFormVocal({ filler, snapshot, onComplete }: Props) {
+export function MissionFormVocal({ filler, snapshot, onComplete, onBack }: Props) {
   const flow = useVoiceFreeFlow({ filler, snapshot, onComplete })
 
   if (!flow.isSupported) {
@@ -39,7 +41,19 @@ export function MissionFormVocal({ filler, snapshot, onComplete }: Props) {
             : 'Appuyez pour continuer.'
 
   return (
-    <div className="px-4 md:px-8 py-10 max-w-2xl mx-auto flex flex-col items-center gap-6">
+    <div className="px-4 md:px-8 max-w-2xl mx-auto">
+      {onBack && (
+        <div className="pt-4">
+          <button
+            type="button"
+            onClick={onBack}
+            className="h-10 px-3 rounded-2xl border border-warm-200 text-ink inline-flex items-center gap-1.5 hover:bg-warm-50 text-[13px] font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" strokeWidth={2} /> Retour
+          </button>
+        </div>
+      )}
+      <div className="py-10 flex flex-col items-center gap-6">
       <StatusBadge status={flow.status} />
 
       <button
@@ -79,6 +93,7 @@ export function MissionFormVocal({ filler, snapshot, onComplete }: Props) {
         Passer à l’aperçu
         <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
       </button>
+      </div>
     </div>
   )
 }

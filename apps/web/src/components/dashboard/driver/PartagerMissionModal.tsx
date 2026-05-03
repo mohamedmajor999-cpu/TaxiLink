@@ -167,7 +167,7 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
         </div>
       )}
       {isVocal && !f.preview && !showPreflight && (
-        <MissionFormVocal filler={voice} snapshot={vocalSnapshot} onComplete={f.showPreview} />
+        <MissionFormVocal filler={voice} snapshot={vocalSnapshot} onComplete={f.showPreview} onBack={preflight.resetGate} />
       )}
 
       {f.preview && (
