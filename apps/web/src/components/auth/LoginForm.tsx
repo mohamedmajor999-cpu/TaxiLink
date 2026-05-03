@@ -7,7 +7,14 @@ import { AuthBrandPanel } from './AuthBrandPanel'
 import { useLoginForm } from './useLoginForm'
 
 export function LoginForm() {
-  const { email, setEmail, password, setPassword, showPw, setShowPw, loading, googleLoading, error, handleSubmit, handleGoogle } = useLoginForm()
+  const {
+    email, setEmail,
+    password, setPassword,
+    showPw, setShowPw,
+    loading, googleLoading, error,
+    needsConfirmation, resendLoading, resendSent,
+    handleSubmit, handleGoogle, handleResend,
+  } = useLoginForm()
 
   return (
     <div className="min-h-screen bg-bgsoft lg:grid lg:grid-cols-2">
@@ -27,10 +34,32 @@ export function LoginForm() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-card p-8">
-          {error && (
+          {error && !needsConfirmation && (
             <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-red-600 text-sm">
               <Icon name="error" size={16} />
               {error}
+            </div>
+          )}
+
+          {needsConfirmation && (
+            <div className="mb-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm space-y-3">
+              <div className="flex items-start gap-2">
+                <Icon name="mark_email_unread" size={18} className="mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-bold mb-1">Email non confirmé</p>
+                  <p>Ouvre l&apos;email envoyé à <span className="font-semibold">{email}</span> et clique sur le lien de confirmation. Pense à vérifier tes <span className="font-semibold">spams / courriers indésirables</span>.</p>
+                </div>
+              </div>
+              {resendSent ? (
+                <div className="flex items-center gap-2 text-green-700 font-semibold">
+                  <Icon name="check_circle" size={16} />Nouvel email envoyé.
+                </div>
+              ) : (
+                <button type="button" onClick={handleResend} disabled={resendLoading}
+                  className="w-full h-10 rounded-lg bg-white border-2 border-amber-300 font-bold text-amber-900 text-sm flex items-center justify-center gap-2 hover:bg-amber-100 transition-colors disabled:opacity-60">
+                  {resendLoading ? <><Icon name="sync" size={16} className="animate-spin" />Envoi...</> : <><Icon name="send" size={16} />Renvoyer l&apos;email de confirmation</>}
+                </button>
+              )}
             </div>
           )}
 

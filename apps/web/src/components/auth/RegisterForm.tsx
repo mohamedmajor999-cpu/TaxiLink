@@ -15,27 +15,49 @@ export function RegisterForm() {
     return (
       <div className="min-h-screen bg-bgsoft lg:grid lg:grid-cols-2">
         <AuthBrandPanel
-          eyebrow="Bienvenue"
-          title={<>Bienvenue dans<br />la communauté.</>}
-          lead="Vous rejoignez des milliers de chauffeurs qui partagent leurs courses chaque jour."
+          eyebrow="Une dernière étape"
+          title={<>Confirme ton<br />adresse email.</>}
+          lead="On vient de t'envoyer un lien de confirmation. Clique dessus pour activer ton compte."
         />
         <div className="flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md text-center">
-          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
-            <Icon name="check_circle" size={40} className="text-green-500" />
+        <div className="w-full max-w-md">
+          <div className="text-center">
+            <div className="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-6">
+              <Icon name="mark_email_unread" size={40} className="text-amber-600" />
+            </div>
+            <h2 className="text-3xl font-black text-secondary mb-3">Vérifie ta boîte mail</h2>
+            <p className="text-muted mb-2">On a envoyé un lien de confirmation à</p>
+            <p className="font-bold text-secondary mb-6 break-all">{form.email}</p>
           </div>
-          <h2 className="text-3xl font-black text-secondary mb-3">Compte créé !</h2>
-          <p className="text-muted mb-8">Vérifiez votre email pour confirmer votre inscription. En attendant, découvrez comment TaxiLink fonctionne.</p>
-          <div className="flex flex-col gap-3">
-            <Link href="/onboarding"
-              className="inline-flex h-12 px-8 rounded-xl bg-primary font-bold text-secondary text-sm items-center justify-center gap-2 hover:bg-yellow-400 transition-colors">
-              <Icon name="play_circle" size={18} />Découvrir TaxiLink
-            </Link>
-            <Link href="/auth/login"
-              className="inline-flex h-12 px-8 rounded-xl border-2 border-line font-bold text-secondary text-sm items-center justify-center gap-2 hover:bg-white transition-colors">
-              <Icon name="login" size={18} />J&apos;ai confirmé, me connecter
-            </Link>
+
+          <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5 mb-6 text-sm text-amber-900 space-y-2">
+            <div className="flex items-start gap-2">
+              <Icon name="warning" size={18} className="mt-0.5 flex-shrink-0" />
+              <p><span className="font-bold">Pas reçu d&apos;email ?</span> Vérifie tes <span className="font-semibold">spams</span> ou <span className="font-semibold">courriers indésirables</span>. L&apos;expéditeur est <span className="font-semibold">TaxiLink</span>.</p>
+            </div>
           </div>
+
+          {form.resendSent ? (
+            <div className="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 flex items-center gap-2 text-green-700 text-sm font-semibold">
+              <Icon name="check_circle" size={16} />Nouvel email envoyé. Vérifie aussi tes spams.
+            </div>
+          ) : (
+            <button type="button" onClick={form.handleResend} disabled={form.resendLoading}
+              className="w-full h-12 rounded-xl border-2 border-line font-bold text-secondary text-sm flex items-center justify-center gap-2 hover:bg-white transition-colors mb-3 disabled:opacity-60">
+              {form.resendLoading ? <><Icon name="sync" size={18} className="animate-spin" />Envoi...</> : <><Icon name="send" size={18} />Renvoyer l&apos;email</>}
+            </button>
+          )}
+
+          <Link href="/auth/login"
+            className="w-full h-12 rounded-xl bg-primary font-bold text-secondary text-sm flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors">
+            <Icon name="login" size={18} />J&apos;ai confirmé, me connecter
+          </Link>
+
+          {form.error && (
+            <div className="mt-4 p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-red-600 text-sm">
+              <Icon name="error" size={16} />{form.error}
+            </div>
+          )}
         </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ const mockResetPassword     = vi.fn()
 const mockUpdateUser        = vi.fn()
 const mockSignOut           = vi.fn()
 const mockSignInWithOAuth   = vi.fn()
+const mockResend            = vi.fn()
 
 vi.mock('@/lib/supabase/client', () => ({
   createClient: () => ({
@@ -18,6 +19,7 @@ vi.mock('@/lib/supabase/client', () => ({
       updateUser:            mockUpdateUser,
       signOut:               mockSignOut,
       signInWithOAuth:       mockSignInWithOAuth,
+      resend:                mockResend,
     },
   }),
 }))
@@ -123,6 +125,24 @@ describe('authService.signOut', () => {
     mockSignOut.mockResolvedValue({})
     await expect(authService.signOut()).resolves.toBeUndefined()
     expect(mockSignOut).toHaveBeenCalledOnce()
+  })
+})
+
+// ─── resendConfirmation ───────────────────────────────────────────────────────
+describe('authService.resendConfirmation', () => {
+  it('appelle auth.resend avec type signup et l email', async () => {
+    mockResend.mockResolvedValue({ error: null })
+    await authService.resendConfirmation('test@test.com')
+    expect(mockResend).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'signup',
+      email: 'test@test.com',
+      options: expect.objectContaining({ emailRedirectTo: expect.stringContaining('/auth/callback') }),
+    }))
+  })
+
+  it('leve une erreur si Supabase echoue', async () => {
+    mockResend.mockResolvedValue({ error: { message: 'Rate limit' } })
+    await expect(authService.resendConfirmation('test@test.com')).rejects.toThrow('Rate limit')
   })
 })
 

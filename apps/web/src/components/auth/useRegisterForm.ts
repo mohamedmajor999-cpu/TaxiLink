@@ -23,6 +23,8 @@ export function useRegisterForm() {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error,         setError]         = useState('')
   const [success,       setSuccess]       = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendSent,    setResendSent]    = useState(false)
 
   const passwordStrengthInfo = useMemo(() => computeStrengthInfo(password), [password])
 
@@ -68,6 +70,20 @@ export function useRegisterForm() {
     }
   }
 
+  const handleResend = async () => {
+    setError('')
+    setResendLoading(true)
+    setResendSent(false)
+    try {
+      await authService.resendConfirmation(email)
+      setResendSent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors du renvoi')
+    } finally {
+      setResendLoading(false)
+    }
+  }
+
   const handleGoogle = async () => {
     setError('')
     setGoogleLoading(true)
@@ -92,7 +108,8 @@ export function useRegisterForm() {
     phone,     setPhone,
     department, setDepartment,
     step1Loading, loading, googleLoading, error, success,
+    resendLoading, resendSent,
     passwordStrengthInfo, confirmBorderClass,
-    handleNextStep, handleSubmit, handleGoogle,
+    handleNextStep, handleSubmit, handleGoogle, handleResend,
   }
 }

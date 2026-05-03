@@ -70,6 +70,16 @@ export const authService = {
     await supabase.auth.signOut()
   },
 
+  async resendConfirmation(email: string) {
+    const supabase = createClient()
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    })
+    if (error) throw new Error(error.message)
+  },
+
   async updatePassword(newPassword: string): Promise<void> {
     const supabase = createClient()
     const { error } = await supabase.auth.updateUser({ password: newPassword })
