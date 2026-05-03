@@ -2,7 +2,7 @@
   "name": "TaxiLink Pro",
   "short_name": "TaxiLink",
   "description": "Application pour chauffeurs de taxi et VTC — Missions CPAM, privées et VTC en temps réel.",
-  "start_url": "/?source=pwa",
+  "start_url": "/app?source=pwa",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF",

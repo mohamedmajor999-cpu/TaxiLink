@@ -36,6 +36,13 @@ body {
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Landing cachee quand l'app est lancee en mode PWA installee : zero flash
+   marketing avant que le gate client ne redirige vers le dashboard ou le
+   login. iOS Safari 16.4+ et Chromium supportent display-mode: standalone. */
+@media (display-mode: standalone) {
+  .pwa-hide { display: none !important; }
+}
+
 /* Animations */
 @keyframes gradientShift {
   0%, 100% { background-position: 0% 50%; }

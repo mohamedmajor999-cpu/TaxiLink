@@ -17,20 +17,27 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
+// La classe pwa-hide masque tout le bloc landing quand l'app est ouverte en
+// mode PWA installee (cf. @media display-mode: standalone dans globals.css).
+// Le gate client redirige ensuite vers /dashboard ou /auth/login. C'est un
+// filet de securite pour les PWAs deja installees qui pointent encore sur
+// "/" comme start_url ; les nouveaux installs utilisent /app (cf. manifest).
 export default function Home() {
   return (
     <main>
       <PwaFirstLaunchGate />
       <JsonLd />
-      <LandingNav />
-      <HeroSection />
-      <ProblemSolutionSection />
-      <FeaturesSection />
-      <InstallSection />
-      <PricingSection />
-      <FaqSection />
-      <LandingFooter />
-      <MobileStickyCta />
+      <div className="pwa-hide">
+        <LandingNav />
+        <HeroSection />
+        <ProblemSolutionSection />
+        <FeaturesSection />
+        <InstallSection />
+        <PricingSection />
+        <FaqSection />
+        <LandingFooter />
+        <MobileStickyCta />
+      </div>
     </main>
   )
 }
