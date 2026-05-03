@@ -68,7 +68,7 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
       className={
         isIncoming
           ? 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-24px)] max-w-md z-[1200] rounded-2xl bg-paper dark:bg-night-elevated border border-warm-200 dark:border-night-border shadow-[0_24px_64px_rgba(0,0,0,0.28)] p-4 motion-safe:animate-[popup-in-center_320ms_cubic-bezier(0.34,1.56,0.64,1)]'
-          : 'absolute left-3 right-3 bottom-3 z-[1100] rounded-2xl bg-paper dark:bg-night-elevated border border-warm-200 dark:border-night-border shadow-[0_-8px_30px_rgba(0,0,0,0.18)] p-4 motion-safe:animate-[popup-in_280ms_cubic-bezier(0.34,1.56,0.64,1)]'
+          : 'absolute left-3 right-3 bottom-[calc(env(safe-area-inset-bottom)+12px)] z-[1100] rounded-2xl bg-paper dark:bg-night-elevated border border-warm-200 dark:border-night-border shadow-[0_-8px_30px_rgba(0,0,0,0.18)] p-4 motion-safe:animate-[popup-in_280ms_cubic-bezier(0.34,1.56,0.64,1)]'
       }
     >
       <style>{`

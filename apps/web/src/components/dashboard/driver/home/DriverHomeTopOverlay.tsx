@@ -22,7 +22,10 @@ export function DriverHomeTopOverlay({
   const NightIcon = nightActive ? Moon : Sun
   const nightLabel = nightActive ? 'Mode nuit' : 'Mode jour'
   return (
-    <div className="absolute top-3 left-0 right-0 pl-[64px] pr-4 md:px-4 z-[500] flex items-center justify-between gap-2 pointer-events-none">
+    <div
+      className="absolute left-0 right-0 pl-[64px] pr-4 md:px-4 z-[500] flex items-center justify-between gap-2 pointer-events-none"
+      style={{ top: 'calc(env(safe-area-inset-top) + 12px)' }}
+    >
       <button
         type="button"
         onClick={onToggleOnline}
