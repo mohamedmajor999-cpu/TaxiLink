@@ -1,10 +1,13 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from './useAuth'
 import { createClient } from '@/lib/supabase/client'
 import { usePostedAcceptStore } from '@/store/postedAcceptStore'
 import type { Mission } from '@/lib/supabase/types'
+
+const POSTED_ADS_PATH = '/dashboard/chauffeur?tab=courses&subtab=ads'
 
 /**
  * Écoute globale : quand une des annonces postées par l'utilisateur est acceptée,
@@ -13,6 +16,11 @@ import type { Mission } from '@/lib/supabase/types'
  */
 export function usePostedMissionAcceptNotifier() {
   const { user } = useAuth()
+  const router = useRouter()
+  // Ref stable : la subscription du channel ne doit pas dependre de l'identite
+  // du router (sinon on resouscrit a chaque render).
+  const routerRef = useRef(router)
+  routerRef.current = router
   const notifiedRef = useRef<Set<string>>(new Set())
   const add = usePostedAcceptStore((s) => s.add)
   const reset = usePostedAcceptStore((s) => s.reset)
@@ -61,11 +69,17 @@ export function usePostedMissionAcceptNotifier() {
             if (typeof window !== 'undefined' && typeof Notification !== 'undefined'
               && Notification.permission === 'granted') {
               try {
-                new Notification(`${driverName} a accepté votre annonce`, {
+                const n = new Notification(`${driverName} a accepté votre annonce`, {
                   body: `${m.departure} → ${m.destination}`,
                   tag: `taxilink-accepted-${m.id}`,
                   icon: '/brand/icon.svg',
                 })
+                n.onclick = (e) => {
+                  e.preventDefault()
+                  try { window.focus() } catch { /* silencieux */ }
+                  n.close()
+                  routerRef.current.push(POSTED_ADS_PATH)
+                }
               } catch { /* silencieux */ }
             }
           }

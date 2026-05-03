@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useRef } from 'react'
 import { Truck, Pencil } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { useMissionEditSheetStore } from '@/store/missionEditSheetStore'
@@ -24,9 +25,19 @@ export function AdCardAccepted({ mission, driver, now }: Props) {
   const subline = acceptedAgo ? `Acceptée il y a ${acceptedAgo}` : 'Acceptée'
   const isUnseen = useIsMissionUnseen(mission.id)
   const markSeen = usePostedAcceptStore((s) => s.markSeen)
+  const ref = useRef<HTMLElement>(null)
+  // Quand la carte devient "non-vue" (apres un accept realtime ou un retour de
+  // notification navigateur), on la fait scroller dans la vue une seule fois.
+  const didScrollRef = useRef(false)
+  useEffect(() => {
+    if (!isUnseen || didScrollRef.current) return
+    didScrollRef.current = true
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [isUnseen])
 
   return (
     <article
+      ref={ref}
       onClick={isUnseen ? () => markSeen(mission.id) : undefined}
       className={`rounded-2xl px-4 py-3 border bg-blue-50 transition-colors ${
         isUnseen

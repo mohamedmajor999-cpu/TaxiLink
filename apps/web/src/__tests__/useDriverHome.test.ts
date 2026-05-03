@@ -7,7 +7,6 @@ const mockSetOnline          = vi.fn()
 const mockAcceptMission      = vi.fn()
 const mockCompleteMission    = vi.fn()
 const mockGetMyGroups        = vi.fn()
-const mockRequestNotifPerm   = vi.fn()
 const mockSetFilter          = vi.fn()
 const mockSetSort            = vi.fn()
 const mockSetSelectedGroupId = vi.fn()
@@ -18,13 +17,6 @@ vi.mock('@/hooks/useAuth', () => ({
 
 vi.mock('@/store/driverStore', () => ({
   useDriverStore: vi.fn(),
-}))
-
-vi.mock('@/hooks/useNextMissionNotification', () => ({
-  useNextMissionNotification: vi.fn(() => ({
-    permission: 'default' as NotificationPermission,
-    requestPermission: mockRequestNotifPerm,
-  })),
 }))
 
 vi.mock('@/services/groupService', () => ({
@@ -191,11 +183,3 @@ describe('useDriverHome — actions missions', () => {
   })
 })
 
-// ─── Notifications ───────────────────────────────────────────────────────────
-describe('useDriverHome — notifications', () => {
-  it('expose la permission et la fonction de demande', () => {
-    const { result } = renderHook(() => useDriverHome())
-    expect(result.current.notificationPermission).toBe('default')
-    expect(result.current.requestNotificationPermission).toBe(mockRequestNotifPerm)
-  })
-})

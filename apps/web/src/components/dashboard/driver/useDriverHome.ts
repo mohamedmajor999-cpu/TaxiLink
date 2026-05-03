@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Group } from '@taxilink/core'
 import { useDriverStore } from '@/store/driverStore'
 import { useAuth } from '@/hooks/useAuth'
-import { useNextMissionNotification } from '@/hooks/useNextMissionNotification'
 import { useDriverPositionPush } from '@/hooks/useDriverPositionPush'
 import { groupService } from '@/services/groupService'
 import { useDriverMissions } from './useDriverMissions'
@@ -24,7 +23,6 @@ export function useDriverHome() {
   const setOnline = useDriverStore((s) => s.setOnline)
   const { user } = useAuth()
   const m = useDriverMissions()
-  const notif = useNextMissionNotification(m.currentMission)
 
   const [groups, setGroups] = useState<Group[]>([])
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null)
@@ -147,8 +145,6 @@ export function useDriverHome() {
     dismissToast: m.dismissToast,
     userCoords,
     requestLocation,
-    notificationPermission: notif.permission,
-    requestNotificationPermission: notif.requestPermission,
     popup,
   }
 }
