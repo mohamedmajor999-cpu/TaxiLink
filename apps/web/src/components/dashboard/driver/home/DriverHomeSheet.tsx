@@ -108,7 +108,11 @@ export function DriverHomeSheet({
         />
       </div>
 
-      <div ref={listRef} className="flex-1 overflow-y-auto px-4 pb-3 hide-scrollbar space-y-2">
+      <div
+        ref={listRef}
+        className="flex-1 overflow-y-auto px-4 hide-scrollbar space-y-2"
+        style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+      >
         {banner}
         {loading && <SheetSkeleton />}
         {!loading && missions.length === 0 && <SheetEmpty onPostCourse={onPostCourse} />}
