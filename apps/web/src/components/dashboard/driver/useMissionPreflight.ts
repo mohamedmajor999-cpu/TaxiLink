@@ -53,6 +53,8 @@ export function useMissionPreflight({ isEdit, driverId, setType, setVisibility, 
       .catch(() => { /* silencieux */ })
   }
 
+  const resetGate = () => setGatePassed(false)
+
   const matchesSavedDefaults = (snapshot: MissionDefaults): boolean => {
     if (!defaults) return false
     if (defaults.type !== snapshot.type) return false
@@ -63,5 +65,5 @@ export function useMissionPreflight({ isEdit, driverId, setType, setVisibility, 
     return a.every((id, i) => id === b[i])
   }
 
-  return { gatePassed, passGate, defaults, defaultsLoaded, matchesSavedDefaults }
+  return { gatePassed, passGate, resetGate, defaults, defaultsLoaded, matchesSavedDefaults }
 }

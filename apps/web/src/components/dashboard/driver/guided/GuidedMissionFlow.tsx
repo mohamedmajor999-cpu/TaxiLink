@@ -19,11 +19,13 @@ interface Props {
   /** Id de question ciblée par le bouton "modifier" du récap (aperçu). */
   editFieldId?: string | null
   onEditHandled?: () => void
+  /** Bouton "Retour" depuis la 1ère question : ramène au sas préflight. */
+  onBackToPreflight?: () => void
 }
 
 const ALL_IDS = GUIDED_QUESTIONS.map((q) => q.id)
 
-export function GuidedMissionFlow({ form, myGroups, setters, onComplete, editFieldId, onEditHandled }: Props) {
+export function GuidedMissionFlow({ form, myGroups, setters, onComplete, editFieldId, onEditHandled, onBackToPreflight }: Props) {
   const [voiceAutoSpeak, setVoiceAutoSpeak] = useState(true)
   const s = useGuidedMissionScreen({
     form, myGroups, setters, allQuestionIds: ALL_IDS, voiceAutoSpeak, onComplete,
@@ -139,8 +141,8 @@ export function GuidedMissionFlow({ form, myGroups, setters, onComplete, editFie
         <div className="mt-6 flex items-center gap-2">
           <button
             type="button"
-            onClick={s.flow.back}
-            disabled={s.flow.currentIndex <= 0}
+            onClick={s.flow.currentIndex <= 0 ? onBackToPreflight : s.flow.back}
+            disabled={s.flow.currentIndex <= 0 && !onBackToPreflight}
             className="h-12 px-4 rounded-2xl border border-warm-200 text-ink inline-flex items-center gap-1.5 hover:bg-warm-50 disabled:opacity-40"
           >
             <ArrowLeft className="w-4 h-4" strokeWidth={2} /> Retour

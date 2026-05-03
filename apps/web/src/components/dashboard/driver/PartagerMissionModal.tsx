@@ -152,6 +152,7 @@ export function PartagerMissionModal({ onClose, mission }: Props) {
             onComplete={f.showPreview}
             editFieldId={editFieldId}
             onEditHandled={() => setEditFieldId(null)}
+            onBackToPreflight={preflight.resetGate}
           />
         </div>
       )}
