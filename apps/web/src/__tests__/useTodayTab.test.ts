@@ -27,8 +27,14 @@ beforeEach(() => {
 
 afterEach(() => { vi.useRealTimers() })
 
-function mission(id: string, scheduled_at: string, price_eur = 0, status: 'AVAILABLE' | 'IN_PROGRESS' | 'DONE' = 'AVAILABLE'): Mission {
-  return { id, scheduled_at, price_eur, status, distance_km: null, duration_min: null, no_show: false } as unknown as Mission
+function mission(
+  id: string,
+  scheduled_at: string,
+  price_eur = 0,
+  status: 'AVAILABLE' | 'IN_PROGRESS' | 'DONE' = 'AVAILABLE',
+  extra: Partial<Mission> = {},
+): Mission {
+  return { id, scheduled_at, price_eur, status, distance_km: null, duration_min: null, no_show: false, enroute_at: null, pickup_at: null, ...extra } as unknown as Mission
 }
 
 describe('useTodayTab — séparation next / restOfDay', () => {
@@ -44,9 +50,9 @@ describe('useTodayTab — séparation next / restOfDay', () => {
     expect(result.current.restOfDay.map((m) => m.id)).toEqual(['m2', 'm3'])
   })
 
-  it('exclut les missions IN_PROGRESS du next/restOfDay (vont dans current)', async () => {
+  it('current = IN_PROGRESS avec enroute_at posé ; les autres restent listées', async () => {
     mockGetAgenda.mockResolvedValueOnce([
-      mission('mC', '2026-05-02T09:00:00.000Z', 25, 'IN_PROGRESS'),
+      mission('mC', '2026-05-02T09:00:00.000Z', 25, 'IN_PROGRESS', { enroute_at: '2026-05-02T08:55:00.000Z' }),
       mission('m1', '2026-05-02T11:00:00.000Z', 30),
     ])
     const { result } = renderHook(() => useTodayTab())
@@ -54,6 +60,31 @@ describe('useTodayTab — séparation next / restOfDay', () => {
     expect(result.current.current?.id).toBe('mC')
     expect(result.current.next?.id).toBe('m1')
     expect(result.current.restOfDay).toHaveLength(0)
+  })
+
+  it('IN_PROGRESS sans enroute_at ni pickup_at reste dans upcomingToday (acceptée mais pas démarrée)', async () => {
+    mockGetAgenda.mockResolvedValueOnce([
+      mission('mAccepted', '2026-05-02T20:00:00.000Z', 50, 'IN_PROGRESS'),
+      mission('m1', '2026-05-02T11:00:00.000Z', 30),
+    ])
+    const { result } = renderHook(() => useTodayTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.current).toBeNull()
+    expect(result.current.next?.id).toBe('m1')
+    expect(result.current.restOfDay.map((m) => m.id)).toEqual(['mAccepted'])
+  })
+
+  it("plusieurs IN_PROGRESS aujourd'hui : la course active (enroute_at) est current, les autres restent listées", async () => {
+    mockGetAgenda.mockResolvedValueOnce([
+      mission('mActive', '2026-05-02T09:00:00.000Z', 25, 'IN_PROGRESS', { enroute_at: '2026-05-02T08:55:00.000Z' }),
+      mission('mLater', '2026-05-02T20:30:00.000Z', 58, 'IN_PROGRESS'),
+      mission('m1', '2026-05-02T15:00:00.000Z', 30),
+    ])
+    const { result } = renderHook(() => useTodayTab())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.current?.id).toBe('mActive')
+    expect(result.current.next?.id).toBe('m1')
+    expect(result.current.restOfDay.map((m) => m.id)).toEqual(['mLater'])
   })
 
   it("exclut les missions des jours suivants", async () => {

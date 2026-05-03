@@ -55,16 +55,8 @@ describe('useNextCourseHero — étape (step)', () => {
 })
 
 describe('useNextCourseHero — actions', () => {
-  it('goToPickup pose enroute_at si IN_PROGRESS et pas encore posé', async () => {
+  it("goToPickup ne pose jamais enroute_at (réservé au suivi GPS auto)", async () => {
     const { result } = renderHook(() => useNextCourseHero({ mission: makeMission() }))
-    await waitFor(() => expect(result.current.prefLoaded).toBe(true))
-    await act(async () => { await result.current.goToPickup() })
-    expect(mockMarkEnRoute).toHaveBeenCalledWith('m1')
-  })
-
-  it("goToPickup ne re-pose pas enroute_at si déjà présent", async () => {
-    const m = makeMission({ enroute_at: '2026-05-02T10:50:00.000Z' })
-    const { result } = renderHook(() => useNextCourseHero({ mission: m }))
     await waitFor(() => expect(result.current.prefLoaded).toBe(true))
     await act(async () => { await result.current.goToPickup() })
     expect(mockMarkEnRoute).not.toHaveBeenCalled()
@@ -98,11 +90,12 @@ describe('useNextCourseHero — actions', () => {
 })
 
 describe('useNextCourseHero — erreurs', () => {
-  it('expose error si markEnRoute échoue', async () => {
-    mockMarkEnRoute.mockRejectedValueOnce(new Error('RLS denied'))
-    const { result } = renderHook(() => useNextCourseHero({ mission: makeMission() }))
+  it('expose error si markOnBoard échoue', async () => {
+    mockMarkOnBoard.mockRejectedValueOnce(new Error('RLS denied'))
+    const m = makeMission({ enroute_at: '2026-05-02T10:50:00.000Z' })
+    const { result } = renderHook(() => useNextCourseHero({ mission: m }))
     await waitFor(() => expect(result.current.prefLoaded).toBe(true))
-    await act(async () => { await result.current.goToPickup() })
+    await act(async () => { await result.current.arrivedAtPatient() })
     expect(result.current.error).toBe('RLS denied')
   })
 })

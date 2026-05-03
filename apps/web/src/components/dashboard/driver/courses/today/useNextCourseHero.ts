@@ -41,15 +41,10 @@ export function useNextCourseHero({ mission }: Options) {
     if (busy) return
     setBusy(true)
     try {
-      // Si la mission est déjà IN_PROGRESS et qu'on n'a pas encore posé enroute_at,
-      // on le pose pour matérialiser le départ. Si la mission est encore au statut
-      // antérieur (ex: ACCEPTED non IN_PROGRESS), on laisse le startMission classique
-      // s'en charger ailleurs — on ne fait que l'horodatage ici.
-      if (mission.status === 'IN_PROGRESS' && !mission.enroute_at) {
-        await missionProgressMutations.markEnRoute(mission.id)
-      }
-      // SMS auto au patient pour le prévenir du départ. Ouvre l'app SMS native
-      // pré-remplie ; sur mobile, ne ferme pas le navigateur (deep link).
+      // On ne pose plus enroute_at manuellement : c'est useAutoMissionProgress
+      // qui s'en charge via le geofence pickup. Le bouton ouvre seulement le
+      // GPS et notifie le patient ; la StepBar ne basculera sur EN ROUTE que
+      // quand le suivi GPS confirme le mouvement vers le pickup.
       if (mission.phone) notifyPatientSms(mission)
       if (pref === 'ask') setAskPicker('toPickup')
       else launchGps(pref)

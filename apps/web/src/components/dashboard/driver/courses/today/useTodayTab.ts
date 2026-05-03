@@ -39,24 +39,29 @@ export function useTodayTab() {
   const today = startOfToday()
   const tomorrow = startOfTomorrow()
 
+  // Course "active" = celle que le chauffeur execute reellement (en route ou
+  // patient a bord). Une mission tout juste acceptee mais sans horodatage de
+  // depart reste dans la liste des courses du jour, meme si son status est
+  // deja IN_PROGRESS, pour que les autres courses planifiees ne disparaissent
+  // pas quand le chauffeur en accepte plusieurs.
   const current = useMemo(
-    () => missions.find((m) => m.status === 'IN_PROGRESS') ?? null,
+    () => missions.find((m) => m.status === 'IN_PROGRESS' && (m.enroute_at || m.pickup_at)) ?? null,
     [missions],
   )
 
-  // Toutes les missions du jour, status != IN_PROGRESS. Pas de filtre "overdue"
-  // ici : la borne de date suffit, et on veut continuer d'afficher les courses
-  // passees de la matinee jusqu'a minuit (sinon le chauffeur perd la trace de
-  // ses courses non encore marquees DONE).
+  // Toutes les missions du jour, sauf celle en cours d'execution. Pas de filtre
+  // "overdue" ici : la borne de date suffit, et on veut continuer d'afficher
+  // les courses passees de la matinee jusqu'a minuit (sinon le chauffeur perd
+  // la trace de ses courses non encore marquees DONE).
   const upcomingToday = useMemo(() => {
     return missions
       .filter((m) =>
-        m.status !== 'IN_PROGRESS'
+        m.id !== current?.id
         && new Date(m.scheduled_at).getTime() >= today.getTime()
         && new Date(m.scheduled_at).getTime() < tomorrow.getTime(),
       )
       .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
-  }, [missions, today, tomorrow])
+  }, [missions, today, tomorrow, current])
 
   const next = upcomingToday[0] ?? null
   const restOfDay = next ? upcomingToday.slice(1) : upcomingToday
