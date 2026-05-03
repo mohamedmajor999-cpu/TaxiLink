@@ -78,7 +78,7 @@ export function useGuidedAnswerApplier(setters: GuidedSetters, myGroups: Group[]
       case 'transportType':
         if (value === 'SEATED' || value === 'WHEELCHAIR' || value === 'STRETCHER') s.setTransportType(value)
         return
-      case 'patientName': if (typeof value === 'string') s.setPatientName(value.trim()); return
+      case 'patientName': if (typeof value === 'string') s.setPatientName(value.replace(/\d+/g, '').trim()); return
       case 'phone':       if (typeof value === 'string') s.setPhone(value.replace(/\s/g, '')); return
       case 'date':        if (typeof value === 'string') s.setDate(value); return
       case 'time':        if (typeof value === 'string') s.setTime(value); return

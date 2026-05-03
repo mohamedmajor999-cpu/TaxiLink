@@ -140,7 +140,7 @@ export function AgendaAddModal({ selectedDate, onClose, onAdded, mission = null,
               <input
                 type="text"
                 value={m.form.patientName}
-                onChange={(e) => m.set('patientName', e.target.value)}
+                onChange={(e) => m.set('patientName', e.target.value.replace(/\d+/g, ''))}
                 placeholder="Facultatif"
                 className={FIELD}
               />

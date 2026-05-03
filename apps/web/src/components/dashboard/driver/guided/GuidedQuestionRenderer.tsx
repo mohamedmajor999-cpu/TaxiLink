@@ -58,15 +58,21 @@ export function GuidedQuestionRenderer({
     case 'text':
     case 'phone':
     case 'date':
-    case 'time':
+    case 'time': {
+      // Un nom de patient ne doit jamais contenir de chiffres : on les filtre
+      // à la frappe pour rendre l'erreur invisible plutôt que de la signaler.
+      const handleChange = question.id === 'patientName'
+        ? (v: string) => onChange(v.replace(/\d+/g, ''))
+        : (v: string) => onChange(v)
       return (
         <GuidedTextInput
           kind={question.kind}
           value={value}
-          onChange={(v) => onChange(v)}
+          onChange={handleChange}
           onSubmit={onEnterSubmit}
           autoFocus
         />
       )
+    }
   }
 }

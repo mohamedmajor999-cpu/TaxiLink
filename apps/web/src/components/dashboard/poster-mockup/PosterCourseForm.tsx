@@ -103,7 +103,7 @@ export function PosterCourseForm({ c, footerProps }: Props) {
 
               <FieldRow leadIcon={<Icon name="person" size={19} className="text-warm-500" />}>
                 <FieldLabel>Client</FieldLabel>
-                <FieldInput value={form.patientName} onChange={form.setPatientName} placeholder="Nom du client" autoComplete="off" />
+                <FieldInput value={form.patientName} onChange={(v) => form.setPatientName(v.replace(/\d+/g, ''))} placeholder="Nom du client" autoComplete="off" />
                 {form.type === 'CPAM' && !form.patientName.trim() && (
                   <span className="block mt-0.5 text-[11.5px] text-warm-400 font-medium">Obligatoire pour CPAM</span>
                 )}
