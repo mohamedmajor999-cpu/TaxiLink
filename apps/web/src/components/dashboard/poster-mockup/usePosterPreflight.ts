@@ -64,6 +64,8 @@ export function usePosterPreflight({
       .catch(() => { /* silencieux */ })
   }
 
+  const resetGate = () => setGatePassed(false)
+
   const matchesSavedDefaults = useMemo(() => {
     if (!savedDefaults) return false
     if (savedDefaults.type !== type) return false
@@ -74,5 +76,5 @@ export function usePosterPreflight({
     return a.every((id, i) => id === b[i])
   }, [savedDefaults, type, visibility, groupIds])
 
-  return { gatePassed, passGate, matchesSavedDefaults }
+  return { gatePassed, passGate, resetGate, matchesSavedDefaults }
 }

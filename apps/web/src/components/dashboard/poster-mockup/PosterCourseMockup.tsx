@@ -37,6 +37,12 @@ export function PosterCourseMockup() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const initials = computeInitials(driver.name || '')
   const goToTab = (tab: DriverTab) => router.push(`/dashboard/chauffeur?tab=${tab}`)
+  // Retour : si on est en Étape 2 (formulaire), revient au sas Étape 1
+  // au lieu de quitter la page. Sinon (Étape 1), retour au dashboard.
+  const handleBack = () => {
+    if (preflight.gatePassed) preflight.resetGate()
+    else goToTab('home')
+  }
 
   const footerProps = {
     type: form.type, medicalMotif: form.medicalMotif, returnTrip: form.returnTrip, tpmr: c.tpmr,
@@ -61,7 +67,7 @@ export function PosterCourseMockup() {
       <main className="flex-1 min-w-0 pb-[200px] max-w-[480px] md:max-w-none lg:pb-12 mx-auto md:mx-0">
         <PosterHeader
           onMenu={() => setDrawerOpen(true)}
-          onBack={() => goToTab('home')}
+          onBack={handleBack}
           hasNotif={unseenAcceptCount > 0}
         />
         <PosterVoiceBanner flow={c.voiceFlow} />
