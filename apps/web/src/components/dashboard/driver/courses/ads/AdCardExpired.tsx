@@ -15,17 +15,17 @@ export function AdCardExpired({ mission }: Props) {
   const c = useAdCardWaiting(mission.id)
 
   return (
-    <article className="rounded-2xl px-4 py-3 border border-warm-200 bg-warm-50 opacity-90">
-      <header className="flex items-center gap-2 mb-2">
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-warm-200 text-warm-700 text-[10.5px] font-extrabold uppercase tracking-[0.04em]">
+    <article className="rounded-2xl px-4 py-3 border border-warm-200 bg-warm-50 opacity-90 min-w-0 overflow-hidden">
+      <header className="flex items-center gap-2 mb-2 min-w-0">
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-warm-200 text-warm-700 text-[10.5px] font-extrabold uppercase tracking-[0.04em] shrink-0">
           <TimerOff className="w-3 h-3" strokeWidth={2.4} />
           Temps dépassé
         </span>
-        <span className="ml-auto text-[12px] font-bold text-warm-500 tabular-nums line-through">
+        <span className="ml-auto text-[12px] font-bold text-warm-500 tabular-nums line-through shrink-0">
           {time}
         </span>
       </header>
-      <p className="text-[14px] font-semibold text-warm-700 leading-tight">
+      <p className="text-[14px] font-semibold text-warm-700 leading-tight break-words">
         {mission.departure} <span className="text-warm-300">→</span> {mission.destination}
       </p>
       <div className="mt-1.5 flex items-center gap-3 text-[12px] text-warm-500">

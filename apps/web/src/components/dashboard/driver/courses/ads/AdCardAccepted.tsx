@@ -39,25 +39,25 @@ export function AdCardAccepted({ mission, driver, now }: Props) {
     <article
       ref={ref}
       onClick={isUnseen ? () => markSeen(mission.id) : undefined}
-      className={`rounded-2xl px-4 py-3 border bg-blue-50 transition-colors ${
+      className={`rounded-2xl px-4 py-3 border bg-blue-50 transition-colors min-w-0 overflow-hidden ${
         isUnseen
           ? 'border-brand ring-2 ring-brand/40 cursor-pointer'
           : 'border-blue-200'
       }`}
     >
-      <header className="flex items-center gap-2 mb-2">
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-200 text-blue-900 text-[10.5px] font-extrabold uppercase tracking-[0.04em]">
+      <header className="flex items-center gap-2 mb-2 min-w-0">
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-200 text-blue-900 text-[10.5px] font-extrabold uppercase tracking-[0.04em] shrink-0">
           <Truck className="w-3 h-3" strokeWidth={2.4} />
           Acceptée
         </span>
         {isUnseen && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-brand text-ink text-[10px] font-extrabold uppercase tracking-[0.04em]">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-brand text-ink text-[10px] font-extrabold uppercase tracking-[0.04em] shrink-0">
             Nouveau
           </span>
         )}
-        <span className="ml-auto text-[12px] font-bold text-ink tabular-nums">{time}</span>
+        <span className="ml-auto text-[12px] font-bold text-ink tabular-nums shrink-0">{time}</span>
       </header>
-      <p className="text-[14px] font-semibold text-ink leading-tight">
+      <p className="text-[14px] font-semibold text-ink leading-tight break-words">
         {mission.departure} <span className="text-warm-300">→</span> {mission.destination}
       </p>
       <div className="mt-1.5 flex items-center gap-3 text-[12px] text-warm-700">
