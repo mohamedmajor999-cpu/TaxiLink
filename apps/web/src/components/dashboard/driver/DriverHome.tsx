@@ -130,10 +130,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
         Poster une course
       </button>
 
-      <div
-        className={`absolute bottom-0 left-0 right-0 md:relative md:inset-auto md:shrink-0 md:flex md:flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200 z-[600] md:z-auto md:!pb-0 ${mapFullscreen ? 'hidden md:flex' : ''}`}
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
+      <div className={`absolute bottom-0 left-0 right-0 md:relative md:inset-auto md:shrink-0 md:flex md:flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200 z-[600] md:z-auto ${mapFullscreen ? 'hidden md:flex' : ''}`}>
         <div
           ref={sheetRef}
           className="relative shrink-0 md:mt-0 md:!h-auto md:flex-1 md:min-h-0 z-10 bg-transparent md:bg-paper md:dark:bg-night-bg flex flex-col transition-[height] duration-300 ease-out"
@@ -172,7 +169,10 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
           />
         </div>
 
-        <div className={`${h.selectedMission ? 'block' : 'hidden'} md:block shrink-0 h-20 px-3 py-2.5 bg-paper dark:bg-night-bg border-t border-warm-200 dark:border-night-border`}>
+        <div
+          className={`${h.selectedMission ? 'block' : 'hidden'} md:block shrink-0 px-3 pt-2.5 bg-paper dark:bg-night-bg border-t border-warm-200 dark:border-night-border`}
+          style={{ paddingBottom: 'calc(0.625rem + env(safe-area-inset-bottom))' }}
+        >
           <DriverHomeAcceptBar
             disabled={!h.selectedMission}
             onAccept={onAccept}
