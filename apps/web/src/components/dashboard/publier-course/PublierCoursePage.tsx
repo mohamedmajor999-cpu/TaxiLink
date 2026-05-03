@@ -18,7 +18,7 @@ function computeInitials(name: string): string {
   return name.split(' ').map((p) => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'YB'
 }
 
-export function PosterCourseMockup() {
+export function PublierCoursePage() {
   const router = useRouter()
   const c = usePosterCourse()
   const { form } = c

@@ -1,7 +1,7 @@
 'use client'
 import type { Group } from '@taxilink/core'
 import type { MissionVisibility } from '@/lib/validators'
-import { Checkbox, VisBtn } from './posterMockupParts'
+import { Checkbox, VisBtn } from './publierCourseParts'
 
 interface Props {
   visibility: MissionVisibility

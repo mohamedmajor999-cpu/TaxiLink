@@ -33,9 +33,10 @@ export const useDriverStore = create<DriverState>((set, get) => ({
   loadedUserId: null,
 
   // Idempotent par userId : un remount du DriverDashboard (ex. retour depuis
-  // /dashboard/poster-mockup) ne doit PAS refetch et ecraser l'isOnline local
-  // par une valeur DB potentiellement obsolete (ecriture setOnline encore en
-  // vol, ou cron qui a flip pendant qu'on etait sur une autre page).
+  // /dashboard/chauffeur/publier-course) ne doit PAS refetch et ecraser
+  // l'isOnline local par une valeur DB potentiellement obsolete (ecriture
+  // setOnline encore en vol, ou cron qui a flip pendant qu'on etait sur une
+  // autre page).
   load: async (userId, email) => {
     if (get().loadedUserId === userId) return
     set({ isLoading: true })

@@ -88,10 +88,7 @@ export function DriverDashboard() {
     }
     setActiveTab(tab)
   }
-  // TEMPORAIRE : pendant la validation du redesign v4, le bouton "+" pointe sur
-  // /dashboard/poster-mockup. Pour rebrancher l'ancien modal, remplacer
-  // `handlePostCourse` par `() => setShowCreer(true)` dans les 4 callsites ci-dessous.
-  const handlePostCourse = () => router.push('/dashboard/poster-mockup')
+  const handlePostCourse = () => router.push('/dashboard/chauffeur/publier-course')
   const goToPostedTab = () => {
     clearEdit()
     router.push('/dashboard/chauffeur?tab=courses&subtab=ads')

@@ -1,6 +1,6 @@
 'use client'
 import { Icon } from '@/components/ui/Icon'
-import { FieldRow, FieldLabel, FieldInput, WhenPill } from './posterMockupParts'
+import { FieldRow, FieldLabel, FieldInput, WhenPill } from './publierCourseParts'
 import { AddressLineInput } from './AddressLineInput'
 import { PosterCpamBlock } from './PosterCpamBlock'
 import { PosterFooter } from './PosterFooter'

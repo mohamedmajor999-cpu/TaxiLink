@@ -1,5 +1,5 @@
 'use client'
-import { MicroLabel, SegMini, SegMiniBtn, Stepper, Checkbox } from './posterMockupParts'
+import { MicroLabel, SegMini, SegMiniBtn, Stepper, Checkbox } from './publierCourseParts'
 import type { MedicalMotif } from '@/lib/validators'
 
 interface Props {
