@@ -5,15 +5,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
 import type { Mission } from '@/lib/supabase/types'
 
-const OVERDUE_TOLERANCE_MS = 60 * 60_000
-
-function isOverdue(m: Mission, now: number): boolean {
-  const start = new Date(m.scheduled_at).getTime()
-  const durationMin = Math.max(m.duration_min ?? Math.round((m.distance_km ?? 0) * 2.2), 15)
-  const end = start + durationMin * 60_000
-  return end + OVERDUE_TOLERANCE_MS < now
-}
-
 function startOfToday(): Date {
   const n = new Date()
   return new Date(n.getFullYear(), n.getMonth(), n.getDate())
@@ -47,23 +38,25 @@ export function useTodayTab() {
 
   const today = startOfToday()
   const tomorrow = startOfTomorrow()
-  const nowMs = Date.now()
 
   const current = useMemo(
     () => missions.find((m) => m.status === 'IN_PROGRESS') ?? null,
     [missions],
   )
 
+  // Toutes les missions du jour, status != IN_PROGRESS. Pas de filtre "overdue"
+  // ici : la borne de date suffit, et on veut continuer d'afficher les courses
+  // passees de la matinee jusqu'a minuit (sinon le chauffeur perd la trace de
+  // ses courses non encore marquees DONE).
   const upcomingToday = useMemo(() => {
     return missions
       .filter((m) =>
         m.status !== 'IN_PROGRESS'
         && new Date(m.scheduled_at).getTime() >= today.getTime()
-        && new Date(m.scheduled_at).getTime() < tomorrow.getTime()
-        && !isOverdue(m, nowMs),
+        && new Date(m.scheduled_at).getTime() < tomorrow.getTime(),
       )
       .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
-  }, [missions, today, tomorrow, nowMs])
+  }, [missions, today, tomorrow])
 
   const next = upcomingToday[0] ?? null
   const restOfDay = next ? upcomingToday.slice(1) : upcomingToday
