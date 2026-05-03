@@ -4,12 +4,14 @@ import { renderHook, act } from '@testing-library/react'
 const mockGetUser = vi.fn()
 const mockUnsubscribe = vi.fn()
 const mockOnAuthStateChange = vi.fn()
+const mockRefreshSession = vi.fn()
 
 vi.mock('@/lib/supabase/client', () => ({
   createClient: vi.fn(() => ({
     auth: {
       getUser: mockGetUser,
       onAuthStateChange: mockOnAuthStateChange,
+      refreshSession: mockRefreshSession,
     },
   })),
 }))
@@ -21,6 +23,7 @@ beforeEach(() => {
   mockOnAuthStateChange.mockReturnValue({
     data: { subscription: { unsubscribe: mockUnsubscribe } },
   })
+  mockRefreshSession.mockResolvedValue({ data: { session: null }, error: null })
 })
 
 describe('useAuth — état initial', () => {
@@ -100,5 +103,53 @@ describe('useAuth — onAuthStateChange', () => {
     await act(async () => {})
     unmount()
     expect(mockUnsubscribe).toHaveBeenCalled()
+  })
+})
+
+describe('useAuth — keep-alive sur visibilitychange', () => {
+  it('refresh la session quand l\'onglet redevient visible', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } })
+    renderHook(() => useAuth())
+    await act(async () => {})
+
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
+    act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+
+    expect(mockRefreshSession).toHaveBeenCalled()
+  })
+
+  it('ne refresh pas si l\'onglet est cache', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } })
+    renderHook(() => useAuth())
+    await act(async () => {})
+
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true })
+    act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+
+    expect(mockRefreshSession).not.toHaveBeenCalled()
+  })
+
+  it('swallow les erreurs de refresh (ne throw pas)', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } })
+    mockRefreshSession.mockRejectedValueOnce(new Error('network'))
+    renderHook(() => useAuth())
+    await act(async () => {})
+
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
+    expect(() => {
+      act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+    }).not.toThrow()
+  })
+
+  it('retire le listener au démontage', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } })
+    const { unmount } = renderHook(() => useAuth())
+    await act(async () => {})
+    unmount()
+
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
+    act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+
+    expect(mockRefreshSession).not.toHaveBeenCalled()
   })
 })

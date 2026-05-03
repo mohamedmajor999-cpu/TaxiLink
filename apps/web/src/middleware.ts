@@ -17,6 +17,15 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      // Voir lib/supabase/client.ts : on force le maxAge a 1 an a chaque
+      // rotation de cookie (le middleware re-emet les cookies a chaque
+      // navigation quand le refresh token tourne).
+      cookieOptions: {
+        maxAge:   60 * 60 * 24 * 365,
+        sameSite: 'lax',
+        secure:   process.env.NODE_ENV === 'production',
+        path:     '/',
+      },
       cookies: {
         getAll() {
           return request.cookies.getAll()
@@ -59,7 +68,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // 3. Verification completude profil + role pour les routes protegees.
-  if (pathname.startsWith('/dashboard/chauffeur') || pathname.startsWith('/dashboard/client')) {
+  if (
+    pathname.startsWith('/dashboard/chauffeur')
+    || pathname.startsWith('/dashboard/client')
+    || pathname.startsWith('/dashboard/patron')
+  ) {
     let role = appMeta.role
     let isComplete = appMeta.profile_complete
 
@@ -82,6 +95,8 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/dashboard/chauffeur') && role !== 'driver') {
       return NextResponse.redirect(new URL('/dashboard/client', request.url))
     }
+    // /dashboard/patron : verification membership deleguee au server component
+    // (page.tsx) pour eviter une query DB sur chaque navigation middleware.
   }
 
   return supabaseResponse
