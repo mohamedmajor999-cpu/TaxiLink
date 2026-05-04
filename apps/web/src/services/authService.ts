@@ -21,6 +21,7 @@ export const authService = {
       email:    params.email,
       password: params.password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           full_name:  `${params.first_name} ${params.last_name}`,
           first_name: params.first_name,

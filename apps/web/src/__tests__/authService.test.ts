@@ -48,13 +48,14 @@ describe('authService.signIn', () => {
 describe('authService.finalizeSignUp', () => {
   const params = { email: 'new@test.com', password: 'pass123', first_name: 'Marc', last_name: 'Dupont', department: '13' }
 
-  it('cree le compte avec toutes les metadata', async () => {
+  it('cree le compte avec toutes les metadata et emailRedirectTo vers /auth/callback', async () => {
     mockSignUp.mockResolvedValue({ data: { user: { identities: [{ id: '1' }] } }, error: null })
     await authService.finalizeSignUp(params)
     expect(mockSignUp).toHaveBeenCalledWith(expect.objectContaining({
       email: 'new@test.com',
       password: 'pass123',
       options: expect.objectContaining({
+        emailRedirectTo: expect.stringContaining('/auth/callback'),
         data: expect.objectContaining({
           first_name: 'Marc', last_name: 'Dupont', role: 'driver',
           department: '13', dept_preferences: ['13'],
