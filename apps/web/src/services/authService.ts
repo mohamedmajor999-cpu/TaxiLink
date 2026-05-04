@@ -86,4 +86,10 @@ export const authService = {
     const { error } = await supabase.auth.updateUser({ password: newPassword })
     if (error) throw new Error(error.message)
   },
+
+  async exchangeCodeForSession(code: string) {
+    const supabase = createClient()
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) throw new Error(error.message)
+  },
 }
