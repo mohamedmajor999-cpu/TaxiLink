@@ -4,6 +4,7 @@ import { ProfileHeroCard } from './profil/ProfileHeroCard'
 import { ProfileStatsTiles } from './profil/ProfileStatsTiles'
 import { ProfileSectionCompte } from './profil/ProfileSectionCompte'
 import { ProfileSectionApp } from './profil/ProfileSectionApp'
+import { ProfileSectionRGPD } from './profil/ProfileSectionRGPD'
 
 interface Props {
   driverName: string
@@ -54,6 +55,8 @@ export function DriverProfilScreen({
       />
 
       <ProfileSectionApp onOpenSupport={onOpenSupport} />
+
+      <ProfileSectionRGPD />
 
       <p className="text-center text-[11px] text-warm-500 pt-2 pb-8">
         Version 1.0.0

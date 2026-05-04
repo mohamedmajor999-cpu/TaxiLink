@@ -9,3 +9,5 @@ coverage
 *.env
 .DS_Store
 .vercel
+backup-*.json
+backup-*.sql

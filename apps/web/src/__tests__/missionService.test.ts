@@ -34,11 +34,16 @@ const mockChannel = vi.fn(() => ({
 }))
 const mockRemoveChannel = vi.fn()
 
+// getAvailable utilise desormais .rpc('get_marketplace_missions') pour
+// recuperer les missions deja maskees cote serveur (RGPD). Mock du RPC.
+const mockRpc = vi.fn()
+
 vi.mock('@/lib/supabase/client', () => ({
   createClient: () => ({
     from: mockFrom,
     channel: mockChannel,
     removeChannel: mockRemoveChannel,
+    rpc: mockRpc,
   }),
 }))
 
@@ -79,6 +84,10 @@ beforeEach(() => {
   mockUpdate.mockReturnValue({ eq: mockUpdateEq1 })
 
   mockFrom.mockReturnValue({ select: mockSelect, update: mockUpdate })
+
+  // RPC : par defaut renvoie une mission. Override par les tests qui
+  // veulent simuler null/erreur.
+  mockRpc.mockResolvedValue({ data: [mission], error: null })
 })
 
 // ─── getAvailable ─────────────────────────────────────────────────────────────
@@ -87,17 +96,17 @@ describe('missionService.getAvailable', () => {
     const result = await missionService.getAvailable()
     expect(result).toHaveLength(1)
     expect(result[0].id).toBe('m1')
-    expect(mockFrom).toHaveBeenCalledWith('missions')
+    expect(mockRpc).toHaveBeenCalledWith('get_marketplace_missions', expect.any(Object))
   })
 
   it('retourne [] si data est null', async () => {
-    mockLimit.mockResolvedValue({ data: null, error: null })
+    mockRpc.mockResolvedValue({ data: null, error: null })
     const result = await missionService.getAvailable()
     expect(result).toEqual([])
   })
 
   it('leve une erreur si Supabase echoue', async () => {
-    mockLimit.mockResolvedValue({ data: null, error: { message: 'DB error' } })
+    mockRpc.mockResolvedValue({ data: null, error: { message: 'DB error' } })
     await expect(missionService.getAvailable()).rejects.toThrow('DB error')
   })
 })

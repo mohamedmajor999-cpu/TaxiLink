@@ -8,6 +8,7 @@ import { type MissionTypeFilter } from '@/constants/missionTypes'
 import type { Mission } from '@/lib/supabase/types'
 import { usePublishedFeedbackStore } from '@/store/publishedFeedbackStore'
 import { playNotificationSound } from '@/lib/playNotificationSound'
+import { maskMissionForViewer } from '@/lib/missionMask'
 
 const TYPE_LABEL: Record<'CPAM' | 'PRIVE' | 'PRESCRIPTION', string> = {
   CPAM: 'CPAM',
@@ -69,24 +70,28 @@ export function useDriverMissions() {
   useMissionRealtime({
     onInsert: (m) => {
       if (!matchesDeptPref(m)) return
-      // Le toast "fin noir" en haut a droite faisait doublon avec MissionMapPopup
-      // (carte centree + barre 10s) qui couvre desormais l'annonce des qu'elle
-      // tombe dans le rayon 15km/2h. Pour les missions hors-criteres popup, le
-      // chauffeur les voit apparaitre directement dans la liste sous la carte.
-      setMissions((prev) => (prev.some((x) => x.id === m.id) ? prev : [m, ...prev]))
+      // RGPD : Supabase realtime publie les colonnes brutes (patient_name,
+      // phone, notes en clair). On applique maskMissionForViewer cote client
+      // avant de poser la mission dans le state -> aucune PII patient n'est
+      // jamais visible dans le DOM/state pour un chauffeur tiers du feed.
+      const masked = maskMissionForViewer(m, user?.id ?? null)
+      setMissions((prev) => (prev.some((x) => x.id === masked.id) ? prev : [masked, ...prev]))
     },
     onUpdate: (m) => {
+      const masked = maskMissionForViewer(m, user?.id ?? null)
       setMissions((prev) => {
-        const idx = prev.findIndex((x) => x.id === m.id)
+        const idx = prev.findIndex((x) => x.id === masked.id)
         // Sortie de la liste si la mission n'est plus disponible (acceptée/annulée/terminée)
-        if (m.status !== 'AVAILABLE') {
-          return idx === -1 ? prev : prev.filter((x) => x.id !== m.id)
+        if (masked.status !== 'AVAILABLE') {
+          return idx === -1 ? prev : prev.filter((x) => x.id !== masked.id)
         }
         if (idx === -1) return prev
         const next = [...prev]
-        next[idx] = m
+        next[idx] = masked
         return next
       })
+      // currentMission est la course en cours du driver lui-meme : il a le
+      // droit de voir les details complets, donc on garde la version brute.
       setCurrentMission((prev) => (prev?.id === m.id ? m : prev))
     },
     onDelete: ({ id }) => {

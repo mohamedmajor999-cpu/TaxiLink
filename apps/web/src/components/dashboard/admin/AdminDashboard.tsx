@@ -11,6 +11,7 @@ import { TopGroupsSection } from './TopGroupsSection'
 import { FunnelSection } from './FunnelSection'
 import { HeatmapSection } from './HeatmapSection'
 import { BreakdownSection } from './BreakdownSection'
+import { ModerationSection } from './ModerationSection'
 
 const OnlineDriversMap = dynamic(
   () => import('./OnlineDriversMap').then((m) => m.OnlineDriversMap),
@@ -47,6 +48,7 @@ export function AdminDashboard() {
           <Stagger index={8}><TopGroupsSection /></Stagger>
           <Stagger index={9}><AiUsageSection /></Stagger>
           <Stagger index={10}><GoogleCostsSection /></Stagger>
+          <Stagger index={11}><ModerationSection /></Stagger>
         </div>
       </div>
     </main>

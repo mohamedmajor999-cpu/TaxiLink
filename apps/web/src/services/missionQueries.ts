@@ -14,24 +14,18 @@ export const missionQueries = {
    */
   async getAvailable(departments?: string[], limit = DEFAULT_LIMIT): Promise<Mission[]> {
     const supabase = createClient()
-    // Une course dont l'heure de départ est passée disparaît du pool : un
-    // collègue qui la prendrait après coup ne peut plus arriver à temps.
-    const now = new Date().toISOString()
-    let query = supabase
-      .from('missions')
-      .select('*, mission_groups(group_id), publisher:profiles!missions_client_id_fkey(full_name)')
-      .eq('status', 'AVAILABLE')
-      .gt('scheduled_at', now)
-
-    if (departments && departments.length > 0) {
-      query = query.in('departement', departments)
-    }
-
-    const { data, error } = await query
-      .order('scheduled_at', { ascending: true })
-      .limit(limit)
+    // RGPD : on passe par la fonction RPC `get_marketplace_missions` qui masque
+    // patient_name (initiales) + phone (NULL) + notes (NULL) cote serveur. La
+    // PII patient ne quitte pas Postgres en clair pour le feed marketplace.
+    // Cf. migration 20260504_marketplace_masked_rpc.sql.
+    const { data, error } = await supabase.rpc('get_marketplace_missions', {
+      p_departments: departments && departments.length > 0 ? departments : null,
+      p_limit:       limit,
+    })
     if (error) throw new Error(error.message)
-    return data ?? []
+    // Le RPC retourne SETOF JSONB : chaque ligne est deja un objet Mission
+    // (avec mission_groups embedded). Cast jusqu'a regen des types Supabase.
+    return (data ?? []) as unknown as Mission[]
   },
 
   async getCurrentForDriver(driverId: string): Promise<Mission | null> {

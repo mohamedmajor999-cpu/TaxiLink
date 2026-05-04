@@ -139,6 +139,7 @@ export type Database = {
           is_online: boolean
           is_verified: boolean
           last_seen_at: string | null
+          organization_id: string
           pro_number: string | null
           rating: number
           total_rides: number
@@ -158,6 +159,7 @@ export type Database = {
           is_online?: boolean
           is_verified?: boolean
           last_seen_at?: string | null
+          organization_id: string
           pro_number?: string | null
           rating?: number
           total_rides?: number
@@ -177,6 +179,7 @@ export type Database = {
           is_online?: boolean
           is_verified?: boolean
           last_seen_at?: string | null
+          organization_id?: string
           pro_number?: string | null
           rating?: number
           total_rides?: number
@@ -191,6 +194,13 @@ export type Database = {
             columns: ["id"]
             isOneToOne: true
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drivers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -222,6 +232,7 @@ export type Database = {
           medical_motif: string | null
           no_show: boolean
           notes: string | null
+          organization_id: string | null
           passengers: number | null
           patient_name: string | null
           phone: string | null
@@ -268,6 +279,7 @@ export type Database = {
           medical_motif?: string | null
           no_show?: boolean
           notes?: string | null
+          organization_id?: string | null
           passengers?: number | null
           patient_name?: string | null
           phone?: string | null
@@ -314,6 +326,7 @@ export type Database = {
           medical_motif?: string | null
           no_show?: boolean
           notes?: string | null
+          organization_id?: string | null
           passengers?: number | null
           patient_name?: string | null
           phone?: string | null
@@ -349,6 +362,13 @@ export type Database = {
             referencedRelation: "drivers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "missions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       mission_groups: {
@@ -380,6 +400,121 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          id: string
+          name: string
+          siret: string | null
+          plan: string
+          stripe_customer_id: string | null
+          auto_dispatch_enabled: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          siret?: string | null
+          plan?: string
+          stripe_customer_id?: string | null
+          auto_dispatch_enabled?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          siret?: string | null
+          plan?: string
+          stripe_customer_id?: string | null
+          auto_dispatch_enabled?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      org_invitations: {
+        Row: {
+          id: string
+          org_id: string
+          invited_by: string
+          contact: string
+          contact_type: string
+          role: string
+          token: string
+          status: string
+          expires_at: string
+          accepted_by: string | null
+          accepted_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          org_id: string
+          invited_by: string
+          contact: string
+          contact_type: string
+          role?: string
+          token: string
+          status?: string
+          expires_at?: string
+          accepted_by?: string | null
+          accepted_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          org_id?: string
+          invited_by?: string
+          contact?: string
+          contact_type?: string
+          role?: string
+          token?: string
+          status?: string
+          expires_at?: string
+          accepted_by?: string | null
+          accepted_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_invitations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          org_id: string
+          user_id: string
+          role: string
+          joined_at: string
+        }
+        Insert: {
+          org_id: string
+          user_id: string
+          role: string
+          joined_at?: string
+        }
+        Update: {
+          org_id?: string
+          user_id?: string
+          role?: string
+          joined_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -505,7 +640,38 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_org_ids: {
+        Args: Record<string, never>
+        Returns: string[]
+      }
+      accept_invitation: {
+        Args: { invitation_token: string }
+        Returns: Json
+      }
+      remove_org_member: {
+        Args: { target_org_id: string; target_user_id: string }
+        Returns: Json
+      }
+      patron_assign_mission: {
+        Args: { target_mission_id: string; target_driver_id: string }
+        Returns: Json
+      }
+      get_marketplace_missions: {
+        Args: { p_departments?: string[] | null; p_limit?: number }
+        Returns: Json[]
+      }
+      delete_my_account: {
+        Args: Record<string, never>
+        Returns: undefined
+      }
+      _anonymize_user_internal: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      mask_initials: {
+        Args: { p_full_name: string }
+        Returns: string | null
+      }
     }
     Enums: {
       [_ in never]: never
@@ -610,3 +776,7 @@ export type Profile  = Database['public']['Tables']['profiles']['Row']
 export type Document = Database['public']['Tables']['driver_documents']['Row']
 export type Payment  = Database['public']['Tables']['payments']['Row']
 export type Driver   = Database['public']['Tables']['drivers']['Row']
+export type Organization       = Database['public']['Tables']['organizations']['Row']
+export type OrganizationMember = Database['public']['Tables']['organization_members']['Row']
+export type OrgInvitation      = Database['public']['Tables']['org_invitations']['Row']
+export type OrgRole = 'owner' | 'admin' | 'dispatcher' | 'accountant' | 'viewer'
