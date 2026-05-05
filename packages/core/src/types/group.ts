@@ -7,6 +7,7 @@ export interface Group {
   createdBy:    string
   createdAt:    string
   memberCount?: number
+  fleetOrgId?:  string | null  // si non-null : groupe-flotte auto-géré de cette org
 }
 
 export interface GroupMember {
