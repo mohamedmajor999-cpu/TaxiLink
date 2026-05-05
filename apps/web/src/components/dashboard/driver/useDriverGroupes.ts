@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { createClient } from '@/lib/supabase/client'
 import { groupService } from '@/services/groupService'
 import { useGroupActions } from './useGroupActions'
 import { useGroupStats } from './useGroupStats'
@@ -30,13 +29,7 @@ export function useDriverGroupes() {
 
   useEffect(() => {
     if (!driverId) return
-    const supabase = createClient()
-    const channel = supabase
-      .channel('group-members-realtime')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_members' }, () => loadGroups())
-      .on('postgres_changes', { event: 'DELETE',  schema: 'public', table: 'group_members' }, () => loadGroups())
-      .subscribe()
-    return () => { supabase.removeChannel(channel) }
+    return groupService.subscribeMembers(loadGroups)
   }, [driverId, loadGroups])
 
   const actions = useGroupActions({ driverId, setGroups, loadGroups, setError })

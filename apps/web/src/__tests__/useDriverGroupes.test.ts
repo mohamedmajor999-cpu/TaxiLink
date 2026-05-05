@@ -36,12 +36,13 @@ vi.mock('@/services/groupStatsService', () => ({
 
 vi.mock('@/services/groupService', () => ({
   groupService: {
-    getMyGroups:  (...a: unknown[]) => mockGetMyGroups(...a),
-    getMembers:   (...a: unknown[]) => mockGetMembers(...a),
-    create:       (...a: unknown[]) => mockCreate(...a),
-    join:         (...a: unknown[]) => mockJoin(...a),
-    leave:        (...a: unknown[]) => mockLeave(...a),
-    deleteGroup:  (...a: unknown[]) => mockDeleteGroup(...a),
+    getMyGroups:      (...a: unknown[]) => mockGetMyGroups(...a),
+    getMembers:       (...a: unknown[]) => mockGetMembers(...a),
+    create:           (...a: unknown[]) => mockCreate(...a),
+    join:             (...a: unknown[]) => mockJoin(...a),
+    leave:            (...a: unknown[]) => mockLeave(...a),
+    deleteGroup:      (...a: unknown[]) => mockDeleteGroup(...a),
+    subscribeMembers: () => () => {},
   },
 }))
 

@@ -1,9 +1,10 @@
 'use client'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 import { usePostedAcceptStore } from '@/store/postedAcceptStore'
+import { missionService } from '@/services/missionService'
+import { profileService } from '@/services/profileService'
 import { sameDay } from '../agendaHelpers'
 import { buildAdDays, getAdState, type AdView, type DriverProfile } from './adsHelpers'
 import type { Mission } from '@/lib/supabase/types'
@@ -35,34 +36,28 @@ export function useAdsTab() {
   const [nowTick, setNowTick] = useState(Date.now())
 
   const load = useCallback(async (uid: string) => {
-    const supabase = createClient()
-    // 30 jours en arrière + tout le futur. Pas de filtre status → on inclut DONE
-    // pour afficher les annonces effectuées dans le tracker des 3 derniers jours.
+    // 30 jours en arrière + tout le futur. Le service inclut DONE pour
+    // afficher les annonces effectuées dans le tracker des 3 derniers jours.
     const cutoff = new Date(Date.now() - 30 * 86_400_000).toISOString()
-    const { data, error: e } = await supabase
-      .from('missions')
-      .select('*')
-      .eq('shared_by', uid)
-      .gte('scheduled_at', cutoff)
-      .order('scheduled_at', { ascending: true })
-    if (e) { setError(e.message); setLoading(false); return }
-    const list = data ?? []
-    setMissions(list)
-    setError(null)
+    try {
+      const list = await missionService.getSharedByUser(uid, cutoff)
+      setMissions(list)
+      setError(null)
 
-    const driverIds = Array.from(new Set(list.map((m) => m.driver_id).filter((id): id is string => !!id)))
-    if (driverIds.length > 0) {
-      const { data: profs } = await supabase
-        .from('profiles')
-        .select('id, full_name, phone')
-        .in('id', driverIds)
-      const map: Record<string, DriverProfile> = {}
-      for (const p of profs ?? []) map[p.id] = { full_name: p.full_name, phone: p.phone }
-      setProfiles(map)
-    } else {
-      setProfiles({})
+      const driverIds = Array.from(new Set(list.map((m) => m.driver_id).filter((id): id is string => !!id)))
+      if (driverIds.length > 0) {
+        const profs = await profileService.getContactsByIds(driverIds)
+        const map: Record<string, DriverProfile> = {}
+        for (const p of profs) map[p.id] = { full_name: p.full_name, phone: p.phone }
+        setProfiles(map)
+      } else {
+        setProfiles({})
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erreur de chargement')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
   useEffect(() => { if (user) void load(user.id) }, [user, load])

@@ -8,13 +8,14 @@ export const groupService = {
   async getMyGroups(driverId: string): Promise<Group[]> {
     const { data, error } = await supabase
       .from('group_members')
-      .select('group_id, groups(id, name, description, created_by, created_at)')
+      .select('group_id, groups(id, name, description, created_by, created_at, fleet_org_id)')
       .eq('driver_id', driverId)
     if (error) throw error
 
     const groups: Group[] = (data ?? []).map((row: any) => ({
       id: row.groups.id, name: row.groups.name, description: row.groups.description,
       createdBy: row.groups.created_by, createdAt: row.groups.created_at,
+      fleetOrgId: row.groups.fleet_org_id ?? null,
     }))
     if (groups.length === 0) return groups
 
@@ -84,5 +85,33 @@ export const groupService = {
     if (mErr) throw mErr
     const { error } = await supabase.from('groups').delete().eq('id', groupId)
     if (error) throw error
+  },
+
+  // Realtime sur la table group_members (INSERT/DELETE) — utilise par
+  // useDriverGroupes pour rafraichir la liste des groupes du chauffeur quand
+  // il en rejoint ou en quitte un.
+  subscribeMembers(onChange: () => void): () => void {
+    const channel = supabase
+      .channel('group-members-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_members' }, () => onChange())
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'group_members' }, () => onChange())
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  },
+
+  // Realtime sur l'activite des groupes : mission_groups (any event, filtre
+  // par groupIds) + missions UPDATE. Utilise par useDriverGroupesScreen pour
+  // rafraichir les compteurs / pulses des cards de groupe.
+  subscribeActivity(groupIds: string[], onChange: () => void): () => void {
+    const idSet = new Set(groupIds)
+    const channel = supabase
+      .channel('groupes-summary-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mission_groups' }, (payload: any) => {
+        const gid = payload.new?.group_id ?? payload.old?.group_id
+        if (gid && idSet.has(gid)) onChange()
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'missions' }, () => onChange())
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
   },
 }

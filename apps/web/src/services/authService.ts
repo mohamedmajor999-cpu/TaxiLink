@@ -71,6 +71,14 @@ export const authService = {
     await supabase.auth.signOut()
   },
 
+  // Force le refresh du JWT cote client. Utile apres un trigger SQL qui
+  // modifie app_metadata (ex. profile_complete) pour eviter une boucle de
+  // redirect en attendant l'expiration naturelle du token.
+  async refreshSession() {
+    const supabase = createClient()
+    await supabase.auth.refreshSession()
+  },
+
   async resendConfirmation(email: string) {
     const supabase = createClient()
     const { error } = await supabase.auth.resend({

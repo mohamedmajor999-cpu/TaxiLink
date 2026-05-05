@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { adminModerationService } from '@/services/adminModerationService'
+import { ApiRequestError } from '@/lib/api'
 
 // Hook : suppression de compte par email cote admin. Demande une double
 // confirmation (taper l'email exact dans un second champ) avant POST.
@@ -19,25 +21,24 @@ export function useModerationSection() {
     setBusy(true)
     setResult(null)
     try {
-      const res = await fetch('/api/admin/users/delete-by-email', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: trimmed }),
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        throw new Error(body.error ?? `Erreur ${res.status}`)
-      }
+      await adminModerationService.deleteUserByEmail(trimmed)
       setResult({ kind: 'ok', message: `Compte ${trimmed} anonymisé et supprimé.` })
       setEmail('')
       setConfirmEmail('')
     } catch (err) {
-      setResult({ kind: 'error', message: err instanceof Error ? err.message : 'Erreur inconnue' })
+      const message = err instanceof ApiRequestError || err instanceof Error
+        ? err.message
+        : 'Erreur inconnue'
+      setResult({ kind: 'error', message })
     } finally {
       setBusy(false)
     }
   }
 
-  return { email, setEmail, confirmEmail, setConfirmEmail, isValid, busy, result, deleteAccount }
+  return {
+    email, setEmail,
+    confirmEmail, setConfirmEmail,
+    isValid, busy, result,
+    deleteAccount,
+  }
 }

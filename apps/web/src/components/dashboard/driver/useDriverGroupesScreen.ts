@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { groupService } from '@/services/groupService'
 import { groupStatsService, type GroupActivitySummary } from '@/services/groupStatsService'
 import { groupActivityService } from '@/services/groupActivityService'
 import type { Group } from '@taxilink/core'
@@ -108,23 +108,15 @@ export function useDriverGroupesScreen() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
     if (groupes.groups.length === 0) return
-    const myGroupIds = new Set(groupes.groups.map((g) => g.id))
-    const supabase = createClient()
+    const groupIds = groupes.groups.map((g) => g.id)
     const trigger = () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
       debounceRef.current = setTimeout(() => loadSummaries(groupes.groups), REFRESH_DEBOUNCE_MS)
     }
-    const channel = supabase
-      .channel('groupes-summary-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'mission_groups' }, (payload: any) => {
-        const gid = payload.new?.group_id ?? payload.old?.group_id
-        if (gid && myGroupIds.has(gid)) trigger()
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'missions' }, () => trigger())
-      .subscribe()
+    const unsubscribe = groupService.subscribeActivity(groupIds, trigger)
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
-      supabase.removeChannel(channel)
+      unsubscribe()
     }
   }, [groupes.groups, loadSummaries])
 

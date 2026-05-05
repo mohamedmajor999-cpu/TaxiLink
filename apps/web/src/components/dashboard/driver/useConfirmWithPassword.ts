@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { createClient } from '@/lib/supabase/client'
+import { authService } from '@/services/authService'
 
 export function useConfirmWithPassword(onConfirmed: () => Promise<void>, onClose: () => void) {
   const { user }                    = useAuth()
@@ -15,15 +15,13 @@ export function useConfirmWithPassword(onConfirmed: () => Promise<void>, onClose
     setLoading(true)
     setError(null)
     try {
-      const supabase = createClient()
-      const { error: authErr } = await supabase.auth.signInWithPassword({
-        email:    user.email,
-        password: password.trim(),
-      })
-      if (authErr) {
-        setError('Mot de passe incorrect')
-        return
-      }
+      await authService.signIn(user.email, password.trim())
+    } catch {
+      setError('Mot de passe incorrect')
+      setLoading(false)
+      return
+    }
+    try {
       await onConfirmedRef.current()
       onClose()
     } catch {

@@ -24,6 +24,19 @@ export const profileService = {
     return data?.full_name ?? null
   },
 
+  // Batch fetch nom/telephone pour une liste d'ids — utilise par les vues qui
+  // resolvent les chauffeurs lies a des missions (ads, marketplace, agenda).
+  async getContactsByIds(ids: string[]): Promise<Pick<Profile, 'id' | 'full_name' | 'phone'>[]> {
+    if (ids.length === 0) return []
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, phone')
+      .in('id', ids)
+    if (error) throw new Error(error.message)
+    return data ?? []
+  },
+
   async getRole(userId: string): Promise<string | null> {
     const supabase = createClient()
     const { data, error } = await supabase

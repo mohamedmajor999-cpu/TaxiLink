@@ -80,6 +80,23 @@ export const missionQueries = {
     return data
   },
 
+  /**
+   * Annonces postees par un user (shared_by = userId) depuis une date pivot.
+   * Pas de filtre status : on inclut DONE pour afficher les annonces effectuees
+   * dans le tracker de l'onglet "Mes annonces".
+   */
+  async getSharedByUser(userId: string, sinceIso: string): Promise<Mission[]> {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('missions')
+      .select('*')
+      .eq('shared_by', userId)
+      .gte('scheduled_at', sinceIso)
+      .order('scheduled_at', { ascending: true })
+    if (error) throw new Error(error.message)
+    return data ?? []
+  },
+
   /** Agenda d'un chauffeur : ses missions assignées non terminées, triées par date croissante */
   async getAgenda(driverId: string, limit = DEFAULT_LIMIT): Promise<Mission[]> {
     const supabase = createClient()

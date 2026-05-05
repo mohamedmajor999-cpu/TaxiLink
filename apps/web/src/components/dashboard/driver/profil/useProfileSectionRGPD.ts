@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { authService } from '@/services/authService'
+import { userRgpdService } from '@/services/userRgpdService'
 
 // Hook : gere l'export RGPD (art. 20) et la suppression de compte (art. 17).
 // L'UI ouvre une modal avec checkbox de confirmation pour eviter les
@@ -20,12 +21,7 @@ export function useProfileSectionRGPD() {
     setExporting(true)
     setExportError(null)
     try {
-      const res = await fetch('/api/users/export', { credentials: 'same-origin' })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error ?? `Erreur ${res.status}`)
-      }
-      const blob = await res.blob()
+      const blob = await userRgpdService.exportData()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -56,18 +52,10 @@ export function useProfileSectionRGPD() {
     setDeleting(true)
     setDeleteError(null)
     try {
-      const res = await fetch('/api/users/delete', {
-        method: 'POST',
-        credentials: 'same-origin',
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error ?? `Erreur ${res.status}`)
-      }
-      // Supprime la session locale (le backend a deja DELETE auth.users mais
-      // le SDK garde un cache du JWT). Ensuite redirect hard vers la racine.
-      const supabase = createClient()
-      await supabase.auth.signOut().catch(() => {})
+      await userRgpdService.deleteAccount()
+      // Le backend a deja DELETE auth.users mais le SDK garde un cache du JWT
+      // local — on appelle signOut() pour purger, puis hard redirect.
+      await authService.signOut().catch(() => {})
       window.location.href = '/'
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : 'Échec de la suppression')
