@@ -6,15 +6,25 @@ interface PinOptions {
   priceLabel: string
   selected: boolean
   urgent: boolean
+  medical: boolean
 }
+
+// Croix médicale épurée — SVG inline pour rester net à toutes tailles
+// (preferé à un pseudo-element pour rendu sub-pixel sur mobile).
+const MEDICAL_CROSS_SVG =
+  '<svg class="mp-rx-svg" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
+  '<path d="M5 1.5h2v3h3v2H7v3H5v-3H2v-2h3v-3z" fill="currentColor"/>' +
+  '</svg>'
 
 export async function createMissionPinIcon(opts: PinOptions): Promise<DivIcon> {
   const L = (await import('leaflet')).default
   const classes = ['mission-pin']
   if (opts.selected) classes.push('selected')
   if (opts.urgent) classes.push('urgent')
+  if (opts.medical) classes.push('medical')
+  const badge = opts.medical ? `<span class="mp-rx">${MEDICAL_CROSS_SVG}</span>` : ''
   return L.divIcon({
-    html: `<div class="${classes.join(' ')}">${opts.priceLabel}</div>`,
+    html: `<div class="${classes.join(' ')}">${badge}<span class="mp-price">${opts.priceLabel}</span></div>`,
     className: '',
     iconSize: [0, 0],
     iconAnchor: [0, -6],

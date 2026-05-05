@@ -174,6 +174,38 @@ body {
   border-radius: 50%;
   z-index: 2;
 }
+
+/* ============================================================
+ * Pin médical (CPAM) — petit badge croix santé à gauche du prix.
+ * Dégradé bleu hôpital, ne se confond pas avec le jaune brand
+ * (réservé au "selected"). Reste lisible sur fond jaune sélectionné.
+ * ============================================================ */
+.mission-pin.medical { padding-left: 4px; gap: 5px; }
+.mission-pin .mp-rx {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%);
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(0,0,0,0.08),
+    0 1px 2px rgba(2,132,199,0.35);
+}
+.mission-pin .mp-rx-svg { display: block; }
+.mission-pin.medical.selected .mp-rx {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%);
+  color: #0284C7;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    inset 0 -1px 0 rgba(0,0,0,0.06),
+    0 1px 2px rgba(0,0,0,0.18);
+}
+
 .leaflet-div-icon { background: transparent; border: none; }
 
 /* ============================================================
