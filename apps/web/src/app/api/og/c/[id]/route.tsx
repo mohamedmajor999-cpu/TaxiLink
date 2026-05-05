@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
-import { fetchPublicMission } from '@/lib/publicMission'
-import { formatMissionPrice } from '@/lib/formatMissionPrice'
+import { fetchPublicMission } from '@/services/publicMissionService'
+import { computeDisplayFare } from '@/lib/missionFare'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -33,7 +33,8 @@ export async function GET(_req: Request, { params }: Ctx) {
   }
 
   const isCpam = m.type === 'CPAM'
-  const price = formatMissionPrice(m)
+  const fare = computeDisplayFare(m)
+  const price = fare.value > 0 ? `${fare.value.toFixed(0)} €` : '—'
   const date = dt(m.scheduled_at)
   const distance = m.distance_km != null ? `${m.distance_km.toFixed(1).replace('.', ',')} km` : '—'
   const duration = m.duration_min != null ? `${Math.round(m.duration_min)} min` : null
