@@ -1,7 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, Lock } from 'lucide-react'
+import { Lock } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
@@ -13,6 +12,7 @@ import { CourseDetailsTable } from './course/CourseDetailsTable'
 import { CourseActions } from './course/CourseActions'
 import { CourseCorrections } from './course/CourseCorrections'
 import { ManualCourseActions } from './course/ManualCourseActions'
+import { MissionDetailShell, MissionDetailStat } from './course/MissionDetailShell'
 import { AgendaAddModal } from './courses/AgendaAddModal'
 import { MAX_OFFSET } from './courses/useAgendaTab'
 import { startOfDay, addDays } from './courses/agendaHelpers'
@@ -30,13 +30,13 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
   const c = useMissionDetail(missionId)
   const driverId = useDriverStore((s) => s.driver.id)
 
-  if (c.loading) return <Shell onBack={onBack}><div className="h-64 rounded-3xl bg-warm-100 motion-safe:animate-pulse mb-3" /></Shell>
+  if (c.loading) return <MissionDetailShell onBack={onBack}><div className="h-64 rounded-3xl bg-warm-100 motion-safe:animate-pulse mb-3" /></MissionDetailShell>
   if (!c.mission) return (
-    <Shell onBack={onBack}>
+    <MissionDetailShell onBack={onBack}>
       <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
         <p className="text-[20px] font-bold text-ink mb-2">Course introuvable</p>
       </div>
-    </Shell>
+    </MissionDetailShell>
   )
 
   const mission = c.mission
@@ -72,7 +72,7 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
   const canActAsDriver = !!driverId && mission.driver_id === driverId
 
   return (
-    <Shell onBack={onBack}>
+    <MissionDetailShell onBack={onBack}>
       {c.isMasked && (
         <div className="mb-3 flex items-start gap-3 rounded-2xl border border-warm-200 bg-warm-50 p-3">
           <Lock className="w-4 h-4 text-warm-600 shrink-0 mt-0.5" strokeWidth={2} />
@@ -95,14 +95,14 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
           )}
         </div>
         <div className="grid grid-cols-3 border-t border-warm-200">
-          <Stat label="Distance" value={km ? `${km} km` : '—'} />
-          <Stat
+          <MissionDetailStat label="Distance" value={km ? `${km} km` : '—'} />
+          <MissionDetailStat
             label="Trafic"
             value={trafficMin ? `${trafficMin} min` : routeMin ? `${routeMin} min` : '—'}
             sub={trafficSub}
             border
           />
-          <Stat
+          <MissionDetailStat
             label={fare.isEstimated ? 'Prix estimé' : 'Prix'}
             value={fare.value > 0 ? `${fare.value.toFixed(0)} €` : '—'}
             border
@@ -166,35 +166,6 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
           onAdded={c.applyEdit}
         />
       )}
-    </Shell>
-  )
-}
-
-function Shell({ children, onBack }: { children: React.ReactNode; onBack?: () => void }) {
-  const router = useRouter()
-  return (
-    <div className="px-4 md:px-8 py-3 md:py-6 max-w-2xl md:max-w-3xl mx-auto pb-24 md:pb-6">
-      <header className="mb-3">
-        <button
-          type="button"
-          onClick={() => (onBack ? onBack() : router.back())}
-          className="inline-flex items-center gap-2 text-[13px] font-semibold text-warm-600 hover:text-ink transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-          Retour
-        </button>
-      </header>
-      {children}
-    </div>
-  )
-}
-
-function Stat({ label, value, sub, border = false }: { label: string; value: string; sub?: string; border?: boolean }) {
-  return (
-    <div className={`px-2 sm:px-3 py-3 text-center ${border ? 'border-l border-warm-200' : ''}`}>
-      <p className="text-[10px] font-bold uppercase tracking-wider text-warm-500 mb-0.5">{label}</p>
-      <p className="text-[14px] sm:text-[16px] md:text-[20px] font-bold text-ink tabular-nums tracking-tight leading-none truncate">{value}</p>
-      {sub && <p className="text-[10px] text-warm-500 mt-1 truncate">{sub}</p>}
-    </div>
+    </MissionDetailShell>
   )
 }
