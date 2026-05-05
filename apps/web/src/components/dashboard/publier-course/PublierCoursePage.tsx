@@ -48,7 +48,8 @@ export function PublierCoursePage() {
     type: form.type, medicalMotif: form.medicalMotif, returnTrip: form.returnTrip, tpmr: c.tpmr,
     previewFare: c.previewFare, distanceKm: c.distanceKm, durationMin: c.durationMin,
     loadingRoute: c.loadingRoute, saving: c.saving, canSubmit: c.canSubmit, error: c.error,
-    onSubmit: c.submit,
+    onSubmit: () => c.submit(),
+    onSubmitAndShare: () => c.submit({ share: true }),
   }
 
   return (

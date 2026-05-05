@@ -13,6 +13,7 @@ import { useMissionRoute } from '@/components/dashboard/driver/useMissionRoute'
 import { useMissionPricing } from '@/components/dashboard/driver/useMissionPricing'
 import { useMissionVoiceFiller } from '@/components/dashboard/driver/useMissionVoiceFiller'
 import { submitMission } from '@/components/dashboard/driver/submitMission'
+import { shareCourseOnWhatsApp } from '@/lib/shareWhatsApp'
 import { usePosterVoiceFlow } from './usePosterVoiceFlow'
 
 export type WhenMode = 'now' | 'later'
@@ -123,13 +124,13 @@ export function usePosterCourse() {
   }, [saving, form.departure, form.destination, form.type, form.patientName,
     form.medicalMotif, form.visibility, form.groupIds])
 
-  const submit = async () => {
+  const submit = async (opts?: { share?: boolean }) => {
     setError(null)
     setSaving(true)
     try {
       const date = when === 'now' ? defaultDate() : form.date
       const time = when === 'now' ? defaultTime() : form.time
-      await submitMission({
+      const id = await submitMission({
         type: form.type,
         medicalMotif: form.medicalMotif,
         transportType: form.transportType,
@@ -154,11 +155,12 @@ export function usePosterCourse() {
         groupIds: form.groupIds,
       })
       if (driverId) await useMissionStore.getState().load(driverId)
+      if (opts?.share) {
+        shareCourseOnWhatsApp({ id, departure: form.departure, destination: form.destination })
+      }
       // Pas de redirection immediate : on bascule sur l'ecran "publiee" plein
       // ecran (pouce vert + Bravo). MissionPublishedCelebration appelle
-      // dismissCelebration apres 2.5s qui redirige. Le toast sur le
-      // dashboard fait doublon avec la celebration plein ecran -> on le
-      // retire.
+      // dismissCelebration apres 2.5s qui redirige.
       setPublished(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la publication')

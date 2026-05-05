@@ -43,8 +43,9 @@ function parsePrice(s: string): number | null {
 /**
  * Construit le payload `MissionInput`, valide, et appelle le bon endpoint.
  * Lève une Error avec un message lisible si la validation ou l'appel échoue.
+ * Retourne l'id de la mission créée (ou de la mission éditée).
  */
-export async function submitMission(args: SubmitMissionArgs): Promise<void> {
+export async function submitMission(args: SubmitMissionArgs): Promise<string> {
   const scheduled_at = buildScheduledAt(args.date, args.time)
   if (!scheduled_at) {
     throw new Error("Date ou heure invalide (format attendu : aaaa-mm-jj et HH:MM)")
@@ -105,8 +106,9 @@ export async function submitMission(args: SubmitMissionArgs): Promise<void> {
   }
 
   if (args.mission) {
-    await missionService.update(args.mission.id, payload)
-  } else {
-    await missionService.create(payload)
+    const updated = await missionService.update(args.mission.id, payload)
+    return updated.id
   }
+  const created = await missionService.create(payload)
+  return created.id
 }

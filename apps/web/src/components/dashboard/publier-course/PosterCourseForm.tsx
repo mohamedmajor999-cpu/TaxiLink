@@ -20,6 +20,7 @@ interface FooterProps {
   canSubmit: boolean
   error: string | null
   onSubmit: () => void
+  onSubmitAndShare: () => void
 }
 
 interface Props {
@@ -35,8 +36,26 @@ interface Props {
  */
 export function PosterCourseForm({ c, footerProps }: Props) {
   const { form } = c
+  const isAiThinking = c.voiceFlow.status === 'processing'
   return (
     <>
+      {isAiThinking && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed left-1/2 -translate-x-1/2 z-[1300] inline-flex items-center gap-3 bg-ink text-paper px-4 py-3 rounded-full shadow-[0_12px_32px_-6px_rgba(0,0,0,0.55)] motion-safe:animate-[poster-ai-in_0.25s_ease-out]"
+          style={{ top: 'calc(env(safe-area-inset-top) + 14px)' }}
+        >
+          <span className="relative inline-flex w-5 h-5 shrink-0">
+            <span className="absolute inset-0 rounded-full border-[2.5px] border-brand/30 border-t-brand motion-safe:animate-spin" aria-hidden="true" />
+          </span>
+          <span className="flex flex-col leading-tight pr-1">
+            <span className="text-[13px] font-extrabold tracking-[-0.01em]">L&apos;IA analyse votre demande…</span>
+            <span className="text-[10.5px] text-paper/70 font-medium">5 à 10 secondes — patientez</span>
+          </span>
+          <style>{`@keyframes poster-ai-in { 0% { opacity: 0; transform: translate(-50%, -10px) } 100% { opacity: 1; transform: translate(-50%, 0) } }`}</style>
+        </div>
+      )}
       <div className="md:px-6 md:pt-2 lg:max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12">
         <div>
           <div className="px-6 pt-4 pb-2 lg:px-0">
