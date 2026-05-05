@@ -29,6 +29,7 @@ export interface GroupMemberStats {
   firstName:     string | null
   lastName:      string | null
   department:    string | null
+  phone:         string | null
   isOnline:      boolean
   role:          GroupRole
   sharedCount:   number

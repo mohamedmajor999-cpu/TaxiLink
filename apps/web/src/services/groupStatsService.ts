@@ -49,7 +49,7 @@ export const groupStatsService = {
   async getMemberStats(groupId: string, since: string): Promise<GroupMemberStats[]> {
     const [membersRes, missionsRes] = await Promise.all([
       supabase.from('group_members')
-        .select('driver_id, role, drivers(profiles(full_name, first_name, last_name, department), is_online, last_seen_at)')
+        .select('driver_id, role, drivers(profiles(full_name, first_name, last_name, department, phone), is_online, last_seen_at)')
         .eq('group_id', groupId),
       supabase.from('mission_groups')
         .select('missions!inner(shared_by, driver_id, created_at)')
@@ -73,6 +73,7 @@ export const groupStatsService = {
         firstName:    row.drivers?.profiles?.first_name ?? null,
         lastName:     row.drivers?.profiles?.last_name  ?? null,
         department:   row.drivers?.profiles?.department ?? null,
+        phone:        row.drivers?.profiles?.phone      ?? null,
         isOnline:     isFreshlyOnline(row.drivers?.is_online, row.drivers?.last_seen_at),
         role:         row.role,
         sharedCount:  shared[row.driver_id]   ?? 0,

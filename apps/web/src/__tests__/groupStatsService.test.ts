@@ -65,8 +65,8 @@ describe('groupStatsService.getMemberStats', () => {
           // For members query, resolves directly
           then: (resolve: any) => Promise.resolve({
             data: [
-              { driver_id: 'drv-1', role: 'admin', drivers: { profiles: { full_name: 'A', first_name: 'Alice', last_name: 'Martin', department: '75' }, is_online: true } },
-              { driver_id: 'drv-2', role: 'member', drivers: { profiles: { full_name: 'B', first_name: 'Bob', last_name: 'Smith', department: '13' }, is_online: false } },
+              { driver_id: 'drv-1', role: 'admin', drivers: { profiles: { full_name: 'A', first_name: 'Alice', last_name: 'Martin', department: '75', phone: '0612345678' }, is_online: true } },
+              { driver_id: 'drv-2', role: 'member', drivers: { profiles: { full_name: 'B', first_name: 'Bob', last_name: 'Smith', department: '13', phone: null }, is_online: false } },
             ],
             error: null,
           }).then(resolve),
@@ -79,7 +79,9 @@ describe('groupStatsService.getMemberStats', () => {
     const result = await groupStatsService.getMemberStats('g1', since)
     expect(result[0].driverId).toBe('drv-1')
     expect(result[0].sharedCount).toBe(2)
+    expect(result[0].phone).toBe('0612345678')
     expect(result[1].acceptedCount).toBe(1)
+    expect(result[1].phone).toBeNull()
   })
 
   it('leve une erreur si la requete membres echoue', async () => {

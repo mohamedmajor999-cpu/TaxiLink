@@ -1,4 +1,6 @@
 'use client'
+import { Phone, MessageSquare, MessageCircle } from 'lucide-react'
+import { waNumber } from '@/lib/phone'
 import type { GroupMemberStats } from '@taxilink/core'
 
 interface Props { member: GroupMemberStats }
@@ -15,6 +17,7 @@ export function GroupMemberRow({ member }: Props) {
         ? 'En ligne'
         : 'Hors ligne'
   const initial = (name.charAt(0) || '?').toUpperCase()
+  const phone = member.phone
 
   return (
     <div className="flex items-center gap-3 p-3 rounded-2xl bg-paper border border-warm-200">
@@ -36,6 +39,33 @@ export function GroupMemberRow({ member }: Props) {
         <span className="inline-flex items-center h-6 px-2.5 rounded-full bg-brand text-ink text-[10px] font-bold uppercase tracking-wider">
           Admin
         </span>
+      )}
+      {phone && (
+        <div className="flex gap-1.5 shrink-0">
+          <a
+            href={`sms:${phone}`}
+            aria-label={`Envoyer un SMS à ${name}`}
+            className="w-9 h-9 rounded-lg bg-paper border border-warm-200 grid place-items-center text-ink hover:bg-warm-50 transition-colors"
+          >
+            <MessageSquare className="w-4 h-4" strokeWidth={2} />
+          </a>
+          <a
+            href={`https://wa.me/${waNumber(phone)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Envoyer un WhatsApp à ${name}`}
+            className="w-9 h-9 rounded-lg bg-[#25D366] text-paper grid place-items-center hover:opacity-90 transition-opacity"
+          >
+            <MessageCircle className="w-4 h-4" strokeWidth={2.2} />
+          </a>
+          <a
+            href={`tel:${phone}`}
+            aria-label={`Appeler ${name}`}
+            className="w-9 h-9 rounded-lg bg-success text-paper grid place-items-center hover:bg-success/90 transition-colors"
+          >
+            <Phone className="w-4 h-4" strokeWidth={2.2} />
+          </a>
+        </div>
       )}
     </div>
   )

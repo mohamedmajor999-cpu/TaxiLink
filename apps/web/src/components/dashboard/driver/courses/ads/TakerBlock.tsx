@@ -1,5 +1,6 @@
 'use client'
 import { Phone, MessageSquare, MessageCircle } from 'lucide-react'
+import { waNumber } from '@/lib/phone'
 import type { DriverProfile } from './adsHelpers'
 
 interface Props {
@@ -16,16 +17,6 @@ function initials(name: string | null): string {
     .slice(0, 2)
     .join('')
     .toUpperCase()
-}
-
-/**
- * Normalise un numéro pour wa.me : digits-only, format français "0XYZ" ramené
- * à "33XYZ". Si déjà international (commence par autre chose), on laisse.
- */
-function waNumber(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.startsWith('0') && digits.length === 10) return '33' + digits.slice(1)
-  return digits
 }
 
 export function TakerBlock({ driver, subline }: Props) {
