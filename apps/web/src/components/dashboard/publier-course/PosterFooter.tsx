@@ -67,24 +67,23 @@ export function PosterFooter(p: Props) {
       )}
       <button
         type="button"
-        onClick={p.onSubmitAndShare}
+        onClick={p.onSubmit}
         disabled={!p.canSubmit}
-        className="w-full h-14 bg-[#25D366] text-paper rounded-2xl font-extrabold text-[15px] flex items-center justify-center gap-2.5 shadow-[0_12px_28px_-8px_rgba(37,211,102,0.45)] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#1FB856] transition-colors"
+        className="w-full h-14 bg-ink text-paper rounded-2xl font-extrabold text-[15px] flex items-center justify-center gap-2.5 shadow-[0_12px_28px_-8px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-warm-800 transition-colors"
       >
-        {p.saving ? 'Publication…' : 'Publier et partager sur WhatsApp'}
-        {!p.saving && (
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
-            <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.2-.7.2-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.7 1.2 2.9.1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4 0-.1-.2-.2-.5-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/>
-          </svg>
-        )}
+        {p.saving ? 'Publication…' : 'Publier la course'}
+        {!p.saving && <Icon name="arrow_forward" size={20} className="text-brand" />}
       </button>
       <button
         type="button"
-        onClick={p.onSubmit}
+        onClick={p.onSubmitAndShare}
         disabled={!p.canSubmit}
-        className="w-full mt-2 h-12 bg-paper border border-warm-300 text-ink rounded-2xl font-bold text-[14px] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-warm-50 transition-colors"
+        className="w-full mt-2 h-12 bg-[#25D366] text-paper rounded-2xl font-extrabold text-[14px] flex items-center justify-center gap-2 shadow-[0_8px_20px_-8px_rgba(37,211,102,0.55)] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#1FB856] transition-colors"
       >
-        {p.saving ? 'Publication…' : 'Publier sans partager'}
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.2-.7.2-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.7 1.2 2.9.1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4 0-.1-.2-.2-.5-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/>
+        </svg>
+        Publier et partager sur WhatsApp
       </button>
       <p className="hidden lg:block mt-3 text-[11.5px] text-warm-500 leading-relaxed">
         Une fois publiée, votre annonce apparaît instantanément aux chauffeurs ciblés.

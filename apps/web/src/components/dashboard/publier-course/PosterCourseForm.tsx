@@ -36,25 +36,42 @@ interface Props {
  */
 export function PosterCourseForm({ c, footerProps }: Props) {
   const { form } = c
-  const isAiThinking = c.voiceFlow.status === 'processing'
+  // Affiche le loader sur l'etat reel du parsing (filler.isProcessing).
+  // Le voiceFlow.status est mis a 'idle' des que l'utilisateur clique le micro
+  // pour arreter manuellement -> on ne peut pas s'y fier pour declencher
+  // l'overlay pendant les 5-10s d'attente IA.
+  const isAiThinking = c.voice.isProcessing
   return (
     <>
       {isAiThinking && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed left-1/2 -translate-x-1/2 z-[1300] inline-flex items-center gap-3 bg-ink text-paper px-4 py-3 rounded-full shadow-[0_12px_32px_-6px_rgba(0,0,0,0.55)] motion-safe:animate-[poster-ai-in_0.25s_ease-out]"
-          style={{ top: 'calc(env(safe-area-inset-top) + 14px)' }}
-        >
-          <span className="relative inline-flex w-5 h-5 shrink-0">
-            <span className="absolute inset-0 rounded-full border-[2.5px] border-brand/30 border-t-brand motion-safe:animate-spin" aria-hidden="true" />
-          </span>
-          <span className="flex flex-col leading-tight pr-1">
-            <span className="text-[13px] font-extrabold tracking-[-0.01em]">L&apos;IA analyse votre demande…</span>
-            <span className="text-[10.5px] text-paper/70 font-medium">5 à 10 secondes — patientez</span>
-          </span>
-          <style>{`@keyframes poster-ai-in { 0% { opacity: 0; transform: translate(-50%, -10px) } 100% { opacity: 1; transform: translate(-50%, 0) } }`}</style>
-        </div>
+        <>
+          {/* Barre de progression animee en haut de l'ecran — impossible a manquer */}
+          <div
+            role="status"
+            aria-live="polite"
+            aria-label="L'IA analyse votre demande, patientez"
+            className="fixed top-0 left-0 right-0 z-[1400] h-1 bg-warm-100 overflow-hidden"
+          >
+            <div className="h-full w-1/3 bg-brand motion-safe:animate-[poster-ai-bar_1.2s_ease-in-out_infinite]" />
+          </div>
+          {/* Bandeau flottant centre avec spinner + texte */}
+          <div
+            className="fixed left-1/2 -translate-x-1/2 z-[1400] inline-flex items-center gap-3 bg-ink text-paper px-5 py-3.5 rounded-2xl shadow-[0_16px_40px_-8px_rgba(0,0,0,0.65)] motion-safe:animate-[poster-ai-in_0.25s_ease-out]"
+            style={{ top: 'calc(env(safe-area-inset-top) + 18px)' }}
+          >
+            <span className="relative inline-flex w-6 h-6 shrink-0">
+              <span className="absolute inset-0 rounded-full border-[3px] border-brand/25 border-t-brand motion-safe:animate-spin" aria-hidden="true" />
+            </span>
+            <span className="flex flex-col leading-tight pr-1">
+              <span className="text-[14px] font-extrabold tracking-[-0.01em]">L&apos;IA remplit les champs…</span>
+              <span className="text-[11px] text-paper/70 font-medium mt-0.5">Cela prend 5 à 10 secondes — patientez</span>
+            </span>
+          </div>
+          <style>{`
+            @keyframes poster-ai-in { 0% { opacity: 0; transform: translate(-50%, -10px) } 100% { opacity: 1; transform: translate(-50%, 0) } }
+            @keyframes poster-ai-bar { 0% { transform: translateX(-100%) } 100% { transform: translateX(400%) } }
+          `}</style>
+        </>
       )}
       <div className="md:px-6 md:pt-2 lg:max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12">
         <div>
