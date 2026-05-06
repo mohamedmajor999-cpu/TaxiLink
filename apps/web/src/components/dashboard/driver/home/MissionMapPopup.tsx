@@ -57,7 +57,7 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
   const courseKm = mission.distance_km ?? null
   const isCpam = mission.type === 'CPAM'
   const typeLabel = isCpam ? 'CPAM' : 'Privé'
-  const badgeClass = isCpam ? 'bg-[#DBEAFE] text-[#1E40AF]' : 'bg-[#F3E8FF] text-[#6B21A8]'
+  const badgeClass = isCpam ? 'bg-[#FEE2E2] text-[#991B1B]' : 'bg-[#DBEAFE] text-[#1E40AF]'
 
   const isIncoming = autoDismissMs != null
 

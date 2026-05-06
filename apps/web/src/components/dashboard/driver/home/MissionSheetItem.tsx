@@ -43,8 +43,8 @@ export function MissionSheetItem({ mission, selected, userCoords, onSelect }: Pr
   const isCpam = mission.type === 'CPAM'
   const typeLabel = isCpam ? 'CPAM' : 'Privé'
   const badgeClass = isCpam
-    ? 'bg-[#DBEAFE] text-[#1E40AF]'
-    : 'bg-[#F3E8FF] text-[#6B21A8]'
+    ? 'bg-[#FEE2E2] text-[#991B1B]'
+    : 'bg-[#DBEAFE] text-[#1E40AF]'
 
   return (
     <button
