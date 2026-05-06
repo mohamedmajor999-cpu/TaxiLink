@@ -42,8 +42,8 @@ export function PosterVoiceBanner({ flow }: Props) {
           {iconName ? (
             <Icon name={iconName} size={16} className={`relative ${tone === 'processing' ? 'motion-safe:animate-spin' : ''}`} />
           ) : (
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" className="relative">
-              <rect x="6" y="6" width="12" height="12" rx="3" />
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" className="relative">
+              <rect x="3" y="3" width="18" height="18" rx="4" />
             </svg>
           )}
         </span>
