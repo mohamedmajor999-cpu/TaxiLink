@@ -7,8 +7,8 @@ interface Props {
 }
 
 const VARIANT_STYLES: Record<RideBadgeVariant, string> = {
-  medical: 'bg-ink text-paper border border-ink',
-  private: 'bg-brand text-ink border border-brand',
+  medical: 'bg-red-600 text-white border border-red-600',
+  private: 'bg-blue-600 text-white border border-blue-600',
   fleet: 'bg-transparent text-ink border border-ink/60',
   public: 'bg-transparent text-warm-600 border border-warm-300',
   urgent: 'bg-brand text-ink border border-brand',
