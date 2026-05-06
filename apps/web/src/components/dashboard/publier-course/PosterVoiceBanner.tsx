@@ -24,7 +24,7 @@ export function PosterVoiceBanner({ flow }: Props) {
     : tone === 'processing'
       ? 'bg-warm-100 text-ink border-warm-200'
       : 'bg-danger/10 text-danger border-danger/30'
-  const iconName = tone === 'asking' ? 'volume_up' : tone === 'processing' ? 'autorenew' : 'stop'
+  const iconName = tone === 'asking' ? 'volume_up' : tone === 'processing' ? 'autorenew' : null
   const title = tone === 'asking' ? 'Question vocale'
     : tone === 'processing' ? 'Analyse en cours…'
     : 'J’écoute…'
@@ -39,7 +39,13 @@ export function PosterVoiceBanner({ flow }: Props) {
       <div className={`flex items-start gap-3 rounded-2xl border px-3 py-2.5 ${cls}`}>
         <span className="relative w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-paper/30">
           {tone === 'listening' && <span className="absolute inset-0 rounded-full bg-danger/40 motion-safe:animate-ping" aria-hidden="true" />}
-          <Icon name={iconName} size={16} className={`relative ${tone === 'processing' ? 'motion-safe:animate-spin' : ''}`} />
+          {iconName ? (
+            <Icon name={iconName} size={16} className={`relative ${tone === 'processing' ? 'motion-safe:animate-spin' : ''}`} />
+          ) : (
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" className="relative">
+              <rect x="6" y="6" width="12" height="12" rx="3" />
+            </svg>
+          )}
         </span>
         <div className="flex-1 min-w-0">
           <div className="text-[11.5px] font-bold uppercase tracking-[0.04em] opacity-80">

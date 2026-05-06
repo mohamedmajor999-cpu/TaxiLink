@@ -77,11 +77,17 @@ export function PosterMicCta({ flow }: Props) {
             aria-label={label}
             className={`relative w-20 h-20 lg:w-24 lg:h-24 rounded-full inline-flex items-center justify-center transition-all duration-200 ${btnClass}`}
           >
-            <Icon
-              name={isProcessing ? 'autorenew' : isAsking ? 'volume_up' : isListening ? 'stop' : 'mic'}
-              size={36}
-              className={`relative ${isProcessing ? 'motion-safe:animate-spin' : ''}`}
-            />
+            {isListening ? (
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" aria-hidden="true" className="relative">
+                <rect x="6" y="6" width="12" height="12" rx="3" />
+              </svg>
+            ) : (
+              <Icon
+                name={isProcessing ? 'autorenew' : isAsking ? 'volume_up' : 'mic'}
+                size={36}
+                className={`relative ${isProcessing ? 'motion-safe:animate-spin' : ''}`}
+              />
+            )}
           </button>
         </div>
         <div className="flex-1 min-w-0">
