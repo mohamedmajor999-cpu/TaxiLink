@@ -9,17 +9,10 @@ interface PinOptions {
   medical: boolean
 }
 
-// Pictogrammes des badges — SVG inline (rendu net à toutes les tailles).
-// CPAM : Étoile de la Vie (symbole international du transport médical d'urgence).
-// Privé : silhouette passager.
+// Pictogrammes des badges. CPAM : Material Symbols `local_hospital` (H dans un
+// carré, symbole hôpital universel). Privé : silhouette passager (SVG inline).
 const MEDICAL_CROSS_SVG =
-  '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">' +
-  '<g fill="currentColor">' +
-  '<rect x="10.5" y="2" width="3" height="20" rx="1.2"/>' +
-  '<rect x="10.5" y="2" width="3" height="20" rx="1.2" transform="rotate(60 12 12)"/>' +
-  '<rect x="10.5" y="2" width="3" height="20" rx="1.2" transform="rotate(120 12 12)"/>' +
-  '</g>' +
-  '</svg>'
+  '<span class="material-symbols-outlined" style="font-size:14px;line-height:1;font-weight:700" aria-hidden="true">local_hospital</span>'
 const PRIVATE_PERSON_SVG =
   '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
   '<circle cx="6" cy="3.4" r="1.8" fill="currentColor"/>' +
