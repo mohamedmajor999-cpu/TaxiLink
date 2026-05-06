@@ -9,10 +9,12 @@ interface PinOptions {
   medical: boolean
 }
 
-// Pictogrammes des badges. CPAM : Material Symbols `local_hospital` (H dans un
-// carré, symbole hôpital universel). Privé : silhouette passager (SVG inline).
+// Pictogrammes des badges. CPAM : H d'hôpital (signalétique hospitalière
+// française universelle). Privé : silhouette passager.
 const MEDICAL_CROSS_SVG =
-  '<span class="material-symbols-outlined" style="font-size:14px;line-height:1;font-weight:700" aria-hidden="true">local_hospital</span>'
+  '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">' +
+  '<path d="M6 4h3v6h6V4h3v16h-3v-6H9v6H6V4z" fill="currentColor"/>' +
+  '</svg>'
 const PRIVATE_PERSON_SVG =
   '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
   '<circle cx="6" cy="3.4" r="1.8" fill="currentColor"/>' +

@@ -29,13 +29,9 @@ export function RideBadge({ variant, children, className = '' }: Props) {
       className={`inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-semibold ${VARIANT_STYLES[variant]} ${className}`}
     >
       {variant === 'medical' && (
-        <span
-          className="material-symbols-outlined -ml-0.5"
-          style={{ fontSize: 14, lineHeight: 1, fontWeight: 700 }}
-          aria-hidden="true"
-        >
-          local_hospital
-        </span>
+        <svg viewBox="0 0 24 24" className="w-3 h-3 -ml-0.5" aria-hidden="true">
+          <path d="M6 4h3v6h6V4h3v16h-3v-6H9v6H6V4z" fill="currentColor" />
+        </svg>
       )}
       {children}
     </span>
