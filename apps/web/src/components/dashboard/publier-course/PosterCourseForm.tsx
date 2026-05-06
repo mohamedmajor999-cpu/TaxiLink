@@ -54,21 +54,21 @@ export function PosterCourseForm({ c, footerProps }: Props) {
           >
             <div className="h-full w-1/3 bg-brand motion-safe:animate-[poster-ai-bar_1.2s_ease-in-out_infinite]" />
           </div>
-          {/* Bandeau flottant centre avec spinner + texte */}
+          {/* Backdrop sombre flouté */}
+          <div className="fixed inset-0 z-[1399] bg-black/55 backdrop-blur-sm motion-safe:animate-fade-in" />
+          {/* Modal centré (X + Y) avec spinner + texte */}
           <div
-            className="fixed left-1/2 -translate-x-1/2 z-[1400] inline-flex items-center gap-3 bg-ink text-paper px-5 py-3.5 rounded-2xl shadow-[0_16px_40px_-8px_rgba(0,0,0,0.65)] motion-safe:animate-[poster-ai-in_0.25s_ease-out]"
-            style={{ top: 'calc(env(safe-area-inset-top) + 18px)' }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1400] inline-flex flex-col items-center gap-5 bg-ink text-paper px-8 py-8 rounded-3xl shadow-[0_28px_70px_-12px_rgba(0,0,0,0.75)] motion-safe:animate-fade-in w-[min(380px,90vw)]"
           >
-            <span className="relative inline-flex w-6 h-6 shrink-0">
-              <span className="absolute inset-0 rounded-full border-[3px] border-brand/25 border-t-brand motion-safe:animate-spin" aria-hidden="true" />
+            <span className="relative inline-flex w-14 h-14 shrink-0">
+              <span className="absolute inset-0 rounded-full border-[4px] border-brand/25 border-t-brand motion-safe:animate-spin" aria-hidden="true" />
             </span>
-            <span className="flex flex-col leading-tight pr-1">
-              <span className="text-[14px] font-extrabold tracking-[-0.01em]">L&apos;IA remplit les champs…</span>
-              <span className="text-[11px] text-paper/70 font-medium mt-0.5">Cela prend 5 à 10 secondes — patientez</span>
+            <span className="flex flex-col items-center text-center gap-1.5">
+              <span className="text-[18px] font-extrabold tracking-[-0.01em]">L&apos;IA remplit les champs…</span>
+              <span className="text-[13px] text-paper/70 font-medium">Cela prend 5 à 10 secondes — patientez</span>
             </span>
           </div>
           <style>{`
-            @keyframes poster-ai-in { 0% { opacity: 0; transform: translate(-50%, -10px) } 100% { opacity: 1; transform: translate(-50%, 0) } }
             @keyframes poster-ai-bar { 0% { transform: translateX(-100%) } 100% { transform: translateX(400%) } }
           `}</style>
         </>
