@@ -48,19 +48,35 @@ export function usePosterCourse() {
   useEffect(() => {
     if (!driverId) return
     let cancelled = false
-    groupService.getMyGroups(driverId)
-      .then((groups) => {
-        if (cancelled) return
-        setMyGroups(groups)
-        // Cas degenere : aucun groupe -> bascule en PUBLIC tout de suite
-        // (le sas Preflight n'a plus rien a proposer cote groupe).
-        if (groups.length === 0) {
-          form.setVisibility('PUBLIC')
-          form.setGroupIds([])
-        }
-      })
-      .catch(() => { /* silencieux */ })
-    return () => { cancelled = true }
+    const fetchGroups = () => {
+      groupService.getMyGroups(driverId)
+        .then((groups) => {
+          if (cancelled) return
+          setMyGroups(groups)
+          // Cas degenere : aucun groupe -> bascule en PUBLIC tout de suite
+          // (le sas Preflight n'a plus rien a proposer cote groupe).
+          if (groups.length === 0) {
+            form.setVisibility('PUBLIC')
+            form.setGroupIds([])
+          }
+        })
+        .catch(() => { /* silencieux */ })
+    }
+    fetchGroups()
+    // Re-fetch quand la page redevient visible / l'onglet reprend le focus.
+    // Sinon les groupes peuvent disparaitre apres une longue session idle
+    // (RLS/auth refresh, reseau, etc.) et l'user doit changer de page pour
+    // les revoir.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchGroups()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', fetchGroups)
+    return () => {
+      cancelled = true
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', fetchGroups)
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverId])
 
