@@ -78,7 +78,7 @@ export function PosterMicCta({ flow }: Props) {
             className={`relative w-20 h-20 lg:w-24 lg:h-24 rounded-full inline-flex items-center justify-center transition-all duration-200 ${btnClass}`}
           >
             <Icon
-              name={isProcessing ? 'autorenew' : isAsking ? 'volume_up' : 'mic'}
+              name={isProcessing ? 'autorenew' : isAsking ? 'volume_up' : isListening ? 'stop' : 'mic'}
               size={36}
               className={`relative ${isProcessing ? 'motion-safe:animate-spin' : ''}`}
             />

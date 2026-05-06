@@ -24,7 +24,7 @@ export function PosterVoiceBanner({ flow }: Props) {
     : tone === 'processing'
       ? 'bg-warm-100 text-ink border-warm-200'
       : 'bg-danger/10 text-danger border-danger/30'
-  const iconName = tone === 'asking' ? 'volume_up' : tone === 'processing' ? 'autorenew' : 'mic'
+  const iconName = tone === 'asking' ? 'volume_up' : tone === 'processing' ? 'autorenew' : 'stop'
   const title = tone === 'asking' ? 'Question vocale'
     : tone === 'processing' ? 'Analyse en cours…'
     : 'J’écoute…'
