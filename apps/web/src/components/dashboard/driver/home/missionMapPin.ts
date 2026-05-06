@@ -13,7 +13,7 @@ interface PinOptions {
 // française universelle). Privé : silhouette passager.
 const MEDICAL_CROSS_SVG =
   '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">' +
-  '<path d="M6 4h3v6h6V4h3v16h-3v-6H9v6H6V4z" fill="currentColor"/>' +
+  '<path d="M4 4h5v6h6V4h5v16h-5v-6H9v6H4V4z" fill="currentColor"/>' +
   '</svg>'
 const PRIVATE_PERSON_SVG =
   '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +

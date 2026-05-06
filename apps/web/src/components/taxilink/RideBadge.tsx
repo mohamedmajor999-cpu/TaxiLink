@@ -30,7 +30,7 @@ export function RideBadge({ variant, children, className = '' }: Props) {
     >
       {variant === 'medical' && (
         <svg viewBox="0 0 24 24" className="w-3 h-3 -ml-0.5" aria-hidden="true">
-          <path d="M6 4h3v6h6V4h3v16h-3v-6H9v6H6V4z" fill="currentColor" />
+          <path d="M4 4h5v6h6V4h5v16h-5v-6H9v6H4V4z" fill="currentColor" />
         </svg>
       )}
       {children}
