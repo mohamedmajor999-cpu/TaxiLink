@@ -60,8 +60,11 @@ export function PosterCourseForm({ c, footerProps }: Props) {
           <div
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1400] inline-flex flex-col items-center gap-5 bg-ink text-paper px-8 py-8 rounded-3xl shadow-[0_28px_70px_-12px_rgba(0,0,0,0.75)] motion-safe:animate-fade-in w-[min(380px,90vw)]"
           >
-            <span className="relative inline-flex w-14 h-14 shrink-0">
-              <span className="absolute inset-0 rounded-full border-[4px] border-brand/25 border-t-brand motion-safe:animate-spin" aria-hidden="true" />
+            <span className="relative inline-flex w-14 h-14 shrink-0 text-brand">
+              <svg className="absolute inset-0 w-full h-full animate-spin" viewBox="0 0 50 50" aria-hidden="true">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeOpacity="0.2" strokeWidth="4.5" />
+                <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeWidth="4.5" strokeDasharray="40 200" strokeLinecap="round" />
+              </svg>
             </span>
             <span className="flex flex-col items-center text-center gap-1.5">
               <span className="text-[18px] font-extrabold tracking-[-0.01em]">L&apos;IA remplit les champs…</span>
