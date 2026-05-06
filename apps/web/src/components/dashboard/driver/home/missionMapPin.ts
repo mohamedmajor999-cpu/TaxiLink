@@ -9,11 +9,17 @@ interface PinOptions {
   medical: boolean
 }
 
-// Pictogrammes des badges. CPAM : H d'hôpital (signalétique hospitalière
-// française universelle). Privé : silhouette passager.
+// Pictogrammes des badges. CPAM : caducée (bâton + deux serpents + ailes,
+// symbole médical universel). Privé : silhouette passager.
 const MEDICAL_CROSS_SVG =
-  '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">' +
-  '<path d="M6 4h3v6h6V4h3v16h-3v-6H9v6H6V4z" fill="currentColor"/>' +
+  '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">' +
+  '<g fill="currentColor">' +
+  '<circle cx="12" cy="2.5" r="1.2"/>' +
+  '<path d="M3.5 5.5c2-1.2 5-1.5 8.5-1.5s6.5 0.3 8.5 1.5c-2 1.5-5 2-8.5 2s-6.5-0.5-8.5-2z"/>' +
+  '<rect x="11.3" y="4" width="1.4" height="18"/>' +
+  '</g>' +
+  '<path d="M12 8c-2.5 0.5-2.5 2.5 0 3.5s2.5 2.5 0 3.5s-2.5 2.5 0 3.5s2.5 2.5 0 3.5" stroke="currentColor" stroke-width="1.2" fill="none"/>' +
+  '<path d="M12 8c2.5 0.5 2.5 2.5 0 3.5s-2.5 2.5 0 3.5s2.5 2.5 0 3.5s-2.5 2.5 0 3.5" stroke="currentColor" stroke-width="1.2" fill="none"/>' +
   '</svg>'
 const PRIVATE_PERSON_SVG =
   '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
