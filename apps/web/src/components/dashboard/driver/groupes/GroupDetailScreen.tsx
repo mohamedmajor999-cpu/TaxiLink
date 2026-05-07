@@ -1,6 +1,9 @@
 'use client'
 
-import { ArrowLeft, Plus, ChevronRight, Star, UserPlus, MoreVertical } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, ChevronRight, Star, UserPlus, MoreVertical } from 'lucide-react'
+import type { GroupMemberStats } from '@taxilink/core'
+import { useAuth } from '@/hooks/useAuth'
 import { useGroupDetail } from './useGroupDetail'
 import { useGroupInvite } from './useGroupInvite'
 import { MyGroupStatsPanel } from './MyGroupStatsPanel'
@@ -9,23 +12,27 @@ import { GroupOnlineStrip } from './GroupOnlineStrip'
 import { GroupActivityFeed } from './GroupActivityFeed'
 import { GroupInviteSheet } from './GroupInviteSheet'
 import { GroupMemberRow } from './GroupMemberRow'
+import { BlockDriverModal } from './BlockDriverModal'
+import { GroupDetailShell, GroupDetailStat } from './GroupDetailLayout'
 import { useGroupFavorites } from '../useGroupFavorites'
 
 interface Props { groupId: string }
 
 export function GroupDetailScreen({ groupId }: Props) {
+  const { user } = useAuth()
   const c   = useGroupDetail(groupId)
   const fav = useGroupFavorites()
   const inv = useGroupInvite(c.group)
+  const [blockTarget, setBlockTarget] = useState<GroupMemberStats | null>(null)
 
-  if (c.loading) return <Shell onBack={c.back}><div className="h-64 rounded-3xl bg-warm-100 motion-safe:animate-pulse" /></Shell>
+  if (c.loading) return <GroupDetailShell onBack={c.back}><div className="h-64 rounded-3xl bg-warm-100 motion-safe:animate-pulse" /></GroupDetailShell>
   if (!c.group) return (
-    <Shell onBack={c.back}>
+    <GroupDetailShell onBack={c.back}>
       <div className="rounded-2xl border border-warm-200 bg-paper p-10 text-center">
         <p className="text-[20px] font-bold text-ink mb-2">Groupe introuvable</p>
         {c.error && <p className="text-[13px] text-warm-500">{c.error}</p>}
       </div>
-    </Shell>
+    </GroupDetailShell>
   )
 
   const g = c.group
@@ -34,7 +41,7 @@ export function GroupDetailScreen({ groupId }: Props) {
   const visibleMembers = c.members.slice(0, 4)
 
   return (
-    <Shell
+    <GroupDetailShell
       onBack={c.back}
       rightSlot={
         <div className="relative flex items-center gap-2">
@@ -90,9 +97,9 @@ export function GroupDetailScreen({ groupId }: Props) {
       <GroupLiveBanner available={c.summary?.available ?? 0} onOpen={c.viewAvailable} />
 
       <section className="mb-3 grid grid-cols-3 rounded-2xl border border-warm-200 bg-paper py-3 divide-x divide-warm-200">
-        <Stat value={`${membersCount}`}                 label="Membres" />
-        <Stat value={`${c.summary?.onlineCount ?? 0}`}  label="En ligne" dot />
-        <Stat value={`${c.summary?.exchanged7d ?? 0}`}  label="Échangées (7j)" />
+        <GroupDetailStat value={`${membersCount}`}                 label="Membres" />
+        <GroupDetailStat value={`${c.summary?.onlineCount ?? 0}`}  label="En ligne" dot />
+        <GroupDetailStat value={`${c.summary?.exchanged7d ?? 0}`}  label="Échangées (7j)" />
       </section>
 
       <GroupOnlineStrip members={c.members} />
@@ -135,7 +142,15 @@ export function GroupDetailScreen({ groupId }: Props) {
           )}
         </header>
         <div className="flex flex-col gap-2">
-          {visibleMembers.map((m) => <GroupMemberRow key={m.driverId} member={m} />)}
+          {visibleMembers.map((m) => (
+            <GroupMemberRow
+              key={m.driverId}
+              member={m}
+              isBlocked={c.blockedIds.includes(m.driverId)}
+              hideBlockButton={m.driverId === user?.id}
+              onBlockToggle={setBlockTarget}
+            />
+          ))}
           {visibleMembers.length === 0 && (
             <p className="text-[13px] text-warm-500 text-center py-6">Aucun membre chargé</p>
           )}
@@ -150,37 +165,22 @@ export function GroupDetailScreen({ groupId }: Props) {
       >
         {c.leaving ? 'Sortie…' : 'Quitter le groupe'}
       </button>
-    </Shell>
+
+      {blockTarget && user?.id && (
+        <BlockDriverModal
+          blockerId={user.id}
+          targetId={blockTarget.driverId}
+          targetName={memberDisplayName(blockTarget)}
+          initialBlocked={c.blockedIds.includes(blockTarget.driverId)}
+          onClose={() => setBlockTarget(null)}
+          onChanged={(nowBlocked) => c.setBlockedLocal(blockTarget.driverId, nowBlocked)}
+        />
+      )}
+    </GroupDetailShell>
   )
 }
 
-function Shell({ children, onBack, rightSlot }: { children: React.ReactNode; onBack: () => void; rightSlot?: React.ReactNode }) {
-  return (
-    <div className="px-4 md:px-8 py-3 md:py-6 max-w-2xl md:max-w-3xl mx-auto pb-24 md:pb-6">
-      <header className="mb-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 text-[13px] font-semibold text-warm-600 hover:text-ink transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-          Retour
-        </button>
-        {rightSlot}
-      </header>
-      {children}
-    </div>
-  )
-}
-
-function Stat({ value, label, dot = false }: { value: string; label: string; dot?: boolean }) {
-  return (
-    <div className="px-2 text-center">
-      <p className="text-[20px] font-bold text-ink leading-none tabular-nums">
-        {dot && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 align-middle mr-1.5" />}
-        {value}
-      </p>
-      <p className="text-[11px] text-warm-500 mt-1.5">{label}</p>
-    </div>
-  )
+function memberDisplayName(m: GroupMemberStats): string {
+  if (m.lastName && m.firstName) return `${m.lastName} ${m.firstName.charAt(0).toUpperCase()}.`
+  return m.fullName || m.lastName || m.firstName || 'Ce chauffeur'
 }

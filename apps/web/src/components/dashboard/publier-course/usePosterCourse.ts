@@ -2,10 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { groupService } from '@/services/groupService'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
-import type { Group } from '@taxilink/core'
 import type { AddressSuggestion } from '@/services/addressService'
 import { buildScheduledAt, defaultDate, defaultTime } from '@/components/dashboard/driver/missionFormHelpers'
 import { useMissionFormState } from '@/components/dashboard/driver/useMissionFormState'
@@ -15,6 +13,7 @@ import { useMissionVoiceFiller } from '@/components/dashboard/driver/useMissionV
 import { submitMission } from '@/components/dashboard/driver/submitMission'
 import { shareCourseOnWhatsApp } from '@/lib/shareWhatsApp'
 import { usePosterVoiceFlow } from './usePosterVoiceFlow'
+import { usePosterGroupsLoader } from './usePosterGroupsLoader'
 
 export type WhenMode = 'now' | 'later'
 
@@ -23,7 +22,6 @@ export function usePosterCourse() {
   const driverId = useDriverStore((s) => s.driver.id)
   const form = useMissionFormState(undefined)
 
-  const [myGroups, setMyGroups] = useState<Group[]>([])
   const [when, setWhen] = useState<WhenMode>('now')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,40 +43,10 @@ export function usePosterCourse() {
 
   const route = useMissionRoute({ scheduledAt })
 
-  useEffect(() => {
-    if (!driverId) return
-    let cancelled = false
-    const fetchGroups = () => {
-      groupService.getMyGroups(driverId)
-        .then((groups) => {
-          if (cancelled) return
-          setMyGroups(groups)
-          // Cas degenere : aucun groupe -> bascule en PUBLIC tout de suite
-          // (le sas Preflight n'a plus rien a proposer cote groupe).
-          if (groups.length === 0) {
-            form.setVisibility('PUBLIC')
-            form.setGroupIds([])
-          }
-        })
-        .catch(() => { /* silencieux */ })
-    }
-    fetchGroups()
-    // Re-fetch quand la page redevient visible / l'onglet reprend le focus.
-    // Sinon les groupes peuvent disparaitre apres une longue session idle
-    // (RLS/auth refresh, reseau, etc.) et l'user doit changer de page pour
-    // les revoir.
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') fetchGroups()
-    }
-    document.addEventListener('visibilitychange', onVisible)
-    window.addEventListener('focus', fetchGroups)
-    return () => {
-      cancelled = true
-      document.removeEventListener('visibilitychange', onVisible)
-      window.removeEventListener('focus', fetchGroups)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [driverId])
+  const myGroups = usePosterGroupsLoader(driverId, () => {
+    form.setVisibility('PUBLIC')
+    form.setGroupIds([])
+  })
 
   const onSelectPublic = () => {
     form.setVisibility('PUBLIC')

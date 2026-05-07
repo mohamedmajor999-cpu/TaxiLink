@@ -8,17 +8,18 @@ describe('useDriverProfilTab — état initial', () => {
     expect(result.current.active).toBe('profil')
   })
 
-  it('expose 3 sous-onglets', () => {
+  it('expose 4 sous-onglets', () => {
     const { result } = renderHook(() => useDriverProfilTab())
-    expect(result.current.subTabs).toHaveLength(3)
+    expect(result.current.subTabs).toHaveLength(4)
   })
 
-  it('subTabs contient profil, stats, documents', () => {
+  it('subTabs contient profil, stats, documents, bloques', () => {
     const { result } = renderHook(() => useDriverProfilTab())
     const ids = result.current.subTabs.map(t => t.id)
     expect(ids).toContain('profil')
     expect(ids).toContain('stats')
     expect(ids).toContain('documents')
+    expect(ids).toContain('bloques')
   })
 })
 

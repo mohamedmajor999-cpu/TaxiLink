@@ -4,6 +4,7 @@ import { useDriverProfilTab } from './useDriverProfilTab'
 import { DriverProfile } from './DriverProfile'
 import { DriverStats } from './DriverStats'
 import { DriverDocuments } from './DriverDocuments'
+import { BlockedDriversScreen } from './profil/BlockedDriversScreen'
 
 export function DriverProfilTab({ driverName }: { driverName: string }) {
   const { active, setActive, subTabs } = useDriverProfilTab()
@@ -29,6 +30,7 @@ export function DriverProfilTab({ driverName }: { driverName: string }) {
       {active === 'profil'    && <DriverProfile driverName={driverName} />}
       {active === 'stats'     && <DriverStats />}
       {active === 'documents' && <DriverDocuments />}
+      {active === 'bloques'   && <BlockedDriversScreen />}
     </div>
   )
 }

@@ -371,6 +371,42 @@ export type Database = {
           },
         ]
       }
+      driver_blocks: {
+        Row: {
+          id:         string
+          blocker_id: string
+          blocked_id: string
+          created_at: string
+        }
+        Insert: {
+          id?:         string
+          blocker_id:  string
+          blocked_id:  string
+          created_at?: string
+        }
+        Update: {
+          id?:         string
+          blocker_id?: string
+          blocked_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_blocks_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_blocks_blocked_id_fkey"
+            columns: ["blocked_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mission_groups: {
         Row: {
           mission_id: string
@@ -780,3 +816,4 @@ export type Organization       = Database['public']['Tables']['organizations']['
 export type OrganizationMember = Database['public']['Tables']['organization_members']['Row']
 export type OrgInvitation      = Database['public']['Tables']['org_invitations']['Row']
 export type OrgRole = 'owner' | 'admin' | 'dispatcher' | 'accountant' | 'viewer'
+export type DriverBlock = Database['public']['Tables']['driver_blocks']['Row']

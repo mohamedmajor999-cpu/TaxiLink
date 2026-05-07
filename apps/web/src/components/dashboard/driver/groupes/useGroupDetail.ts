@@ -8,6 +8,7 @@ import {
   type GroupDailyActivity,
 } from '@/services/groupStatsService'
 import { groupActivityService, type GroupActivityEvent } from '@/services/groupActivityService'
+import { driverBlockService } from '@/services/driverBlockService'
 import type { Group, GroupMemberStats } from '@taxilink/core'
 import { useGroupsLastVisited } from '../useGroupsLastVisited'
 
@@ -19,6 +20,7 @@ export function useGroupDetail(groupId: string) {
   const [summary, setSummary]     = useState<GroupActivitySummary | null>(null)
   const [daily, setDaily]         = useState<GroupDailyActivity[]>([])
   const [members, setMembers]     = useState<GroupMemberStats[]>([])
+  const [blockedIds, setBlockedIds] = useState<string[]>([])
   const [events, setEvents]       = useState<GroupActivityEvent[]>([])
   const [loading, setLoading]     = useState(true)
   const [leaving, setLeaving]     = useState(false)
@@ -33,13 +35,14 @@ export function useGroupDetail(groupId: string) {
       setGroup(found)
       if (!found) return
       const since = new Date(Date.now() - 7 * 86_400_000).toISOString()
-      const [s, d, m, e] = await Promise.all([
+      const [s, d, m, e, b] = await Promise.all([
         groupStatsService.getActivitySummary(groupId),
         groupStatsService.getDailyActivity(groupId, 7),
         groupStatsService.getMemberStats(groupId, since),
         groupActivityService.getRecentEvents(groupId, 5).catch(() => [] as GroupActivityEvent[]),
+        driverBlockService.getBlockedIds(user.id).catch(() => [] as string[]),
       ])
-      setSummary(s); setDaily(d); setMembers(m); setEvents(e)
+      setSummary(s); setDaily(d); setMembers(m); setEvents(e); setBlockedIds(b)
     } catch {
       setError('Impossible de charger le groupe')
     } finally {
@@ -103,9 +106,19 @@ export function useGroupDetail(groupId: string) {
   // d'URL supporté côté DriverDashboard.
   const viewAvailable = () => router.push('/dashboard/chauffeur')
 
+  // Maj locale du set après une action block/unblock dans le modal — évite
+  // un round-trip Supabase pour rafraîchir l'UI immédiatement.
+  const setBlockedLocal = (driverId: string, nowBlocked: boolean) => {
+    setBlockedIds((prev) =>
+      nowBlocked
+        ? prev.includes(driverId) ? prev : [...prev, driverId]
+        : prev.filter((id) => id !== driverId)
+    )
+  }
+
   return {
-    group, summary, daily, members, events, myStats,
+    group, summary, daily, members, events, myStats, blockedIds,
     loading, error, leaving, isAdmin,
-    leave, back, postCourse, viewAvailable,
+    leave, back, postCourse, viewAvailable, setBlockedLocal,
   }
 }
