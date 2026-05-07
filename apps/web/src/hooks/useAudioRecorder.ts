@@ -42,7 +42,33 @@ export function useAudioRecorder({ onStop, onError }: Options): UseAudioRecorder
   const start = useCallback(async () => {
     if (recorderRef.current) return
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      // Contraintes optimisées pour le micro Bluetooth voiture (HFP mono 8/16 kHz).
+      // En fallback, on relâche sampleRate/channelCount qu'iOS Safari et certains
+      // kits Bluetooth refusent (OverconstrainedError).
+      const preferred: MediaStreamConstraints = {
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+          sampleRate: 16000,
+        },
+      }
+      const fallback: MediaStreamConstraints = {
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      }
+      let stream: MediaStream
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(preferred)
+      } catch (firstErr) {
+        const name = (firstErr as DOMException).name
+        // NotReadableError: l'OS bascule A2DP→HFP sur le Bluetooth voiture, ça prend 1-2s.
+        // OverconstrainedError: le périphérique refuse 16 kHz mono. Dans les deux cas,
+        // on attend le switch puis on retente avec des contraintes minimales.
+        if (name !== 'NotReadableError' && name !== 'OverconstrainedError') throw firstErr
+        await new Promise((r) => setTimeout(r, 800))
+        stream = await navigator.mediaDevices.getUserMedia(fallback)
+      }
       streamRef.current = stream
       const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
         : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
@@ -68,7 +94,10 @@ export function useAudioRecorder({ onStop, onError }: Options): UseAudioRecorder
       setIsRecording(true)
     } catch (err) {
       stopStream()
-      const code = (err as DOMException).name === 'NotAllowedError' ? 'not-allowed' : 'unsupported'
+      const name = (err as DOMException).name
+      const code = name === 'NotAllowedError' ? 'not-allowed'
+        : name === 'NotReadableError' || name === 'OverconstrainedError' ? 'audio-capture'
+        : 'unsupported'
       onErrorRef.current?.(code)
     }
   }, [stopStream])
