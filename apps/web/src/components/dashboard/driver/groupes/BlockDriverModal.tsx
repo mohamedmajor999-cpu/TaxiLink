@@ -49,7 +49,7 @@ export function BlockDriverModal({ blockerId, targetId, targetName, initialBlock
               <li>{targetName} <strong>ne verra plus</strong> aucune de vos annonces</li>
               <li><strong>Vous ne verrez plus</strong> aucune des siennes non plus</li>
             </ul>
-            <p className="pt-1 text-xs">Le blocage est discret — la personne n'est pas notifiée. Vous pouvez la débloquer à tout moment depuis votre profil.</p>
+            <p className="pt-1 text-xs">Le blocage est discret — la personne n&apos;est pas notifiée. Vous pouvez la débloquer à tout moment depuis votre profil.</p>
           </div>
         )}
 
