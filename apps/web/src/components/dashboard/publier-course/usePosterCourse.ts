@@ -84,7 +84,13 @@ export function usePosterCourse() {
     setExtraBagages: form.setExtraBagages, setExtraEncombrants: form.setExtraEncombrants,
   })
 
-  const voiceFlow = usePosterVoiceFlow({ filler: voice, form })
+  const voiceFlow = usePosterVoiceFlow({
+    filler: voice,
+    form,
+    myGroups,
+    setDepartureCoords: route.setDepartureCoords,
+    setDestinationCoords: route.setDestinationCoords,
+  })
 
   const { previewFare } = useMissionPricing({
     price: form.price, priceMin: form.priceMin, priceMax: form.priceMax,

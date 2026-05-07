@@ -1,25 +1,38 @@
 import type { MissionFormState } from '@/components/dashboard/driver/useMissionFormState'
+import type { GuidedInputKind, ChoiceOption } from '@/components/dashboard/driver/guided/guidedTypes'
 
 export interface PosterMissingField {
-  id: string
-  prompt: string
+  id:       string
+  prompt:   string
+  /** Type d'attente côté parser de réponse (`/api/missions/parse-voice-answer`). */
+  kind:     GuidedInputKind
+  options?: ChoiceOption[]
 }
 
 interface Options {
   parsedFields: Set<string>
 }
 
-const PROMPTS: Record<string, string> = {
-  type: 'Quel type de course ? Standard ou CPAM ?',
-  departure: 'Quelle est l’adresse de départ ?',
-  destination: 'Quelle est l’adresse d’arrivée ?',
-  date: 'Pour quel jour ?',
-  time: 'À quelle heure de prise en charge ?',
-  phone: 'Quel numéro de téléphone du patient ?',
-  medicalMotif: 'Hôpital de jour ou consultation ?',
-  returnTrip: 'Aller simple ou aller-retour ?',
-  passengers: 'Combien de patients à transporter ?',
-  groupIds: 'À quel groupe voulez-vous publier ?',
+const TYPE_OPTIONS: ChoiceOption[] = [
+  { value: 'CPAM',  label: 'CPAM',  aliases: ['cpam', 'médical', 'medical', 'sécu', 'secu'] },
+  { value: 'PRIVE', label: 'Privé', aliases: ['privé', 'prive', 'privée', 'privee', 'standard'] },
+]
+const MOTIF_OPTIONS: ChoiceOption[] = [
+  { value: 'HDJ',          label: 'Hôpital de jour', aliases: ['hdj', 'hôpital de jour', 'hopital de jour', 'hospitalisation de jour', 'dialyse', 'chimio'] },
+  { value: 'CONSULTATION', label: 'Consultation',    aliases: ['consultation', 'rdv', 'rendez-vous', 'rendez vous', 'examen'] },
+]
+
+const FIELDS: Record<string, Omit<PosterMissingField, 'id'>> = {
+  type:         { prompt: 'Quel type de course ? Standard ou CPAM ?',  kind: 'choice', options: TYPE_OPTIONS },
+  departure:    { prompt: 'Quelle est l’adresse de départ ?',            kind: 'address' },
+  destination:  { prompt: 'Quelle est l’adresse d’arrivée ?',            kind: 'address' },
+  date:         { prompt: 'Pour quel jour ?',                            kind: 'date' },
+  time:         { prompt: 'À quelle heure de prise en charge ?',         kind: 'time' },
+  phone:        { prompt: 'Quel numéro de téléphone du patient ?',       kind: 'phone' },
+  medicalMotif: { prompt: 'Hôpital de jour ou consultation ?',           kind: 'choice', options: MOTIF_OPTIONS },
+  returnTrip:   { prompt: 'Aller simple ou aller-retour ?',              kind: 'boolean' },
+  passengers:   { prompt: 'Combien de patients à transporter ?',         kind: 'passengers' },
+  groupIds:     { prompt: 'À quel groupe voulez-vous publier ?',         kind: 'groups' },
 }
 
 /**
@@ -34,40 +47,22 @@ export function getPosterMissingFields(
 ): PosterMissingField[] {
   const p = opts.parsedFields
   const out: PosterMissingField[] = []
+  const push = (id: keyof typeof FIELDS) => out.push({ id, ...FIELDS[id] })
 
-  // q1 — type
-  if (!p.has('type') && !p.has('medicalMotif')) {
-    out.push({ id: 'type', prompt: PROMPTS.type })
-  }
+  if (!p.has('type') && !p.has('medicalMotif'))   push('type')
+  if (form.departure.trim().length < 5)            push('departure')
+  if (form.destination.trim().length < 5)          push('destination')
+  if (!p.has('date'))                              push('date')
+  if (!p.has('time'))                              push('time')
+  if (!p.has('phone') && !form.phone.trim())       push('phone')
 
-  // q2 / q3 — adresses
-  if (form.departure.trim().length < 5) {
-    out.push({ id: 'departure', prompt: PROMPTS.departure })
-  }
-  if (form.destination.trim().length < 5) {
-    out.push({ id: 'destination', prompt: PROMPTS.destination })
-  }
-
-  // q4 / q5 — date / heure
-  if (!p.has('date')) out.push({ id: 'date', prompt: PROMPTS.date })
-  if (!p.has('time')) out.push({ id: 'time', prompt: PROMPTS.time })
-
-  // q6 — téléphone
-  if (!p.has('phone') && !form.phone.trim()) {
-    out.push({ id: 'phone', prompt: PROMPTS.phone })
-  }
-
-  // q7 (CPAM) — motif, aller-retour, nombre de patients
   if (form.type === 'CPAM') {
-    if (!form.medicalMotif) out.push({ id: 'medicalMotif', prompt: PROMPTS.medicalMotif })
-    if (!p.has('returnTrip')) out.push({ id: 'returnTrip', prompt: PROMPTS.returnTrip })
-    if (!p.has('passengers')) out.push({ id: 'passengers', prompt: PROMPTS.passengers })
+    if (!form.medicalMotif)                        push('medicalMotif')
+    if (!p.has('returnTrip'))                      push('returnTrip')
+    if (!p.has('passengers'))                      push('passengers')
   }
 
-  // q8 — groupe (si visibilité Groupe et aucun coché)
-  if (form.visibility === 'GROUP' && form.groupIds.length === 0) {
-    out.push({ id: 'groupIds', prompt: PROMPTS.groupIds })
-  }
+  if (form.visibility === 'GROUP' && form.groupIds.length === 0) push('groupIds')
 
   return out
 }
