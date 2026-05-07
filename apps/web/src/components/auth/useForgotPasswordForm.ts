@@ -12,7 +12,7 @@ export function useForgotPasswordForm() {
     setLoading(true)
     setError('')
     try {
-      await authService.resetPassword(email, `${window.location.origin}/auth/reset-password`)
+      await authService.resetPassword(email, `${window.location.origin}/auth/callback?next=/auth/reset-password`)
       setSent(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue')

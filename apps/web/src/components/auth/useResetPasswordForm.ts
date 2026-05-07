@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { authService } from '@/services/authService'
+import { useAuth } from '@/hooks/useAuth'
 import { isValidPassword } from '@/lib/validators'
 import { computeStrengthInfo } from './passwordStrength'
 
@@ -8,7 +9,7 @@ type Status = 'verifying' | 'ready' | 'updating' | 'done' | 'invalid'
 
 export function useResetPasswordForm() {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const { user, loading } = useAuth()
 
   const [status, setStatus] = useState<Status>('verifying')
   const [error, setError]   = useState('')
@@ -25,16 +26,14 @@ export function useResetPasswordForm() {
     ? 'border-rose-300 focus:border-rose-400'
     : 'border-teal-300 focus:border-teal-400'
 
+  // /auth/callback a déjà consommé le code et établi la session côté serveur
+  // avant de rediriger ici. Si user est présent → on peut afficher le form,
+  // sinon → lien expiré ou ouverture directe sans flow recovery.
   useEffect(() => {
-    const code = searchParams.get('code')
-    if (!code) { setStatus('invalid'); setError('Lien invalide ou incomplet.'); return }
-    authService.exchangeCodeForSession(code)
-      .then(() => setStatus('ready'))
-      .catch((err) => {
-        setStatus('invalid')
-        setError(err instanceof Error ? err.message : 'Lien expiré ou déjà utilisé.')
-      })
-  }, [searchParams])
+    if (loading) return
+    if (user) { setStatus('ready') }
+    else      { setStatus('invalid'); setError('Session de récupération introuvable. Demande un nouveau lien.') }
+  }, [loading, user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
