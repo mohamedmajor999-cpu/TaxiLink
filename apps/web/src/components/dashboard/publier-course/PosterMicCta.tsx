@@ -78,8 +78,8 @@ export function PosterMicCta({ flow }: Props) {
             className={`relative w-20 h-20 lg:w-24 lg:h-24 rounded-full inline-flex items-center justify-center transition-all duration-200 ${btnClass}`}
           >
             {isListening ? (
-              <svg viewBox="0 0 24 24" width="44" height="44" fill="currentColor" aria-hidden="true" className="relative">
-                <rect x="3" y="3" width="18" height="18" rx="4" />
+              <svg viewBox="0 0 24 24" width="38" height="38" fill="currentColor" aria-hidden="true" className="relative">
+                <rect x="4" y="4" width="16" height="16" rx="3.5" />
               </svg>
             ) : (
               <Icon
