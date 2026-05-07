@@ -102,16 +102,25 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
               {chips}
             </div>
           )}
-          {(incomingMission || (h.selectedMission && (mapFullscreen || sheetCollapsed))) && (
+          {incomingMission && (
+            <MissionMapPopup
+              mission={incomingMission}
+              userCoords={h.userCoords}
+              onAccept={() => onAcceptIncoming(incomingMission.id)}
+              onShowDetail={() => onShowMissionDetail(incomingMission.id)}
+              onClose={() => h.popup.dismiss(incomingMission.id)}
+              autoDismissMs={15_000}
+              onAutoDismiss={() => h.popup.dismiss(incomingMission.id)}
+            />
+          )}
+          {!incomingMission && h.selectedMission && (mapFullscreen || sheetCollapsed) && (
             <div className="md:hidden">
               <MissionMapPopup
-                mission={(incomingMission ?? h.selectedMission)!}
+                mission={h.selectedMission}
                 userCoords={h.userCoords}
-                onAccept={incomingMission ? () => onAcceptIncoming(incomingMission.id) : onAccept}
-                onShowDetail={() => onShowMissionDetail(incomingMission?.id ?? h.selectedMissionId!)}
-                onClose={() => incomingMission ? h.popup.dismiss(incomingMission.id) : h.selectedMissionId && h.toggleMission(h.selectedMissionId)}
-                autoDismissMs={incomingMission ? 10_000 : undefined}
-                onAutoDismiss={incomingMission ? () => h.popup.dismiss(incomingMission.id) : undefined}
+                onAccept={onAccept}
+                onShowDetail={() => onShowMissionDetail(h.selectedMissionId!)}
+                onClose={() => h.selectedMissionId && h.toggleMission(h.selectedMissionId)}
               />
             </div>
           )}

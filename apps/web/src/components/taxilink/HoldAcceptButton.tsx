@@ -17,9 +17,9 @@ interface Props {
 export function HoldAcceptButton({
   onConfirm,
   variant = 'default',
-  duration = 2000,
+  duration = 1250,
   disabled = false,
-  label = 'Maintenir 2s pour accepter',
+  label = 'Maintenir pour accepter',
   confirmedLabel = 'Course acceptée',
   pressingLabel = 'Maintenez…',
 }: Props) {
@@ -49,7 +49,7 @@ export function HoldAcceptButton({
       onKeyUp={(e) => {
         if (e.key === ' ' || e.key === 'Enter') cancel()
       }}
-      aria-label="Maintenir 2 secondes pour accepter la course"
+      aria-label="Maintenir pour accepter la course"
       className={`relative w-full h-[52px] md:h-[64px] px-4 md:px-6 rounded-xl overflow-hidden flex items-center justify-center gap-2 font-semibold text-[14px] md:text-[16px] select-none transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${baseColors} ${isPressing ? 'scale-[0.98]' : ''}`}
     >
       {variant === 'default' && !isConfirmed && (

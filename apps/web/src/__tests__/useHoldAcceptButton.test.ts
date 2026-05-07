@@ -78,8 +78,8 @@ describe('useHoldAcceptButton — états', () => {
     expect(onConfirm).toHaveBeenCalledTimes(1)
   })
 
-  it('durée par défaut est 2000ms', () => {
+  it('durée par défaut est 1250ms', () => {
     const { result } = renderHook(() => useHoldAcceptButton({ onConfirm: vi.fn() }))
-    expect(result.current.duration).toBe(2000)
+    expect(result.current.duration).toBe(1250)
   })
 })

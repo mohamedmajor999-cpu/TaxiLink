@@ -11,7 +11,7 @@ interface Options {
 
 export function useHoldAcceptButton({
   onConfirm,
-  duration = 2000,
+  duration = 1250,
   disabled = false,
 }: Options) {
   const [state, setState] = useState<HoldState>('idle')
