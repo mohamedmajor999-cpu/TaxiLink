@@ -3,6 +3,7 @@ import { Icon } from '@/components/ui/Icon'
 import { FieldRow, FieldLabel, FieldInput, WhenPill } from './publierCourseParts'
 import { AddressLineInput } from './AddressLineInput'
 import { PosterCpamBlock } from './PosterCpamBlock'
+import { PosterPriveSupplementsBlock } from './PosterPriveSupplementsBlock'
 import { PosterFooter } from './PosterFooter'
 import { PosterMicCta } from './PosterMicCta'
 import type { usePosterCourse } from './usePosterCourse'
@@ -159,6 +160,14 @@ export function PosterCourseForm({ c, footerProps }: Props) {
                 returnTrip={form.returnTrip} setReturnTrip={form.setReturnTrip}
                 passengers={form.passengers} setPassengers={form.setPassengers}
                 tpmr={c.tpmr} setTpmr={c.setTpmr}
+              />
+            )}
+
+            {form.type === 'PRIVE' && (
+              <PosterPriveSupplementsBlock
+                passengers={form.passengers} setPassengers={form.setPassengers}
+                extraBagages={form.extraBagages} setExtraBagages={form.setExtraBagages}
+                extraEncombrants={form.extraEncombrants} setExtraEncombrants={form.setExtraEncombrants}
               />
             )}
 

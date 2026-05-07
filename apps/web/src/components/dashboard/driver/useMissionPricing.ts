@@ -20,6 +20,8 @@ interface Params {
   passengers?: number | null
   transportType?: TransportType | null
   returnTrip?: boolean
+  extraBagages?: number | null
+  extraEncombrants?: number | null
 }
 
 export function useMissionPricing(p: Params) {
@@ -34,11 +36,14 @@ export function useMissionPricing(p: Params) {
       passengers: p.passengers ?? null,
       transportType: p.transportType ?? null,
       returnTrip: p.returnTrip ?? false,
+      extraBagages: p.extraBagages ?? null,
+      extraEncombrants: p.extraEncombrants ?? null,
     }),
     [p.price, p.priceMin, p.priceMax, p.type, p.medicalMotif,
       p.distanceKm, p.durationMin, p.staticDurationMin,
       p.date, p.time, p.departure, p.destination,
-      p.passengers, p.transportType, p.returnTrip],
+      p.passengers, p.transportType, p.returnTrip,
+      p.extraBagages, p.extraEncombrants],
   )
 
   const previewFare = useMemo(() => {

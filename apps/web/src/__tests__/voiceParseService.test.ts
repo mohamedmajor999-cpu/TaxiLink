@@ -23,6 +23,8 @@ const parsed: ParsedMissionFields = {
   phone: null,
   visibility: 'PUBLIC',
   group_names: [],
+  extra_bagages: null,
+  extra_encombrants: null,
   transcript: 'Paris Lyon le 1er mai à 10h',
 }
 

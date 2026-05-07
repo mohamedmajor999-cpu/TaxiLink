@@ -139,6 +139,71 @@ describe('estimateMarseilleFare — supplément trafic (vraie formule)', () => {
   })
 })
 
+describe('estimateMarseilleFare — suppléments forfaitaires', () => {
+  it('passengers ≤ 4 → pas de supplément 5ᵉ pax', () => {
+    const v = estimateMarseilleFare({
+      distanceKm: 10, date: '2026-04-21', time: '10:00',
+      durationMin: 20, staticDurationMin: 20,
+      departure: MARS, destination: MARS,
+      passengers: 4,
+    })
+    expect(v).toBe(14)
+  })
+
+  it('passengers = 6 → +2×4 = +8 € sur le total', () => {
+    const v = estimateMarseilleFare({
+      distanceKm: 10, date: '2026-04-21', time: '10:00',
+      durationMin: 20, staticDurationMin: 20,
+      departure: MARS, destination: MARS,
+      passengers: 6,
+    })
+    // base = 14, supp = (6-4)*4 = 8 → 22
+    expect(v).toBe(22)
+  })
+
+  it('extraBagages = 3 → +6 €', () => {
+    const v = estimateMarseilleFare({
+      distanceKm: 10, date: '2026-04-21', time: '10:00',
+      durationMin: 20, staticDurationMin: 20,
+      departure: MARS, destination: MARS,
+      extraBagages: 3,
+    })
+    expect(v).toBe(20)
+  })
+
+  it('extraEncombrants = 1 → +2 €', () => {
+    const v = estimateMarseilleFare({
+      distanceKm: 10, date: '2026-04-21', time: '10:00',
+      durationMin: 20, staticDurationMin: 20,
+      departure: MARS, destination: MARS,
+      extraEncombrants: 1,
+    })
+    expect(v).toBe(16)
+  })
+
+  it('combiné : 5 pax + 2 bagages + 1 encombrant → +4 +4 +2 = +10 €', () => {
+    const v = estimateMarseilleFare({
+      distanceKm: 10, date: '2026-04-21', time: '10:00',
+      durationMin: 20, staticDurationMin: 20,
+      departure: MARS, destination: MARS,
+      passengers: 5, extraBagages: 2, extraEncombrants: 1,
+    })
+    // base 14, supp = 4 + 4 + 2 = 10 → 24
+    expect(v).toBe(24)
+  })
+
+  it('suppléments s\'ajoutent au-dessus du minimum de course', () => {
+    const v = estimateMarseilleFare({
+      distanceKm: 1, date: '2026-04-21', time: '10:00',
+      durationMin: 5, staticDurationMin: 5,
+      departure: MARS, destination: MARS,
+      extraBagages: 1,
+    })
+    // base = max(8, round(2.40 + 1.12)) = 8 ; +2 = 10
+    expect(v).toBe(10)
+  })
+})
+
 describe('estimateMarseilleFareRange — fourchette vs prix exact', () => {
   it('Intra-Marseille → prix exact tarif A (min = max)', () => {
     const r = estimateMarseilleFareRange({

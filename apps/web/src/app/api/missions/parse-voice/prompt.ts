@@ -22,7 +22,9 @@ Schéma attendu :
   "patient_name": string | null,
   "phone": string | null,
   "visibility": "PUBLIC" | "GROUP" | null,
-  "group_names": string[]
+  "group_names": string[],
+  "extra_bagages": number | null,
+  "extra_encombrants": number | null
 }
 
 Règles :
@@ -40,7 +42,9 @@ Règles :
 - "return_trip" UNIQUEMENT pour CPAM. true si le chauffeur mentionne "aller-retour", "A/R", "avec retour", "en attente", "même jour retour". Par défaut false.
 - "return_time" au format "HH:MM" si le chauffeur précise l'heure de retour (ex: "retour à 16h", "reprise 16h30"). Sinon null. Implique return_trip=true.
 - "companion" = true si accompagnant mentionné ("avec accompagnant", "avec sa fille", "famille", "aidant"). Sinon false.
-- "passengers" UNIQUEMENT si type != "CPAM". Nombre entier 1-8 si explicitement mentionné ("deux personnes", "trois passagers"). Sinon null.
+- "passengers" = nombre de personnes transportées (incluant le patient pour CPAM). Entier 1-8 si explicitement mentionné ("deux personnes", "trois passagers", "quatre patients", "5 patients à fixer"). Pour CPAM, c'est le nombre de patients ; pour PRIVE, le nombre total de passagers. Sinon null. Reconnais aussi les variantes "patient(s)", "patiente(s)", "personne(s)", "passager(s)", "client(s)" comme désignant ce champ.
+- "extra_bagages" = nombre de bagages facturables au tarif forfaitaire (à partir du 4ᵉ par passager, 2 €/unité). Entier ≥ 0 uniquement si le chauffeur le mentionne explicitement ("trois bagages supplémentaires", "deux valises en plus", "facture 2 bagages"). Sinon null.
+- "extra_encombrants" = nombre de bagages encombrants (vélo, ski, fauteuil pliant non médical, gros colis), 2 €/unité. Entier ≥ 0 uniquement si mentionné ("un vélo", "skis", "deux encombrants"). Sinon null.
 - "date" au format ISO "YYYY-MM-DD". Calcule par rapport à la date d'aujourd'hui fournie ci-dessous.
   * "aujourd'hui" → date d'aujourd'hui
   * "demain" → date du lendemain

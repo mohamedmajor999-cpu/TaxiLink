@@ -78,6 +78,7 @@ function estimateFor(m: MissionLike): number | null {
       time,
       departure: m.departure,
       destination: m.destination,
+      passengers: m.passengers,
     })
   }
   return null

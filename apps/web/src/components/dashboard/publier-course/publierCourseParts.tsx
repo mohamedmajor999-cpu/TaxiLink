@@ -102,11 +102,11 @@ export function SegMiniBtn({ active, onClick, children }: { active: boolean; onC
   )
 }
 
-export function Stepper({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+export function Stepper({ value, onChange, min = 1 }: { value: number; onChange: (v: number) => void; min?: number }) {
   return (
     <div className="flex items-center h-10 bg-white/60 border border-black/[0.06] rounded-[11px] px-1">
       <button
-        onClick={() => onChange(Math.max(1, value - 1))}
+        onClick={() => onChange(Math.max(min, value - 1))}
         className="w-8 h-8 rounded-lg hover:bg-black/[0.05] text-warm-700 text-[16px] font-bold"
         aria-label="Moins"
       >−</button>

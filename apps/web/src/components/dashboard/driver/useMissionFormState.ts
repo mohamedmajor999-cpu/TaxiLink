@@ -50,6 +50,10 @@ export function useMissionFormState(mission: Mission | undefined) {
   const [patientName, setPatientName] = useState(mission?.patient_name ?? '')
   const [phone, setPhone] = useState(mission?.phone ?? '')
   const [notes, setNotes] = useState(mission?.notes ?? '')
+  // Suppléments forfaitaires PRIVE (arrêté préfectoral) — non persistés en DB,
+  // affectent uniquement l'estimation affichée et donc le prix dicté/typé.
+  const [extraBagages, setExtraBagages] = useState<number>(0)
+  const [extraEncombrants, setExtraEncombrants] = useState<number>(0)
 
   return {
     type, setType, medicalMotif, setMedicalMotif,
@@ -63,6 +67,8 @@ export function useMissionFormState(mission: Mission | undefined) {
     priceMin, setPriceMin, priceMax, setPriceMax,
     patientName, setPatientName,
     phone, setPhone, notes, setNotes,
+    extraBagages, setExtraBagages,
+    extraEncombrants, setExtraEncombrants,
   }
 }
 

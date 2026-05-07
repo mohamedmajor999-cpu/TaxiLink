@@ -10,6 +10,10 @@ const TARIF_B = 1.45 // nuit (19h-7h) / dim / fériés, retour en charge
 const TARIF_C = 2.24 // jour, retour à vide
 const TARIF_D = 2.90 // nuit / dim / fériés, retour à vide
 const TARIF_HORAIRE = 35.60
+// Suppléments forfaitaires de l'arrêté préfectoral (facturés en sus du compteur)
+const SUPP_BAGAGE = 2.00     // par bagage à partir du 4ᵉ par passager
+const SUPP_ENCOMBRANT = 2.00 // par bagage encombrant
+const SUPP_5EME_PAX = 4.00   // par passager à partir du 5ᵉ
 
 interface Args {
   distanceKm: number | null
@@ -23,6 +27,23 @@ interface Args {
   /** Adresses complètes — active la détection ZUPC automatique. */
   departure?: string | null
   destination?: string | null
+  /** Nombre de passagers — déclenche le supplément 5ᵉ pax+ si > 4. */
+  passengers?: number | null
+  /** Nombre de bagages facturables (4ᵉ et + par passager), 2€/unité. */
+  extraBagages?: number | null
+  /** Nombre de bagages encombrants, 2€/unité. */
+  extraEncombrants?: number | null
+}
+
+function computeSupplements(
+  passengers?: number | null,
+  extraBagages?: number | null,
+  extraEncombrants?: number | null,
+): number {
+  const pax = passengers != null && passengers > 4 ? (passengers - 4) * SUPP_5EME_PAX : 0
+  const bag = extraBagages != null && extraBagages > 0 ? extraBagages * SUPP_BAGAGE : 0
+  const enc = extraEncombrants != null && extraEncombrants > 0 ? extraEncombrants * SUPP_ENCOMBRANT : 0
+  return pax + bag + enc
 }
 
 function computeSlowSupplement(
@@ -53,6 +74,9 @@ export function estimateMarseilleFare({
   returnEmpty,
   departure,
   destination,
+  passengers,
+  extraBagages,
+  extraEncombrants,
 }: Args): number | null {
   if (distanceKm == null || distanceKm <= 0) return null
   const dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim())
@@ -74,7 +98,10 @@ export function estimateMarseilleFare({
   const slowSupplement = computeSlowSupplement(durationMin, staticDurationMin, kmCost)
 
   const raw = PRISE_EN_CHARGE + kmCost + slowSupplement
-  return Math.max(MIN_COURSE, Math.round(raw))
+  // La course minimale (8 €) couvre seulement la base compteur ; les suppléments
+  // forfaitaires (bagage / encombrant / 5e pax+) s'ajoutent par-dessus.
+  const baseTotal = Math.max(MIN_COURSE, Math.round(raw))
+  return baseTotal + computeSupplements(passengers, extraBagages, extraEncombrants)
 }
 
 function resolveReturnEmpty(
@@ -107,3 +134,9 @@ export function estimateMarseilleFareRange(args: Omit<Args, 'returnEmpty'>):
   if (min == null || max == null) return null
   return { min, max }
 }
+
+export const MARSEILLE_FARE_CONSTANTS = {
+  SUPP_BAGAGE,
+  SUPP_ENCOMBRANT,
+  SUPP_5EME_PAX,
+} as const

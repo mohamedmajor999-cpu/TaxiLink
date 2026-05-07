@@ -81,6 +81,7 @@ export function usePosterCourse() {
     setPatientName: form.setPatientName, setPhone: form.setPhone,
     setVisibility: form.setVisibility, setGroupIds: form.setGroupIds, myGroups,
     setDepartureCoords: route.setDepartureCoords, setDestinationCoords: route.setDestinationCoords,
+    setExtraBagages: form.setExtraBagages, setExtraEncombrants: form.setExtraEncombrants,
   })
 
   const voiceFlow = usePosterVoiceFlow({ filler: voice, form })
@@ -95,6 +96,8 @@ export function usePosterCourse() {
     departure: form.departure, destination: form.destination,
     passengers: form.passengers, transportType: form.transportType,
     returnTrip: form.returnTrip,
+    extraBagages: form.extraBagages,
+    extraEncombrants: form.extraEncombrants,
   })
 
   const canSubmit = useMemo(() => {

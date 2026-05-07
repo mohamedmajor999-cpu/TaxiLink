@@ -23,6 +23,8 @@ interface Args {
   passengers?: number | null
   transportType?: TransportType | null
   returnTrip?: boolean
+  extraBagages?: number | null
+  extraEncombrants?: number | null
 }
 
 const parseNum = (s: string): number | null => {
@@ -72,6 +74,9 @@ export function computeEffectivePrice(args: Args): EffectivePrice | null {
       time: args.time,
       departure: args.departure,
       destination: args.destination,
+      passengers: args.passengers,
+      extraBagages: args.extraBagages,
+      extraEncombrants: args.extraEncombrants,
     })
     if (r == null) return null
     return r.min === r.max ? { kind: 'fixed', value: r.min } : { kind: 'range', min: r.min, max: r.max }

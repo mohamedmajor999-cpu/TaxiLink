@@ -21,6 +21,8 @@ export interface ParsedMissionFields {
   phone: string | null
   visibility: MissionVisibility | null
   group_names: string[]
+  extra_bagages: number | null
+  extra_encombrants: number | null
   transcript: string
 }
 

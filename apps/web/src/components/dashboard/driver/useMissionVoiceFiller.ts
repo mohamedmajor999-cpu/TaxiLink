@@ -33,6 +33,8 @@ interface Args {
   myGroups: Group[]
   setDepartureCoords: (c: Coords | null) => void
   setDestinationCoords: (c: Coords | null) => void
+  setExtraBagages?: (n: number) => void
+  setExtraEncombrants?: (n: number) => void
 }
 
 export function useMissionVoiceFiller(args: Args) {
@@ -55,6 +57,8 @@ export function useMissionVoiceFiller(args: Args) {
     add(parsed.departure, 'departure'); add(parsed.destination, 'destination')
     add(parsed.phone, 'phone'); add(parsed.return_trip, 'returnTrip')
     add(parsed.passengers != null, 'passengers')
+    add(parsed.extra_bagages != null && parsed.extra_bagages > 0, 'extraBagages')
+    add(parsed.extra_encombrants != null && parsed.extra_encombrants > 0, 'extraEncombrants')
     parsedFieldsRef.current = fields
     setParsedFields(fields)
 
@@ -68,6 +72,12 @@ export function useMissionVoiceFiller(args: Args) {
     }
     if (parsed.companion) a.setCompanion(true)
     if (parsed.passengers != null) a.setPassengers(parsed.passengers)
+    if (parsed.extra_bagages != null && a.setExtraBagages) {
+      a.setExtraBagages(Math.max(0, parsed.extra_bagages))
+    }
+    if (parsed.extra_encombrants != null && a.setExtraEncombrants) {
+      a.setExtraEncombrants(Math.max(0, parsed.extra_encombrants))
+    }
     if (parsed.date) a.setDate(parsed.date)
     if (parsed.time) a.setTime(parsed.time)
     if (parsed.price_min_eur != null && parsed.price_max_eur != null) {

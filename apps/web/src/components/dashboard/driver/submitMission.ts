@@ -79,7 +79,7 @@ export async function submitMission(args: SubmitMissionArgs): Promise<string> {
     return_trip: args.type === 'CPAM' ? (args.returnTrip ?? false) : false,
     return_time: args.type === 'CPAM' && args.returnTrip ? (args.returnTime ?? null) : null,
     companion: args.companion ?? false,
-    passengers: args.type !== 'CPAM' ? (args.passengers ?? null) : null,
+    passengers: args.passengers ?? null,
     departure: args.departure.trim(),
     destination: args.destination.trim(),
     departure_lat: args.departureCoords?.lat ?? null,
