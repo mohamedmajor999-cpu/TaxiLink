@@ -33,7 +33,7 @@ export async function createMissionPinIcon(opts: PinOptions): Promise<DivIcon> {
     html: `<div class="${classes.join(' ')}">${badge}<span class="mp-price">${opts.priceLabel}</span></div>`,
     className: '',
     iconSize: [0, 0],
-    iconAnchor: [0, -6],
+    iconAnchor: [0, 0],
   })
 }
 

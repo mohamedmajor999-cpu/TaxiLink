@@ -143,6 +143,11 @@ body {
   white-space: nowrap;
   transition: transform 0.15s ease;
   cursor: pointer;
+  /* Ancrage : iconAnchor [0,0] place le coin haut-gauche du conteneur sur la coord.
+     On translate le pill pour que la pointe du losange (::after, ~8px sous le pill)
+     tombe pile sur la lat/lng — sinon les pins derivent quand on dezoome. */
+  transform: translate(-50%, calc(-100% - 8px));
+  transform-origin: 50% calc(100% + 8px);
 }
 .mission-pin::after {
   content: '';
@@ -160,7 +165,7 @@ body {
   background: #FFD11A;
   color: #1A1A1A;
   border-color: #1A1A1A;
-  transform: scale(1.1);
+  transform: translate(-50%, calc(-100% - 8px)) scale(1.1);
   z-index: 10;
 }
 .mission-pin.selected::after { background: #FFD11A; border-color: #1A1A1A; }
