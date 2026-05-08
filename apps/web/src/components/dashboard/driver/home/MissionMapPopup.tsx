@@ -57,7 +57,8 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
   const courseKm = mission.distance_km ?? null
   const isCpam = mission.type === 'CPAM'
   const typeLabel = isCpam ? 'CPAM' : 'Privé'
-  const badgeClass = isCpam ? 'bg-[#FEE2E2] text-[#991B1B]' : 'bg-[#DBEAFE] text-[#1E40AF]'
+  const badgeClass = isCpam ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-900'
+  const isStale = mission.status === 'STALE'
 
   const isIncoming = autoDismissMs != null
 
@@ -103,9 +104,14 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
               {mission.return_trip ? ' · A/R' : ''}
             </span>
             {urgent && (
-              <span className="inline-flex items-center gap-0.5 text-[11px] font-extrabold text-[#EF4444]">
+              <span className="inline-flex items-center gap-0.5 text-[11px] font-extrabold text-red-500">
                 <AlertTriangle className="w-3 h-3" strokeWidth={2.2} />
                 Urgent
+              </span>
+            )}
+            {isStale && (
+              <span className="inline-flex items-center gap-0.5 text-[10.5px] font-extrabold uppercase tracking-[0.04em] px-1.5 py-[2px] rounded bg-amber-100 text-amber-900">
+                À republier
               </span>
             )}
           </div>

@@ -19,7 +19,7 @@ export const missionQueries = {
     // PII patient ne quitte pas Postgres en clair pour le feed marketplace.
     // Cf. migration 20260504_marketplace_masked_rpc.sql.
     const { data, error } = await supabase.rpc('get_marketplace_missions', {
-      p_departments: departments && departments.length > 0 ? departments : null,
+      p_departments: departments && departments.length > 0 ? departments : undefined,
       p_limit:       limit,
     })
     if (error) throw new Error(error.message)

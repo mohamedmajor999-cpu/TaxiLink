@@ -50,15 +50,23 @@ export const driverBlockService = {
     }))
   },
 
-  /** Bloque un chauffeur. Idempotent : si déjà bloqué, no-op silencieux. */
+  /**
+   * Bloque un chauffeur. Idempotent : si déjà bloqué, no-op silencieux.
+   * Asymétrie patron↔employé : un trigger DB rejette l'INSERT si l'auteur est
+   * chauffeur dans une org où la cible est patron (owner/admin/dispatcher) —
+   * on traduit cette erreur en message utilisateur clair.
+   */
   async block(blockerId: string, blockedId: string): Promise<void> {
     if (blockerId === blockedId) throw new Error('Impossible de se bloquer soi-même.')
     const { error } = await supabase
       .from('driver_blocks')
       .insert({ blocker_id: blockerId, blocked_id: blockedId })
-    if (error && !error.message.includes('driver_blocks_unique_pair')) {
-      throw new Error(error.message)
+    if (!error) return
+    if (error.message.includes('driver_blocks_unique_pair')) return
+    if (error.message.includes('CANNOT_BLOCK_OWN_PATRON')) {
+      throw new Error('Vous ne pouvez pas bloquer le patron de votre organisation.')
     }
+    throw new Error(error.message)
   },
 
   /** Débloque un chauffeur. No-op si pas bloqué. */

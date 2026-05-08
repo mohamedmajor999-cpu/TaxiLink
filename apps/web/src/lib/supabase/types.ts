@@ -7,84 +7,84 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
-      groups: {
+      ai_usage: {
         Row: {
-          id:          string
-          name:        string
-          description: string | null
-          created_by:  string
-          created_at:  string
-          updated_at:  string
+          cost_usd: number
+          created_at: string
+          endpoint: string
+          id: number
+          input_tokens: number
+          model: string
+          output_tokens: number
+          user_id: string | null
         }
         Insert: {
-          id?:          string
-          name:         string
-          description?: string | null
-          created_by:   string
-          created_at?:  string
-          updated_at?:  string
+          cost_usd?: number
+          created_at?: string
+          endpoint: string
+          id?: number
+          input_tokens?: number
+          model: string
+          output_tokens?: number
+          user_id?: string | null
         }
         Update: {
-          id?:          string
-          name?:        string
-          description?: string | null
-          created_by?:  string
-          created_at?:  string
-          updated_at?:  string
+          cost_usd?: number
+          created_at?: string
+          endpoint?: string
+          id?: number
+          input_tokens?: number
+          model?: string
+          output_tokens?: number
+          user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "groups_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
-      group_members: {
+      auth_login_events: {
         Row: {
-          id:        string
-          group_id:  string
-          driver_id: string
-          role:      string
-          joined_at: string
+          created_at: string
+          id: number
+          user_id: string | null
         }
         Insert: {
-          id?:        string
-          group_id:   string
-          driver_id:  string
-          role?:      string
-          joined_at?: string
+          created_at?: string
+          id?: number
+          user_id?: string | null
         }
         Update: {
-          id?:        string
-          group_id?:  string
-          driver_id?: string
-          role?:      string
-          joined_at?: string
+          created_at?: string
+          id?: number
+          user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "group_members_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_members_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "drivers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      driver_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
       }
       driver_documents: {
         Row: {
@@ -130,6 +130,7 @@ export type Database = {
       drivers: {
         Row: {
           bio: string | null
+          click_loss_streak: number
           cpam_enabled: boolean
           created_at: string
           current_lat: number | null
@@ -139,6 +140,7 @@ export type Database = {
           is_online: boolean
           is_verified: boolean
           last_seen_at: string | null
+          last_streak_update: string | null
           organization_id: string
           pro_number: string | null
           rating: number
@@ -150,6 +152,7 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          click_loss_streak?: number
           cpam_enabled?: boolean
           created_at?: string
           current_lat?: number | null
@@ -159,6 +162,7 @@ export type Database = {
           is_online?: boolean
           is_verified?: boolean
           last_seen_at?: string | null
+          last_streak_update?: string | null
           organization_id: string
           pro_number?: string | null
           rating?: number
@@ -170,6 +174,7 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          click_loss_streak?: number
           cpam_enabled?: boolean
           created_at?: string
           current_lat?: number | null
@@ -179,6 +184,7 @@ export type Database = {
           is_online?: boolean
           is_verified?: boolean
           last_seen_at?: string | null
+          last_streak_update?: string | null
           organization_id?: string
           pro_number?: string | null
           rating?: number
@@ -205,6 +211,232 @@ export type Database = {
           },
         ]
       }
+      google_api_costs: {
+        Row: {
+          cost_usd: number
+          created_at: string
+          id: number
+          notes: string | null
+          period_month: string
+          request_count: number | null
+          service: string
+          updated_at: string
+        }
+        Insert: {
+          cost_usd: number
+          created_at?: string
+          id?: number
+          notes?: string | null
+          period_month: string
+          request_count?: number | null
+          service: string
+          updated_at?: string
+        }
+        Update: {
+          cost_usd?: number
+          created_at?: string
+          id?: number
+          notes?: string | null
+          period_month?: string
+          request_count?: number | null
+          service?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      group_members: {
+        Row: {
+          driver_id: string
+          group_id: string
+          id: string
+          joined_at: string | null
+          role: string
+        }
+        Insert: {
+          driver_id: string
+          group_id: string
+          id?: string
+          joined_at?: string | null
+          role?: string
+        }
+        Update: {
+          driver_id?: string
+          group_id?: string
+          id?: string
+          joined_at?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          fleet_org_id: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          fleet_org_id?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          fleet_org_id?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_fleet_org_id_fkey"
+            columns: ["fleet_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_groups: {
+        Row: {
+          created_at: string
+          group_id: string
+          mission_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          mission_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          mission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_groups_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_groups_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_offers: {
+        Row: {
+          distance_km_at_offer: number | null
+          driver_id: string
+          expires_at: string
+          id: string
+          mission_id: string
+          radius_km_at_offer: number
+          responded_at: string | null
+          sent_at: string
+          status: string
+          unlock_at: string
+        }
+        Insert: {
+          distance_km_at_offer?: number | null
+          driver_id: string
+          expires_at: string
+          id?: string
+          mission_id: string
+          radius_km_at_offer: number
+          responded_at?: string | null
+          sent_at?: string
+          status?: string
+          unlock_at?: string
+        }
+        Update: {
+          distance_km_at_offer?: number | null
+          driver_id?: string
+          expires_at?: string
+          id?: string
+          mission_id?: string
+          radius_km_at_offer?: number
+          responded_at?: string | null
+          sent_at?: string
+          status?: string
+          unlock_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_offers_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_views: {
+        Row: {
+          id: string
+          mission_id: string
+          viewed_at: string
+          viewer_id: string
+        }
+        Insert: {
+          id?: string
+          mission_id: string
+          viewed_at?: string
+          viewer_id: string
+        }
+        Update: {
+          id?: string
+          mission_id?: string
+          viewed_at?: string
+          viewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_views_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       missions: {
         Row: {
           accepted_at: string | null
@@ -227,7 +459,6 @@ export type Database = {
           dropoff_at: string | null
           duration_min: number | null
           enroute_at: string | null
-          static_duration_min: number | null
           id: string
           medical_motif: string | null
           no_show: boolean
@@ -239,12 +470,13 @@ export type Database = {
           pickup_at: string | null
           pickup_signature_url: string | null
           price_eur: number | null
-          price_min_eur: number | null
           price_max_eur: number | null
+          price_min_eur: number | null
           return_time: string | null
           return_trip: boolean
           scheduled_at: string
           shared_by: string | null
+          static_duration_min: number | null
           status: string
           transport_type: string | null
           transport_voucher_url: string | null
@@ -274,7 +506,6 @@ export type Database = {
           dropoff_at?: string | null
           duration_min?: number | null
           enroute_at?: string | null
-          static_duration_min?: number | null
           id?: string
           medical_motif?: string | null
           no_show?: boolean
@@ -286,12 +517,13 @@ export type Database = {
           pickup_at?: string | null
           pickup_signature_url?: string | null
           price_eur?: number | null
-          price_min_eur?: number | null
           price_max_eur?: number | null
+          price_min_eur?: number | null
           return_time?: string | null
           return_trip?: boolean
           scheduled_at?: string
           shared_by?: string | null
+          static_duration_min?: number | null
           status?: string
           transport_type?: string | null
           transport_voucher_url?: string | null
@@ -321,7 +553,6 @@ export type Database = {
           dropoff_at?: string | null
           duration_min?: number | null
           enroute_at?: string | null
-          static_duration_min?: number | null
           id?: string
           medical_motif?: string | null
           no_show?: boolean
@@ -333,12 +564,13 @@ export type Database = {
           pickup_at?: string | null
           pickup_signature_url?: string | null
           price_eur?: number | null
-          price_min_eur?: number | null
           price_max_eur?: number | null
+          price_min_eur?: number | null
           return_time?: string | null
           return_trip?: boolean
           scheduled_at?: string
           shared_by?: string | null
+          static_duration_min?: number | null
           status?: string
           transport_type?: string | null
           transport_voucher_url?: string | null
@@ -369,152 +601,57 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      driver_blocks: {
-        Row: {
-          id:         string
-          blocker_id: string
-          blocked_id: string
-          created_at: string
-        }
-        Insert: {
-          id?:         string
-          blocker_id:  string
-          blocked_id:  string
-          created_at?: string
-        }
-        Update: {
-          id?:         string
-          blocker_id?: string
-          blocked_id?: string
-          created_at?: string
-        }
-        Relationships: [
           {
-            foreignKeyName: "driver_blocks_blocker_id_fkey"
-            columns: ["blocker_id"]
+            foreignKeyName: "missions_shared_by_fkey"
+            columns: ["shared_by"]
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "driver_blocks_blocked_id_fkey"
-            columns: ["blocked_id"]
-            isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "drivers"
             referencedColumns: ["id"]
           },
         ]
-      }
-      mission_groups: {
-        Row: {
-          mission_id: string
-          group_id:   string
-          created_at: string
-        }
-        Insert: {
-          mission_id: string
-          group_id:   string
-          created_at?: string
-        }
-        Update: {
-          mission_id?: string
-          group_id?:   string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mission_groups_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "missions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mission_groups_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      organizations: {
-        Row: {
-          id: string
-          name: string
-          siret: string | null
-          plan: string
-          stripe_customer_id: string | null
-          auto_dispatch_enabled: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          siret?: string | null
-          plan?: string
-          stripe_customer_id?: string | null
-          auto_dispatch_enabled?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          siret?: string | null
-          plan?: string
-          stripe_customer_id?: string | null
-          auto_dispatch_enabled?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       org_invitations: {
         Row: {
-          id: string
-          org_id: string
-          invited_by: string
+          accepted_at: string | null
+          accepted_by: string | null
           contact: string
           contact_type: string
-          role: string
-          token: string
-          status: string
-          expires_at: string
-          accepted_by: string | null
-          accepted_at: string | null
           created_at: string
+          expires_at: string
+          id: string
+          invited_by: string
+          org_id: string
+          role: string
+          status: string
+          token: string
         }
         Insert: {
-          id?: string
-          org_id: string
-          invited_by: string
+          accepted_at?: string | null
+          accepted_by?: string | null
           contact: string
           contact_type: string
-          role?: string
-          token: string
-          status?: string
-          expires_at?: string
-          accepted_by?: string | null
-          accepted_at?: string | null
           created_at?: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          org_id: string
+          role?: string
+          status?: string
+          token: string
         }
         Update: {
-          id?: string
-          org_id?: string
-          invited_by?: string
+          accepted_at?: string | null
+          accepted_by?: string | null
           contact?: string
           contact_type?: string
-          role?: string
-          token?: string
-          status?: string
-          expires_at?: string
-          accepted_by?: string | null
-          accepted_at?: string | null
           created_at?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          org_id?: string
+          role?: string
+          status?: string
+          token?: string
         }
         Relationships: [
           {
@@ -528,22 +665,22 @@ export type Database = {
       }
       organization_members: {
         Row: {
-          org_id: string
-          user_id: string
-          role: string
           joined_at: string
+          org_id: string
+          role: string
+          user_id: string
         }
         Insert: {
-          org_id: string
-          user_id: string
-          role: string
           joined_at?: string
+          org_id: string
+          role: string
+          user_id: string
         }
         Update: {
-          org_id?: string
-          user_id?: string
-          role?: string
           joined_at?: string
+          org_id?: string
+          role?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -555,34 +692,38 @@ export type Database = {
           },
         ]
       }
-      mission_views: {
+      organizations: {
         Row: {
+          auto_dispatch_enabled: boolean
+          created_at: string
           id: string
-          mission_id: string
-          viewer_id: string
-          viewed_at: string
+          name: string
+          plan: string
+          siret: string | null
+          stripe_customer_id: string | null
+          updated_at: string
         }
         Insert: {
+          auto_dispatch_enabled?: boolean
+          created_at?: string
           id?: string
-          mission_id: string
-          viewer_id: string
-          viewed_at?: string
+          name: string
+          plan?: string
+          siret?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
         }
         Update: {
+          auto_dispatch_enabled?: boolean
+          created_at?: string
           id?: string
-          mission_id?: string
-          viewer_id?: string
-          viewed_at?: string
+          name?: string
+          plan?: string
+          siret?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "mission_views_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "missions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       payments: {
         Row: {
@@ -636,6 +777,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          deleted_at: string | null
           department: string | null
           first_name: string | null
           full_name: string | null
@@ -648,6 +790,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           department?: string | null
           first_name?: string | null
           full_name?: string | null
@@ -660,6 +803,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           department?: string | null
           first_name?: string | null
           full_name?: string | null
@@ -676,37 +820,50 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      current_org_ids: {
-        Args: Record<string, never>
-        Returns: string[]
-      }
-      accept_invitation: {
-        Args: { invitation_token: string }
-        Returns: Json
-      }
-      remove_org_member: {
-        Args: { target_org_id: string; target_user_id: string }
-        Returns: Json
-      }
-      patron_assign_mission: {
-        Args: { target_mission_id: string; target_driver_id: string }
-        Returns: Json
-      }
-      get_marketplace_missions: {
-        Args: { p_departments?: string[] | null; p_limit?: number }
-        Returns: Json[]
-      }
-      delete_my_account: {
-        Args: Record<string, never>
-        Returns: undefined
-      }
       _anonymize_user_internal: {
         Args: { p_user_id: string }
         Returns: undefined
       }
-      mask_initials: {
-        Args: { p_full_name: string }
-        Returns: string | null
+      accept_invitation: { Args: { invitation_token: string }; Returns: Json }
+      accept_mission_offer: { Args: { p_offer_id: string }; Returns: Json }
+      auto_complete_overdue_missions: { Args: never; Returns: number }
+      compute_visible_drivers: {
+        Args: { p_mission_id: string; p_radius_km: number }
+        Returns: {
+          current_lat: number
+          current_lng: number
+          distance_km: number
+          driver_id: string
+          last_position_at: string
+        }[]
+      }
+      current_org_ids: { Args: never; Returns: string[] }
+      decay_idle_streaks: { Args: never; Returns: number }
+      delete_my_account: { Args: never; Returns: undefined }
+      ensure_fleet_group: {
+        Args: { fallback_creator: string; target_org_id: string }
+        Returns: string
+      }
+      expire_pending_offers: { Args: never; Returns: number }
+      expire_stale_missions: { Args: never; Returns: undefined }
+      get_marketplace_missions: {
+        Args: { p_departments?: string[]; p_limit?: number }
+        Returns: Json[]
+      }
+      get_my_group_ids: { Args: never; Returns: string[] }
+      haversine_km: {
+        Args: { lat1: number; lat2: number; lng1: number; lng2: number }
+        Returns: number
+      }
+      mask_initials: { Args: { p_full_name: string }; Returns: string }
+      patron_assign_mission: {
+        Args: { target_driver_id: string; target_mission_id: string }
+        Returns: Json
+      }
+      refuse_mission_offer: { Args: { p_offer_id: string }; Returns: Json }
+      remove_org_member: {
+        Args: { target_org_id: string; target_user_id: string }
+        Returns: Json
       }
     }
     Enums: {
@@ -719,6 +876,7 @@ export type Database = {
 }
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
 type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
@@ -799,6 +957,46 @@ export type TablesUpdate<
       ? U
       : never
     : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
 
 // ─── Types de table partagés ─────────────────────────────────────────────────
 export type Mission  = Database['public']['Tables']['missions']['Row'] & {

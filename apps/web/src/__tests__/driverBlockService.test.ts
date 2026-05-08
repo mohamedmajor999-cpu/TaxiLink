@@ -77,6 +77,15 @@ describe('driverBlockService.block', () => {
     mockInsert.mockResolvedValue({ data: null, error: { message: 'permission denied' } })
     await expect(driverBlockService.block('drv-1', 'drv-2')).rejects.toThrow('permission denied')
   })
+
+  it("traduit l'erreur trigger CANNOT_BLOCK_OWN_PATRON en message utilisateur clair", async () => {
+    mockInsert.mockResolvedValue({
+      data: null,
+      error: { message: 'CANNOT_BLOCK_OWN_PATRON: Un employé ne peut pas bloquer le patron…' },
+    })
+    await expect(driverBlockService.block('employe-1', 'patron-1'))
+      .rejects.toThrow(/patron de votre organisation/)
+  })
 })
 
 describe('driverBlockService.unblock', () => {

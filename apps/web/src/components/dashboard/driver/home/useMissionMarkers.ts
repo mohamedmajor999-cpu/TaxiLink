@@ -76,18 +76,19 @@ export function useMissionMarkers({ mapRef, missions, selectedId, onSelect }: Pa
         const urgent = getMinutesUntil(m.scheduled_at) <= URGENT_THRESHOLD_MIN
         const selected = m.id === selectedId
         const medical = m.type === 'CPAM'
-        const sig = `${priceLabel}|${selected}|${urgent}|${medical}`
+        const stale = m.status === 'STALE'
+        const sig = `${priceLabel}|${selected}|${urgent}|${medical}|${stale}`
         const existing = markersRef.current.get(m.id)
         if (existing) {
           existing.setLatLng(pos)
           if (existing.__sig !== sig) {
-            const icon = await createMissionPinIcon({ priceLabel, selected, urgent, medical })
+            const icon = await createMissionPinIcon({ priceLabel, selected, urgent, medical, stale })
             if (cancelled) return
             existing.setIcon(icon)
             existing.__sig = sig
           }
         } else {
-          const icon = await createMissionPinIcon({ priceLabel, selected, urgent, medical })
+          const icon = await createMissionPinIcon({ priceLabel, selected, urgent, medical, stale })
           if (cancelled) return
           const marker = L.marker(pos, { icon, riseOnHover: true })
             .on('click', () => onSelectRef.current(m.id)) as MarkerWithSig

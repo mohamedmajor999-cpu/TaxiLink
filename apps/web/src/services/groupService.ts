@@ -61,7 +61,7 @@ export const groupService = {
     if (mErr) throw mErr
     return {
       id: group.id, name: group.name, description: group.description,
-      createdBy: group.created_by, createdAt: group.created_at, memberCount: 1,
+      createdBy: group.created_by, createdAt: group.created_at ?? new Date().toISOString(), memberCount: 1,
     }
   },
 

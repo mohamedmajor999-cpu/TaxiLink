@@ -7,6 +7,8 @@ interface PinOptions {
   selected: boolean
   urgent: boolean
   medical: boolean
+  /** Mission marquee STALE par le cron : pin grise "À republier" */
+  stale: boolean
 }
 
 // Pictogrammes des badges. CPAM : H d'hôpital (signalétique hospitalière
@@ -27,6 +29,7 @@ export async function createMissionPinIcon(opts: PinOptions): Promise<DivIcon> {
   const classes = ['mission-pin', variant]
   if (opts.selected) classes.push('selected')
   if (opts.urgent) classes.push('urgent')
+  if (opts.stale) classes.push('stale')
   const icon = opts.medical ? MEDICAL_CROSS_SVG : PRIVATE_PERSON_SVG
   const badge = `<span class="mp-rx">${icon}</span>`
   return L.divIcon({

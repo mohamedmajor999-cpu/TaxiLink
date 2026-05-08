@@ -4,6 +4,7 @@ import { validateMission, type MissionInput } from '@/lib/validators'
 import { rateLimit } from '@/lib/rateLimiter'
 import { replaceMissionGroups } from '@/services/missionGroupsService'
 import { extractDepartement } from '@/lib/departement'
+import { triggerDispatchMission } from '@/lib/dispatchTrigger'
 
 export async function POST(req: NextRequest) {
   try {
@@ -79,6 +80,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Erreur lors de l\u2019affectation aux groupes' }, { status: 500 })
       }
     }
+
+    // Cascade dispatch (Phase 2) : fire-and-forget, ne bloque pas la r\u00e9ponse.
+    // L'Edge Function tourne ensuite c\u00f4t\u00e9 Supabase pendant ~100s max.
+    triggerDispatchMission(data.id, data.scheduled_at)
 
     return NextResponse.json({ mission: { ...data, group_ids: groupIds } }, { status: 201 })
 

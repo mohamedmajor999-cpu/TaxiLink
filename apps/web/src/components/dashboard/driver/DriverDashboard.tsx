@@ -6,6 +6,7 @@ import { useDriverStore } from '@/store/driverStore'
 import { useMissionStore } from '@/store/missionStore'
 import { useMissionEditStore } from '@/store/missionEditStore'
 import { usePostedMissionAcceptNotifier } from '@/hooks/usePostedMissionAcceptNotifier'
+import { usePostedMissionUntakenNotifier } from '@/hooks/usePostedMissionUntakenNotifier'
 import { useNightMode } from '@/hooks/useNightMode'
 import { useDriverHeartbeat } from '@/hooks/useDriverHeartbeat'
 import { useGlobalDriverGps } from '@/hooks/useGlobalDriverGps'
@@ -21,11 +22,7 @@ import { DriverHome } from './DriverHome'
 
 // Lazy-load des ecrans non-default : seul DriverHome (tab par defaut) est eager.
 // Reduit le bundle JS initial du dashboard d'environ 40-60%.
-const TabFallback = () => (
-  <div className="px-4 md:px-8 pt-[calc(56px+env(safe-area-inset-top))] pb-4 md:pt-6 md:pb-6 max-w-6xl mx-auto">
-    <div className="h-32 rounded-2xl bg-warm-100 motion-safe:animate-pulse" />
-  </div>
-)
+const TabFallback = () => <div className="px-4 md:px-8 pt-[calc(56px+env(safe-area-inset-top))] pb-4 md:pt-6 md:pb-6 max-w-6xl mx-auto"><div className="h-32 rounded-2xl bg-warm-100 motion-safe:animate-pulse" /></div>
 const DriverCoursesScreen = dynamic(() => import('./DriverCoursesScreen').then((m) => m.DriverCoursesScreen), { loading: TabFallback })
 const DriverGroupesScreen = dynamic(() => import('./DriverGroupesScreen').then((m) => m.DriverGroupesScreen), { loading: TabFallback })
 const DriverProfilScreen = dynamic(() => import('./DriverProfilScreen').then((m) => m.DriverProfilScreen), { loading: TabFallback })
@@ -36,7 +33,9 @@ const SupportScreen = dynamic(() => import('./profil/SupportScreen').then((m) =>
 const MissionDetailScreen = dynamic(() => import('./MissionDetailScreen').then((m) => m.MissionDetailScreen), { loading: TabFallback })
 const PartagerMissionModal = dynamic(() => import('./PartagerMissionModal').then((m) => m.PartagerMissionModal))
 const PostedMissionAcceptPopup = dynamic(() => import('./PostedMissionAcceptPopup').then((m) => m.PostedMissionAcceptPopup))
+const PostedMissionUntakenPopup = dynamic(() => import('./PostedMissionUntakenPopup').then((m) => m.PostedMissionUntakenPopup))
 const MissionEditSheet = dynamic(() => import('./courses/edit-sheet/MissionEditSheet').then((m) => m.MissionEditSheet))
+const IncomingMissionOfferModal = dynamic(() => import('./IncomingMissionOfferModal').then((m) => m.IncomingMissionOfferModal))
 
 export function DriverDashboard() {
   const router = useRouter()
@@ -57,6 +56,7 @@ export function DriverDashboard() {
   const editingMission = useMissionEditStore((s) => s.editing)
   const clearEdit = useMissionEditStore((s) => s.clearEdit)
   usePostedMissionAcceptNotifier()
+  usePostedMissionUntakenNotifier()
   useNightMode()
   useDriverHeartbeat()
   useGlobalDriverGps()
@@ -188,7 +188,9 @@ export function DriverDashboard() {
       />
 
       <PostedMissionAcceptPopup onViewPosted={goToPostedTab} />
+      <PostedMissionUntakenPopup />
       <MissionEditSheet />
+      <IncomingMissionOfferModal />
     </div>
   )
 }

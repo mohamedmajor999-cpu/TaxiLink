@@ -179,6 +179,18 @@ body {
   border-radius: 50%;
   z-index: 2;
 }
+/* STALE : course non prise apres 15 min — pin grise + bord pointille pour
+   signaler "à republier". Garde l'interactivite (le chauffeur peut quand
+   meme la prendre tant qu'elle n'est pas EXPIRED a 30 min). */
+.mission-pin.stale {
+  background: #F5F0E8;
+  border-style: dashed;
+  border-color: #8C8478;
+  color: #6B6358;
+  opacity: 0.85;
+}
+.mission-pin.stale::after { background: #F5F0E8; border-color: #8C8478; }
+.mission-pin.stale .mp-rx { filter: grayscale(0.6); opacity: 0.85; }
 
 /* ============================================================
  * Badges des pins — différencient CPAM (rouge médical) et Privé
