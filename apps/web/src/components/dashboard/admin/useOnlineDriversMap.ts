@@ -7,7 +7,7 @@ import { adminAnalyticsService, type OnlineDriver } from '@/services/adminAnalyt
 
 const MAPBOX_STYLE = 'streets-v12'
 const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const REFRESH_MS = 30_000
+const REFRESH_MS = 10_000
 
 const driverIcon = L.divIcon({
   className: 'admin-driver-pin',
@@ -18,7 +18,8 @@ const driverIcon = L.divIcon({
 
 export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement | null>) {
   const mapRef = useRef<L.Map | null>(null)
-  const markersRef = useRef<L.Marker[]>([])
+  const markersRef = useRef<Map<string, L.Marker>>(new Map())
+  const hasFitRef = useRef(false)
   const [drivers, setDrivers] = useState<OnlineDriver[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -46,7 +47,7 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Fetch initial + polling 30s
+  // Fetch initial + polling 10s
   useEffect(() => {
     let cancelled = false
     async function load() {
@@ -64,25 +65,36 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
     return () => { cancelled = true; clearInterval(id) }
   }, [])
 
-  // Sync markers with drivers
+  // Sync markers with drivers (update in place pour éviter le flicker)
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
-    for (const m of markersRef.current) map.removeLayer(m)
-    markersRef.current = []
+    const next = new Set(drivers.map((d) => d.userId))
+
+    markersRef.current.forEach((marker, id) => {
+      if (!next.has(id)) {
+        map.removeLayer(marker)
+        markersRef.current.delete(id)
+      }
+    })
 
     for (const d of drivers) {
-      const marker = L.marker([d.lat, d.lng], { icon: driverIcon, title: d.name })
-        .bindPopup(
-          `<div style="font-family:Inter,sans-serif"><strong>${escapeHtml(d.name)}</strong>${d.phone ? `<br/><a href="tel:${d.phone}" style="color:#3B82F6">${escapeHtml(d.phone)}</a>` : ''}<br/><small style="color:#6b7280">Mis à jour: ${formatRelative(d.updatedAt)}</small></div>`
-        )
-      marker.addTo(map)
-      markersRef.current.push(marker)
+      const popupHtml = `<div style="font-family:Inter,sans-serif"><strong>${escapeHtml(d.name)}</strong>${d.phone ? `<br/><a href="tel:${d.phone}" style="color:#3B82F6">${escapeHtml(d.phone)}</a>` : ''}<br/><small style="color:#6b7280">Mis à jour: ${formatRelative(d.updatedAt)}</small></div>`
+      const existing = markersRef.current.get(d.userId)
+      if (existing) {
+        existing.setLatLng([d.lat, d.lng])
+        existing.setPopupContent(popupHtml)
+      } else {
+        const marker = L.marker([d.lat, d.lng], { icon: driverIcon, title: d.name }).bindPopup(popupHtml)
+        marker.addTo(map)
+        markersRef.current.set(d.userId, marker)
+      }
     }
 
-    if (drivers.length > 0) {
+    if (!hasFitRef.current && drivers.length > 0) {
       const bounds = L.latLngBounds(drivers.map((d) => [d.lat, d.lng] as [number, number]))
       map.fitBounds(bounds.pad(0.2), { maxZoom: 12 })
+      hasFitRef.current = true
     }
   }, [drivers])
 

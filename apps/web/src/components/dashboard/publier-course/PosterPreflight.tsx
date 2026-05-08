@@ -58,13 +58,13 @@ export function PosterPreflight({
             title="Tous"
             sub="Chauffeurs"
           />
-          {myGroups.map((g) => (
+          {sortedGroups(myGroups).map((g) => (
             <PickCard
               key={g.id}
               active={visibility === 'GROUP' && groupIds.includes(g.id)}
               onClick={() => onToggleGroup(g.id)}
-              iconName="groups"
-              title={g.name}
+              iconName={g.fleetOrgId ? 'business' : 'groups'}
+              title={g.fleetOrgId ? 'Ma flotte' : g.name}
               sub={typeof g.memberCount === 'number' ? `${g.memberCount} membres` : 'Groupe'}
             />
           ))}
@@ -132,6 +132,15 @@ export function PosterPreflight({
       </button>
     </div>
   )
+}
+
+function sortedGroups(groups: Group[]): Group[] {
+  // Groupe-flotte (fleetOrgId non-null) en premier, sinon ordre d'origine
+  return [...groups].sort((a, b) => {
+    const af = a.fleetOrgId ? 0 : 1
+    const bf = b.fleetOrgId ? 0 : 1
+    return af - bf
+  })
 }
 
 function PickCard({
