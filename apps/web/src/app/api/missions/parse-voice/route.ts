@@ -3,8 +3,19 @@ import { SYSTEM_PROMPT } from './prompt'
 import { logAiUsage } from '@/lib/aiUsageLogger'
 import { transcribeAudio, TranscribeError } from '@/lib/openai/transcribe'
 import { chatJson, ChatError, GPT_MINI_MODEL } from '@/lib/openai/chat'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { rateLimit } from '@/lib/rateLimiter'
 
 export async function POST(request: Request) {
+  const supabase = await createServerSupabaseClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  }
+  if (!rateLimit(`parse-voice:${user.id}`, 10, 60_000)) {
+    return NextResponse.json({ error: 'Trop de requêtes. Réessayez dans une minute.' }, { status: 429 })
+  }
+
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'OPENAI_API_KEY manquante' }, { status: 500 })
 

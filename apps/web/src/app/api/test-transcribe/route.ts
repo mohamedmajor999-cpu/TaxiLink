@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { rateLimit } from '@/lib/rateLimiter'
 
 const OPENAI_URL = 'https://api.openai.com/v1/audio/transcriptions'
 const TIMEOUT_MS = 30000
@@ -19,6 +21,15 @@ const WHISPER_PROMPT =
   'Termes : CPAM, dialyse, consultation, hopital de jour, kine, radio, scanner, IRM.'
 
 export async function POST(request: Request) {
+  const supabase = await createServerSupabaseClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  }
+  if (!rateLimit(`test-transcribe:${user.id}`, 10, 60_000)) {
+    return NextResponse.json({ error: 'Trop de requêtes. Réessayez dans une minute.' }, { status: 429 })
+  }
+
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'OPENAI_API_KEY manquante' }, { status: 500 })
 

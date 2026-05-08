@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { assertAdmin } from '@/lib/adminAuth'
 import { createAdminSupabaseClient } from '@/lib/supabase/admin'
+import { maskName } from '@/lib/missionMask'
 
 interface MissionRow {
   id:                   string
@@ -49,7 +50,7 @@ export async function GET() {
       id: r.id,
       type: r.type,
       scheduledAt: r.scheduled_at,
-      patientName: r.patient_name,
+      patientName: maskName(r.patient_name),
       driverName: r.driver_id ? (driverMap.get(r.driver_id) ?? '—') : '—',
       flags: {
         enroute:        Boolean(r.enroute_at),
