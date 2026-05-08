@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authService } from '@/services/authService'
 import { useAuth } from '@/hooks/useAuth'
@@ -27,10 +27,13 @@ export function useResetPasswordForm() {
     : 'border-teal-300 focus:border-teal-400'
 
   // /auth/callback a déjà consommé le code et établi la session côté serveur
-  // avant de rediriger ici. Si user est présent → on peut afficher le form,
-  // sinon → lien expiré ou ouverture directe sans flow recovery.
+  // avant de rediriger ici. Le check ne tourne qu'UNE FOIS au mount : sinon
+  // notre signOut() post-update ramène user à null et le useEffect bascule
+  // l'écran en 'invalid' juste avant le redirect → faux message "lien expiré".
+  const initialCheckDone = useRef(false)
   useEffect(() => {
-    if (loading) return
+    if (loading || initialCheckDone.current) return
+    initialCheckDone.current = true
     if (user) { setStatus('ready') }
     else      { setStatus('invalid'); setError('Session de récupération introuvable. Demande un nouveau lien.') }
   }, [loading, user])
