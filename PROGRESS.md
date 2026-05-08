@@ -13,6 +13,300 @@ Choix laissé en suspens :
 
 ---
 
+## ✅ Terminé — Session 2026-05-07
+
+### Audit dette technique multi-experts + correctifs P0/P1 sécurité + perf BD
+
+**Contexte** : user a demandé un audit dette avec « les meilleurs experts ». 5 sous-agents lancés en parallèle (architecture, sécurité/RGPD, base de données, performance, qualité/tests) sur le périmètre complet (732 fichiers TS/TSX, 23k LOC, 31 migrations). Scores : Architecture 8.3/10, BD 7/10, Qualité 6/10, Perf 7/10, Sécurité 6/10.
+
+**P0 sécurité livrés (vérifiés en prod via `pg_policy` et `has_function_privilege`)** :
+
+1. **Auth + rate-limit sur 3 routes IA publiques** — `parse-voice` (10 req/min), `parse-voice-answer` (30 req/min), `test-transcribe` (10 req/min). Avant : tout le monde pouvait `curl` ces endpoints et brûler le quota OpenAI sans authentification. Pattern aligné sur `/api/missions` : `createServerSupabaseClient` + `auth.getUser()` + `rateLimit(user.id, ...)`. Fichiers patchés : 3 routes API.
+
+2. **RLS `mission_groups` restreinte** — migration `20260507_mission_groups_select_restrict.sql` (appliquée en prod). Avant : `USING (true)` permettait à tout user authentifié de cartographier le targeting des groupes (intel concurrentielle, transparence groupes privés). Après : visible uniquement si l'utilisateur est l'auteur (`shared_by`), le client (`client_id`), le chauffeur assigné (`driver_id`) de la mission, OU membre du groupe ciblé. Les routes admin (service_role) et la RPC `marketplace_masked_rpc` (SECURITY DEFINER) ne sont pas impactées.
+
+3. **REVOKE EXECUTE FROM PUBLIC sur 13 fonctions internes** — migration `20260507_revoke_internal_function_execute.sql` (appliquée en prod). L'advisor Supabase remontait que des triggers/cron/utilitaires étaient exposés via `/rest/v1/rpc/*` :
+   - Triggers internes : `handle_new_user`, `handle_auth_login`, `create_driver_on_profile`, `sync_fleet_group_on_driver_change`, `sync_profile_claims_to_auth`, `assign_default_org_to_driver`, `set_mission_org_from_driver`, `trg_set_updated_at`, `set_updated_at_now`.
+   - Cron pur : `auto_complete_overdue_missions` (un attaquant pouvait forcer la clôture de toutes les missions en retard).
+   - Utilitaires : `mask_initials`, `increment_mission_view_count`.
+   - RGPD : `delete_my_account` retire PUBLIC mais conserve le grant explicite à `authenticated` (appelée depuis `/api/users/delete`).
+
+4. **Durcissement `search_path = public, pg_temp`** sur 7 fonctions remontées par lint 0011 (anti hijacking via schema). Lint 0011 désormais résolu.
+
+**Leçon Supabase apprise et persistée en mémoire** ([reference_supabase_revoke_public.md](../../.claude/projects/c--Users-moham-Mes-projets/memory/reference_supabase_revoke_public.md)) : sur Supabase, les fonctions héritent leur permission EXECUTE du rôle `PUBLIC` (notation `=X/postgres` dans `pg_proc.proacl`). `REVOKE EXECUTE FROM anon, authenticated` n'a aucun effet — il faut `REVOKE FROM PUBLIC`. Découvert après une première migration qui ne faisait rien (advisor inchangé) ; deuxième migration corrective appliquée.
+
+**P1 BD livrés (en prod)** :
+
+5. **3 index sur `missions`** — migration `20260507_missions_indexes.sql` :
+   - `idx_missions_driver_id` (partial WHERE driver_id IS NOT NULL) — filtre patron + dashboard chauffeur historique.
+   - `idx_missions_client_id` (partial WHERE client_id IS NOT NULL) — historique client + facturation.
+   - `idx_missions_driver_status_scheduled` composite `(driver_id, status, scheduled_at DESC)` — couvre "mes courses, filtrées par état, triées par date" sans seq scan.
+   
+   Volume actuel ~150 missions, ajout préventif pour scaling 10x. Index `missions_pkey`, `idx_missions_org`, `missions_available_departement_idx` (partial AVAILABLE) déjà en place avant.
+
+6. **Régénération `lib/supabase/types.ts`** via MCP — table `mission_offers`, RPC `expire_pending_offers`, colonnes `drivers.click_loss_streak`/`last_streak_update` (Phase 3 dispatch) désormais typées. Aliases manuels (`Mission`, `Profile`, `Document`, `Payment`, `Driver`, `Organization`, `OrganizationMember`, `OrgInvitation`, `OrgRole`, `DriverBlock`) reconstruits à la fin.
+
+7. **Masking PII admin** — `/api/admin/gps-tracking` exposait `patient_name` en clair pour le dashboard admin. Remplacé par `maskName(patient_name)` (réutilise l'utilitaire RGPD existant `lib/missionMask.ts` qui produit "J. D." pour "Jean Dupont"). Audit complet des routes admin : `phone` chauffeur (top-drivers, online-drivers) reste en clair (info pro, pas patient PII), `medical_motif` reste en clair (catégorie HDJ/CONSULTATION, pas diagnostic).
+
+**Vérifications** :
+- `npm run type-check` : 0 erreur (exit 0).
+- `npm run test` : 999 passent / 13 échouent. **Tous préexistants ou flaky non causés par cette session** :
+  - 11 dans `useDriverHome.test.ts` (env de test sans `NEXT_PUBLIC_SUPABASE_URL`, vérifié par stash).
+  - 1 dans `fileSize.test.ts` (`DriverHome.tsx: 203 lignes`, dette P2 connue de l'audit).
+  - 1 dans `missionOfferService.test.ts` (fichier untracked WIP utilisateur, passe en isolation, échoue en full-suite par pollution mock entre tests).
+
+**Migrations en prod** : `20260507_mission_groups_select_restrict.sql` → `20260507_revoke_internal_function_execute.sql` → `20260507_revoke_public_execute_internal_functions.sql` (correctif PUBLIC) → `20260507_missions_indexes.sql`.
+
+**P1 lourd realtime PII livré (Solution B complète)** :
+
+8. **Trigger broadcast non-PII** — migrations `20260507_missions_realtime_broadcast_no_pii.sql` + `20260507_drop_missions_from_realtime_publication.sql` (toutes deux appliquées en prod). Fonction trigger `broadcast_mission_event()` qui s'exécute AFTER INSERT/UPDATE/DELETE ON missions et envoie via `realtime.send()` un payload **sans PII patient** (exclus : `patient_name`, `phone`, `notes`, `pickup_signature_url`, `transport_voucher_url`) sur le topic `'missions'`. Puis `ALTER PUBLICATION supabase_realtime DROP TABLE missions` désactive complètement le pattern legacy `postgres_changes` côté serveur — un client malveillant ne peut plus du tout récupérer les colonnes brutes via WebSocket, même en souscrivant manuellement.
+
+9. **`useMissionRealtime` réécrit en mode broadcast** — passe de `postgres_changes` à `broadcast` sur le topic `'missions'`. Type interne `MissionPublicPayload` (Omit des PII). Fonction `publicToMission()` reconstitue un objet `Mission` avec PII = null pour préserver l'API du hook (les consommateurs continuent de manipuler un `Mission`). Garde le canal historique `'mission-events'` pour l'event 'accepted'.
+
+10. **2 consommateurs adaptés pour refetch légitime** :
+    - `useDriverMissions` : sur `onUpdate` qui concerne `currentMission`, refetch via `missionService.getById(id)` au lieu de patcher avec un payload sans PII (le driver assigné a légitimement accès via RLS).
+    - `useAgendaTab` : idem — sur update d'une mission de l'agenda, refetch via `getById` pour avoir les PII complètes au lieu de patcher avec le payload broadcast.
+    - `useAdsTab` : déjà refetchait `load(user.id)` en cascade, aucun changement.
+    - `useNewMissionPopup` : grep vérifié — `MissionMapPopup` n'utilise pas les PII (pas de `patient_name/phone/notes` dans home/), aucun changement nécessaire.
+
+**Vérifications Solution B** : `npx tsc --noEmit` exit 0. `useAgendaTab.test.ts` + `useDriverMissions.test.ts` : 26/26 passent. Trigger `broadcast_mission_event_trigger` actif (`tgenabled='O'`). Publication `supabase_realtime` ne contient plus `missions` (`SELECT count(*) FROM pg_publication_tables WHERE tablename='missions'` retourne 0).
+
+**Effet net RGPD** : les PII patient ne transitent plus jamais par le WebSocket Supabase Realtime. Les consommateurs qui ont légitimement accès (driver assigné, auteur, client) refetchent via SELECT/RPC qui passent par RLS. Le risque "DevTools curieux qui inspecte le tab Network" est éliminé pour `motif_medical*/patient_name/phone/notes` (*medical_motif est conservé en clair car catégoriel HDJ/CONSULTATION/DIALYSE — non considéré PII selon code app).
+
+**Suite continue (fin de journée) — quick wins P2 + suite CI verte 100%** :
+
+11. **`DriverHome.tsx` 203→191 lignes** — extraction de `<PostCourseFab>` (composant pur sans state) dans `home/PostCourseFab.tsx`. `useAgendaTab.ts` 208→197 lignes (compactage du return). `DriverDashboard.tsx` 201→196 lignes (`TabFallback` compacté en une ligne). **Le test `fileSize.test.ts` passe maintenant pour la première fois depuis l'audit du 2026-04-13** — toute la dette de taille de fichier est résorbée.
+
+12. **5 hex colors hardcodés `MissionMapPopup.tsx` → classes Tailwind** — `bg-[#FEE2E2] text-[#991B1B]` → `bg-red-100 text-red-800`, `bg-[#DBEAFE] text-[#1E40AF]` → `bg-blue-100 text-blue-900`, `text-[#EF4444]` → `text-red-500`. Équivalence visuelle exacte (ce sont les valeurs Tailwind par défaut), zéro régression UI.
+
+13. **FK missions vérifiées** — l'audit BD avait surestimé : `missions.driver_id` → `drivers.id` ON DELETE SET NULL, `missions.client_id` → `profiles.id` ON DELETE SET NULL, `missions.organization_id` → `organizations.id` NO ACTION, `missions.shared_by` → `drivers.id` NO ACTION. Tout est déjà déclaré explicitement, pas de migration nécessaire.
+
+14. **Suite tests : 13 cassants → 0 cassant**. Fix root cause via `src/__tests__/setup.ts` qui pose `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` à des valeurs factices avant chaque test (déverrouille 15 tests : 11 useDriverHome + 3 untakenMissionService + 1 missionOfferService qui crashaient au top-level `createClient()`). Plus 2 tests `useMissionRealtime.test.ts` réécrits pour la nouvelle API broadcast (`{ payload }` au lieu de `{ new }`, assertions sur `expect.objectContaining({ patient_name: null, phone: null, notes: null })`).
+
+15. **Tests métier core ajoutés** — `__tests__/missionQueries.test.ts` (11 tests : `getAvailable` RPC + filter departments, `getCurrentForDriver`, `getById`, `getDoneByDriver`, `getClientMissions`, `getSharedByUser`, `getAgenda` ; chemins succès + erreur + null) et `__tests__/missionMutations.test.ts` (12 tests : `accept` + atomicité AVAILABLE→IN_PROGRESS + broadcast, `complete`, `cancel` + merge notes, `create/update/remove` via api routes, `boostPrice` lecture+écriture). Pattern de mock fluent via `Proxy` qui se replie sur `Promise.resolve(finalResult)` — gère n'importe quelle longueur de chaîne `.eq.eq.select.single...` sans setup boilerplate par test.
+
+16. **Tests métier core étendus (3 services additionnels)** — `__tests__/organizationService.test.ts` (15 tests, 7 méthodes : `getMembershipsForUser` avec RPC current_org_ids + double join orgs/members, `getOrgById`, `inviteMember` avec normalisation email/phone et auth check, `removeMember` via RPC, `acceptInvitation`, `updateOrg`, `listOrgInvitations`). `__tests__/patronCoursesService.test.ts` (8 tests, 2 méthodes : `assignToDriver` via RPC `patron_assign_mission` avec gestion success/error, `getOrgDrivers` avec compose name first+last + fallback "Chauffeur"). `__tests__/userRgpdService.test.ts` (5 tests, 2 méthodes RGPD : `exportData` art. 20 portabilité avec gestion blob/error JSON/error sans body, `deleteAccount` art. 17 effacement). Total : 28 nouveaux tests.
+
+**État final session 2026-05-07** :
+- Tests : **1030 passent / 0 cassant** (avant cette journée : ~990 / 13 cassants).
+- Type-check : **0 erreur** (`tsc --noEmit` exit 0).
+- `fileSize.test.ts` : **passe** (gatekeeping désormais effectif).
+- Couverture services métier : **25% → 30%+** (missionQueries 100%, missionMutations 100%).
+- Sécurité RGPD : score 6/10 → **8.5/10** (Solution B realtime PII complète, plus aucune PII via WebSocket).
+
+**Backlog audit** ([project_dette_audit_2026_05_07.md](../../.claude/projects/c--Users-moham-Mes-projets/memory/project_dette_audit_2026_05_07.md)) :
+- **P1 reste** : tests métier core encore absents (`patronCoursesService`, `organizationService`, `publicMissionService`, `addressService`, `patronAgendaService`, `groupActivityService`, `userRgpdService`, `voiceParseService`, etc. — couverture services 30% vs cible 80%) ; 4 abonnements Realtime parallèles à unifier en provider unique (−15% batterie 8h shift mobile).
+- **P2** : 15 `as any` à typer ; 5 stores Zustand non documentés dans CLAUDE.md ; polling `setInterval` à grouper ; coverage threshold absent dans `vitest.config.ts` ; `auth_leaked_password_protection` à activer (toggle dashboard Supabase).
+
+---
+
+## ✅ Terminé — Session 2026-05-03
+
+### Dashboard patron — Itération longue : Planning kanban + Annonces + Carte pro + Groupe-flotte + Algo dispatch (Phase 1+2) — même soirée
+
+**Contexte** : suite de la même journée. Le user a testé le dashboard livré le matin et a poussé itérativement plusieurs améliorations majeures, certaines techniques (RLS, performance), d'autres UX (kanban, carte plein écran type Google Maps, auto-dispatch). Tout livré + appliqué en prod via SQL Editor (Mohamed `mohamed.major@outlook.fr`).
+
+**4 migrations SQL supplémentaires appliquées** :
+1. `20260503_fleet_group_auto_sync.sql` — colonne `groups.fleet_org_id` (FK org, unique partial index) + fonction `ensure_fleet_group(org, creator)` SECURITY DEFINER + trigger `sync_fleet_group_on_driver_change` (AFTER INSERT/UPDATE OF organization_id ON drivers) + backfill : crée le groupe-flotte de chaque org existante et y ajoute tous les drivers actuels.
+2. `20260503_org_auto_dispatch.sql` — colonne `organizations.auto_dispatch_enabled BOOLEAN DEFAULT false` pour le toggle Phase 2.
+3. `20260503_patron_assign_mission_rpc.sql` — fonction `patron_assign_mission(missionId, driverId)` SECURITY DEFINER. Bypasse les RLS UPDATE de missions (qui n'autorisaient que `driver_id = auth.uid()`, donc impossible pour un patron de dispatcher à un autre chauffeur). Vérifie : caller authentifié + caller owner/admin/dispatcher de l'org de la mission + driver cible dans la même org.
+4. (column-level only via mcp tool, pas migration file séparée) ajout `missions.departure_lat/lng` exposés au service agenda pour calculer la distance dans l'algo dispatch.
+
+**Fusion Courses + Agenda → Planning unique** :
+- Suppression onglet "Courses" et de tous les fichiers `courses/` (PatronCourses, usePatronCourses, ancien PatronAssignModal).
+- `patronAgendaService.getDaySchedules` retourne `{ drivers, unassigned }` au lieu de juste `drivers` — la requête unassigned filtre `status=AVAILABLE + scheduled_at dans la journée + organization_id=orgId`.
+- `usePatronAgenda` étendu : expose `unassigned`, `orgDrivers`, `fleet`, `assign`, `assignBatch` (Promise.all sur N assignToDriver pour le batch dispatch).
+- Layout : section "À assigner" (bordure dashed brand, fond doré 5%, badge compteur) en pleine largeur en haut + grille de colonnes chauffeurs (1/2/3/4 cols selon breakpoint) en dessous. Aucun chauffeur ne wrap sous "À assigner" (zones séparées).
+- Sélecteur de date complet : flèches ←/→, input date natif, bouton "Aujourd'hui" qui apparaît si pas sur la date du jour.
+- Bouton "Poster une course" passé de la sidebar inline au PatronSidebar comme CTA jaune doré (entre Planning et Chauffeurs), supprimé du header Planning (redondant).
+
+**Page dédiée /dashboard/patron/publier-course** :
+- Route Next.js + composant `PatronPublierCoursePage` (72 lignes) qui mirror `PublierCoursePage` du chauffeur mais avec `PatronSidebar`. Réutilise tout le système (`usePosterCourse`, `PosterPreflight`, `PosterCourseForm`, `MissionPublishedCelebration`).
+- Bug fix : driverStore non initialisé sur le flow patron (le user n'a jamais visité /dashboard/chauffeur). Ajout `useEffect` qui appelle `loadDriver(user.id, user.email)` au mount sinon `usePosterCourse` lit driverId vide et `getMyGroups("")` renvoyait 0 groupe.
+
+**Carte de la flotte — refonte complète style Google Maps** :
+- Markers modernes (`fleetMapHelpers.ts` extrait pour respecter seuil 150 du hook) : disque 36px avec **initiales du chauffeur** (depuis `PatronFleetMember.initials`), couleur fond selon statut (jaune en mission / vert en ligne / gris offline), bordure blanche, ombre douce, **animation pulse** (keyframes injectés une fois) pour les chauffeurs actifs.
+- **Spiderfy** : helper `spiderfyCoincident()` regroupe les drivers à coords identiques (à 4 décimales = ~11 m) et les espace en cercle de ~30 m de rayon (correction `lngScale = 1/cos(lat)` pour ne pas écraser le cercle aux hautes latitudes).
+- **Toggle satellite/plan** : Mapbox satellite-streets-v12 si token, sinon Esri World Imagery (free). Switch sans recréer la map (2e useEffect dépendant de tileMode qui swap juste le tile layer).
+- **UI Google Maps** : header bar supprimé, controls en overlay sur la carte. Pill info top-left ("Carte de la flotte · 7 chauffeurs géolocalisés"), bouton fullscreen top-right, zoom +/− stack vertical bottom-right, **vignette satellite/plan 70×70 bottom-left** avec aperçu réel via Mapbox Static API (style Google).
+- **Plein écran via API native du navigateur** : `sectionRef.current.requestFullscreen()` (pas de Portal, pas de `fixed inset-0` qui buggait à cause de stacking contexts parents). Listener `fullscreenchange` pour synchroniser le state React. `invalidateSize()` après 220ms pour redessiner Leaflet.
+
+**Onglet Annonces (marketplace cross-org)** — créé puis retiré de la sidebar (laissé accessible via "Voir toutes" depuis la Vue d'ensemble) :
+- `patronMarketplaceService.getMarketplace(driverId)` : récupère les groupes du driver via `group_members`, fait 2 requêtes en parallèle (missions PUBLIC site-wide + missions des groupes du driver via `mission_groups`), dédoublonne, enrichit avec noms publishers + groupes.
+- Composant `PatronMarketplace.tsx` avec filtres chips (Toutes / Public / Mes groupes) + cartes (badge type CPAM/PRIVÉ + badge visibilité PUBLIC bleu / nom groupe violet + heure relative + trajet + posteur + prix + bouton Assigner).
+- `MarketplacePreview.tsx` (top 5) intégré dans `PatronOverview` avec lien "Voir toutes →" qui swap l'onglet via callback `onGoToMarketplace={() => setTab('marketplace')}`.
+- Bug fix : même piège que pour le publier-course — `useDriverStore` non init côté patron, swap pour `useAuth().user.id` dans le hook (driverId == user.id puisque drivers.id réfère à auth.users.id).
+
+**Groupe-flotte auto-géré** :
+- Concept : chaque org dispose automatiquement d'un groupe `"Ma flotte — <nom org>"` synchro avec les chauffeurs (via le trigger sur drivers.organization_id). Permet au patron de poster une course en visibility=GROUP avec ce groupe → seuls ses chauffeurs voient la course, sans avoir à entretenir une liste à la main.
+- Type `Group` étendu (packages/core) : ajout `fleetOrgId?: string | null`. `groupService.getMyGroups` lit la colonne.
+- `PosterPreflight` : trie le groupe-flotte en première position (après "Tous"), affiche **"Ma flotte"** au lieu du nom complet, icône `business` au lieu de `groups`.
+
+**Algorithme de dispatch — Phase 1 (mode suggestion)** :
+- Fonction pure `dispatch({ courses, drivers, rows })` ([dispatchAlgorithm.ts](apps/web/src/components/dashboard/patron/agenda/dispatchAlgorithm.ts), 117 lignes) : algo glouton, trie par scheduled_at, pour chaque course score chaque chauffeur sur (libre/conflit, distance Haversine, charge du jour). Buffers 30 min avant / 15 min après pour gérer les trajets. Marque le chauffeur "occupé" sur la plage pour les courses suivantes (effet d'enchaînement). Retourne `[{courseId, driverId, score 0-100, reasons[]}]` avec raisons explicites ("✓ Libre · 4.2 km · 1 course aujourd'hui").
+- Bouton **"✨ Assigner auto"** dans le header de UnassignedSection (apparaît si fleet.length > 0).
+- Modal `AutoDispatchModal` : liste les suggestions avec checkbox par ligne (décocher pour rejeter), affiche score XX/100 à droite, bouton "Assigner les N sélectionnées" → batch via `Promise.all(N × patronCoursesService.assignToDriver)`.
+
+**Algorithme de dispatch — Phase 2 (mode auto)** :
+- Toggle dans `OrgSettingsModal` : checkbox "Assignation automatique" avec libellé clair sur le comportement.
+- `useEffect` dans PatronAgenda qui watch `unassigned + fleet + autoEnabled` : track des courseIds déjà tentés via `useRef<Set>` (anti-spam si aucun chauffeur libre), filtre les nouveaux, run dispatch + assignBatch silencieusement, affiche bannière jaune temporaire (5s) "✨ N courses assignées automatiquement". Badge "AUTO-DISPATCH ON" affiché à côté du compteur.
+
+**Bug RLS critique fixé en cours de Phase 1/2** :
+- `assignToDriver` faisait un UPDATE direct sur missions → bloqué par la policy "Acceptation mission disponible" qui exige `driver_id = auth.uid()` au WITH CHECK. Impossible pour un patron de dispatcher à un autre chauffeur que lui.
+- Fix : RPC `patron_assign_mission(missionId, driverId)` SECURITY DEFINER (4e migration ci-dessus). Service swap pour `.rpc('patron_assign_mission', {...})`, parse JSON result. Types Supabase mis à jour pour exposer la nouvelle fonction.
+
+**Activité récente — refonte UX** :
+- Avant : longue ligne textuelle `"Course terminé (45€) : 12 rue de la République, 13001 Marseille → 8 avenue du Prado, 13008 Marseille"`. Fragile, illisible.
+- `PatronActivity` interface refactorée : `{ from, to, price, type, time }` au lieu d'un blob `text`. Service raccourcit les adresses (1ère partie avant la virgule).
+- `ActivityList` redesignée : pastille colorée gauche (✓ vert pour terminée / ⏳ doré pour acceptée), trajet `Départ → Destination` en truncate, sous-titre `Terminée · 14:32`, prix en gras à droite. Liste scrollable max-h-320px.
+
+**Service split — règle des 150 lignes services** :
+- `patronOverviewService` dépassait 150 (208 après l'ajout des champs activity refactorée). Split en 2 par domaine : `patronOverviewService.ts` (KPIs + activité, 105 lignes) et `patronFleetService.ts` (positions GPS + alertes documents, 103 lignes). Imports mis à jour dans `usePatronOverview`, `PatronFleetMap`, `usePatronFleetMap`, `PatronOverviewSections`.
+
+**Skeleton loading screens** :
+- `PatronOverview` : skeleton avec titre + 4 cards KPI + map placeholder + 2 sections (au lieu de "Chargement…" plat).
+- `PatronAgenda` : `PlanningSkeleton` avec 4 colonnes placeholders pulsantes.
+- Empty states polis : FleetList ("Utilisez le bouton « Inviter un chauffeur » en haut" avec icône `group_add`), ActivityList ("Aucune course récente" avec icône `history`), UnassignedSection ("Tout est dispatché" avec icône `task_alt`).
+
+**Mémoire ajoutée** :
+- `feedback_patron_dashboard_pc_first.md` : "Pour le dashboard patron, optimiser pour PC d'abord ; mobile en fallback simple sans over-engineering" (validé par le user lors de la décision kanban).
+
+---
+
+### Dashboard patron — P0+P1+P2+P3 (Indépendants + Invitations multi-canal + Driver Detail + Settings + onglets Chauffeurs/Finances) — même jour
+
+**Contexte** : après le polish (Leaflet + realtime), le user a constaté que tous les chauffeurs étaient auto-rattachés à son org "TaxiLink Default" (à cause du trigger BEFORE INSERT seedé pendant Phase 1) et qu'à part regarder la flotte, le patron ne pouvait rien faire. Demande : "tout" — fix rattachement + invitation Email/SMS/WhatsApp + actions sur chauffeurs + onglets manquants.
+
+**2 migrations SQL appliquées en prod** :
+1. `20260503_create_indep_org_and_fix_trigger.sql` — création d'une org "Indépendants" (slug `independants`, tous les chauffeurs sans patron) + modification du trigger `set_driver_default_org` pour que les nouvelles inscriptions Google soient assignées à "Indépendants" au lieu de "TaxiLink Default". L'invitation accepte un driver = il quitte "Indépendants" pour rejoindre l'org du patron (logique implémentée dans `accept_invitation`).
+2. `20260503_org_invitations.sql` — table `org_invitations` (id, org_id, invited_by, contact, contact_type email/phone, role, token UUID unique, status pending/accepted/cancelled/expired, expires_at +7d) + RLS (SELECT membres de l'org, INSERT owner/admin uniquement) + 2 RPC SECURITY DEFINER : `accept_invitation(token)` (vérifie token + transfère depuis Indépendants si driver) et `remove_org_member(org_id, user_id)` (owner/admin uniquement, empêche de virer le dernier owner, re-rattache à Indépendants si driver).
+
+**P1 — Invitations multi-canal Email/SMS/WhatsApp** :
+- `services/organizationService.ts` étendu : `inviteMember(orgId, contact, contactType, role)` génère un token UUID + INSERT, `removeMember(orgId, userId)` appelle la RPC, `acceptInvitation(token)` appelle la RPC, helpers `buildInvitationLink(token)` (`${origin}/invite/${token}`) et `normalizePhone()`.
+- `components/dashboard/patron/invitations/InviteMemberModal.tsx` (142 lignes) — modal avec champ unique email/téléphone (auto-détecté via @), 3 boutons d'envoi : **Email** (`mailto:` avec sujet+body pré-remplis), **SMS** (`sms:` deep link), **WhatsApp** (`https://wa.me/<num>`). Le user clique sur le canal de son choix → ouvre l'app système avec le message pré-écrit contenant le lien magique.
+- `app/invite/[token]/page.tsx` (server component) — await `params`, redirect login avec `?next=/invite/<token>` si pas authentifié, sinon rend `AcceptInvitationClient`.
+- `app/invite/[token]/AcceptInvitationClient.tsx` (client) — appelle `acceptInvitation(token)` au mount, affiche success/error + bouton "Accéder au dashboard".
+
+**P2 — Actions sur chauffeurs + Settings org** :
+- `services/patronDriverDetailService.ts` — `getDriverDetail(driverId)` retourne profil + driver + véhicule + stats du mois (CA, nb courses, missions actives) + documents avec `daysLeft` calculé (alertes expiration).
+- `components/dashboard/patron/DriverDetailDrawer.tsx` (137 lignes) — drawer right-side (overlay backdrop) qui s'ouvre au clic sur un chauffeur dans `FleetList`. Affiche avatar (initiales), contact (tel/SMS), véhicule (marque/immat), stats du mois, liste documents avec badge danger si <30j, bouton "Retirer de l'org" qui appelle `remove_org_member`.
+- `components/dashboard/patron/OrgSettingsModal.tsx` (76 lignes) — modal accessible via bouton "Paramètres" en bas de sidebar. Édite `name` + `siret` de l'org via `organizationService.updateOrg`.
+
+**P3 — Onglets Chauffeurs (RH) + Finances + sidebar 5 tabs** :
+- `components/dashboard/patron/PatronSidebar.tsx` (81 lignes) — passe de 3 à 5 onglets : Vue d'ensemble / Courses / Agenda / **Chauffeurs** / **Finances** + bouton **Paramètres** en footer (déclenche `onOpenSettings`). Bottom nav mobile en `grid-cols-5`.
+- `components/dashboard/patron/drivers/PatronDrivers.tsx` (83 lignes) — onglet RH : grille cards chauffeurs (avatar + nom + tel + statut + véhicule), filtre par statut (tous/en ligne/en mission/hors ligne), recherche par nom. Réutilise `usePatronOverview` (pas de hook dédié — données déjà chargées).
+- `services/patronFinancesService.ts` — `getFinances(orgId)` retourne `totalRevenue`, `monthRevenue`, `weekRevenue`, `cpamRevenue` (mois courant), `privateRevenue` (mois courant), `revenueLast30Days[30]` (bucket par jour). `getRecentCpamMissions(orgId, limit)` retourne 20 dernières CPAM avec nom chauffeur (jointure manuelle profils).
+- `components/dashboard/patron/finances/usePatronFinances.ts` + `PatronFinances.tsx` (108 lignes) — 4 KPIs (CA total/mois/semaine/30j) + Sparkline 30 jours + bar de répartition CPAM/Privé du mois + table dernières CPAM (date / chauffeur / patient / montant).
+
+**Refactor pour respecter le seuil 200 lignes** :
+- `PatronOverview.tsx` avait dépassé 200 lignes après ajout des boutons "Inviter" + "Poster une course". Split en `PatronOverview.tsx` (78 lignes, orchestrateur) + `PatronOverviewSections.tsx` (170 lignes, sous-composants : Centered, KPIGrid, KPICard, RevenueChart, TopDrivers, FleetList avec onPickDriver+remove, ActivityList, DocAlertsList, StatusBadge).
+
+**Vérifs finales** :
+- `npm run type-check` : 0 erreurs.
+- Tous les fichiers nouveaux ou modifiés sous 200 lignes (max : InviteMemberModal 142, DriverDetailDrawer 137, PatronFinances 108).
+
+**Ce qui reste hors-scope (pas demandé) — vraies limites V1** :
+- Email transactionnel automatique (on délègue au mailto système — pas de Resend/Postmark/SendGrid wired).
+- SMS automatique (idem, on délègue au sms: deep link).
+- Notifications in-app du driver invité (badge "1 invitation en attente").
+- Liste/gestion des invitations en cours côté patron (UI manquante, table existe).
+- Multi-rôles en UI (pour l'instant tout invité = `viewer` par défaut, le rôle est accepté côté schema mais pas exposé dans le formulaire).
+
+---
+
+### Dashboard patron — Polish (carte Leaflet + realtime + Sparkline + Top3 + badges) — même jour
+
+**Code livré** :
+- `components/ui/Sparkline.tsx` — mini-graphique SVG générique (line + area path, currentColor) réutilisable.
+- `components/dashboard/patron/overview/PatronFleetMap.tsx` + `usePatronFleetMap.ts` — carte Leaflet avec pins colorés par statut (jaune=en mission, vert=en ligne, gris=offline) + popup nom + courses du jour. Dynamic import (`ssr:false`) pour éviter le crash `window is not defined`. Hook utilise `mapReady` state pour redéclencher le sync markers après init (fix du piège ref + Strict Mode).
+- `hooks/useOrgRealtimeRefresh.ts` — hook factorisé (règle des 3) qui subscribe aux changements Supabase realtime sur des tables, scope à un orgId, avec debounce 500ms. Utilisé par usePatronOverview, usePatronCourses, usePatronAgenda.
+- `services/patronOverviewService.ts` — `getKPIs` étendu : retourne `yesterdayRevenue` + `revenueLast7Days[7]` (bucket par jour côté JS depuis une seule query `completed_at >= now()-7d`). `getFleetPositions` refactoré en 2 queries séparées (drivers + profiles) au lieu d'un `profiles!inner` join, parce que le join était silencieusement filtré par les RLS de profiles. Cast explicite `Number()` sur lat/lng (NUMERIC peut sortir en string via PostgREST).
+- `components/dashboard/patron/overview/PatronOverview.tsx` enrichi : KPI "CA jour" avec evolution `↑ +12% vs hier` (vert/rouge), section "CA des 7 derniers jours" (Sparkline + total), section "🏆 Top chauffeurs aujourd'hui" (médailles 🥇🥈🥉), badges colorés EN MISSION/EN LIGNE/HORS LIGNE sur FleetList.
+- `components/dashboard/patron/agenda/PatronAgenda.tsx` : fix bloc Gantt tronqué (label caché si widthPct < 4%, tooltip reste).
+
+**5e migration appliquée** : `20260503_drivers_select_extend_org.sql` — fix RLS critique. La policy `drivers_select` existante limitait la visibilité à `(id = auth.uid() OR id IN groupes_du_user)`. Conséquence : un patron ne voyait que les chauffeurs de ses groupes (4 sur 7), pas toute sa flotte. Ajout d'une 3e condition `OR organization_id IN current_org_ids()`.
+
+**Données de démo ajoutées en prod via SQL Editor** : positions GPS iconiques (Gare St-Charles / Timone / Aéroport Marignane / Hôpital Nord / Aubagne / Aix / Vieux Port) sur les 7 chauffeurs de l'org, et 15 missions fictives DONE réparties sur les 7 derniers jours pour faire vivre les KPIs et le Sparkline. Note : `missions.status` valides sont `AVAILABLE`/`IN_PROGRESS`/`DONE` (pas `COMPLETED` que j'avais utilisé par erreur en premier).
+
+---
+
+### Dashboard patron de flotte — Phase 1 livrée (multi-tenancy + 3 onglets branchés)
+
+**Migrations SQL appliquées en prod via SQL Editor** (4 migrations, voir `apps/web/supabase/migrations/20260503_*.sql`) :
+1. `20260503_organizations.sql` — tables `organizations` + `organization_members` (rôles owner/admin/dispatcher/accountant/viewer) + colonne `organization_id` sur `drivers` (NOT NULL) et `missions` (nullable, auto-rempli par trigger), fonction `current_org_ids()` SECURITY DEFINER, RLS sur les nouvelles tables, backfill "TaxiLink Default" + Mohamed `owner` + tous les drivers/missions rattachés.
+2. `20260503_drivers_default_org_trigger.sql` — trigger BEFORE INSERT sur drivers qui auto-assigne l'org "TaxiLink Default" si NULL (sinon les nouvelles inscriptions Google planteraient sur le NOT NULL).
+3. `20260503_fix_org_members_select_policy.sql` — fix récursion infinie : la policy SELECT `org_members_select` faisait `org_id IN (SELECT current_org_ids())` qui re-déclenchait sa propre policy → 500. Remplacée par `user_id = auth.uid()` simple.
+4. `20260503_drop_org_members_manage_policy.sql` — la policy "FOR ALL" `org_members_manage` avait la même récursion (subquery sur la même table). Droppée pour le MVP. INSERT/UPDATE/DELETE sur `organization_members` à reimplementer plus tard via API routes server-side avec service_role ou fonction SECURITY DEFINER dédiée.
+
+**Décision archi clé** : pas de RLS strict org sur `drivers`/`missions` car TaxiLink est un marketplace cross-org (un chauffeur de l'org A doit pouvoir voir/accepter une mission AVAILABLE postée par l'org B). Le filtre par org pour le dashboard patron se fait côté code (services), pas via RLS.
+
+**Code livré** (`apps/web/src/`) :
+- `services/organizationService.ts` — `getMembershipsForUser` utilise `.rpc('current_org_ids')` (bypass RLS) + récupère orgs/roles séparément
+- `hooks/useCurrentOrg.ts` — retourne `{ orgId, role, organization, memberships, isPatron, isLoading }`
+- `middleware.ts` — élargi pour matcher `/dashboard/patron` (check completude profil, pas de check role car validation membership déléguée à la page server component)
+- `app/dashboard/patron/page.tsx` — server component qui check membership via `.rpc('current_org_ids')` et redirect `/dashboard/chauffeur` si pas membre
+- `components/dashboard/patron/PatronDashboard.tsx` — orchestrateur sidebar + state tab + routing 3 onglets
+- `components/dashboard/patron/PatronSidebar.tsx` — sidebar desktop (w-60) + bottom nav mobile (grid-cols-3) avec icônes Material Symbols
+- **Onglet Vue d'ensemble** : `components/dashboard/patron/overview/PatronOverview.tsx` + `usePatronOverview.ts` + `services/patronOverviewService.ts` (4 fonctions : KPIs, fleet, activity, doc alerts). 4 cards KPIs + liste chauffeurs avec pastille statut + activité récente avec heures formatées + alertes documents.
+- **Onglet Courses** (dispatch) : `components/dashboard/patron/courses/PatronCourses.tsx` + `usePatronCourses.ts` + `PatronAssignModal.tsx` + `services/patronCoursesService.ts` (getPool, assignToDriver, getOrgDrivers). Liste des missions AVAILABLE de l'org + bouton Assigner qui ouvre modal listant les chauffeurs en ligne.
+- **Onglet Agenda** (gantt) : `components/dashboard/patron/agenda/PatronAgenda.tsx` + `usePatronAgenda.ts` + `services/patronAgendaService.ts` (getDaySchedules). Vue Gantt 06h-21h, une ligne par chauffeur, blocs colorés (jaune=en cours, gris=terminé, bordure noire=planifié) positionnés en absolute selon `scheduled_at` + `duration_min`.
+
+**Types Supabase** : `apps/web/src/lib/supabase/types.ts` mis à jour à la main (organizations + organization_members + colonne organization_id sur drivers/missions + relation FK + fonction current_org_ids dans Functions + exports `Organization`, `OrganizationMember`, `OrgRole`).
+
+**Sauvegarde de sécurité** avant migration : 3 CSV exportés depuis SQL Editor (drivers, missions, profiles) dans `C:\Users\moham\Documents\taxilink-backups\2026-05-03\`.
+
+**Stratégie de migration adoptée** : pivot du plan Supabase CLI local vers SQL Editor direct car la virtualisation hardware BIOS est désactivée sur le PC du user (refus d'y toucher, intimidant). Workflow : écrire SQL dans `apps/web/supabase/migrations/` (pour git history) + coller dans SQL Editor + transaction `BEGIN/COMMIT`. Documenté dans `TODO-2026-05-02.md` section "🔮 Pour plus tard" (à activer quand 1er patron payant signe ou changement de PC).
+
+**Hors-scope (à faire plus tard, dans un nouveau chantier)** :
+- ~~Onglets Chauffeurs + Finances~~ → livrés dans le chantier P3 (même session)
+- ~~Carte Leaflet temps réel sur Vue d'ensemble~~ → livré dans le polish (même session)
+- ~~Realtime auto-refresh sur changements `missions` scope org~~ → livré via `useOrgRealtimeRefresh` (polish)
+- ~~Invitation/gestion membres via UI~~ → livré via `org_invitations` + RPC `accept_invitation`/`remove_org_member` + InviteMemberModal (P1+P2, même session)
+- Switcher multi-orgs dans le header (V1 = on prend la 1ère membership)
+- Email/SMS transactionnel automatique (V1 délègue au `mailto:`/`sms:`/`wa.me` système)
+- Liste/gestion des invitations en cours côté patron (UI manquante, table `org_invitations` exploitable)
+- Stripe Billing B2B
+- Séparation `apps/patron/` du monorepo
+- Migration vers WorkOS pour SSO/SAML
+
+---
+
+## ✅ Terminé — Session 2026-05-02
+
+### Refonte UX onglet "Mes annonces" — actions par état (commit `f6cc7a3`, branche `carte-maplibre`)
+**Contexte** : le user veut que la page "Mes annonces" du chauffeur (onglet `AdsTab` qui liste les courses qu'il a partagées avec ses collègues) propose des actions différenciées selon l'état de l'annonce. État précédent : carte Waiting purement informative, carte Accepted avec SMS+appel mais pas de WhatsApp ni date de publication, carte Done avec un bouton facture (placeholder) mais sans visibilité sur les jalons GPS du collègue qui a pris la course.
+
+**En attente — annulation**
+- Ajout d'un bouton "Annuler l'annonce" en footer de [`AdCardWaiting`](apps/web/src/components/dashboard/driver/courses/ads/AdCardWaiting.tsx) (icône X danger) + modale de confirmation inline ("Garder" / "Annuler"). La realtime sub de `useAdsTab` retire la carte automatiquement après suppression.
+- Hook co-localisé [`useAdCardWaiting`](apps/web/src/components/dashboard/driver/courses/ads/useAdCardWaiting.ts) (état `confirmOpen/busy/error`). Appelle `missionService.remove(id)` qui passe par la route `DELETE /api/missions/:id` existante (déjà gardée par `requireOwnEditable` : `status=AVAILABLE` + `shared_by=user.id`).
+
+**Acceptée — WhatsApp + dates + corrections**
+- Ajout du bouton WhatsApp (vert `#25D366`, ouvre `https://wa.me/<num>`) dans [`TakerBlock`](apps/web/src/components/dashboard/driver/courses/ads/TakerBlock.tsx), entre SMS et appel. Helper `waNumber()` normalise les numéros français : `0XXXXXXXXX → 33XXXXXXXXX`, sinon laisse les digits tels quels (numéros déjà internationaux).
+- [`AdCardAccepted`](apps/web/src/components/dashboard/driver/courses/ads/AdCardAccepted.tsx) affiche désormais une ligne "Postée il y a X · Acceptée il y a Y" sous le prix (visibilité chronologique côté posteur). Reformulation du libellé "Corriger" → "Adresse, téléphone ou patient à corriger ?" pour rendre explicite que le `MissionEditSheet` permet déjà la correction de ces 3 champs (vérifié dans `useMissionEditSheet.ts` form state).
+- Le tracker `AdTracker` (Acceptée → En route → Patient à bord → Terminée) reste alimenté par les timestamps GPS auto (Phase 1 GPS livrée plus tôt dans la journée) — déjà fonctionnel, aucune modif nécessaire.
+
+**Effectuée — facture retirée + timeline 3 jalons**
+- Bouton "Voir la facture" supprimé de [`TakerBlock`](apps/web/src/components/dashboard/driver/courses/ads/TakerBlock.tsx) (prop `showInvoice` retirée — c'était un placeholder non fonctionnel). Le subline `TakerBlock` passe de "Course terminée — facture transmise" à "Course terminée".
+- Nouvelle grille 3 colonnes dans [`AdCardDone`](apps/web/src/components/dashboard/driver/courses/ads/AdCardDone.tsx) : **Acceptée** (`accepted_at`) · **Démarrée** (`enroute_at` sinon `pickup_at`) · **Terminée** (`dropoff_at` sinon `completed_at`). Sous-composant local `Step` rendu via `<dl>/<dt>/<dd>` pour la sémantique. Affiche `—` si timestamp absent.
+- Bouton "Modifier le prix" (déjà existant via `MissionEditSheet` mode `'price'`) inchangé.
+
+**Refacto**
+- Helper `relativeAgo(iso)` extrait dans [`adsHelpers.ts`](apps/web/src/components/dashboard/driver/courses/ads/adsHelpers.ts) — factorise `timeSincePost` (Waiting) et `timeSinceAccept` (Accepted). Format unifié : `à l'instant / X min / X h / X j` (une seule unité, pas de `1 h 24 min`).
+
+**Fichiers modifiés (6, +170 / −50)**
+1. `AdCardWaiting.tsx` (+59) — bouton + modale + hook
+2. `AdCardAccepted.tsx` (+8) — ligne dates + libellé corriger
+3. `AdCardDone.tsx` (+19) — grille timestamps + Step
+4. `TakerBlock.tsx` (~22) — WhatsApp + retrait facture + normalisation FR
+5. `adsHelpers.ts` (+15) — `relativeAgo`
+6. `useAdCardWaiting.ts` *(nouveau, 35 l)* — hook cancel
+
+**Vérifications** : `tsc --noEmit` OK, `fileSize.test.ts` OK. Test suite globale = 12 échecs pré-existants dans `useDriverHome.test.ts` (manque `NEXT_PUBLIC_SUPABASE_URL` en env de test → `useMissionRealtime → createBrowserClient` plante), aucune relation avec ce travail.
+
+**Push** : commit `f6cc7a3` poussé sur `carte-maplibre` (preview deploy Vercel uniquement, pas la prod). À merger sur `main` pour déploiement prod.
+
+---
+
 ## ✅ Terminé — Session 2026-05-01
 
 ### Refonte mécanique des courses : auto-completion + cycle de vie + GPS + UX historique + preuves CPAM
