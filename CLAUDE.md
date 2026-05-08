@@ -31,11 +31,21 @@ npm run type-check   # tsc --noEmit
 
 ### State: Zustand stores (`src/store/`)
 
-Four stores. One is data-heavy, three are UI/flow state:
+Ten stores. Quatre core (data + flow principaux), six spécialisés (UI/preferences/notifications) :
+
+**Core** :
 - `driverStore` — driver profile, `isOnline`, today's stats. Has `load()`, `setOnline()`, `updateDriver()`, `incrementTodayStats()`. Calls `profileService` and `driverService`.
 - `missionStore` — available missions + current mission. Has `load()`, `acceptMission()`, `completeMission()`, `dismissCurrentMission()`, `setSortField()`, `toggleSort()`. Exposes `useSortedMissions()` helper hook. Converts DB shape (`@/lib/supabase/types`) to app shape (`@taxilink/core`) via `toCoreMission()`.
 - `missionEditStore` — signals an edit request for a posted mission. `DriverDashboard` observes `editing` and opens `PartagerMissionModal` in update mode.
 - `postedAcceptStore` — unseen-acceptance notifications for missions the driver posted. Exposes `useUnseenAcceptCount()` badge hook.
+
+**Spécialisés** :
+- `gpsStore` — coordonnées GPS courantes du driver + précision (m). Alimenté par `useGlobalDriverGps`, consommé par tous les écrans qui calculent une distance pickup. Pas de persistance.
+- `nightModeStore` — préférence mode nuit (`'auto' | 'on' | 'off'`, persisted). `'auto'` conservé pour deserialisation legacy mais traité comme `'off'`.
+- `userPrefsStore` — préférences user persistées en BD (`popupNewMission`, `geolocPushEnabled`). `load()` synchronise depuis `userPrefsService`.
+- `missionEditSheetStore` — bottom sheet ouverte pour éditer une mission existante (mode `'corrections' | 'price'`). Distinct de `missionEditStore` qui pilote `PartagerMissionModal`.
+- `publishedFeedbackStore` — toast "Annonce publiée" affiché après création réussie d'une mission. `consume()` après affichage.
+- `postedUntakenStore` — notifications "course pas prise" pour les annonces stuck (AVAILABLE > 2 min sans offre PENDING). Alimenté par `usePostedMissionUntakenNotifier`.
 
 ### Services (`src/services/`)
 

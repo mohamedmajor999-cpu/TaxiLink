@@ -44,14 +44,14 @@ export function DriverProfile({ driverName }: { driverName: string }) {
       {/* Personal info */}
       <div className="bg-white rounded-2xl shadow-soft p-6 space-y-4">
         <h3 className="font-bold text-secondary text-lg">Informations personnelles</h3>
-        {[
-          { label: 'Nom complet', key: 'full_name', type: 'text',  placeholder: 'Marc Fontaine' },
+        {([
+          { label: 'Nom complet', key: 'full_name', type: 'text',  placeholder: 'Marc Fontaine', disabled: false },
           { label: 'Email',       key: 'email',     type: 'email', placeholder: 'marc@exemple.fr', disabled: true },
-          { label: 'Téléphone',   key: 'phone',     type: 'tel',   placeholder: '+33 6 12 34 56 78' },
-        ].map((f) => (
+          { label: 'Téléphone',   key: 'phone',     type: 'tel',   placeholder: '+33 6 12 34 56 78', disabled: false },
+        ] as const).map((f) => (
           <div key={f.key}>
             <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">{f.label}</label>
-            <input type={f.type} value={(profile as any)[f.key]} disabled={f.disabled}
+            <input type={f.type} value={profile[f.key] ?? ''} disabled={f.disabled}
               onChange={(e) => setProfile((p) => ({ ...p, [f.key]: e.target.value }))}
               placeholder={f.placeholder}
               className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors disabled:bg-bgsoft disabled:text-muted" />
@@ -62,13 +62,13 @@ export function DriverProfile({ driverName }: { driverName: string }) {
       {/* Vehicle */}
       <div className="bg-white rounded-2xl shadow-soft p-6 space-y-4">
         <h3 className="font-bold text-secondary text-lg">Véhicule</h3>
-        {[
+        {([
           { label: 'Modèle', key: 'vehicle_model', placeholder: 'Mercedes Classe E' },
           { label: 'Plaque', key: 'vehicle_plate', placeholder: 'AB-123-CD' },
-        ].map((f) => (
+        ] as const).map((f) => (
           <div key={f.key}>
             <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">{f.label}</label>
-            <input type="text" value={(driver as any)[f.key]}
+            <input type="text" value={driver[f.key] ?? ''}
               onChange={(e) => setDriver((d) => ({ ...d, [f.key]: e.target.value }))}
               placeholder={f.placeholder}
               className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
