@@ -46,7 +46,7 @@ describe('authService.signIn', () => {
 
 // ─── finalizeSignUp ───────────────────────────────────────────────────────────
 describe('authService.finalizeSignUp', () => {
-  const params = { email: 'new@test.com', password: 'pass123', first_name: 'Marc', last_name: 'Dupont', department: '13' }
+  const params = { email: 'new@test.com', password: 'pass123', first_name: 'Marc', last_name: 'Dupont', phone: '0601020304', department: '13' }
 
   it('cree le compte avec toutes les metadata et emailRedirectTo vers /auth/callback', async () => {
     mockSignUp.mockResolvedValue({ data: { user: { identities: [{ id: '1' }] } }, error: null })

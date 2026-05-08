@@ -42,8 +42,8 @@ export function RegisterStep2({
 
       <div>
         <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Téléphone</label>
-        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-          placeholder="0601020304"
+        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required
+          placeholder="0601020304" inputMode="tel" autoComplete="tel"
           className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
       </div>
 

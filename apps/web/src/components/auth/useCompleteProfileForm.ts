@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { profileService } from '@/services/profileService'
 import { authService } from '@/services/authService'
-import { isValidPhone } from '@/lib/validators'
+import { isValidPhone, isValidName } from '@/lib/validators'
 
 interface Args {
   userId: string
@@ -26,7 +26,9 @@ export function useCompleteProfileForm({
     e.preventDefault()
     setError('')
     if (!firstName.trim()) { setError('Le prénom est requis'); return }
+    if (!isValidName(firstName)) { setError('Le prénom ne doit contenir ni chiffres ni caractères spéciaux'); return }
     if (!lastName.trim())  { setError('Le nom est requis'); return }
+    if (!isValidName(lastName)) { setError('Le nom ne doit contenir ni chiffres ni caractères spéciaux'); return }
     if (!phone.trim())     { setError('Le téléphone est requis'); return }
     if (!isValidPhone(phone)) { setError('Format de téléphone invalide (ex: 0601020304)'); return }
 

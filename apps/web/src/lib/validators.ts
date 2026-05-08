@@ -1,7 +1,7 @@
 // Umbrella d'exports de validation (auth + missions).
 // Les règles métier des missions sont dans ./missionValidators.
 
-export { isValidPhone, isValidEmail, isValidPassword } from './authValidators'
+export { isValidPhone, isValidEmail, isValidPassword, isValidName } from './authValidators'
 
 export interface ValidationError {
   field: string

@@ -14,6 +14,16 @@ export function isValidPassword(password: string): boolean {
   return password.length >= 8
 }
 
+// Prénom/nom : 2-50 caractères, lettres latines (avec accents français/européens
+// via la plage À-ſ), espaces, tirets, apostrophes. Refuse les chiffres
+// et la ponctuation parasite. "Jean-Pierre", "D'Arc", "François-Xavier" passent,
+// "Marc123" non. Pas de flag /u pour rester compatible avec target ES5.
+export function isValidName(name: string): boolean {
+  const trimmed = name.trim()
+  if (trimmed.length < 2 || trimmed.length > 50) return false
+  return /^[a-zA-ZÀ-ſ\s'-]+$/.test(trimmed)
+}
+
 // IBAN : 15-34 caracteres alphanumeriques, controle modulo 97 (norme ISO 7064).
 export function isValidIban(iban: string): boolean {
   const cleaned = iban.replace(/\s+/g, '').toUpperCase()

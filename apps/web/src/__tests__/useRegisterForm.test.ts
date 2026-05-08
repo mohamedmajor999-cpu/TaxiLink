@@ -16,6 +16,7 @@ vi.mock('@/lib/validators', () => ({
   isValidEmail:    (v: string) => v.includes('@') && v.includes('.'),
   isValidPassword: (v: string) => v.length >= 8,
   isValidPhone:    (v: string) => /^0[0-9]{9}$/.test(v),
+  isValidName:     (v: string) => /^[a-zA-ZÀ-ſ\s'-]{2,50}$/.test(v.trim()),
 }))
 
 const preventDefault = vi.fn()
@@ -103,8 +104,35 @@ describe('useRegisterForm — étape 2', () => {
     expect(result.current.error).toContain('nom')
   })
 
-  it('appelle finalizeSignUp avec les bons paramètres', async () => {
-    mockFinalizeSignUp.mockResolvedValue(undefined)
+  it('refuse si le prénom contient des chiffres', async () => {
+    const { result } = renderHook(() => useRegisterForm())
+    await goToStep2(result)
+    act(() => {
+      result.current.setFirstName('Marc12')
+      result.current.setLastName('Dupont')
+      result.current.setPhone('0601020304')
+      result.current.setDepartment('13')
+    })
+    await act(async () => { await result.current.handleSubmit(fakeEvent) })
+    expect(result.current.error).toMatch(/prénom/i)
+    expect(result.current.success).toBe(false)
+  })
+
+  it('refuse si le nom contient des chiffres', async () => {
+    const { result } = renderHook(() => useRegisterForm())
+    await goToStep2(result)
+    act(() => {
+      result.current.setFirstName('Marc')
+      result.current.setLastName('Dup0nt')
+      result.current.setPhone('0601020304')
+      result.current.setDepartment('13')
+    })
+    await act(async () => { await result.current.handleSubmit(fakeEvent) })
+    expect(result.current.error).toMatch(/nom/i)
+    expect(result.current.success).toBe(false)
+  })
+
+  it('refuse si le téléphone est manquant', async () => {
     const { result } = renderHook(() => useRegisterForm())
     await goToStep2(result)
     act(() => {
@@ -113,10 +141,53 @@ describe('useRegisterForm — étape 2', () => {
       result.current.setDepartment('13')
     })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })
+    expect(result.current.error).toMatch(/téléphone/i)
+    expect(result.current.success).toBe(false)
+  })
+
+  it('refuse si le téléphone est au mauvais format', async () => {
+    const { result } = renderHook(() => useRegisterForm())
+    await goToStep2(result)
+    act(() => {
+      result.current.setFirstName('Marc')
+      result.current.setLastName('Dupont')
+      result.current.setPhone('060102')
+      result.current.setDepartment('13')
+    })
+    await act(async () => { await result.current.handleSubmit(fakeEvent) })
+    expect(result.current.error).toMatch(/Format de téléphone/i)
+    expect(result.current.success).toBe(false)
+  })
+
+  it('appelle finalizeSignUp avec les bons paramètres', async () => {
+    mockFinalizeSignUp.mockResolvedValue(undefined)
+    const { result } = renderHook(() => useRegisterForm())
+    await goToStep2(result)
+    act(() => {
+      result.current.setFirstName('Marc')
+      result.current.setLastName('Dupont')
+      result.current.setPhone('0601020304')
+      result.current.setDepartment('13')
+    })
+    await act(async () => { await result.current.handleSubmit(fakeEvent) })
     expect(mockFinalizeSignUp).toHaveBeenCalledWith(expect.objectContaining({
       email: 'test@test.com', password: 'password123',
-      first_name: 'Marc', last_name: 'Dupont', department: '13',
+      first_name: 'Marc', last_name: 'Dupont', phone: '0601020304', department: '13',
     }))
+    expect(result.current.success).toBe(true)
+  })
+
+  it('accepte les noms composés et accents (Jean-Pierre, François, D\'Arc)', async () => {
+    mockFinalizeSignUp.mockResolvedValue(undefined)
+    const { result } = renderHook(() => useRegisterForm())
+    await goToStep2(result)
+    act(() => {
+      result.current.setFirstName('Jean-Pierre')
+      result.current.setLastName('D\'Arc')
+      result.current.setPhone('0601020304')
+      result.current.setDepartment('13')
+    })
+    await act(async () => { await result.current.handleSubmit(fakeEvent) })
     expect(result.current.success).toBe(true)
   })
 
@@ -127,6 +198,7 @@ describe('useRegisterForm — étape 2', () => {
     act(() => {
       result.current.setFirstName('Marc')
       result.current.setLastName('Dupont')
+      result.current.setPhone('0601020304')
       result.current.setDepartment('13')
     })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })
@@ -140,6 +212,7 @@ describe('useRegisterForm — étape 2', () => {
     act(() => {
       result.current.setFirstName('Marc')
       result.current.setLastName('Dupont')
+      result.current.setPhone('0601020304')
     })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })
     expect(result.current.error).toContain('département')
@@ -152,6 +225,7 @@ describe('useRegisterForm — étape 2', () => {
     act(() => {
       result.current.setFirstName('Marc')
       result.current.setLastName('Dupont')
+      result.current.setPhone('0601020304')
       result.current.setDepartment('99')
     })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })

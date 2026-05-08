@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateMission, isValidPhone, isValidEmail, isValidPassword } from '@/lib/validators'
+import { validateMission, isValidPhone, isValidEmail, isValidPassword, isValidName } from '@/lib/validators'
 
 // ─── validateMission ──────────────────────────────────────────────────────────
 describe('validateMission', () => {
@@ -124,4 +124,18 @@ describe('isValidPassword', () => {
   it('accepte un mot de passe >= 8 caractères', () => expect(isValidPassword('12345678')).toBe(true))
   it('rejette un mot de passe < 8 caractères', () => expect(isValidPassword('1234567')).toBe(false))
   it('rejette une chaîne vide', () => expect(isValidPassword('')).toBe(false))
+})
+
+// ─── isValidName ──────────────────────────────────────────────────────────────
+describe('isValidName', () => {
+  it('accepte un prénom simple', () => expect(isValidName('Marc')).toBe(true))
+  it('accepte un nom composé avec tiret', () => expect(isValidName('Jean-Pierre')).toBe(true))
+  it('accepte une apostrophe', () => expect(isValidName("D'Arc")).toBe(true))
+  it('accepte les accents français', () => expect(isValidName('François')).toBe(true))
+  it('accepte un nom particule', () => expect(isValidName('De La Salle')).toBe(true))
+  it('rejette si chiffre dans le nom', () => expect(isValidName('Marc12')).toBe(false))
+  it('rejette un seul caractère', () => expect(isValidName('M')).toBe(false))
+  it('rejette une chaîne vide', () => expect(isValidName('')).toBe(false))
+  it('rejette des espaces seuls', () => expect(isValidName('   ')).toBe(false))
+  it('rejette les caractères spéciaux', () => expect(isValidName('Marc@')).toBe(false))
 })

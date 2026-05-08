@@ -13,7 +13,7 @@ export const authService = {
     password:   string
     first_name: string
     last_name:  string
-    phone?:     string
+    phone:      string
     department: string
   }) {
     const supabase = createClient()
