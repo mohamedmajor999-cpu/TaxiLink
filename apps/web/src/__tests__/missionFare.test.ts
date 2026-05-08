@@ -46,6 +46,7 @@ function mkMission(overrides: Partial<Mission> = {}): Mission {
     dropoff_at: null,
     pickup_signature_url: null,
     transport_voucher_url: null,
+    organization_id: null,
     ...overrides,
   }
 }

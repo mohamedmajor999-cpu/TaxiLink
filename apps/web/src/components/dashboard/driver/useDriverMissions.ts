@@ -70,10 +70,9 @@ export function useDriverMissions() {
   useMissionRealtime({
     onInsert: (m) => {
       if (!matchesDeptPref(m)) return
-      // RGPD : Supabase realtime publie les colonnes brutes (patient_name,
-      // phone, notes en clair). On applique maskMissionForViewer cote client
-      // avant de poser la mission dans le state -> aucune PII patient n'est
-      // jamais visible dans le DOM/state pour un chauffeur tiers du feed.
+      // Le payload realtime est deja sans PII (cf. trigger broadcast_mission_event).
+      // On applique tout de meme maskMissionForViewer pour formater patient_name
+      // en initiales si jamais un fetch refait surface (defensive).
       const masked = maskMissionForViewer(m, user?.id ?? null)
       setMissions((prev) => (prev.some((x) => x.id === masked.id) ? prev : [masked, ...prev]))
     },
@@ -91,8 +90,16 @@ export function useDriverMissions() {
         return next
       })
       // currentMission est la course en cours du driver lui-meme : il a le
-      // droit de voir les details complets, donc on garde la version brute.
-      setCurrentMission((prev) => (prev?.id === m.id ? m : prev))
+      // droit de voir les PII (patient_name, phone, notes). Le payload broadcast
+      // les a vidées par sécurité, donc on refetch via service pour les
+      // récupérer (RLS SELECT autorise driver_id = auth.uid()).
+      setCurrentMission((prev) => {
+        if (prev?.id !== m.id) return prev
+        void missionService.getById(m.id).then((full) => {
+          if (full) setCurrentMission(full)
+        })
+        return prev
+      })
     },
     onDelete: ({ id }) => {
       setMissions((prev) => prev.filter((x) => x.id !== id))

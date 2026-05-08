@@ -4,12 +4,12 @@ import { useDriverStore } from '@/store/driverStore'
 import { useUserPrefs } from '@/store/userPrefsStore'
 import { driverService } from '@/services/driverService'
 
-const PUSH_INTERVAL_MS = 60_000
+const PUSH_INTERVAL_MS = 30_000
 
 interface Coords { lat: number; lng: number }
 
 /**
- * Pousse la position GPS du chauffeur en base toutes les 60s tant qu'il est
+ * Pousse la position GPS du chauffeur en base toutes les 30s tant qu'il est
  * en ligne ET que la geoloc precise est autorisee (pref `geolocPushEnabled`,
  * default true). Best-effort : on n'affiche pas l'erreur a l'utilisateur, le
  * popup nouvelle course tombera juste sur les autres chauffeurs si l'update

@@ -76,28 +76,30 @@ describe('useMissionRealtime — souscription', () => {
 })
 
 describe('useMissionRealtime — callbacks', () => {
-  it('appelle onInsert lors d\'un événement INSERT', () => {
+  // Hook en mode broadcast (cf. migration 20260507_missions_realtime_broadcast_no_pii.sql).
+  // Les callbacks reçoivent { payload } et non { new } comme avec postgres_changes.
+  // Le hook reconstitue un Mission avec PII = null (patient_name, phone, notes,
+  // pickup_signature_url, transport_voucher_url) avant d'appeler le callback.
+  it('appelle onInsert lors d\'un événement INSERT (status AVAILABLE)', () => {
     const onInsert = vi.fn()
     renderHook(() => useMissionRealtime({ onInsert }))
     const insertCb = onCalls.find(([, f]) => f.event === 'INSERT')?.[2]
-    const mission = { id: 'm1', status: 'AVAILABLE' }
-    insertCb?.({ new: mission })
-    expect(onInsert).toHaveBeenCalledWith(mission)
+    insertCb?.({ payload: { id: 'm1', status: 'AVAILABLE' } } as unknown as { new: unknown })
+    expect(onInsert).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1', status: 'AVAILABLE', patient_name: null, phone: null, notes: null }))
   })
 
   it('appelle onUpdate lors d\'un événement UPDATE', () => {
     const onUpdate = vi.fn()
     renderHook(() => useMissionRealtime({ onUpdate }))
     const updateCb = onCalls.find(([, f]) => f.event === 'UPDATE')?.[2]
-    const mission = { id: 'm2', status: 'IN_PROGRESS' }
-    updateCb?.({ new: mission })
-    expect(onUpdate).toHaveBeenCalledWith(mission)
+    updateCb?.({ payload: { id: 'm2', status: 'IN_PROGRESS' } } as unknown as { new: unknown })
+    expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({ id: 'm2', status: 'IN_PROGRESS', patient_name: null, phone: null, notes: null }))
   })
 
   it('ne plante pas si onInsert n\'est pas fourni', () => {
     renderHook(() => useMissionRealtime({ onUpdate: vi.fn() }))
     const insertCb = onCalls.find(([, f]) => f.event === 'INSERT')?.[2]
-    expect(() => insertCb?.({ new: { id: 'm3' } })).not.toThrow()
+    expect(() => insertCb?.({ payload: { id: 'm3', status: 'AVAILABLE' } } as unknown as { new: unknown })).not.toThrow()
   })
 
   it('appelle onDelete avec l\'id reçu sur le broadcast "accepted"', () => {

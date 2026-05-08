@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { Plus } from 'lucide-react'
 import { MissionAcceptedCelebration } from '@/components/ui/MissionAcceptedCelebration'
 import { ToastContainer } from '@/components/ui/Toast'
 import { useDriverHome } from './useDriverHome'
@@ -11,6 +10,7 @@ import { DriverHomeAcceptBar } from './home/DriverHomeAcceptBar'
 import { DriverHomeTopOverlay } from './home/DriverHomeTopOverlay'
 import { DriverHomeFilterChips } from './home/DriverHomeFilterChips'
 import { MissionMapPopup } from './home/MissionMapPopup'
+import { PostCourseFab } from './home/PostCourseFab'
 import { SHEET_FRACTION, type SheetSnap } from './home/useSheetDrag'
 import { MapFallback } from './home/MapFallback'
 import { useNightMode } from '@/hooks/useNightMode'
@@ -127,18 +127,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={onPostCourse}
-        aria-label="Poster une course"
-        aria-hidden={!sheetCollapsed}
-        tabIndex={sheetCollapsed ? 0 : -1}
-        className={`md:hidden fixed left-1/2 -translate-x-1/2 z-[610] inline-flex items-center gap-2 h-12 px-5 rounded-full bg-ink text-paper text-[13px] font-bold shadow-[0_10px_28px_rgba(0,0,0,0.32)] active:scale-95 transition-all duration-300 whitespace-nowrap ${sheetCollapsed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        style={{ bottom: `calc(${sheetHeightPx}px + 12px + env(safe-area-inset-bottom))` }}
-      >
-        <Plus className="w-5 h-5" strokeWidth={2.6} />
-        Poster une course
-      </button>
+      <PostCourseFab visible={sheetCollapsed} sheetHeightPx={sheetHeightPx} onClick={onPostCourse} />
 
       <div className={`absolute bottom-0 left-0 right-0 md:relative md:inset-auto md:shrink-0 md:flex md:flex-col md:flex-none md:w-[42%] md:h-full md:border-l md:border-warm-200 z-[600] md:z-auto ${mapFullscreen ? 'hidden md:flex' : ''}`}>
         <div

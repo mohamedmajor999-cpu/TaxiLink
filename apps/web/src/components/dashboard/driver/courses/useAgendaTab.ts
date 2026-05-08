@@ -49,15 +49,21 @@ export function useAgendaTab() {
     return () => clearInterval(id)
   }, [])
 
+  // Le payload realtime arrive sans PII (vidées par le trigger broadcast).
+  // Le driver assigné a légitimement accès via RLS → refetch full mission.
   useMissionRealtime({
     onUpdate: (mission) => {
       if (mission.driver_id !== user?.id) return
-      setMissions((prev) => {
-        if (mission.status === 'DONE') return prev.filter((m) => m.id !== mission.id)
-        const exists = prev.some((m) => m.id === mission.id)
-        return exists
-          ? prev.map((m) => (m.id === mission.id ? mission : m))
-          : [...prev, mission]
+      if (mission.status === 'DONE') {
+        setMissions((prev) => prev.filter((m) => m.id !== mission.id))
+        return
+      }
+      void missionService.getById(mission.id).then((full) => {
+        if (!full) return
+        setMissions((prev) => {
+          const exists = prev.some((m) => m.id === full.id)
+          return exists ? prev.map((m) => (m.id === full.id ? full : m)) : [...prev, full]
+        })
       })
     },
   })
@@ -181,17 +187,11 @@ export function useAgendaTab() {
   }, [missions, user, nowTick])
 
   return {
-    loading, error,
-    selected, setSelected,
-    weekDays, weekRangeLabel, planningTitle,
-    events, stats,
-    daysGroups,
-    showAddModal, setShowAddModal,
-    addModalDate, openAddModalFor, closeAddModal,
-    openDetails, addMission,
-    removeMission, updateMission,
-    today, maxDate,
-    canPrevWeek, canNextWeek, goPrevWeek, goNextWeek,
+    loading, error, selected, setSelected,
+    weekDays, weekRangeLabel, planningTitle, events, stats, daysGroups,
+    showAddModal, setShowAddModal, addModalDate, openAddModalFor, closeAddModal,
+    openDetails, addMission, removeMission, updateMission,
+    today, maxDate, canPrevWeek, canNextWeek, goPrevWeek, goNextWeek,
     ...actions,
   }
 }
