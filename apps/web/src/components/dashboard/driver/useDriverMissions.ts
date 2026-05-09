@@ -67,11 +67,6 @@ export function useDriverMissions() {
 
   useMissionRealtime({
     onInsert: (m) => {
-      // Anti auto-acceptation : ne jamais montrer ma propre annonce dans mon
-      // feed. Le RPC get_marketplace_missions filtre deja shared_by = moi cote
-      // serveur, mais le broadcast realtime arrive a tout le monde sans filtre,
-      // donc on doit aussi filtrer ici.
-      if (user && m.shared_by === user.id) return
       if (!matchesDeptPref(m)) return
       // Le payload realtime est deja sans PII (cf. trigger broadcast_mission_event).
       // On applique tout de meme maskMissionForViewer pour formater patient_name

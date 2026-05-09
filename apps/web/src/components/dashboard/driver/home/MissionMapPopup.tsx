@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { AlertTriangle, MapPin, Route, X } from 'lucide-react'
+import { AlertTriangle, MapPin, Megaphone, Route, X } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { computeDisplayFare } from '@/lib/missionFare'
 import { getMinutesUntil } from '@/lib/dateUtils'
@@ -23,9 +23,11 @@ interface Props {
    */
   autoDismissMs?: number
   onAutoDismiss?: () => void
+  /** Mission postee par le user lui-meme : remplace l'Accept par 'Votre annonce'. */
+  ownMission?: boolean
 }
 
-export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, onClose, autoDismissMs, onAutoDismiss }: Props) {
+export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, onClose, autoDismissMs, onAutoDismiss, ownMission }: Props) {
   const [progress, setProgress] = useState(100)
   // Stabilise onAutoDismiss via une ref : sinon, comme la callback est recreee
   // a chaque render dans le parent (DriverHome), le useEffect se relancerait
@@ -137,7 +139,18 @@ export function MissionMapPopup({ mission, userCoords, onAccept, onShowDetail, o
 
       <div className="flex gap-2 mt-3">
         <div className="flex-1 min-w-0">
-          <HoldAcceptButton onConfirm={onAccept} />
+          {ownMission ? (
+            <div
+              role="status"
+              aria-label="Votre annonce, vous ne pouvez pas l'accepter"
+              className="w-full h-[52px] rounded-xl bg-brand/15 border-2 border-dashed border-brand text-ink font-extrabold text-[13px] inline-flex items-center justify-center gap-2"
+            >
+              <Megaphone className="w-4 h-4" strokeWidth={2.4} />
+              Votre annonce
+            </div>
+          ) : (
+            <HoldAcceptButton onConfirm={onAccept} />
+          )}
         </div>
         <button
           type="button"

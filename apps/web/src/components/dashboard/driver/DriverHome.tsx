@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { MissionAcceptedCelebration } from '@/components/ui/MissionAcceptedCelebration'
 import { ToastContainer } from '@/components/ui/Toast'
+import { useAuth } from '@/hooks/useAuth'
 import { useDriverHome } from './useDriverHome'
 import { NextMissionBanner } from './NextMissionBanner'
 import { DriverHomeSheet } from './home/DriverHomeSheet'
@@ -30,6 +31,8 @@ interface Props {
 
 export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, mapFullscreen, onMapFullscreenChange }: Props) {
   const h = useDriverHome()
+  const { user } = useAuth()
+  const isOwn = (sharedBy: string | null | undefined) => !!user && !!sharedBy && sharedBy === user.id
   const night = useNightMode()
   const [snap, setSnap] = useState<SheetSnap>('one')
   const [vh, setVh] = useState(0)
@@ -112,6 +115,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
               onClose={() => h.popup.dismiss(incomingMission.id)}
               autoDismissMs={15_000}
               onAutoDismiss={() => h.popup.dismiss(incomingMission.id)}
+              ownMission={isOwn(incomingMission.shared_by)}
             />
           )}
           {!incomingMission && h.selectedMission && (mapFullscreen || sheetCollapsed) && (
@@ -122,6 +126,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
                 onAccept={onAccept}
                 onShowDetail={() => onShowMissionDetail(h.selectedMissionId!)}
                 onClose={() => h.selectedMissionId && h.toggleMission(h.selectedMissionId)}
+                ownMission={isOwn(h.selectedMission.shared_by)}
               />
             </div>
           )}
@@ -184,6 +189,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
             onAccept={onAccept}
             onShowDetail={() => h.selectedMissionId && onShowMissionDetail(h.selectedMissionId)}
             emptyLabel="Sélectionnez une annonce"
+            ownMission={isOwn(h.selectedMission?.shared_by)}
           />
         </div>
       </div>
