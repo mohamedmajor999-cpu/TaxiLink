@@ -1,9 +1,7 @@
 'use client'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
-import { missionService } from '@/services/missionService'
-import type { Mission } from '@/lib/supabase/types'
+import { useDriverAgendaStore } from '@/store/driverAgendaStore'
 
 function startOfToday(): Date {
   const n = new Date()
@@ -17,24 +15,15 @@ function startOfTomorrow(): Date {
 }
 
 export function useTodayTab() {
-  const { user } = useAuth()
   const router = useRouter()
-  const [missions, setMissions] = useState<Mission[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const missions = useDriverAgendaStore((s) => s.missions)
+  const loading = useDriverAgendaStore((s) => s.isLoading && s.loadedFor === null)
+  const error = useDriverAgendaStore((s) => s.error)
 
   const openDetails = useCallback(
     (id: string) => router.push(`/dashboard/chauffeur/mission/${id}`),
     [router]
   )
-
-  useEffect(() => {
-    if (!user) return
-    missionService.getAgenda(user.id)
-      .then(setMissions)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Erreur'))
-      .finally(() => setLoading(false))
-  }, [user])
 
   const today = startOfToday()
   const tomorrow = startOfTomorrow()

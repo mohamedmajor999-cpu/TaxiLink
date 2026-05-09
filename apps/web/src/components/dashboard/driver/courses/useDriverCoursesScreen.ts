@@ -34,7 +34,7 @@ export function useDriverCoursesScreen() {
     if (tab === 'today') params.delete('subtab')
     else params.set('subtab', tab)
     const qs = params.toString()
-    router.push(qs ? `${pathname}?${qs}` : pathname)
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
   }
 
   // Si l'utilisateur arrive avec un nom legacy dans l'URL, on normalise en arrière-plan.

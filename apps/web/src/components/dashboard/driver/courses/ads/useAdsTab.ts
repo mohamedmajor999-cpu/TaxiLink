@@ -68,9 +68,33 @@ export function useAdsTab() {
     return () => clearInterval(id)
   }, [])
 
+  // Patch-diff sur les events realtime : on ne refait pas un load() complet
+  // (qui re-télécharge toutes les annonces + tous les profils), on ne touche
+  // qu'à la mission concernée et on ajoute son driver au cache si besoin.
+  const upsertOne = useCallback(async (id: string) => {
+    const full = await missionService.getById(id)
+    if (!full || full.shared_by !== user?.id) return
+    setMissions((prev) => {
+      const idx = prev.findIndex((m) => m.id === full.id)
+      if (idx === -1) return [...prev, full]
+      const next = [...prev]
+      next[idx] = full
+      return next
+    })
+    const driverId = full.driver_id
+    if (driverId) {
+      const profs = await profileService.getContactsByIds([driverId])
+      const p = profs[0]
+      if (p) {
+        setProfiles((prev) => ({ ...prev, [p.id]: { full_name: p.full_name, phone: p.phone } }))
+      }
+    }
+  }, [user])
+
   useMissionRealtime({
-    onInsert: (m) => { if (user && m.shared_by === user.id) void load(user.id) },
-    onUpdate: (m) => { if (user && m.shared_by === user.id) void load(user.id) },
+    onInsert: (m) => { if (user && m.shared_by === user.id) void upsertOne(m.id) },
+    onUpdate: (m) => { if (user && m.shared_by === user.id) void upsertOne(m.id) },
+    onDelete: ({ id }) => setMissions((prev) => prev.filter((m) => m.id !== id)),
   })
 
   const ads = useMemo<AdView[]>(() => {

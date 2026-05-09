@@ -2,6 +2,7 @@
 import Image from 'next/image'
 import { Plus } from 'lucide-react'
 import { useDriverCoursesScreen, type CoursesTab } from './courses/useDriverCoursesScreen'
+import { useDriverAgendaSync } from './courses/useDriverAgendaSync'
 import { TodayTab } from './courses/today/TodayTab'
 import { AgendaTab } from './courses/AgendaTab'
 import { AdsTab } from './courses/ads/AdsTab'
@@ -21,6 +22,7 @@ const CHIP_VARIANT_BY_TAB: Record<CoursesTab, EarningsChipVariant> = {
 }
 
 export function DriverCoursesScreen({ onPostCourse }: Props) {
+  useDriverAgendaSync()
   const { active, setActive, subTabs, dateLabel } = useDriverCoursesScreen()
 
   return (

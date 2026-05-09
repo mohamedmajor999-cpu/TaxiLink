@@ -2,8 +2,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { missionService } from '@/services/missionService'
-import { useMissionRealtime } from '@/hooks/useMissionRealtime'
+import { useDriverAgendaStore } from '@/store/driverAgendaStore'
 import type { Mission } from '@/lib/supabase/types'
 import { sameDay, addDays, startOfDay, startOfWeek, agendaDayLabel, toEvent, type AgendaEvent } from './agendaHelpers'
 import { useAgendaActions } from './useAgendaActions'
@@ -28,48 +27,25 @@ export interface AgendaDayGroup {
 export function useAgendaTab() {
   const { user } = useAuth()
   const router = useRouter()
-  const [missions, setMissions] = useState<Mission[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const missions = useDriverAgendaStore((s) => s.missions)
+  const loading = useDriverAgendaStore((s) => s.isLoading && s.loadedFor === null)
+  const error = useDriverAgendaStore((s) => s.error)
+  const addMissionToStore = useDriverAgendaStore((s) => s.addMission)
+  const removeMissionFromStore = useDriverAgendaStore((s) => s.removeMission)
+  const updateMissionInStore = useDriverAgendaStore((s) => s.updateMission)
   const [selected, setSelected] = useState(new Date())
   const [nowTick, setNowTick] = useState(Date.now())
   const [showAddModal, setShowAddModal] = useState(false)
   const [addModalDate, setAddModalDate] = useState<Date | null>(null)
-
-  useEffect(() => {
-    if (!user) return
-    missionService.getAgenda(user.id)
-      .then(setMissions)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Erreur'))
-      .finally(() => setLoading(false))
-  }, [user])
+  const [actionError, setActionError] = useState<string | null>(null)
 
   useEffect(() => {
     const id = setInterval(() => setNowTick(Date.now()), 60_000)
     return () => clearInterval(id)
   }, [])
 
-  // Le payload realtime arrive sans PII (vidées par le trigger broadcast).
-  // Le driver assigné a légitimement accès via RLS → refetch full mission.
-  useMissionRealtime({
-    onUpdate: (mission) => {
-      if (mission.driver_id !== user?.id) return
-      if (mission.status === 'DONE') {
-        setMissions((prev) => prev.filter((m) => m.id !== mission.id))
-        return
-      }
-      void missionService.getById(mission.id).then((full) => {
-        if (!full) return
-        setMissions((prev) => {
-          const exists = prev.some((m) => m.id === full.id)
-          return exists ? prev.map((m) => (m.id === full.id ? full : m)) : [...prev, full]
-        })
-      })
-    },
-  })
-
   function addMission(m: Mission) {
-    setMissions((prev) => [...prev, m])
+    addMissionToStore(m)
     setSelected(new Date(m.scheduled_at))
   }
 
@@ -87,15 +63,7 @@ export function useAgendaTab() {
     setAddModalDate(null)
   }
 
-  function removeMission(id: string) {
-    setMissions((prev) => prev.filter((m) => m.id !== id))
-  }
-
-  function updateMission(m: Mission) {
-    setMissions((prev) => prev.map((x) => (x.id === m.id ? m : x)))
-  }
-
-  const actions = useAgendaActions(missions, removeMission, setError)
+  const actions = useAgendaActions(missions, removeMissionFromStore, setActionError)
 
   // Bornes de navigation : on ne saisit que dans [today ; today+MAX_OFFSET].
   const today = useMemo(() => startOfDay(new Date()), [nowTick])
@@ -187,10 +155,10 @@ export function useAgendaTab() {
   }, [missions, user, nowTick])
 
   return {
-    loading, error, selected, setSelected,
+    loading, error: error ?? actionError, selected, setSelected,
     weekDays, weekRangeLabel, planningTitle, events, stats, daysGroups,
     showAddModal, setShowAddModal, addModalDate, openAddModalFor, closeAddModal,
-    openDetails, addMission, removeMission, updateMission,
+    openDetails, addMission, removeMission: removeMissionFromStore, updateMission: updateMissionInStore,
     today, maxDate, canPrevWeek, canNextWeek, goPrevWeek, goNextWeek,
     ...actions,
   }

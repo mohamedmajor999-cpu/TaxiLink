@@ -83,24 +83,30 @@ describe('useDriverCoursesScreen — rétro-compat URL legacy', () => {
   })
 })
 
-describe('useDriverCoursesScreen — setActive (push URL)', () => {
-  it("push ?subtab=agenda en preservant ?tab=courses", () => {
+describe('useDriverCoursesScreen — setActive (replace URL)', () => {
+  it("replace ?subtab=agenda en preservant ?tab=courses", () => {
     const { result } = renderHook(() => useDriverCoursesScreen())
     act(() => { result.current.setActive('agenda') })
-    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses&subtab=agenda')
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses&subtab=agenda')
   })
 
-  it("push ?subtab=ads", () => {
+  it("replace ?subtab=ads", () => {
     const { result } = renderHook(() => useDriverCoursesScreen())
     act(() => { result.current.setActive('ads') })
-    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses&subtab=ads')
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses&subtab=ads')
   })
 
   it("retire ?subtab quand on revient sur 'today'", () => {
     currentSearch = 'tab=courses&subtab=agenda'
     const { result } = renderHook(() => useDriverCoursesScreen())
     act(() => { result.current.setActive('today') })
-    expect(mockPush).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses')
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard/chauffeur?tab=courses')
+  })
+
+  it("setActive utilise replace (pas push) pour ne pas polluer l'historique", () => {
+    const { result } = renderHook(() => useDriverCoursesScreen())
+    act(() => { result.current.setActive('ads') })
+    expect(mockPush).not.toHaveBeenCalled()
   })
 })
 
