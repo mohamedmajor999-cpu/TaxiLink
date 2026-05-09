@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 export interface AcceptedMissionInfo {
   missionId: string
@@ -12,6 +13,10 @@ export interface AcceptedMissionInfo {
 interface PostedAcceptState {
   unseen: Record<string, AcceptedMissionInfo>
   popup: AcceptedMissionInfo | null
+  /** Missions deja vues / clearees par l'user : empeche les UPDATE realtime
+   *  successifs (status enroute/arrived/...) de re-notifier la meme mission
+   *  apres un refresh. Persiste en sessionStorage. */
+  dismissed: Record<string, true>
   add: (info: AcceptedMissionInfo) => void
   dismissPopup: () => void
   markSeen: (missionId: string) => void
@@ -19,30 +24,47 @@ interface PostedAcceptState {
   reset: () => void
 }
 
-export const usePostedAcceptStore = create<PostedAcceptState>((set, get) => ({
-  unseen: {},
-  popup: null,
+export const usePostedAcceptStore = create<PostedAcceptState>()(
+  persist(
+    (set, get) => ({
+      unseen:    {},
+      popup:     null,
+      dismissed: {},
 
-  add: (info) => {
-    if (get().unseen[info.missionId]) return
-    set((s) => ({
-      unseen: { ...s.unseen, [info.missionId]: info },
-      popup: info,
-    }))
-  },
+      add: (info) => {
+        const s = get()
+        if (s.unseen[info.missionId] || s.dismissed[info.missionId]) return
+        set({
+          unseen: { ...s.unseen, [info.missionId]: info },
+          popup:  info,
+        })
+      },
 
-  dismissPopup: () => set({ popup: null }),
+      dismissPopup: () => set({ popup: null }),
 
-  markSeen: (missionId) => set((s) => {
-    if (!s.unseen[missionId]) return s
-    const { [missionId]: _, ...rest } = s.unseen
-    return { unseen: rest }
-  }),
+      markSeen: (missionId) => set((s) => {
+        if (!s.unseen[missionId]) return s
+        const { [missionId]: _, ...rest } = s.unseen
+        return {
+          unseen:    rest,
+          dismissed: { ...s.dismissed, [missionId]: true as const },
+        }
+      }),
 
-  clearUnseen: () => set({ unseen: {} }),
+      clearUnseen: () => set((s) => ({
+        unseen:    {},
+        dismissed: { ...s.dismissed, ...Object.fromEntries(Object.keys(s.unseen).map((id) => [id, true as const])) },
+      })),
 
-  reset: () => set({ unseen: {}, popup: null }),
-}))
+      reset: () => set({ unseen: {}, popup: null, dismissed: {} }),
+    }),
+    {
+      name: 'taxilink-posted-accept',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (s) => ({ dismissed: s.dismissed }),
+    },
+  ),
+)
 
 export function useUnseenAcceptCount(): number {
   return usePostedAcceptStore((s) => Object.keys(s.unseen).length)

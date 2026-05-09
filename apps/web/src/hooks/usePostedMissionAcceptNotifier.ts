@@ -25,14 +25,12 @@ export function usePostedMissionAcceptNotifier() {
   const userIdRef = useRef<string | null>(null)
   userIdRef.current = user?.id ?? null
   const add = usePostedAcceptStore((s) => s.add)
-  const reset = usePostedAcceptStore((s) => s.reset)
 
-  // Reset à chaque changement d'utilisateur (login/logout).
+  // Reset le ref local au changement d'user (le store persiste `dismissed`
+  // en sessionStorage et bloque deja les re-notifs cote add()).
   useEffect(() => {
-    if (!user?.id) return
     notifiedRef.current = new Set()
-    reset()
-  }, [user?.id, reset])
+  }, [user?.id])
 
   useMissionRealtime({
     onUpdate: (m) => {

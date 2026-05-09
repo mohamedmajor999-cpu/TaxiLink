@@ -19,11 +19,12 @@ const POLL_INTERVAL_MS = 30_000
 export function usePostedMissionUntakenNotifier() {
   const { user } = useAuth()
   const add = usePostedUntakenStore((s) => s.add)
-  const reset = usePostedUntakenStore((s) => s.reset)
 
+  // Pas de reset() ici : le store persiste `dismissed` en sessionStorage et
+  // bloque deja les re-injections via add(). Reset au logout uniquement, dans
+  // le handler signOut.
   useEffect(() => {
     if (!user?.id) return
-    reset()
     let cancelled = false
 
     const tick = async () => {
@@ -36,5 +37,5 @@ export function usePostedMissionUntakenNotifier() {
     tick()
     const id = setInterval(tick, POLL_INTERVAL_MS)
     return () => { cancelled = true; clearInterval(id) }
-  }, [user?.id, add, reset])
+  }, [user?.id, add])
 }

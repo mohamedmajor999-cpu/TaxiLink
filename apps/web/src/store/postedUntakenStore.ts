@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Mission } from '@/lib/supabase/types'
 
 interface PostedUntakenState {
@@ -23,38 +24,49 @@ interface PostedUntakenState {
  * (modifier / republier / annuler) plutôt que de succès. Stocke la Mission
  * entière pour pouvoir alimenter directement startEdit() sans refetch.
  */
-export const usePostedUntakenStore = create<PostedUntakenState>((set, get) => ({
-  unseen:    {},
-  popup:     null,
-  dismissed: {},
+export const usePostedUntakenStore = create<PostedUntakenState>()(
+  persist(
+    (set, get) => ({
+      unseen:    {},
+      popup:     null,
+      dismissed: {},
 
-  add: (mission) => {
-    const s = get()
-    if (s.unseen[mission.id] || s.dismissed[mission.id]) return
-    set({
-      unseen: { ...s.unseen, [mission.id]: mission },
-      popup:  mission,
-    })
-  },
+      add: (mission) => {
+        const s = get()
+        if (s.unseen[mission.id] || s.dismissed[mission.id]) return
+        set({
+          unseen: { ...s.unseen, [mission.id]: mission },
+          popup:  mission,
+        })
+      },
 
-  dismissPopup: () => set({ popup: null }),
+      dismissPopup: () => set({ popup: null }),
 
-  markSeen: (missionId) => set((s) => {
-    if (!s.unseen[missionId]) return s
-    const { [missionId]: _, ...rest } = s.unseen
-    return {
-      unseen:    rest,
-      dismissed: { ...s.dismissed, [missionId]: true as const },
-    }
-  }),
+      markSeen: (missionId) => set((s) => {
+        if (!s.unseen[missionId]) return s
+        const { [missionId]: _, ...rest } = s.unseen
+        return {
+          unseen:    rest,
+          dismissed: { ...s.dismissed, [missionId]: true as const },
+        }
+      }),
 
-  clearUnseen: () => set((s) => ({
-    unseen:    {},
-    dismissed: { ...s.dismissed, ...Object.fromEntries(Object.keys(s.unseen).map((id) => [id, true as const])) },
-  })),
+      clearUnseen: () => set((s) => ({
+        unseen:    {},
+        dismissed: { ...s.dismissed, ...Object.fromEntries(Object.keys(s.unseen).map((id) => [id, true as const])) },
+      })),
 
-  reset: () => set({ unseen: {}, popup: null, dismissed: {} }),
-}))
+      reset: () => set({ unseen: {}, popup: null, dismissed: {} }),
+    }),
+    {
+      name: 'taxilink-posted-untaken',
+      storage: createJSONStorage(() => sessionStorage),
+      // Seul `dismissed` est persiste : il survit au refresh F5 mais pas a la
+      // fermeture de l'onglet. unseen et popup repartent vides au remount.
+      partialize: (s) => ({ dismissed: s.dismissed }),
+    },
+  ),
+)
 
 export function useUnseenUntakenCount(): number {
   return usePostedUntakenStore((s) => Object.keys(s.unseen).length)
