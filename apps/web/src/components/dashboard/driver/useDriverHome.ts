@@ -108,8 +108,6 @@ export function useDriverHome() {
     driver,
     setOnline,
     initials,
-    city: 'Marseille',
-    postalCode: '13008',
     cards: f.cards,
     mappableMissions,
     filteredMissions: f.filteredMissions,

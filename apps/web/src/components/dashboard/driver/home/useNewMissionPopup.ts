@@ -5,6 +5,7 @@ import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 import { useDriverStore } from '@/store/driverStore'
 import { useUserPrefs } from '@/store/userPrefsStore'
 import { useAuth } from '@/hooks/useAuth'
+import { useDeptPreferences } from '@/hooks/useDeptPreferences'
 import { haversineKm, type LatLng } from '@/lib/geoDistance'
 import { playNotificationSound } from '@/lib/playNotificationSound'
 
@@ -17,8 +18,10 @@ interface Args {
 
 /**
  * Ecoute les inserts realtime de missions et alimente une file FIFO de
- * popups. Filtre : popupEnabled + isOnline + not own + 2h window + 15km radius.
- * Channel dedie pour eviter le conflit de subscribe avec useDriverMissions.
+ * popups. Filtre : popupEnabled + isOnline + not own + dept_preferences +
+ * 2h window + 15km radius. Le filtre dept aligne le popup avec la liste
+ * (sans lui, on pouvait recevoir un popup pour une mission qui n'apparait
+ * pas dans la liste — cas des departements limitrophes).
  */
 export function useNewMissionPopup({ userCoords }: Args) {
   const [queue, setQueue] = useState<Mission[]>([])
@@ -26,6 +29,7 @@ export function useNewMissionPopup({ userCoords }: Args) {
   const isOnline = useDriverStore((s) => s.driver.isOnline)
   const { user } = useAuth()
   const driverId = useDriverStore((s) => s.driver.id)
+  const { depts } = useDeptPreferences()
   // Source de verite pour "est-ce ma propre annonce" : on prefere user.id de
   // useAuth (defini des l'auth resolue) avec fallback sur driverStore. Si
   // aucune des deux n'est connue, on n'affiche rien (mieux que de risquer un
@@ -37,6 +41,7 @@ export function useNewMissionPopup({ userCoords }: Args) {
       if (!popupEnabled || !isOnline) return
       if (!ownId) return
       if (m.shared_by === ownId) return
+      if (!matchesDeptPref(m, depts)) return
       if (!matchesWindow(m)) return
       if (!matchesRadius(m, userCoords)) return
       setQueue((prev) => {
@@ -56,6 +61,13 @@ export function useNewMissionPopup({ userCoords }: Args) {
   }, [])
 
   return { current: queue[0] ?? null, dismiss }
+}
+
+// Aligne avec useDriverMissions.matchesDeptPref : depts vide = pas de filtre
+// (compat legacy pour les comptes anterieurs au feature dept_preferences).
+function matchesDeptPref(m: Mission, depts: string[]): boolean {
+  if (depts.length === 0) return true
+  return !!m.departement && depts.includes(m.departement)
 }
 
 function matchesWindow(m: Mission): boolean {

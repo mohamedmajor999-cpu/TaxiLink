@@ -64,23 +64,6 @@ describe('useDriverMissions — chargement', () => {
   })
 })
 
-// ─── Filtre ───────────────────────────────────────────────────────────────────
-describe('useDriverMissions — filtre', () => {
-  it('ALL retourne toutes les missions', async () => {
-    const { result } = renderHook(() => useDriverMissions())
-    await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.filtered).toHaveLength(2)
-  })
-
-  it('filtre par type CPAM', async () => {
-    const { result } = renderHook(() => useDriverMissions())
-    await waitFor(() => expect(result.current.loading).toBe(false))
-    act(() => { result.current.setFilter('CPAM') })
-    expect(result.current.filtered).toHaveLength(1)
-    expect(result.current.filtered[0].id).toBe('m1')
-  })
-})
-
 // ─── acceptMission ────────────────────────────────────────────────────────────
 describe('useDriverMissions — acceptMission', () => {
   it('appelle missionService.accept avec les bons params', async () => {

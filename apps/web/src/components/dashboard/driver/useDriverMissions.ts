@@ -4,7 +4,6 @@ import { useToasts } from '@/hooks/useToasts'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 import { useDeptPreferences } from '@/hooks/useDeptPreferences'
 import { missionService } from '@/services/missionService'
-import { type MissionTypeFilter } from '@/constants/missionTypes'
 import type { Mission } from '@/lib/supabase/types'
 import { usePublishedFeedbackStore } from '@/store/publishedFeedbackStore'
 import { playNotificationSound } from '@/lib/playNotificationSound'
@@ -25,7 +24,6 @@ export function useDriverMissions() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [accepting, setAccepting] = useState<string | null>(null)
-  const [filter, setFilter] = useState<MissionTypeFilter>('ALL')
   const [showConfetti, setShowConfetti] = useState(false)
 
   const loadMissions = useCallback(async () => {
@@ -140,13 +138,11 @@ export function useDriverMissions() {
     }
   }
 
-  const filtered = filter === 'ALL' ? missions : missions.filter((m) => m.type === filter)
-
   const clearConfetti = () => setShowConfetti(false)
 
   return {
     missions, currentMission, loading, error,
-    accepting, filter, setFilter, filtered,
+    accepting,
     loadMissions, acceptMission, completeMission,
     toasts, dismissToast,
     showConfetti, clearConfetti,
