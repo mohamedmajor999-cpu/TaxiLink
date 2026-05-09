@@ -3,9 +3,12 @@ import type { Mission } from '@/lib/supabase/types'
 
 interface PostedUntakenState {
   /** Missions stuck non encore dismissées par l'user. Keyed par id pour dédup. */
-  unseen:   Record<string, Mission>
+  unseen:    Record<string, Mission>
   /** Toast actuellement affiché (la plus récente non dismissée). */
-  popup:    Mission | null
+  popup:     Mission | null
+  /** Missions deja vues / clearees par l'user : empeche le poll de les re-injecter
+   *  via add() au prochain tick. Persiste pour la duree de la session uniquement. */
+  dismissed: Record<string, true>
 
   add:          (mission: Mission) => void
   dismissPopup: () => void
@@ -21,15 +24,17 @@ interface PostedUntakenState {
  * entière pour pouvoir alimenter directement startEdit() sans refetch.
  */
 export const usePostedUntakenStore = create<PostedUntakenState>((set, get) => ({
-  unseen: {},
-  popup:  null,
+  unseen:    {},
+  popup:     null,
+  dismissed: {},
 
   add: (mission) => {
-    if (get().unseen[mission.id]) return
-    set((s) => ({
+    const s = get()
+    if (s.unseen[mission.id] || s.dismissed[mission.id]) return
+    set({
       unseen: { ...s.unseen, [mission.id]: mission },
       popup:  mission,
-    }))
+    })
   },
 
   dismissPopup: () => set({ popup: null }),
@@ -37,12 +42,18 @@ export const usePostedUntakenStore = create<PostedUntakenState>((set, get) => ({
   markSeen: (missionId) => set((s) => {
     if (!s.unseen[missionId]) return s
     const { [missionId]: _, ...rest } = s.unseen
-    return { unseen: rest }
+    return {
+      unseen:    rest,
+      dismissed: { ...s.dismissed, [missionId]: true as const },
+    }
   }),
 
-  clearUnseen: () => set({ unseen: {} }),
+  clearUnseen: () => set((s) => ({
+    unseen:    {},
+    dismissed: { ...s.dismissed, ...Object.fromEntries(Object.keys(s.unseen).map((id) => [id, true as const])) },
+  })),
 
-  reset: () => set({ unseen: {}, popup: null }),
+  reset: () => set({ unseen: {}, popup: null, dismissed: {} }),
 }))
 
 export function useUnseenUntakenCount(): number {
