@@ -10,6 +10,7 @@ interface PostedUntakenState {
   add:          (mission: Mission) => void
   dismissPopup: () => void
   markSeen:     (missionId: string) => void
+  clearUnseen:  () => void
   reset:        () => void
 }
 
@@ -39,9 +40,15 @@ export const usePostedUntakenStore = create<PostedUntakenState>((set, get) => ({
     return { unseen: rest }
   }),
 
+  clearUnseen: () => set({ unseen: {} }),
+
   reset: () => set({ unseen: {}, popup: null }),
 }))
 
 export function useUnseenUntakenCount(): number {
   return usePostedUntakenStore((s) => Object.keys(s.unseen).length)
+}
+
+export function useIsMissionUnseenUntaken(missionId: string): boolean {
+  return usePostedUntakenStore((s) => Boolean(s.unseen[missionId]))
 }

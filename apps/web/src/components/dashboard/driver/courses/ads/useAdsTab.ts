@@ -1,12 +1,12 @@
 'use client'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
-import { usePostedAcceptStore } from '@/store/postedAcceptStore'
 import { missionService } from '@/services/missionService'
 import { profileService } from '@/services/profileService'
 import { sameDay } from '../agendaHelpers'
 import { buildAdDays, getAdState, type AdView, type DriverProfile } from './adsHelpers'
+import { useAdsTabFocus } from './useAdsTabFocus'
 import type { Mission } from '@/lib/supabase/types'
 
 const FR_DAY_SHORT = ['DIM', 'LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM']
@@ -105,23 +105,7 @@ export function useAdsTab() {
     }))
   }, [missions, profiles, nowTick])
 
-  // Atterrissage auto sur le jour de l'annonce acceptée la plus recente non-vue,
-  // pour que l'utilisateur arrive directement sur la bonne carte. Une seule
-  // fois par session de "non-vu" : si on rejoue cet effet a chaque selection
-  // manuelle, on bloque la navigation libre vers d'autres jours.
-  const unseenIds = usePostedAcceptStore((s) => s.unseen)
-  const focusedRef = useRef<string | null>(null)
-  useEffect(() => {
-    const ids = Object.keys(unseenIds)
-    if (ids.length === 0) { focusedRef.current = null; return }
-    const target = ads
-      .filter((a) => a.state === 'accepted' && unseenIds[a.mission.id])
-      .sort((x, y) => new Date(y.mission.accepted_at ?? 0).getTime() - new Date(x.mission.accepted_at ?? 0).getTime())[0]
-    if (!target) return
-    if (focusedRef.current === target.mission.id) return
-    focusedRef.current = target.mission.id
-    setSelected(new Date(target.mission.scheduled_at))
-  }, [unseenIds, ads])
+  useAdsTabFocus(ads, missions, setSelected)
 
   const daysGroups = useMemo(() => buildAdDays(ads), [ads])
 

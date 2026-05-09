@@ -4,7 +4,7 @@ import { Check, X } from 'lucide-react'
 import { usePostedAcceptStore } from '@/store/postedAcceptStore'
 
 interface Props {
-  onViewPosted?: () => void
+  onViewPosted?: (missionId: string) => void
 }
 
 const AUTO_DISMISS_MS = 6000
@@ -22,8 +22,9 @@ export function PostedMissionAcceptPopup({ onViewPosted }: Props) {
   if (!popup) return null
 
   const handleView = () => {
+    const id = popup.missionId
     dismiss()
-    onViewPosted?.()
+    onViewPosted?.(id)
   }
 
   return (

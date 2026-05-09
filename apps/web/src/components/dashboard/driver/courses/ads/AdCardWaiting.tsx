@@ -1,9 +1,11 @@
 'use client'
+import { useEffect, useRef } from 'react'
 import { Clock, X } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { formatTime } from '@/lib/dateUtils'
 import { formatMissionPrice } from '@/lib/formatMissionPrice'
 import { shareCourseOnWhatsApp } from '@/lib/shareWhatsApp'
+import { usePostedUntakenStore, useIsMissionUnseenUntaken } from '@/store/postedUntakenStore'
 import { relativeAgo } from './adsHelpers'
 import { useAdCardWaiting } from './useAdCardWaiting'
 
@@ -16,14 +18,38 @@ export function AdCardWaiting({ mission }: Props) {
   const isCpam = mission.transport_type === 'CPAM'
   const since = relativeAgo(mission.created_at)
   const c = useAdCardWaiting(mission.id)
+  const isUnseen = useIsMissionUnseenUntaken(mission.id)
+  const markSeen = usePostedUntakenStore((s) => s.markSeen)
+  const ref = useRef<HTMLElement>(null)
+  // Quand la carte devient "non-vue" (toast pas-prise reçu), on la fait
+  // scroller dans la vue une seule fois — mirror de AdCardAccepted.
+  const didScrollRef = useRef(false)
+  useEffect(() => {
+    if (!isUnseen || didScrollRef.current) return
+    didScrollRef.current = true
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [isUnseen])
 
   return (
-    <article className="rounded-2xl px-4 py-3 border border-amber-200 bg-amber-50 min-w-0 overflow-hidden">
+    <article
+      ref={ref}
+      onClick={isUnseen ? () => markSeen(mission.id) : undefined}
+      className={`rounded-2xl px-4 py-3 border bg-amber-50 transition-colors min-w-0 overflow-hidden ${
+        isUnseen
+          ? 'border-brand ring-2 ring-brand/40 cursor-pointer'
+          : 'border-amber-200'
+      }`}
+    >
       <header className="flex items-center gap-2 mb-2 min-w-0">
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10.5px] font-extrabold uppercase tracking-[0.04em] shrink-0">
           <Clock className="w-3 h-3" strokeWidth={2.4} />
           En attente
         </span>
+        {isUnseen && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-brand text-ink text-[10px] font-extrabold uppercase tracking-[0.04em] shrink-0">
+            Nouveau
+          </span>
+        )}
         <span className="ml-auto text-[12px] font-bold text-ink tabular-nums truncate min-w-0">
           {time}
           <span className="text-warm-500 font-medium"> · postée il y a {since}</span>

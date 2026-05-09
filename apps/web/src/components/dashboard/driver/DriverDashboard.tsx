@@ -13,6 +13,7 @@ import { useDriverPrimaryGroupName } from '@/hooks/useDriverPrimaryGroupName'
 import { useGlobalDriverGps } from '@/hooks/useGlobalDriverGps'
 import { useAutoMissionProgress } from '@/hooks/useAutoMissionProgress'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
+import { useUnseenUntakenCount } from '@/store/postedUntakenStore'
 import { armNotificationAudio } from '@/lib/playNotificationSound'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
@@ -64,7 +65,7 @@ export function DriverDashboard() {
   useDriverHeartbeat()
   useGlobalDriverGps()
   useAutoMissionProgress()
-  const unseenAcceptCount = useUnseenAcceptCount()
+  const totalUnseenAds = useUnseenAcceptCount() + useUnseenUntakenCount()
   const [mapFullscreen, setMapFullscreen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const isEditerUrl = searchParams.get('editer') === '1'
@@ -80,19 +81,15 @@ export function DriverDashboard() {
   }
   const handleTabChange = (tab: typeof activeTab) => {
     clearEdit()
-    // Badge "annonces acceptees" visible → on amene directement sur Annonces
-    // (sinon l'user atterrit sur Aujourd'hui sans voir d'ou vient le chiffre).
-    if (tab === 'courses' && unseenAcceptCount > 0) {
+    // Badge "annonces" visible → ouvre directement le sous-onglet Annonces.
+    if (tab === 'courses' && totalUnseenAds > 0) {
       router.push('/dashboard/chauffeur?tab=courses&subtab=ads')
       return
     }
     setActiveTab(tab)
   }
   const handlePostCourse = () => router.push('/dashboard/chauffeur/publier-course')
-  const goToPostedTab = () => {
-    clearEdit()
-    router.push('/dashboard/chauffeur?tab=courses&subtab=ads')
-  }
+  const goToPostedTab = (missionId?: string) => { clearEdit(); router.push(`/dashboard/chauffeur?tab=courses&subtab=ads${missionId ? `&focus=${missionId}` : ''}`) }
 
   if (loading) {
     return (
@@ -123,7 +120,7 @@ export function DriverDashboard() {
         driverInitials={initials}
         groupName={primaryGroupName}
         isOnline={driver.isOnline}
-        badges={{ coursesNotif: unseenAcceptCount }}
+        badges={{ coursesNotif: totalUnseenAds }}
       />
 
       <main className="flex-1 min-w-0 overflow-x-hidden">
@@ -171,7 +168,7 @@ export function DriverDashboard() {
       {!detailMissionId && (
         <MobileTopbar
           variant={activeTab === 'home' ? 'floating' : 'bar'}
-          hasNotif={unseenAcceptCount > 0}
+          hasNotif={totalUnseenAds > 0}
           onOpen={() => setDrawerOpen(true)}
         />
       )}
@@ -186,7 +183,7 @@ export function DriverDashboard() {
         driverInitials={initials}
         groupName={primaryGroupName}
         isOnline={driver.isOnline}
-        badges={{ courses: availableCount, coursesNotif: unseenAcceptCount }}
+        badges={{ courses: availableCount, coursesNotif: totalUnseenAds }}
       />
 
       <PostedMissionAcceptPopup onViewPosted={goToPostedTab} />

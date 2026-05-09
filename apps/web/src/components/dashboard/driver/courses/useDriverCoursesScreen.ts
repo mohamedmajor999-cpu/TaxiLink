@@ -2,6 +2,7 @@
 import { useEffect } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
+import { useUnseenUntakenCount } from '@/store/postedUntakenStore'
 
 export type CoursesTab = 'today' | 'agenda' | 'ads' | 'stats'
 const VALID_SUBTABS: CoursesTab[] = ['today', 'agenda', 'ads', 'stats']
@@ -28,6 +29,8 @@ export function useDriverCoursesScreen() {
   })()
 
   const unseenAccepts = useUnseenAcceptCount()
+  const unseenUntaken = useUnseenUntakenCount()
+  const adsBadge = unseenAccepts + unseenUntaken
 
   const setActive = (tab: CoursesTab) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -57,9 +60,9 @@ export function useDriverCoursesScreen() {
   const subTabs: { id: CoursesTab; label: string; icon?: string; badge?: number }[] = [
     { id: 'today', label: "Aujourd'hui" },
     { id: 'agenda', label: 'Agenda' },
-    { id: 'ads', label: 'Annonces', badge: unseenAccepts },
+    { id: 'ads', label: 'Annonces', badge: adsBadge },
     { id: 'stats', label: 'Stats' },
   ]
 
-  return { active, setActive, subTabs, dateLabel, postedBadge: unseenAccepts }
+  return { active, setActive, subTabs, dateLabel, postedBadge: adsBadge }
 }

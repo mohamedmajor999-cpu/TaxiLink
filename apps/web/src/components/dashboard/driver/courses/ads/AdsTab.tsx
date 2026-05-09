@@ -1,5 +1,5 @@
 'use client'
-import { Plus, Megaphone } from 'lucide-react'
+import { Plus, Megaphone, CheckCheck } from 'lucide-react'
 import { useAdsTab } from './useAdsTab'
 import { WeekStrip } from '../WeekStrip'
 import { AdCardWaiting } from './AdCardWaiting'
@@ -7,6 +7,8 @@ import { AdCardExpired } from './AdCardExpired'
 import { AdCardAccepted } from './AdCardAccepted'
 import { AdCardDone } from './AdCardDone'
 import { agendaDayLabel, startOfDay, addDays } from '../agendaHelpers'
+import { usePostedAcceptStore, useUnseenAcceptCount } from '@/store/postedAcceptStore'
+import { usePostedUntakenStore, useUnseenUntakenCount } from '@/store/postedUntakenStore'
 
 interface Props {
   onPostCourse: () => void
@@ -14,6 +16,12 @@ interface Props {
 
 export function AdsTab({ onPostCourse }: Props) {
   const a = useAdsTab()
+  const unseenAccept = useUnseenAcceptCount()
+  const unseenUntaken = useUnseenUntakenCount()
+  const clearAccept = usePostedAcceptStore((s) => s.clearUnseen)
+  const clearUntaken = usePostedUntakenStore((s) => s.clearUnseen)
+  const totalUnseen = unseenAccept + unseenUntaken
+  const markAllRead = () => { clearAccept(); clearUntaken() }
 
   if (a.loading) {
     return (
@@ -62,6 +70,22 @@ export function AdsTab({ onPostCourse }: Props) {
 
   return (
     <div className="pb-24 md:pb-6 lg:max-w-5xl lg:mx-auto">
+      {totalUnseen > 0 && (
+        <div className="flex items-center justify-between gap-2 mb-3 rounded-2xl border border-brand/40 bg-brand/10 px-3 py-2">
+          <span className="text-[12.5px] font-bold text-ink leading-tight">
+            {totalUnseen} nouveauté{totalUnseen > 1 ? 's' : ''} sur tes annonces
+          </span>
+          <button
+            type="button"
+            onClick={markAllRead}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-ink text-paper text-[11.5px] font-extrabold hover:brightness-110 transition shrink-0"
+          >
+            <CheckCheck className="w-3.5 h-3.5" strokeWidth={2.4} />
+            Tout marquer comme lu
+          </button>
+        </div>
+      )}
+
       <WeekStrip
         days={a.weekDays}
         selected={a.selected}
