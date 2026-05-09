@@ -5,6 +5,10 @@ import { useRegisterForm } from '@/components/auth/useRegisterForm'
 const mockFinalizeSignUp = vi.fn()
 const mockSignInWithGoogle = vi.fn()
 
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(),
+}))
+
 vi.mock('@/services/authService', () => ({
   authService: {
     finalizeSignUp:   (...a: unknown[]) => mockFinalizeSignUp(...a),

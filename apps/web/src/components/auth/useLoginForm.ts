@@ -1,11 +1,14 @@
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { isValidEmail } from '@/lib/validators'
 import { authService } from '@/services/authService'
 import { profileService } from '@/services/profileService'
+import { decodeAuthErrorReason, safeDashboardRedirect } from '@/lib/authRedirect'
 
 export function useLoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectParam = searchParams.get('redirect')
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw]     = useState(false)
@@ -15,6 +18,14 @@ export function useLoginForm() {
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
   const [resendSent, setResendSent] = useState(false)
+
+  // Affiche les erreurs venant de /auth/callback (?error=exchange&reason=...)
+  // au mount — avant on bouncait silencieusement et l'user ne voyait rien.
+  useEffect(() => {
+    if (searchParams.get('error') !== 'exchange') return
+    const reason = decodeAuthErrorReason(searchParams.get('reason'))
+    setError(reason ? `Connexion échouée : ${reason}` : 'Connexion échouée. Réessaie.')
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,7 +43,7 @@ export function useLoginForm() {
         return
       }
       const role = await profileService.getRole(user.id)
-      router.push(role === 'driver' ? '/dashboard/chauffeur' : '/dashboard/client')
+      router.push(safeDashboardRedirect(redirectParam, role))
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erreur inconnue'
       if (msg === 'Email not confirmed') {
@@ -63,7 +74,10 @@ export function useLoginForm() {
     setError('')
     setGoogleLoading(true)
     try {
-      const redirectTo = `${window.location.origin}/auth/callback`
+      // Propage le redirect via ?next= : le callback exchange-code-for-session
+      // utilise ce param pour atterrir sur la cible voulue plutot que la home.
+      const next = safeDashboardRedirect(redirectParam, undefined)
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
       await authService.signInWithGoogle(redirectTo)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur Google')

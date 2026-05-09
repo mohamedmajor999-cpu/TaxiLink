@@ -10,7 +10,10 @@ const mockSignInWithGoogle = vi.fn()
 const mockSignOut = vi.fn()
 const mockResendConfirmation = vi.fn()
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }))
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush }),
+  useSearchParams: () => new URLSearchParams(),
+}))
 
 vi.mock('@/lib/validators', () => ({
   isValidEmail: (v: string) => v.includes('@') && v.includes('.'),
@@ -146,7 +149,10 @@ describe('useLoginForm — handleGoogle', () => {
     mockSignInWithGoogle.mockResolvedValue(undefined)
     const { result } = renderHook(() => useLoginForm())
     await act(async () => { await result.current.handleGoogle() })
-    expect(mockSignInWithGoogle).toHaveBeenCalledWith(`${window.location.origin}/auth/callback`)
+    // ?next= encode le default dashboard (driver) quand aucun ?redirect= n'est present.
+    expect(mockSignInWithGoogle).toHaveBeenCalledWith(
+      `${window.location.origin}/auth/callback?next=%2Fdashboard%2Fchauffeur`
+    )
     expect(result.current.error).toBe('')
   })
 

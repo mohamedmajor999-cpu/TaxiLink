@@ -1,10 +1,14 @@
 import { useState, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { authService } from '@/services/authService'
 import { isValidEmail, isValidPassword, isValidPhone, isValidName } from '@/lib/validators'
 import { isValidDepartement } from '@/lib/departement'
+import { safeDashboardRedirect } from '@/lib/authRedirect'
 import { computeStrengthInfo } from './passwordStrength'
 
 export function useRegisterForm() {
+  const searchParams = useSearchParams()
+  const redirectParam = searchParams.get('redirect')
   const [step, setStep] = useState<1 | 2>(1)
 
   const [email,           setEmail]           = useState('')
@@ -104,7 +108,8 @@ export function useRegisterForm() {
     setError('')
     setGoogleLoading(true)
     try {
-      const redirectTo = `${window.location.origin}/auth/callback`
+      const next = safeDashboardRedirect(redirectParam, undefined)
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
       await authService.signInWithGoogle(redirectTo)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur Google')

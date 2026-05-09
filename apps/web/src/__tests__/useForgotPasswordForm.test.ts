@@ -5,6 +5,10 @@ import { useForgotPasswordForm } from '@/components/auth/useForgotPasswordForm'
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 const mockResetPassword = vi.fn()
 
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(),
+}))
+
 vi.mock('@/services/authService', () => ({
   authService: { resetPassword: (...a: unknown[]) => mockResetPassword(...a) },
 }))
