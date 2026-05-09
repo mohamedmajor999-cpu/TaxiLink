@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, ChevronRight, Star, UserPlus, MoreVertical } from 'lucide-react'
+import { Plus, ChevronRight, Star, UserPlus } from 'lucide-react'
 import type { GroupMemberStats } from '@taxilink/core'
 import { useAuth } from '@/hooks/useAuth'
 import { useGroupDetail } from './useGroupDetail'
@@ -52,13 +52,6 @@ export function GroupDetailScreen({ groupId }: Props) {
             className="w-9 h-9 rounded-full border border-warm-200 bg-paper text-warm-700 flex items-center justify-center hover:bg-warm-50 transition-colors"
           >
             <UserPlus className="w-4 h-4" strokeWidth={1.8} />
-          </button>
-          <button
-            type="button"
-            aria-label="Plus d'options"
-            className="w-9 h-9 rounded-full border border-warm-200 bg-paper text-warm-700 flex items-center justify-center hover:bg-warm-50 transition-colors"
-          >
-            <MoreVertical className="w-4 h-4" strokeWidth={1.8} />
           </button>
           <GroupInviteSheet
             open={inv.open}

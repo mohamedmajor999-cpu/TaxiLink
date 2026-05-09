@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { groupService } from '@/services/groupService'
 import { useGroupActions } from './useGroupActions'
-import { useGroupStats } from './useGroupStats'
 import type { Group } from '@taxilink/core'
 
 export function useDriverGroupes() {
@@ -33,12 +32,10 @@ export function useDriverGroupes() {
   }, [driverId, loadGroups])
 
   const actions = useGroupActions({ driverId, setGroups, loadGroups, setError })
-  const stats   = useGroupStats()
 
   return {
     groups, loading, error,
     ...actions,
-    ...stats,
     isAdmin: (group: Group) => group.createdBy === driverId,
   }
 }

@@ -28,7 +28,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Comment partager une mission avec un autre chauffeur ?',
-    a: 'Sur l’écran d’accueil, ouvre la course puis appuie sur « Partager ». Le partage se fait via le groupe Taxi13 ou par lien direct.',
+    a: 'Depuis l’écran d’accueil, ouvre la course puis appuie sur « Partager ». Tu peux la diffuser à un ou plusieurs de tes groupes, ou en public.',
   },
   {
     q: 'Comment changer mon IBAN ?',

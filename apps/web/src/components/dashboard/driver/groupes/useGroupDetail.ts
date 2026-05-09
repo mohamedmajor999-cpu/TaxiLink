@@ -59,8 +59,6 @@ export function useGroupDetail(groupId: string) {
     if (group?.id) markVisited(group.id)
   }, [group?.id, markVisited])
 
-  const isAdmin = !!group && group.createdBy === user?.id
-
   const leave = async () => {
     if (!user?.id || !group) return
     setLeaving(true)
@@ -118,7 +116,7 @@ export function useGroupDetail(groupId: string) {
 
   return {
     group, summary, daily, members, events, myStats, blockedIds,
-    loading, error, leaving, isAdmin,
+    loading, error, leaving,
     leave, back, postCourse, viewAvailable, setBlockedLocal,
   }
 }
