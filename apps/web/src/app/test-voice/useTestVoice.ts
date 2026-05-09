@@ -42,7 +42,7 @@ export function useTestVoice() {
         form.append('audio', file)
         setIsProcessing(true)
         try {
-          const res = await fetch('/api/test-transcribe', { method: 'POST', body: form })
+          const res = await fetch('/api/missions/transcribe', { method: 'POST', body: form })
           const data = await res.json()
           if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`)
           setResult({ text: data.text, elapsedMs: data.elapsedMs })

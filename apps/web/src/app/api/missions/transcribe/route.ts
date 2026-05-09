@@ -1,7 +1,20 @@
 import { NextResponse } from 'next/server'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { rateLimit } from '@/lib/rateLimiter'
 import { transcribeAudio, TranscribeError } from '@/lib/openai/transcribe'
 
 export async function POST(request: Request) {
+  // Auth obligatoire : sinon n'importe qui peut drainer la facture OpenAI en
+  // hittant cette route avec des fichiers audio.
+  const supabase = await createServerSupabaseClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  }
+  if (!rateLimit(`transcribe:${user.id}`, 10, 60_000)) {
+    return NextResponse.json({ error: 'Trop de requêtes. Réessayez dans une minute.' }, { status: 429 })
+  }
+
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'OPENAI_API_KEY manquante' }, { status: 500 })
 

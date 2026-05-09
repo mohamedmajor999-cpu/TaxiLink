@@ -99,6 +99,7 @@ export const groupStatsService = {
   /** Résumé d'activité d'un groupe sur 7 jours glissants (4 compteurs agrégés) */
   async getActivitySummary(groupId: string): Promise<GroupActivitySummary> {
     const since = new Date(Date.now() - 7 * 86_400_000).toISOString()
+    const nowIso = new Date().toISOString()
     const [onlineRes, exchangedRes, availableRes] = await Promise.all([
       supabase.from('group_members')
         .select('drivers(is_online, last_seen_at)')
@@ -107,10 +108,15 @@ export const groupStatsService = {
         .select('missions!inner(driver_id, created_at, accepted_at)')
         .eq('group_id', groupId)
         .gte('missions.created_at', since),
+      // Aligne avec le filtre serveur de get_marketplace_missions :
+      //   status = 'AVAILABLE' AND scheduled_at > now()
+      // Sans le filtre temporel, des missions fantomes (heure de depart passee,
+      // jamais finalisees en DB) etaient comptees comme dispo.
       supabase.from('mission_groups')
         .select('missions!inner(status)')
         .eq('group_id', groupId)
-        .eq('missions.status', 'AVAILABLE'),
+        .eq('missions.status', 'AVAILABLE')
+        .gt('missions.scheduled_at', nowIso),
     ])
     type OnlineRow = { drivers: { is_online: boolean | null; last_seen_at: string | null } | null }
     const onlineCount = ((onlineRes.data ?? []) as OnlineRow[])
