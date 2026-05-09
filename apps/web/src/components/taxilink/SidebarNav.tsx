@@ -135,8 +135,8 @@ function NavItem({
       <Icon className="w-[18px] h-[18px]" strokeWidth={active ? 2 : 1.6} />
       <span className="flex-1 text-left">{item.label}</span>
       {hasBadge && (
-        <span className="text-[10px] font-bold text-ink bg-brand rounded-full px-1.5 py-0.5">
-          {badge}
+        <span className="min-w-[18px] h-[18px] inline-flex items-center justify-center px-1 rounded-full bg-brand text-ink text-[11px] font-extrabold tabular-nums leading-none shadow-sm tracking-tight">
+          {badge > 99 ? '99+' : badge}
         </span>
       )}
     </button>
