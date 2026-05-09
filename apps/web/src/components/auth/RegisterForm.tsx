@@ -115,8 +115,11 @@ export function RegisterForm() {
           {form.step === 2 && (
             <RegisterStep2
               firstName={form.firstName}     setFirstName={form.setFirstName}
+              firstNameBorderClass={form.firstNameBorderClass}
               lastName={form.lastName}       setLastName={form.setLastName}
+              lastNameBorderClass={form.lastNameBorderClass}
               phone={form.phone}             setPhone={form.setPhone}
+              phoneBorderClass={form.phoneBorderClass}
               department={form.department}   setDepartment={form.setDepartment}
               loading={form.loading}
               onSubmit={form.handleSubmit}

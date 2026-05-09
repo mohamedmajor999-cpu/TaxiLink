@@ -6,10 +6,13 @@ import { ALL_DEPARTEMENTS } from '@/lib/departement'
 interface Props {
   firstName:     string
   setFirstName:  (v: string) => void
+  firstNameBorderClass: string
   lastName:      string
   setLastName:   (v: string) => void
+  lastNameBorderClass:  string
   phone:         string
   setPhone:      (v: string) => void
+  phoneBorderClass:     string
   department:    string
   setDepartment: (v: string) => void
   loading:       boolean
@@ -18,9 +21,9 @@ interface Props {
 }
 
 export function RegisterStep2({
-  firstName, setFirstName,
-  lastName, setLastName,
-  phone, setPhone,
+  firstName, setFirstName, firstNameBorderClass,
+  lastName, setLastName, lastNameBorderClass,
+  phone, setPhone, phoneBorderClass,
   department, setDepartment,
   loading, onSubmit, onBack,
 }: Props) {
@@ -30,21 +33,30 @@ export function RegisterStep2({
         <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Nom</label>
         <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} required
           placeholder="Fontaine"
-          className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
+          className={`w-full h-12 px-4 rounded-xl border-2 focus:outline-none text-sm font-semibold transition-colors ${lastNameBorderClass}`} />
+        {lastName && lastNameBorderClass.includes('rose') && (
+          <p className="mt-1 text-xs text-rose-500 font-semibold">Le nom ne doit pas avoir de caractères spéciaux</p>
+        )}
       </div>
 
       <div>
         <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Prénom</label>
         <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} required
           placeholder="Marc"
-          className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
+          className={`w-full h-12 px-4 rounded-xl border-2 focus:outline-none text-sm font-semibold transition-colors ${firstNameBorderClass}`} />
+        {firstName && firstNameBorderClass.includes('rose') && (
+          <p className="mt-1 text-xs text-rose-500 font-semibold">Le prénom ne doit pas avoir de caractères spéciaux</p>
+        )}
       </div>
 
       <div>
         <label className="block text-xs font-bold text-secondary uppercase tracking-wider mb-1.5">Téléphone</label>
         <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required
           placeholder="0601020304" inputMode="tel" autoComplete="tel"
-          className="w-full h-12 px-4 rounded-xl border-2 border-line focus:border-accent focus:outline-none text-sm font-semibold transition-colors" />
+          className={`w-full h-12 px-4 rounded-xl border-2 focus:outline-none text-sm font-semibold transition-colors ${phoneBorderClass}`} />
+        {phone && phoneBorderClass.includes('rose') && (
+          <p className="mt-1 text-xs text-rose-500 font-semibold">Format invalide (ex : 0601020304)</p>
+        )}
       </div>
 
       <div>

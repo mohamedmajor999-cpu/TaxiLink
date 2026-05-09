@@ -34,6 +34,16 @@ export function useRegisterForm() {
     ? 'border-rose-300 focus:border-rose-400'
     : 'border-teal-300 focus:border-teal-400'
 
+  const firstNameBorderClass = firstName && !isValidName(firstName)
+    ? 'border-rose-300 focus:border-rose-400'
+    : 'border-line focus:border-accent'
+  const lastNameBorderClass = lastName && !isValidName(lastName)
+    ? 'border-rose-300 focus:border-rose-400'
+    : 'border-line focus:border-accent'
+  const phoneBorderClass = phone && !isValidPhone(phone)
+    ? 'border-rose-300 focus:border-rose-400'
+    : 'border-line focus:border-accent'
+
   const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -47,9 +57,9 @@ export function useRegisterForm() {
     e.preventDefault()
     setError('')
     if (!firstName.trim()) { setError('Le prénom est requis'); return }
-    if (!isValidName(firstName)) { setError('Le prénom ne doit contenir ni chiffres ni caractères spéciaux'); return }
+    if (!isValidName(firstName)) { setError('Le prénom ne doit pas avoir de caractères spéciaux'); return }
     if (!lastName.trim())  { setError('Le nom est requis'); return }
-    if (!isValidName(lastName)) { setError('Le nom ne doit contenir ni chiffres ni caractères spéciaux'); return }
+    if (!isValidName(lastName)) { setError('Le nom ne doit pas avoir de caractères spéciaux'); return }
     if (!phone.trim()) { setError('Le téléphone est requis'); return }
     if (!isValidPhone(phone)) { setError('Format de téléphone invalide (ex: 0601020304)'); return }
     if (!isValidDepartement(department.trim())) { setError('Sélectionne ton département'); return }
@@ -113,6 +123,7 @@ export function useRegisterForm() {
     step1Loading, loading, googleLoading, error, success,
     resendLoading, resendSent,
     passwordStrengthInfo, confirmBorderClass,
+    firstNameBorderClass, lastNameBorderClass, phoneBorderClass,
     handleNextStep, handleSubmit, handleGoogle, handleResend,
   }
 }
