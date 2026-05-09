@@ -13,7 +13,7 @@ interface Props {
   onPostCourse: () => void
   driverName: string
   driverInitials: string
-  groupName: string
+  groupName: string | null
   isOnline: boolean
   badges?: NavBadge
 }
@@ -75,7 +75,7 @@ export function MobileNavDrawer({
                   <div className="text-[15px] font-bold text-ink dark:text-night-text truncate">{driverName}</div>
                   <div className="flex items-center gap-1.5 text-[12px] text-warm-500 dark:text-night-text-soft mt-0.5">
                     <OnlineDot online={isOnline} size="sm" />
-                    <span className="truncate">{groupName} · {isOnline ? 'En ligne' : 'Hors ligne'}</span>
+                    <span className="truncate">{groupName ? `${groupName} · ` : ''}{isOnline ? 'En ligne' : 'Hors ligne'}</span>
                   </div>
                 </div>
               </button>

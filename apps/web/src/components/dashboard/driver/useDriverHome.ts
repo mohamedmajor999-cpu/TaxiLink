@@ -27,6 +27,7 @@ export function useDriverHome() {
   const [groups, setGroups] = useState<Group[]>([])
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [userAccuracy, setUserAccuracy] = useState<number | null>(null)
+  const [geolocDenied, setGeolocDenied] = useState(false)
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null)
 
   const watchIdRef = useRef<number | null>(null)
@@ -35,6 +36,7 @@ export function useDriverHome() {
     if (watchIdRef.current != null) return
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
+        if (geolocDenied) setGeolocDenied(false)
         const newAcc = pos.coords.accuracy
         setUserAccuracy((prev) => {
           // Rejette les lectures sensiblement moins précises (évite les sauts Wi-Fi ↔ GPS)
@@ -43,7 +45,15 @@ export function useDriverHome() {
           return newAcc
         })
       },
-      () => { /* permission refusée : tri « plus proche » retombe sur « plus tôt » */ },
+      (err) => {
+        // PERMISSION_DENIED = 1 — l'utilisateur a refusé. On signale au parent
+        // pour qu'il affiche un indicateur. Les autres codes (POSITION_UNAVAILABLE,
+        // TIMEOUT) sont silencieux : ce sont des erreurs transitoires, pas un
+        // refus durable.
+        if (err.code === err.PERMISSION_DENIED) setGeolocDenied(true)
+        // Reset watchIdRef pour permettre une nouvelle tentative via le bouton.
+        watchIdRef.current = null
+      },
       { enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 },
     )
   }
@@ -129,6 +139,7 @@ export function useDriverHome() {
     setSort: f.setSort,
     hasUserCoords: userCoords !== null,
     userAccuracy,
+    geolocDenied,
     groups,
     selectedGroupId: f.selectedGroupId,
     setSelectedGroupId: f.setSelectedGroupId,

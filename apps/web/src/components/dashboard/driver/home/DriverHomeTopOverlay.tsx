@@ -9,6 +9,7 @@ interface Props {
   onToggleOnline: () => void
   onProfile: () => void
   onRequestLocation?: () => void
+  geolocDenied?: boolean
   middle?: ReactNode
   nightActive?: boolean
   onToggleNight?: () => void
@@ -16,7 +17,7 @@ interface Props {
 
 export function DriverHomeTopOverlay({
   isOnline, count, initials,
-  onToggleOnline, onProfile, onRequestLocation, middle,
+  onToggleOnline, onProfile, onRequestLocation, geolocDenied, middle,
   nightActive, onToggleNight,
 }: Props) {
   const NightIcon = nightActive ? Moon : Sun
@@ -65,11 +66,16 @@ export function DriverHomeTopOverlay({
           <button
             type="button"
             onClick={onRequestLocation}
-            className="inline-flex items-center gap-1 h-10 px-3 rounded-full bg-paper dark:bg-night-surface border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12px] font-semibold text-ink dark:text-night-text"
-            aria-label="Activer la géolocalisation"
+            className={`inline-flex items-center gap-1 h-10 px-3 rounded-full shadow-[0_4px_14px_rgba(0,0,0,0.08)] text-[12px] font-semibold ${
+              geolocDenied
+                ? 'bg-danger-soft border border-danger/40 text-danger'
+                : 'bg-paper dark:bg-night-surface border border-warm-200 dark:border-night-border text-ink dark:text-night-text'
+            }`}
+            aria-label={geolocDenied ? 'Géoloc bloquée — autorise dans les paramètres du navigateur' : 'Activer la géolocalisation'}
+            title={geolocDenied ? 'Autorise la géoloc dans les paramètres du navigateur pour activer le tri "plus proche"' : undefined}
           >
             <MapPin className="w-3.5 h-3.5" strokeWidth={2} />
-            Ma position
+            {geolocDenied ? 'Géoloc bloquée' : 'Ma position'}
           </button>
         )}
         {onToggleNight && (

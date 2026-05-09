@@ -9,6 +9,7 @@ import { usePostedMissionAcceptNotifier } from '@/hooks/usePostedMissionAcceptNo
 import { usePostedMissionUntakenNotifier } from '@/hooks/usePostedMissionUntakenNotifier'
 import { useNightMode } from '@/hooks/useNightMode'
 import { useDriverHeartbeat } from '@/hooks/useDriverHeartbeat'
+import { useDriverPrimaryGroupName } from '@/hooks/useDriverPrimaryGroupName'
 import { useGlobalDriverGps } from '@/hooks/useGlobalDriverGps'
 import { useAutoMissionProgress } from '@/hooks/useAutoMissionProgress'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
@@ -56,6 +57,7 @@ export function DriverDashboard() {
   const availableCount = useMissionStore((s) => s.missions.length)
   const editingMission = useMissionEditStore((s) => s.editing)
   const clearEdit = useMissionEditStore((s) => s.clearEdit)
+  const primaryGroupName = useDriverPrimaryGroupName()
   usePostedMissionAcceptNotifier()
   usePostedMissionUntakenNotifier()
   useNightMode()
@@ -66,25 +68,20 @@ export function DriverDashboard() {
   const [mapFullscreen, setMapFullscreen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const isEditerUrl = searchParams.get('editer') === '1'
-  // Sync URL → store : si l'URL perd ?editer=1 (Precedent) alors que le store a
-  // encore une mission en edition, on vide le store pour fermer la modal.
+  // Sync URL → store : URL perd ?editer=1 (Precedent) → on vide le store pour fermer la modal.
   useEffect(() => {
     if (!isEditerUrl && editingMission) clearEdit()
   }, [isEditerUrl, editingMission, clearEdit])
   useEffect(() => armNotificationAudio(), [])
   const showModal = showCreer || Boolean(editingMission)
   const closeModal = () => {
-    // Les deux modals (creer et editer) ont une entree d'historique → router.back()
-    // defait proprement. Le useEffect ci-dessus clear le store quand l'URL perd editer.
+    // Les deux modals ont une entree d'historique → router.back() suffit.
     if (editingMission || showCreer) router.back()
   }
   const handleTabChange = (tab: typeof activeTab) => {
-    // setActiveTab fait un seul push qui clear tab + mission + creer.
-    // Le store d'edition n'est pas dans l'URL → on le reset ici.
     clearEdit()
-    // Si le badge "annonces acceptees" est visible, on emmene directement
-    // l'utilisateur sur le sous-onglet Annonces (sinon il atterrit sur
-    // Aujourd'hui et ne voit pas a quoi le chiffre correspond).
+    // Badge "annonces acceptees" visible → on amene directement sur Annonces
+    // (sinon l'user atterrit sur Aujourd'hui sans voir d'ou vient le chiffre).
     if (tab === 'courses' && unseenAcceptCount > 0) {
       router.push('/dashboard/chauffeur?tab=courses&subtab=ads')
       return
@@ -124,7 +121,7 @@ export function DriverDashboard() {
         onPostCourse={handlePostCourse}
         driverName={driverName || 'Chauffeur'}
         driverInitials={initials}
-        groupName="Taxi13"
+        groupName={primaryGroupName}
         isOnline={driver.isOnline}
         badges={{ coursesNotif: unseenAcceptCount }}
       />
@@ -184,7 +181,7 @@ export function DriverDashboard() {
         onPostCourse={handlePostCourse}
         driverName={driverName || 'Chauffeur'}
         driverInitials={initials}
-        groupName="Taxi13"
+        groupName={primaryGroupName}
         isOnline={driver.isOnline}
         badges={{ courses: availableCount, coursesNotif: unseenAcceptCount }}
       />

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDriverStore } from '@/store/driverStore'
 import { useUnseenAcceptCount } from '@/store/postedAcceptStore'
+import { useDriverPrimaryGroupName } from '@/hooks/useDriverPrimaryGroupName'
 import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import type { DriverTab } from '@/components/taxilink/navTypes'
@@ -34,6 +35,7 @@ export function PublierCoursePage() {
   })
   const { driver } = useDriverStore()
   const unseenAcceptCount = useUnseenAcceptCount()
+  const primaryGroupName = useDriverPrimaryGroupName()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const initials = computeInitials(driver.name || '')
   const goToTab = (tab: DriverTab) => router.push(`/dashboard/chauffeur?tab=${tab}`)
@@ -60,7 +62,7 @@ export function PublierCoursePage() {
         onPostCourse={() => { /* on est déjà sur la page poster */ }}
         driverName={driver.name || 'Chauffeur'}
         driverInitials={initials}
-        groupName="Taxi13"
+        groupName={primaryGroupName}
         isOnline={driver.isOnline}
         badges={{ coursesNotif: unseenAcceptCount }}
       />
@@ -109,7 +111,7 @@ export function PublierCoursePage() {
         onPostCourse={() => setDrawerOpen(false)}
         driverName={driver.name || 'Chauffeur'}
         driverInitials={initials}
-        groupName="Taxi13"
+        groupName={primaryGroupName}
         isOnline={driver.isOnline}
         badges={{ coursesNotif: unseenAcceptCount }}
       />

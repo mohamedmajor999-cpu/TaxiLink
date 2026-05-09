@@ -93,6 +93,7 @@ export function DriverHome({ onPostCourse, onShowMissionDetail, onGoToProfile, m
             onToggleOnline={() => { h.setOnline(!h.driver.isOnline).catch(() => { /* rollback gere dans le store */ }) }}
             onProfile={onGoToProfile}
             onRequestLocation={h.hasUserCoords ? undefined : h.requestLocation}
+            geolocDenied={h.geolocDenied}
             nightActive={night.active}
             onToggleNight={night.toggle}
             middle={mapFullscreen ? chips : null}

@@ -12,7 +12,7 @@ interface Props {
   onPostCourse: () => void
   driverName: string
   driverInitials: string
-  groupName: string
+  groupName: string | null
   isOnline: boolean
   badges?: NavBadge
 }
@@ -92,7 +92,7 @@ export function SidebarNav({
             <div className="text-sm font-semibold text-ink truncate">{driverName}</div>
             <div className="flex items-center gap-1.5 text-[11px] text-warm-500">
               <OnlineDot online={isOnline} size="sm" />
-              {groupName} · {isOnline ? 'En ligne' : 'Hors ligne'}
+              {groupName ? `${groupName} · ` : ''}{isOnline ? 'En ligne' : 'Hors ligne'}
             </div>
           </div>
         </div>
