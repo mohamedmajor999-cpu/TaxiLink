@@ -15,7 +15,8 @@ interface PostedAcceptState {
   popup: AcceptedMissionInfo | null
   /** Missions deja vues / clearees par l'user : empeche les UPDATE realtime
    *  successifs (status enroute/arrived/...) de re-notifier la meme mission
-   *  apres un refresh. Persiste en sessionStorage. */
+   *  apres un refresh ou une re-ouverture du navigateur. Persiste en
+   *  localStorage. */
   dismissed: Record<string, true>
   add: (info: AcceptedMissionInfo) => void
   dismissPopup: () => void
@@ -60,7 +61,9 @@ export const usePostedAcceptStore = create<PostedAcceptState>()(
     }),
     {
       name: 'taxilink-posted-accept',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
+      // localStorage : `dismissed` survit aussi a la fermeture du navigateur.
+      // UUID de missions => pas de collision, croissance lineaire en O(N).
       partialize: (s) => ({ dismissed: s.dismissed }),
     },
   ),

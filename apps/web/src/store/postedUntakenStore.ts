@@ -8,7 +8,8 @@ interface PostedUntakenState {
   /** Toast actuellement affiché (la plus récente non dismissée). */
   popup:     Mission | null
   /** Missions deja vues / clearees par l'user : empeche le poll de les re-injecter
-   *  via add() au prochain tick. Persiste pour la duree de la session uniquement. */
+   *  via add() au prochain tick. Persiste en localStorage (survit refresh et
+   *  re-ouverture du navigateur). */
   dismissed: Record<string, true>
 
   add:          (mission: Mission) => void
@@ -60,9 +61,10 @@ export const usePostedUntakenStore = create<PostedUntakenState>()(
     }),
     {
       name: 'taxilink-posted-untaken',
-      storage: createJSONStorage(() => sessionStorage),
-      // Seul `dismissed` est persiste : il survit au refresh F5 mais pas a la
-      // fermeture de l'onglet. unseen et popup repartent vides au remount.
+      storage: createJSONStorage(() => localStorage),
+      // Seul `dismissed` est persiste, en localStorage : survit au refresh ET
+      // a la fermeture du navigateur. Les UUID de missions ne se reutilisent
+      // pas, donc le store ne croit que d'1 entree par mission posteee dismiss.
       partialize: (s) => ({ dismissed: s.dismissed }),
     },
   ),
