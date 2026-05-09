@@ -51,6 +51,10 @@ export function useAdsTabFocus(
   useEffect(() => {
     if (!focusParam) return
     const target = missions.find((m) => m.id === focusParam)
+    // Mission pas encore chargee : on attend le prochain run plutot que de
+    // nettoyer l'URL prematurement (sinon le focus est perdu au mount avant
+    // que useAdsTab.load() ait fini, cas typique du clic "Voir" sur le toast).
+    if (!target && missions.length === 0) return
     if (target) {
       focusedRef.current = focusParam
       setSelected(new Date(target.scheduled_at))
