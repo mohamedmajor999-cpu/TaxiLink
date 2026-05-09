@@ -2,6 +2,7 @@
 import dynamic from 'next/dynamic'
 import { Lock } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
+import { ToastContainer } from '@/components/ui/Toast'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
 import { useDriverStore } from '@/store/driverStore'
@@ -73,6 +74,7 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
 
   return (
     <MissionDetailShell onBack={onBack}>
+      <ToastContainer toasts={c.toasts} onDismiss={c.dismissToast} />
       {c.isMasked && (
         <div className="mb-3 flex items-start gap-3 rounded-2xl border border-warm-200 bg-warm-50 p-3">
           <Lock className="w-4 h-4 text-warm-600 shrink-0 mt-0.5" strokeWidth={2} />

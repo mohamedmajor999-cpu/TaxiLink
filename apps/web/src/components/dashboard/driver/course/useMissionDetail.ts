@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Mission } from '@/lib/supabase/types'
 import { useDriverStore } from '@/store/driverStore'
+import { useMissionStore } from '@/store/missionStore'
+import { useToasts } from '@/hooks/useToasts'
 import { missionService } from '@/services/missionService'
 import { missionViewsService } from '@/services/missionViewsService'
 import { fetchOsrmRoute, type OsrmRoute } from '@/lib/osrmRoute'
@@ -15,6 +17,7 @@ interface Coords { lat: number; lng: number }
 export function useMissionDetail(missionId: string) {
   const driver = useDriverStore((s) => s.driver)
   const router = useRouter()
+  const { toasts, addToast, dismissToast } = useToasts()
   const [mission, setMission] = useState<Mission | null>(null)
   const [loading, setLoading] = useState(true)
   const [route, setRoute] = useState<OsrmRoute | null>(null)
@@ -79,8 +82,12 @@ export function useMissionDetail(missionId: string) {
     try {
       await missionService.cancel(mission.id, reason)
       router.back()
-    } catch {
+    } catch (err) {
       setCancelling(false)
+      addToast({
+        message: err instanceof Error ? err.message : "Impossible d'annuler la course",
+        type: 'warning',
+      })
     }
   }
 
@@ -97,8 +104,12 @@ export function useMissionDetail(missionId: string) {
     try {
       await missionService.removeManual(mission.id)
       router.back()
-    } catch {
+    } catch (err) {
       setRemoving(false)
+      addToast({
+        message: err instanceof Error ? err.message : 'Impossible de supprimer la course',
+        type: 'warning',
+      })
     }
   }
 
@@ -112,9 +123,20 @@ export function useMissionDetail(missionId: string) {
     setCompleting(true)
     try {
       await missionService.complete(mission.id)
+      // Si on completait la course en cours du store, on la dismiss pour
+      // que la banniere "course en cours" disparaisse de la home sans
+      // attendre un refresh.
+      const storeCurrent = useMissionStore.getState().currentMission
+      if (storeCurrent?.id === mission.id) {
+        useMissionStore.getState().dismissCurrentMission()
+      }
       router.back()
-    } catch {
+    } catch (err) {
       setCompleting(false)
+      addToast({
+        message: err instanceof Error ? err.message : 'Impossible de terminer la course',
+        type: 'warning',
+      })
     }
   }
 
@@ -125,6 +147,11 @@ export function useMissionDetail(missionId: string) {
     try {
       const updated = await missionService.correct(mission.id, patch)
       setMission(maskMissionForViewer(updated, driver.id || null))
+    } catch (err) {
+      addToast({
+        message: err instanceof Error ? err.message : 'Impossible de corriger la course',
+        type: 'warning',
+      })
     } finally {
       setCorrecting(false)
     }
@@ -149,6 +176,7 @@ export function useMissionDetail(missionId: string) {
     step, advanceStep, advancing,
     isManual, remove, removing,
     editOpen, setEditOpen, applyEdit,
+    toasts, dismissToast,
   }
 }
 
