@@ -39,7 +39,7 @@ export const earningsService = {
       .from('missions')
       .select('completed_at, price_eur')
       .eq('driver_id', driverId)
-      .eq('status', 'COMPLETED')
+      .eq('status', 'DONE')
       .gte('completed_at', sevenDaysAgo.toISOString())
 
     if (error) throw new Error(error.message)
