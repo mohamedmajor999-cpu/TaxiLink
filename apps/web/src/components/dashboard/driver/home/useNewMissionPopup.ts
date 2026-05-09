@@ -33,7 +33,6 @@ export function useNewMissionPopup({ userCoords }: Args) {
   const ownId = user?.id ?? driverId ?? null
 
   useMissionRealtime({
-    channelName: 'missions-realtime-newpopup',
     onInsert: (m) => {
       if (!popupEnabled || !isOnline) return
       if (!ownId) return

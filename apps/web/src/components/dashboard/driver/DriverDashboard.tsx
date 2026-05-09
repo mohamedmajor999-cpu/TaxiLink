@@ -16,6 +16,7 @@ import { armNotificationAudio } from '@/lib/playNotificationSound'
 import { SidebarNav } from '@/components/taxilink/SidebarNav'
 import { MobileNavDrawer } from '@/components/taxilink/MobileNavDrawer'
 import { MobileTopbar } from '@/components/taxilink/MobileTopbar'
+import { MissionRealtimeProvider } from '@/components/realtime/MissionRealtimeProvider'
 import { useDriverAuth } from './useDriverAuth'
 import { useDriverDashboard } from './useDriverDashboard'
 import { DriverHome } from './DriverHome'
@@ -115,6 +116,7 @@ export function DriverDashboard() {
     .toUpperCase() || 'YB'
 
   return (
+    <MissionRealtimeProvider>
     <div className="min-h-screen flex bg-paper dark:bg-night-bg">
       <SidebarNav
         activeTab={activeTab}
@@ -192,5 +194,6 @@ export function DriverDashboard() {
       <MissionEditSheet />
       <IncomingMissionOfferModal />
     </div>
+    </MissionRealtimeProvider>
   )
 }

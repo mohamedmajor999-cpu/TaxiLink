@@ -1,112 +1,97 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
-
-const mockSubscribe = vi.fn()
-const mockRemoveChannel = vi.fn()
-
-type OnCall = [string, Record<string, unknown>, (payload: { new: unknown }) => void]
-let onCalls: OnCall[] = []
-
-const mockChannel = {
-  on: vi.fn(),
-  subscribe: mockSubscribe,
-}
-
-vi.mock('@/lib/supabase/client', () => ({
-  createClient: vi.fn(() => ({
-    channel: vi.fn(() => mockChannel),
-    removeChannel: mockRemoveChannel,
-  })),
-}))
-
+import { createElement, type ReactNode } from 'react'
 import { useMissionRealtime } from '@/hooks/useMissionRealtime'
 
-beforeEach(() => {
-  vi.clearAllMocks()
-  onCalls = []
-  mockChannel.on.mockImplementation(
-    (_type: string, filter: Record<string, unknown>, cb: (payload: { new: unknown }) => void) => {
-      onCalls.push([_type, filter, cb])
-      return mockChannel
-    }
+// Le hook utilise un context fourni par MissionRealtimeProvider. Pour le tester
+// en isolation on stub le context avec un Provider de test qui expose un
+// `subscribe` minimal et permet de declencher manuellement les callbacks.
+
+import { useMissionRealtimeContext } from '@/components/realtime/MissionRealtimeProvider'
+
+vi.mock('@/components/realtime/MissionRealtimeProvider', async () => {
+  const actual = await vi.importActual<typeof import('@/components/realtime/MissionRealtimeProvider')>(
+    '@/components/realtime/MissionRealtimeProvider'
   )
+  return { ...actual, useMissionRealtimeContext: vi.fn() }
 })
 
-describe('useMissionRealtime — souscription', () => {
-  it('souscrit au channel au montage', () => {
+const mockedContextHook = useMissionRealtimeContext as unknown as ReturnType<typeof vi.fn>
+
+function makeSubscribe() {
+  type CB = { onInsert?: (m: unknown) => void; onUpdate?: (m: unknown) => void; onDelete?: (m: unknown) => void }
+  const subs = new Set<CB>()
+  const subscribe = vi.fn((cb: CB) => {
+    subs.add(cb)
+    return () => { subs.delete(cb) }
+  })
+  return { subscribe, fire: { insert: (m: unknown) => subs.forEach((s) => s.onInsert?.(m)), update: (m: unknown) => subs.forEach((s) => s.onUpdate?.(m)), delete: (m: unknown) => subs.forEach((s) => s.onDelete?.(m)) }, size: () => subs.size }
+}
+
+describe('useMissionRealtime — souscription au provider', () => {
+  it('appelle subscribe() une fois au montage', () => {
+    const { subscribe } = makeSubscribe()
+    mockedContextHook.mockReturnValue(subscribe)
     renderHook(() => useMissionRealtime({}))
-    expect(mockSubscribe).toHaveBeenCalled()
+    expect(subscribe).toHaveBeenCalledTimes(1)
   })
 
-  it('configure 4 listeners (INSERT + UPDATE + DELETE + broadcast accepted)', () => {
-    renderHook(() => useMissionRealtime({}))
-    expect(onCalls).toHaveLength(4)
-  })
-
-  it('le premier listener cible les INSERT AVAILABLE', () => {
-    renderHook(() => useMissionRealtime({}))
-    const [, filter] = onCalls[0]
-    expect(filter.event).toBe('INSERT')
-  })
-
-  it('le second listener cible les UPDATE', () => {
-    renderHook(() => useMissionRealtime({}))
-    const [, filter] = onCalls[1]
-    expect(filter.event).toBe('UPDATE')
-  })
-
-  it('le troisième listener cible les DELETE', () => {
-    renderHook(() => useMissionRealtime({}))
-    const [, filter] = onCalls[2]
-    expect(filter.event).toBe('DELETE')
-  })
-
-  it('le quatrième listener écoute le broadcast "accepted"', () => {
-    renderHook(() => useMissionRealtime({}))
-    const [type, filter] = onCalls[3]
-    expect(type).toBe('broadcast')
-    expect(filter.event).toBe('accepted')
-  })
-
-  it('appelle removeChannel au démontage (2 channels : postgres_changes + broadcast)', () => {
+  it('cleanup se desabonne au demontage', () => {
+    const { subscribe, size } = makeSubscribe()
+    mockedContextHook.mockReturnValue(subscribe)
     const { unmount } = renderHook(() => useMissionRealtime({}))
+    expect(size()).toBe(1)
     unmount()
-    expect(mockRemoveChannel).toHaveBeenCalledTimes(2)
+    expect(size()).toBe(0)
+  })
+
+  it('no-op si pas de provider monté (subscribe = null)', () => {
+    mockedContextHook.mockReturnValue(null)
+    expect(() => renderHook(() => useMissionRealtime({ onInsert: vi.fn() }))).not.toThrow()
   })
 })
 
-describe('useMissionRealtime — callbacks', () => {
-  // Hook en mode broadcast (cf. migration 20260507_missions_realtime_broadcast_no_pii.sql).
-  // Les callbacks reçoivent { payload } et non { new } comme avec postgres_changes.
-  // Le hook reconstitue un Mission avec PII = null (patient_name, phone, notes,
-  // pickup_signature_url, transport_voucher_url) avant d'appeler le callback.
-  it('appelle onInsert lors d\'un événement INSERT (status AVAILABLE)', () => {
+describe('useMissionRealtime — callbacks deleguees', () => {
+  it('onInsert recoit l objet mission diffuse par le provider', () => {
+    const { subscribe, fire } = makeSubscribe()
+    mockedContextHook.mockReturnValue(subscribe)
     const onInsert = vi.fn()
     renderHook(() => useMissionRealtime({ onInsert }))
-    const insertCb = onCalls.find(([, f]) => f.event === 'INSERT')?.[2]
-    insertCb?.({ payload: { id: 'm1', status: 'AVAILABLE' } } as unknown as { new: unknown })
-    expect(onInsert).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1', status: 'AVAILABLE', patient_name: null, phone: null, notes: null }))
+    fire.insert({ id: 'm1', status: 'AVAILABLE' })
+    expect(onInsert).toHaveBeenCalledWith({ id: 'm1', status: 'AVAILABLE' })
   })
 
-  it('appelle onUpdate lors d\'un événement UPDATE', () => {
+  it('onUpdate idem', () => {
+    const { subscribe, fire } = makeSubscribe()
+    mockedContextHook.mockReturnValue(subscribe)
     const onUpdate = vi.fn()
     renderHook(() => useMissionRealtime({ onUpdate }))
-    const updateCb = onCalls.find(([, f]) => f.event === 'UPDATE')?.[2]
-    updateCb?.({ payload: { id: 'm2', status: 'IN_PROGRESS' } } as unknown as { new: unknown })
-    expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({ id: 'm2', status: 'IN_PROGRESS', patient_name: null, phone: null, notes: null }))
+    fire.update({ id: 'm2', status: 'IN_PROGRESS' })
+    expect(onUpdate).toHaveBeenCalledWith({ id: 'm2', status: 'IN_PROGRESS' })
   })
 
-  it('ne plante pas si onInsert n\'est pas fourni', () => {
-    renderHook(() => useMissionRealtime({ onUpdate: vi.fn() }))
-    const insertCb = onCalls.find(([, f]) => f.event === 'INSERT')?.[2]
-    expect(() => insertCb?.({ payload: { id: 'm3', status: 'AVAILABLE' } } as unknown as { new: unknown })).not.toThrow()
-  })
-
-  it('appelle onDelete avec l\'id reçu sur le broadcast "accepted"', () => {
+  it('onDelete idem', () => {
+    const { subscribe, fire } = makeSubscribe()
+    mockedContextHook.mockReturnValue(subscribe)
     const onDelete = vi.fn()
     renderHook(() => useMissionRealtime({ onDelete }))
-    const broadcastCb = onCalls.find(([type, f]) => type === 'broadcast' && f.event === 'accepted')?.[2]
-    broadcastCb?.({ payload: { id: 'm42' } } as unknown as { new: unknown })
-    expect(onDelete).toHaveBeenCalledWith({ id: 'm42' })
+    fire.delete({ id: 'm3' })
+    expect(onDelete).toHaveBeenCalledWith({ id: 'm3' })
+  })
+
+  it('un consommateur sans onInsert ne plante pas si event INSERT survient', () => {
+    const { subscribe, fire } = makeSubscribe()
+    mockedContextHook.mockReturnValue(subscribe)
+    renderHook(() => useMissionRealtime({ onUpdate: vi.fn() }))
+    expect(() => fire.insert({ id: 'm4', status: 'AVAILABLE' })).not.toThrow()
+  })
+
+  it('plusieurs hooks consommateurs partagent le meme provider (1 abonnement chacun)', () => {
+    const { subscribe } = makeSubscribe()
+    mockedContextHook.mockReturnValue(subscribe)
+    const wrapper = ({ children }: { children: ReactNode }) => createElement('div', null, children)
+    renderHook(() => useMissionRealtime({ onInsert: vi.fn() }), { wrapper })
+    renderHook(() => useMissionRealtime({ onUpdate: vi.fn() }), { wrapper })
+    expect(subscribe).toHaveBeenCalledTimes(2)
   })
 })
