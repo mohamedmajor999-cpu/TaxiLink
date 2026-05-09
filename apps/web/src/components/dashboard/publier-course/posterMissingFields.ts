@@ -11,6 +11,10 @@ export interface PosterMissingField {
 
 interface Options {
   parsedFields: Set<string>
+  // Mode "Maintenant" sélectionné dans le toggle Quand : on ne demande pas
+  // date ni heure puisque submitMission utilisera defaultDate/defaultTime
+  // et toute valeur dictée serait ignorée.
+  whenMode?: 'now' | 'later'
 }
 
 const TYPE_OPTIONS: ChoiceOption[] = [
@@ -52,8 +56,8 @@ export function getPosterMissingFields(
   if (!p.has('type') && !p.has('medicalMotif'))   push('type')
   if (form.departure.trim().length < 5)            push('departure')
   if (form.destination.trim().length < 5)          push('destination')
-  if (!p.has('date'))                              push('date')
-  if (!p.has('time'))                              push('time')
+  if (opts.whenMode !== 'now' && !p.has('date'))   push('date')
+  if (opts.whenMode !== 'now' && !p.has('time'))   push('time')
   if (!p.has('phone') && !form.phone.trim())       push('phone')
 
   if (form.type === 'CPAM') {

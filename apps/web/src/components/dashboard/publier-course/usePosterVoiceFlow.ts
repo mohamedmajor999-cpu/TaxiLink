@@ -24,6 +24,7 @@ interface Args {
   setDepartureCoords: (c: Coords | null) => void
   setDestinationCoords: (c: Coords | null) => void
   setWhenLater?: () => void
+  whenMode?: 'now' | 'later'
 }
 
 /**
@@ -39,7 +40,7 @@ interface Args {
  *
  * 3 tentatives max par champ (1 + 2 relances). Au-delà : champ skip, on passe.
  */
-export function usePosterVoiceFlow({ filler, form, myGroups, setDepartureCoords, setDestinationCoords, setWhenLater }: Args) {
+export function usePosterVoiceFlow({ filler, form, myGroups, setDepartureCoords, setDestinationCoords, setWhenLater, whenMode }: Args) {
   const tts = useGuidedVoicePrompt()
   const [status, setStatus] = useState<PosterVoiceStatus>('idle')
   const [currentQuestion, setCurrentQuestion] = useState<PosterMissingField | null>(null)
@@ -83,11 +84,14 @@ export function usePosterVoiceFlow({ filler, form, myGroups, setDepartureCoords,
     setStatus('idle')
   }, [filler, tts, answerRecorder])
 
+  const whenModeRef = useRef(whenMode)
+  whenModeRef.current = whenMode
+
   const askNext = useCallback(() => {
     const merged = new Set<string>()
     filler.parsedFields.forEach((id) => merged.add(id))
     answeredRef.current.forEach((id) => merged.add(id))
-    const all = getPosterMissingFields(formRef.current, { parsedFields: merged })
+    const all = getPosterMissingFields(formRef.current, { parsedFields: merged, whenMode: whenModeRef.current })
     const next = all.find((m) => !skippedRef.current.has(m.id))
     if (!next) {
       activeRef.current = false

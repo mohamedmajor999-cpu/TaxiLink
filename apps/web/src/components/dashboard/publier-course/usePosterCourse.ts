@@ -91,6 +91,7 @@ export function usePosterCourse() {
     setDepartureCoords: route.setDepartureCoords,
     setDestinationCoords: route.setDestinationCoords,
     setWhenLater: () => setWhen('later'),
+    whenMode: when,
   })
 
   const { previewFare } = useMissionPricing({

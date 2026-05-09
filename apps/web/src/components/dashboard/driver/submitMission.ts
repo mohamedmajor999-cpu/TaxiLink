@@ -92,7 +92,11 @@ export async function submitMission(args: SubmitMissionArgs): Promise<string> {
     price_eur: canonicalPrice,
     price_min_eur: hasRange ? minNum : null,
     price_max_eur: hasRange ? maxNum : null,
-    patient_name: args.type === 'CPAM' ? args.patientName.trim() : null,
+    // Le champ "Client" est expose pour CPAM ET PRIVE dans le formulaire
+    // (cf. PosterCourseForm). On garde la valeur pour les deux types — le
+    // masking RGPD au read (maskMissionForViewer) gere deja les initiales
+    // tant que personne n'a accepte la course.
+    patient_name: args.patientName.trim() || null,
     phone: args.phone.trim() || null,
     notes: args.notes.trim() || null,
     scheduled_at,
