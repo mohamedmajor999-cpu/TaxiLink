@@ -36,12 +36,14 @@ interface Params {
   missions: Mission[]
   groups: Group[]
   userCoords: { lat: number; lng: number } | null
+  /** Pre-selection venant d'un deep-link (?group=<id> depuis GroupLiveBanner). */
+  initialGroupId?: HomeGroupSelection
 }
 
-export function useDriverHomeFilters({ missions, groups, userCoords }: Params) {
+export function useDriverHomeFilters({ missions, groups, userCoords, initialGroupId }: Params) {
   const [filter, setFilter] = useState<HomeTypeFilter>('ALL')
   const [sort, setSort] = useState<HomeSort>('soonest')
-  const [selectedGroupId, setSelectedGroupId] = useState<HomeGroupSelection>(null)
+  const [selectedGroupId, setSelectedGroupId] = useState<HomeGroupSelection>(initialGroupId ?? null)
   const [urgentOnly, setUrgentOnly] = useState(false)
   const [nearbyOnly, setNearbyOnly] = useState(false)
   const [now, setNow] = useState(() => Date.now())

@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { Group } from '@taxilink/core'
 import { useDriverStore } from '@/store/driverStore'
 import { useAuth } from '@/hooks/useAuth'
@@ -23,6 +24,13 @@ export function useDriverHome() {
   const setOnline = useDriverStore((s) => s.setOnline)
   const { user } = useAuth()
   const m = useDriverMissions()
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  // Deep-link de GroupLiveBanner : ?group=<id> seede selectedGroupId au mount.
+  // Ref pour ne lire qu'une fois — sinon les changements de chip seraient
+  // ecrases par la presence du param dans l'URL au prochain render.
+  const initialGroupRef = useRef<string | null>(searchParams.get('group'))
 
   const [groups, setGroups] = useState<Group[]>([])
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null)
@@ -77,7 +85,22 @@ export function useDriverHome() {
     return () => { cancelled = true }
   }, [user?.id])
 
-  const f = useDriverHomeFilters({ missions: m.missions, groups, userCoords })
+  const f = useDriverHomeFilters({
+    missions: m.missions,
+    groups,
+    userCoords,
+    initialGroupId: initialGroupRef.current,
+  })
+
+  // Une fois le seed applique, on nettoie ?group= de l'URL pour qu'un changement
+  // de chip ne soit pas reecrase au refresh ; le state reste la source de verite.
+  useEffect(() => {
+    if (!searchParams.get('group')) return
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('group')
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
+  }, [searchParams, router, pathname])
   useDriverPositionPush(userCoords)
   const popup = useNewMissionPopup({ userCoords })
 

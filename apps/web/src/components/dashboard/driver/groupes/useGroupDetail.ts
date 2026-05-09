@@ -100,9 +100,12 @@ export function useGroupDetail(groupId: string) {
   })()
 
   // Action de la pastille « Voir les courses dispo » : retour au dashboard
-  // missions ouvertes. Le filtrage par groupe sera ajouté une fois le param
-  // d'URL supporté côté DriverDashboard.
-  const viewAvailable = () => router.push('/dashboard/chauffeur')
+  // home avec le scope filtre sur ce groupe via ?group=<id> (deep-link
+  // consomme par useDriverHome au mount, puis nettoye de l'URL).
+  const viewAvailable = () => {
+    if (!group) return
+    router.push(`/dashboard/chauffeur?group=${group.id}`)
+  }
 
   // Maj locale du set après une action block/unblock dans le modal — évite
   // un round-trip Supabase pour rafraîchir l'UI immédiatement.

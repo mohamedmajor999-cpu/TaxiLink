@@ -11,6 +11,13 @@ const mockSetFilter          = vi.fn()
 const mockSetSort            = vi.fn()
 const mockSetSelectedGroupId = vi.fn()
 
+const mockReplace = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), replace: mockReplace }),
+  usePathname: () => '/dashboard/chauffeur',
+  useSearchParams: () => new URLSearchParams(),
+}))
+
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }))
