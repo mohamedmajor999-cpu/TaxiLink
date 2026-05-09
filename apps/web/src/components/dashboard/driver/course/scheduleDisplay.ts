@@ -1,5 +1,5 @@
 // Formate la date/heure de rendez-vous d'une course et calcule le décompte
-// restant avant prise en charge. Utilisé par CurrentCourseScreen.
+// restant avant prise en charge. Consommé par useCourseTopStats.
 
 const WEEKDAY_SHORT = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.']
 const MONTH_SHORT = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
