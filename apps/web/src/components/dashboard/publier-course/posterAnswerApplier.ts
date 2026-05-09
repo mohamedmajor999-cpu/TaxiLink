@@ -9,6 +9,10 @@ interface ApplierArgs {
   form: MissionFormState
   setDepartureCoords: (c: Coords | null) => void
   setDestinationCoords: (c: Coords | null) => void
+  // Bascule en mode "Plus tard" quand l'utilisateur dicte une date ou une
+  // heure en relance. Sans ca, submitMission utilise defaultDate/defaultTime
+  // et ignore silencieusement la valeur dictee.
+  setWhenLater?: () => void
 }
 
 /**
@@ -41,10 +45,18 @@ export async function applyPosterAnswer(
       return true
     }
     case 'date':
-      if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) { f.setDate(value); return true }
+      if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        f.setDate(value)
+        a.setWhenLater?.()
+        return true
+      }
       return false
     case 'time':
-      if (typeof value === 'string' && /^\d{2}:\d{2}$/.test(value)) { f.setTime(value); return true }
+      if (typeof value === 'string' && /^\d{2}:\d{2}$/.test(value)) {
+        f.setTime(value)
+        a.setWhenLater?.()
+        return true
+      }
       return false
     case 'phone':
       if (typeof value === 'string' && value.trim().length > 0) { f.setPhone(value.trim()); return true }

@@ -23,6 +23,7 @@ interface Args {
   myGroups: Group[]
   setDepartureCoords: (c: Coords | null) => void
   setDestinationCoords: (c: Coords | null) => void
+  setWhenLater?: () => void
 }
 
 /**
@@ -38,7 +39,7 @@ interface Args {
  *
  * 3 tentatives max par champ (1 + 2 relances). Au-delà : champ skip, on passe.
  */
-export function usePosterVoiceFlow({ filler, form, myGroups, setDepartureCoords, setDestinationCoords }: Args) {
+export function usePosterVoiceFlow({ filler, form, myGroups, setDepartureCoords, setDestinationCoords, setWhenLater }: Args) {
   const tts = useGuidedVoicePrompt()
   const [status, setStatus] = useState<PosterVoiceStatus>('idle')
   const [currentQuestion, setCurrentQuestion] = useState<PosterMissingField | null>(null)
@@ -59,13 +60,13 @@ export function usePosterVoiceFlow({ filler, form, myGroups, setDepartureCoords,
     const q = currentQuestion
     if (!q) { askNextRef.current(); return }
     if (r.intent === 'answer') {
-      const ok = await applyPosterAnswer(q.id, r.value, { form: formRef.current, setDepartureCoords, setDestinationCoords })
+      const ok = await applyPosterAnswer(q.id, r.value, { form: formRef.current, setDepartureCoords, setDestinationCoords, setWhenLater })
       if (ok) answeredRef.current.add(q.id)
     } else if (r.intent === 'skip') {
       skippedRef.current.add(q.id)
     }
     askNextRef.current()
-  }, [currentQuestion, setDepartureCoords, setDestinationCoords])
+  }, [currentQuestion, setDepartureCoords, setDestinationCoords, setWhenLater])
 
   const answerRecorder = usePosterAnswerRecorder({
     question: currentQuestion,
