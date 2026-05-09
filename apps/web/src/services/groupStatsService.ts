@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import type { GroupMember, GroupMemberStats } from '@taxilink/core'
+import type { GroupMember, GroupMemberStats, GroupRole } from '@taxilink/core'
 
 const supabase = createClient()
 
@@ -38,7 +38,11 @@ export const groupStatsService = {
       .select('id, group_id, driver_id, role, joined_at, drivers(profiles(full_name))')
       .eq('group_id', groupId)
     if (error) throw error
-    return (data ?? []).map((row: any) => ({
+    type MemberRow = {
+      id: string; group_id: string; driver_id: string; role: GroupRole; joined_at: string
+      drivers: { profiles: { full_name: string | null } | null } | null
+    }
+    return ((data ?? []) as MemberRow[]).map((row) => ({
       id: row.id, groupId: row.group_id, driverId: row.driver_id,
       role: row.role, joinedAt: row.joined_at,
       fullName: row.drivers?.profiles?.full_name ?? null,
@@ -66,15 +70,25 @@ export const groupStatsService = {
       if (m.shared_by) shared[m.shared_by]   = (shared[m.shared_by]   ?? 0) + 1
       if (m.driver_id) accepted[m.driver_id] = (accepted[m.driver_id] ?? 0) + 1
     }
-    return (membersRes.data ?? [])
-      .map((row: any) => ({
+    type MemberStatsRow = {
+      driver_id: string; role: GroupRole
+      drivers: {
+        is_online: boolean | null; last_seen_at: string | null
+        profiles: {
+          full_name: string | null; first_name: string | null; last_name: string | null
+          department: string | null; phone: string | null
+        } | null
+      } | null
+    }
+    return ((membersRes.data ?? []) as MemberStatsRow[])
+      .map((row) => ({
         driverId:     row.driver_id,
         fullName:     row.drivers?.profiles?.full_name  ?? null,
         firstName:    row.drivers?.profiles?.first_name ?? null,
         lastName:     row.drivers?.profiles?.last_name  ?? null,
         department:   row.drivers?.profiles?.department ?? null,
         phone:        row.drivers?.profiles?.phone      ?? null,
-        isOnline:     isFreshlyOnline(row.drivers?.is_online, row.drivers?.last_seen_at),
+        isOnline:     isFreshlyOnline(row.drivers?.is_online ?? false, row.drivers?.last_seen_at),
         role:         row.role,
         sharedCount:  shared[row.driver_id]   ?? 0,
         acceptedCount: accepted[row.driver_id] ?? 0,
@@ -98,7 +112,9 @@ export const groupStatsService = {
         .eq('group_id', groupId)
         .eq('missions.status', 'OFFERED'),
     ])
-    const onlineCount   = ((onlineRes.data   ?? []) as any[]).filter((r) => isFreshlyOnline(r.drivers?.is_online, r.drivers?.last_seen_at)).length
+    type OnlineRow = { drivers: { is_online: boolean | null; last_seen_at: string | null } | null }
+    const onlineCount = ((onlineRes.data ?? []) as OnlineRow[])
+      .filter((r) => isFreshlyOnline(r.drivers?.is_online ?? false, r.drivers?.last_seen_at)).length
     const rows          = ((exchangedRes.data ?? []) as Array<{ missions: { driver_id: string | null; created_at: string; accepted_at: string | null } | null }>)
     const exchanged7d   = rows.length
     const accepted7d    = rows.filter((r) => !!r.missions?.driver_id).length

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import type { Group, GroupMember } from '@taxilink/core'
+import type { Group, GroupMember, GroupRole } from '@taxilink/core'
 
 const supabase = createClient()
 
@@ -12,11 +12,16 @@ export const groupService = {
       .eq('driver_id', driverId)
     if (error) throw error
 
-    const groups: Group[] = (data ?? []).map((row: any) => ({
-      id: row.groups.id, name: row.groups.name, description: row.groups.description,
-      createdBy: row.groups.created_by, createdAt: row.groups.created_at,
-      fleetOrgId: row.groups.fleet_org_id ?? null,
-    }))
+    type GroupRow = { id: string; name: string; description: string | null; created_by: string; created_at: string; fleet_org_id: string | null }
+    const rows = (data ?? []) as Array<{ groups: GroupRow | null }>
+    const groups: Group[] = rows
+      .map((row) => row.groups)
+      .filter((g): g is GroupRow => g !== null)
+      .map((g) => ({
+        id: g.id, name: g.name, description: g.description,
+        createdBy: g.created_by, createdAt: g.created_at,
+        fleetOrgId: g.fleet_org_id ?? null,
+      }))
     if (groups.length === 0) return groups
 
     const { data: memberRows } = await supabase
@@ -33,7 +38,12 @@ export const groupService = {
       .select('id, group_id, driver_id, role, joined_at, drivers(profiles(full_name))')
       .eq('group_id', groupId)
     if (error) throw error
-    return (data ?? []).map((row: any) => ({
+    type MemberRow = {
+      id: string; group_id: string; driver_id: string; role: GroupRole; joined_at: string
+      drivers: { profiles: { full_name: string | null } | null } | null
+    }
+    const rows = (data ?? []) as MemberRow[]
+    return rows.map((row) => ({
       id: row.id, groupId: row.group_id, driverId: row.driver_id,
       role: row.role, joinedAt: row.joined_at,
       fullName: row.drivers?.profiles?.full_name ?? null,
@@ -106,8 +116,10 @@ export const groupService = {
     const idSet = new Set(groupIds)
     const channel = supabase
       .channel('groupes-summary-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'mission_groups' }, (payload: any) => {
-        const gid = payload.new?.group_id ?? payload.old?.group_id
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mission_groups' }, (payload) => {
+        const newRow = payload.new as { group_id?: string } | null
+        const oldRow = payload.old as { group_id?: string } | null
+        const gid = newRow?.group_id ?? oldRow?.group_id
         if (gid && idSet.has(gid)) onChange()
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'missions' }, () => onChange())
