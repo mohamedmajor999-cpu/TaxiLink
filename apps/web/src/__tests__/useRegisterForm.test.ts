@@ -114,7 +114,7 @@ describe('useRegisterForm — étape 2', () => {
       result.current.setDepartment('13')
     })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })
-    expect(result.current.error).toMatch(/prénom/i)
+    expect(result.current.error).toMatch(/champs en rouge/i)
     expect(result.current.success).toBe(false)
   })
 
@@ -128,7 +128,7 @@ describe('useRegisterForm — étape 2', () => {
       result.current.setDepartment('13')
     })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })
-    expect(result.current.error).toMatch(/nom/i)
+    expect(result.current.error).toMatch(/champs en rouge/i)
     expect(result.current.success).toBe(false)
   })
 
@@ -155,7 +155,7 @@ describe('useRegisterForm — étape 2', () => {
       result.current.setDepartment('13')
     })
     await act(async () => { await result.current.handleSubmit(fakeEvent) })
-    expect(result.current.error).toMatch(/Format de téléphone/i)
+    expect(result.current.error).toMatch(/champs en rouge/i)
     expect(result.current.success).toBe(false)
   })
 

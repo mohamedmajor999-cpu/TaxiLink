@@ -57,11 +57,14 @@ export function useRegisterForm() {
     e.preventDefault()
     setError('')
     if (!firstName.trim()) { setError('Le prénom est requis'); return }
-    if (!isValidName(firstName)) { setError('Le prénom ne doit pas avoir de caractères spéciaux'); return }
     if (!lastName.trim())  { setError('Le nom est requis'); return }
-    if (!isValidName(lastName)) { setError('Le nom ne doit pas avoir de caractères spéciaux'); return }
-    if (!phone.trim()) { setError('Le téléphone est requis'); return }
-    if (!isValidPhone(phone)) { setError('Format de téléphone invalide (ex: 0601020304)'); return }
+    if (!phone.trim())     { setError('Le téléphone est requis'); return }
+    if (!isValidName(firstName) || !isValidName(lastName) || !isValidPhone(phone)) {
+      // Les détails sont affichés sous chaque champ en rouge — on évite ici
+      // un bandeau global qui ne montrerait qu'une seule des erreurs.
+      setError('Corrige les champs en rouge avant de continuer')
+      return
+    }
     if (!isValidDepartement(department.trim())) { setError('Sélectionne ton département'); return }
     setLoading(true)
     try {
