@@ -5,6 +5,9 @@ import { transcribeAudio, TranscribeError } from '@/lib/openai/transcribe'
 import { chatJson, ChatError, GPT_MINI_MODEL } from '@/lib/openai/chat'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rateLimiter'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('parse-voice')
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient()
@@ -33,7 +36,7 @@ export async function POST(request: Request) {
   try {
     const r = await transcribeAudio(audio, apiKey)
     transcript = r.text
-    console.log(`[parse-voice] whisper → ${transcript.length} chars in ${r.elapsedMs}ms`)
+    log.info(`whisper → ${transcript.length} chars in ${r.elapsedMs}ms`)
   } catch (err) {
     if (err instanceof TranscribeError) return NextResponse.json({ error: err.message }, { status: err.status })
     throw err
@@ -55,7 +58,7 @@ export async function POST(request: Request) {
   try {
     const r = await chatJson({ apiKey, systemPrompt: SYSTEM_PROMPT, userPrompt })
     parseText = r.text
-    console.log(`[parse-voice] ${GPT_MINI_MODEL} → 200 in ${r.elapsedMs}ms (in:${r.inputTokens} out:${r.outputTokens})`)
+    log.info(`${GPT_MINI_MODEL} → 200 in ${r.elapsedMs}ms (in:${r.inputTokens} out:${r.outputTokens})`)
     await logAiUsage({ endpoint: 'parse-voice', model: GPT_MINI_MODEL, inputTokens: r.inputTokens, outputTokens: r.outputTokens })
   } catch (err) {
     if (err instanceof ChatError) return NextResponse.json({ error: err.message, transcript }, { status: err.status })
@@ -69,6 +72,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Réponse IA illisible', transcript }, { status: 502 })
   }
 
-  console.log(`[parse-voice] total ${Date.now() - totalStart}ms`)
+  log.info(`total ${Date.now() - totalStart}ms`)
   return NextResponse.json({ ...parsed, transcript })
 }

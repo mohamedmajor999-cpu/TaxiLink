@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient as createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rateLimiter'
 import { extractDepartement } from '@/lib/departement'
+import { createLogger } from '@/lib/logger'
 import type { Database } from '@/lib/supabase/types'
+
+const log = createLogger('PATCH /api/missions/[id]/correction')
 
 type MissionUpdate = Database['public']['Tables']['missions']['Update']
 
@@ -127,13 +130,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       .single()
 
     if (updateError || !data) {
-      console.error('[PATCH /api/missions/[id]/correction]', updateError)
+      log.error('update failed', updateError)
       return NextResponse.json({ error: 'Erreur lors de la mise à jour' }, { status: 500 })
     }
 
     return NextResponse.json({ mission: data })
   } catch (err) {
-    console.error('[PATCH /api/missions/[id]/correction] unexpected', err)
+    log.error('unexpected error', err)
     return NextResponse.json({ error: 'Erreur serveur inattendue' }, { status: 500 })
   }
 }

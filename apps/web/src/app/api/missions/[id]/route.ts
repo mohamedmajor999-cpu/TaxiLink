@@ -4,6 +4,9 @@ import { validateMission, type MissionInput } from '@/lib/validators'
 import { rateLimit } from '@/lib/rateLimiter'
 import { replaceMissionGroups } from '@/services/missionGroupsService'
 import { extractDepartement } from '@/lib/departement'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('api/missions/[id]')
 
 type RouteParams = { params: Promise<{ id: string }> }
 
@@ -26,7 +29,7 @@ async function requireOwnEditable(req: NextRequest, params: RouteParams['params'
     .eq('id', id)
     .maybeSingle()
   if (fetchError) {
-    console.error('[api/missions/[id]] fetch error', fetchError)
+    log.error('fetch failed', fetchError)
     return { err: NextResponse.json({ error: 'Erreur serveur' }, { status: 500 }) }
   }
   if (!mission) {
@@ -56,7 +59,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       .select('id')
 
     if (deleteError) {
-      console.error('[DELETE /api/missions/[id]]', deleteError)
+      log.error('DELETE failed', deleteError)
       return NextResponse.json({ error: 'Erreur lors de la suppression' }, { status: 500 })
     }
     if (!deleted || deleted.length === 0) {
@@ -68,7 +71,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('[DELETE /api/missions/[id]] unexpected error', err)
+    log.error('DELETE unexpected error', err)
     return NextResponse.json({ error: 'Erreur serveur inattendue' }, { status: 500 })
   }
 }
@@ -131,20 +134,20 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       .single()
 
     if (updateError || !data) {
-      console.error('[PATCH /api/missions/[id]]', updateError)
+      log.error('PATCH failed', updateError)
       return NextResponse.json({ error: 'Erreur lors de la mise à jour' }, { status: 500 })
     }
 
     try {
       await replaceMissionGroups(ctx.supabase, data.id, groupIds)
     } catch (err) {
-      console.error('[PATCH /api/missions/[id]] mission_groups', err)
+      log.error('PATCH mission_groups failed', err)
       return NextResponse.json({ error: 'Erreur lors de l\u2019affectation aux groupes' }, { status: 500 })
     }
 
     return NextResponse.json({ mission: { ...data, group_ids: groupIds } })
   } catch (err) {
-    console.error('[PATCH /api/missions/[id]] unexpected error', err)
+    log.error('PATCH unexpected error', err)
     return NextResponse.json({ error: 'Erreur serveur inattendue' }, { status: 500 })
   }
 }

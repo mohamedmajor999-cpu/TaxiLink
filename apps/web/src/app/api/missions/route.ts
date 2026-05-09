@@ -5,6 +5,9 @@ import { rateLimit } from '@/lib/rateLimiter'
 import { replaceMissionGroups } from '@/services/missionGroupsService'
 import { extractDepartement } from '@/lib/departement'
 import { triggerDispatchMission } from '@/lib/dispatchTrigger'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('POST /api/missions')
 
 export async function POST(req: NextRequest) {
   try {
@@ -68,7 +71,7 @@ export async function POST(req: NextRequest) {
     }).select().single()
 
     if (insertError || !data) {
-      console.error('[POST /api/missions]', insertError)
+      log.error('insert failed', insertError)
       return NextResponse.json({ error: 'Erreur lors de la création de la mission' }, { status: 500 })
     }
 
@@ -76,7 +79,7 @@ export async function POST(req: NextRequest) {
       try {
         await replaceMissionGroups(supabase, data.id, groupIds)
       } catch (err) {
-        console.error('[POST /api/missions] mission_groups', err)
+        log.error('mission_groups failed', err)
         return NextResponse.json({ error: 'Erreur lors de l\u2019affectation aux groupes' }, { status: 500 })
       }
     }
@@ -88,7 +91,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ mission: { ...data, group_ids: groupIds } }, { status: 201 })
 
   } catch (err) {
-    console.error('[POST /api/missions] unexpected error', err)
+    log.error('unexpected error', err)
     return NextResponse.json({ error: 'Erreur serveur inattendue' }, { status: 500 })
   }
 }

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rateLimiter'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('test-transcribe')
 
 const OPENAI_URL = 'https://api.openai.com/v1/audio/transcriptions'
 const TIMEOUT_MS = 30000
@@ -57,18 +60,18 @@ export async function POST(request: Request) {
       signal: AbortSignal.timeout(TIMEOUT_MS),
     })
   } catch (err) {
-    console.error('[test-transcribe] network error', (err as Error).message)
+    log.error('network error', (err as Error).message)
     return NextResponse.json({ error: 'Délai Whisper dépassé' }, { status: 504 })
   }
 
   const elapsed = Date.now() - start
   if (!res.ok) {
     const body = await res.text().catch(() => '')
-    console.error(`[test-transcribe] ${res.status} in ${elapsed}ms`, body.slice(0, 300))
+    log.error(`whisper ${res.status} in ${elapsed}ms`, body.slice(0, 300))
     return NextResponse.json({ error: `Whisper ${res.status}` }, { status: 502 })
   }
 
   const json = (await res.json()) as { text?: string }
-  console.log(`[test-transcribe] OK in ${elapsed}ms → ${(json.text ?? '').length} chars`)
+  log.info(`OK in ${elapsed}ms → ${(json.text ?? '').length} chars`)
   return NextResponse.json({ text: json.text ?? '', elapsedMs: elapsed })
 }
