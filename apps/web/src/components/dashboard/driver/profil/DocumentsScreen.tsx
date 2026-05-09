@@ -1,19 +1,26 @@
 'use client'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Info } from 'lucide-react'
 import { useDocumentsScreen, type DocumentRowData } from './useDocumentsScreen'
 import { DocumentRow } from './DocumentRow'
 import { DocumentExpiryBanner } from './DocumentExpiryBanner'
 
 interface Props {
   onBack: () => void
-  onOpenDocument?: (type: string) => void
 }
 
-export function DocumentsScreen({ onBack, onOpenDocument }: Props) {
+export function DocumentsScreen({ onBack }: Props) {
   const s = useDocumentsScreen()
 
   return (
     <div className="max-w-2xl mx-auto">
+      <input
+        ref={s.fileInputRef}
+        type="file"
+        accept=".pdf,.jpg,.jpeg,.png"
+        className="hidden"
+        onChange={s.handleFileChange}
+      />
+
       <header className="flex items-center gap-3 mb-5">
         <button
           type="button"
@@ -48,18 +55,36 @@ export function DocumentsScreen({ onBack, onOpenDocument }: Props) {
         </div>
       )}
 
-      <DocSection title="Obligatoires" rows={s.mandatory} onOpen={onOpenDocument} />
-      <DocSection title="Optionnels"   rows={s.optional}  onOpen={onOpenDocument} />
+      <DocSection
+        title="Obligatoires"
+        rows={s.mandatory}
+        onOpen={s.triggerUpload}
+        uploadingType={s.uploadingType}
+      />
+      <DocSection
+        title="Optionnels"
+        rows={s.optional}
+        onOpen={s.triggerUpload}
+        uploadingType={s.uploadingType}
+      />
+
+      <div className="mt-5 flex items-start gap-2 rounded-2xl border border-warm-200 bg-warm-50 px-3 py-2.5">
+        <Info className="w-4 h-4 text-warm-600 shrink-0 mt-0.5" strokeWidth={2} />
+        <p className="text-[12px] text-warm-700 leading-snug">
+          Documents vérifiés sous 24-48h ouvrées. PDF, JPG, PNG — 10 Mo max.
+        </p>
+      </div>
     </div>
   )
 }
 
 function DocSection({
-  title, rows, onOpen,
+  title, rows, onOpen, uploadingType,
 }: {
   title: string
   rows: DocumentRowData[]
-  onOpen?: (type: string) => void
+  onOpen: (type: string) => void
+  uploadingType: string | null
 }) {
   if (rows.length === 0) return null
   return (
@@ -75,7 +100,8 @@ function DocSection({
             status={r.status}
             expiryLabel={r.expiryLabel}
             cta={r.cta}
-            onClick={onOpen ? () => onOpen(r.type) : undefined}
+            uploading={uploadingType === r.type}
+            onClick={() => onOpen(r.type)}
           />
         ))}
       </div>

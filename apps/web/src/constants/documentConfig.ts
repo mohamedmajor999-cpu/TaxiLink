@@ -29,6 +29,11 @@ export const DOC_CONFIG: Record<DocType, { label: string; icon: string; descript
     icon: 'description',
     description: "Certificat d'immatriculation du véhicule",
   },
+  convention_cpam: {
+    label: 'Convention CPAM',
+    icon: 'medical_information',
+    description: 'Convention signée pour les courses CPAM',
+  },
 }
 
 export const DOC_STATUS_MAP: Record<DocStatus, { label: string; className: string; icon: string }> = {

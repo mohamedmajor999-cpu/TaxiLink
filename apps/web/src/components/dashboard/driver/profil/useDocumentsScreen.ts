@@ -1,8 +1,10 @@
 'use client'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { useDocumentUpload } from '@/hooks/useDocumentUpload'
 import { documentService } from '@/services/documentService'
 import type { Document } from '@/lib/supabase/types'
+import type { DocType } from '@/constants/documentConfig'
 import {
   MANDATORY_DOCS, OPTIONAL_DOCS, computeStatus, daysUntilExpiry, formatExpiry,
   type DocumentStatus, type DocumentSlot,
@@ -22,16 +24,6 @@ export interface DocumentExpiryAlert {
   daysLeft: number
 }
 
-interface State {
-  loading: boolean
-  error: string | null
-  mandatory: DocumentRowData[]
-  optional: DocumentRowData[]
-  validCount: number
-  totalCount: number
-  earliestExpiringAlert: DocumentExpiryAlert | null
-}
-
 const ALERT_THRESHOLD_DAYS = 30
 
 function buildRow(slot: DocumentSlot, doc: Document | null): DocumentRowData {
@@ -46,26 +38,34 @@ function buildRow(slot: DocumentSlot, doc: Document | null): DocumentRowData {
   }
 }
 
-export function useDocumentsScreen(): State {
+export function useDocumentsScreen() {
   const { user } = useAuth()
   const [docs, setDocs] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const loadDocs = useCallback(async () => {
     if (!user) return
-    let cancelled = false
-    setLoading(true)
-    documentService.getDocuments(user.id)
-      .then((d) => { if (!cancelled) setDocs(d) })
-      .catch((e: unknown) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Erreur de chargement')
-      })
-      .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
+    try {
+      const d = await documentService.getDocuments(user.id)
+      setDocs(d)
+      setError(null)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Erreur de chargement')
+    } finally {
+      setLoading(false)
+    }
   }, [user])
 
-  return useMemo<State>(() => {
+  useEffect(() => { void loadDocs() }, [loadDocs])
+
+  const upload = useDocumentUpload(user?.id, docs, loadDocs)
+
+  const triggerUpload = useCallback((type: string) => {
+    upload.triggerUpload(type as DocType)
+  }, [upload])
+
+  const computed = useMemo(() => {
     const byType = new Map(docs.map((d) => [d.type, d]))
     const mandatory = MANDATORY_DOCS.map((s) => buildRow(s, byType.get(s.type) ?? null))
     const optional  = OPTIONAL_DOCS.map((s) => buildRow(s, byType.get(s.type) ?? null))
@@ -77,10 +77,20 @@ export function useDocumentsScreen(): State {
     const expiring = mandatory
       .filter((r) => r.status === 'expiring' && r.daysLeft !== null && r.daysLeft <= ALERT_THRESHOLD_DAYS)
       .sort((a, b) => (a.daysLeft ?? 0) - (b.daysLeft ?? 0))[0]
-    const earliestExpiringAlert = expiring && expiring.daysLeft !== null
+    const earliestExpiringAlert: DocumentExpiryAlert | null = expiring && expiring.daysLeft !== null
       ? { docLabel: expiring.label.toLowerCase(), daysLeft: expiring.daysLeft }
       : null
 
-    return { loading, error, mandatory, optional, validCount, totalCount, earliestExpiringAlert }
-  }, [docs, loading, error])
+    return { mandatory, optional, validCount, totalCount, earliestExpiringAlert }
+  }, [docs])
+
+  return {
+    loading,
+    error: error ?? (upload.error || null),
+    ...computed,
+    triggerUpload,
+    handleFileChange: upload.handleFileChange,
+    fileInputRef: upload.fileInputRef,
+    uploadingType: upload.uploading as string | null,
+  }
 }

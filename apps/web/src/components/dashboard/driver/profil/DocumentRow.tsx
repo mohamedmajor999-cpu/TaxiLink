@@ -1,5 +1,5 @@
 'use client'
-import { Check, Clock, AlertCircle, Plus, ChevronRight } from 'lucide-react'
+import { Check, Clock, AlertCircle, Plus, ChevronRight, Loader2 } from 'lucide-react'
 import type { DocumentStatus } from './documentStatus'
 
 interface Props {
@@ -7,6 +7,7 @@ interface Props {
   status: DocumentStatus
   expiryLabel: string | null
   cta?: string
+  uploading?: boolean
   onClick?: () => void
 }
 
@@ -44,25 +45,28 @@ function StatusIcon({ status }: { status: DocumentStatus }) {
   return <AlertCircle className="w-4 h-4" strokeWidth={2.2} />
 }
 
-export function DocumentRow({ label, status, expiryLabel, cta, onClick }: Props) {
-  const description = expiryLabel
-    ? `${STATUS_TEXT[status]} · Expire ${expiryLabel}`
-    : status === 'missing' && cta
-      ? `Non fourni · ${cta}`
-      : STATUS_TEXT[status]
+export function DocumentRow({ label, status, expiryLabel, cta, uploading, onClick }: Props) {
+  const description = uploading
+    ? 'Téléversement…'
+    : expiryLabel
+      ? `${STATUS_TEXT[status]} · Expire ${expiryLabel}`
+      : status === 'missing' && cta
+        ? `Non fourni · ${cta}`
+        : STATUS_TEXT[status]
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-warm-200 bg-paper hover:bg-warm-50 text-left transition-colors"
+      disabled={uploading}
+      className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-warm-200 bg-paper hover:bg-warm-50 disabled:opacity-60 disabled:cursor-wait text-left transition-colors"
     >
       <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${ICON_BG[status]}`}>
-        <StatusIcon status={status} />
+        {uploading ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2.2} /> : <StatusIcon status={status} />}
       </span>
       <div className="flex-1 min-w-0">
         <div className="text-[14px] font-semibold text-ink leading-tight">{label}</div>
-        <div className={`text-[12px] mt-0.5 truncate ${STATUS_COLOR[status]}`}>
+        <div className={`text-[12px] mt-0.5 truncate ${uploading ? 'text-warm-500' : STATUS_COLOR[status]}`}>
           {description}
         </div>
       </div>
