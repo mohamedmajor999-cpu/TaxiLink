@@ -82,7 +82,6 @@ export function useMissionEditSheet(onSuccess?: (m: Mission) => void) {
       if (isPriceMode) {
         const cleaned: CorrectionPatch = {}
         if ('price_eur' in patch) cleaned.price_eur = patch.price_eur
-        Object.assign(patch, {})
         const updated = await missionCorrectionService.correct(mission.id, cleaned)
         onSuccess?.(updated)
       } else {

@@ -2,12 +2,26 @@
 import { Loader2, Check, Bell, Shield } from 'lucide-react'
 import { SettingItem } from '@/components/taxilink/SettingItem'
 import { Switch } from '@/components/taxilink/Switch'
-import { useSettingsToggles } from './useSettingsToggles'
+import { useNotificationPermission } from '@/hooks/useNotificationPermission'
 import { useSettingsPreferences } from './useSettingsPreferences'
 
 export function SettingsPreferences() {
-  const t = useSettingsToggles()
+  const notif = useNotificationPermission()
   const s = useSettingsPreferences()
+
+  const notifChecked = notif.permission === 'granted'
+  const notifDescription = !notif.supported
+    ? 'Non supporté par ce navigateur'
+    : notif.permission === 'granted'
+      ? 'Alerte système quand un collègue accepte ta course'
+      : notif.permission === 'denied'
+        ? 'Bloquée — autorise dans les paramètres du navigateur'
+        : 'Active pour recevoir une alerte système'
+
+  const handleToggleNotif = (next: boolean) => {
+    if (!next || !notif.supported) return
+    void notif.request()
+  }
 
   return (
     <section className="mb-5">
@@ -66,13 +80,14 @@ export function SettingsPreferences() {
       <div className="flex flex-col gap-2">
         <SettingItem
           icon={<Bell className="w-full h-full" strokeWidth={1.8} />}
-          label="Notifications"
-          description="Courses médicales · Groupe Taxi13"
+          label="Notifications navigateur"
+          description={notifDescription}
           right={
             <Switch
-              label="Notifications"
-              checked={t.notifications}
-              onChange={t.setNotifications}
+              label="Notifications navigateur"
+              checked={notifChecked}
+              onChange={handleToggleNotif}
+              disabled={!notif.supported || notif.permission === 'denied'}
             />
           }
         />
