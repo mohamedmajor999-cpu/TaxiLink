@@ -12,6 +12,7 @@ interface Props {
   onOpenInfos?: () => void
   onOpenDepartements?: () => void
   onOpenSupport?: () => void
+  onOpenBlocked?: () => void
 }
 
 export function DriverProfilScreen({
@@ -20,6 +21,7 @@ export function DriverProfilScreen({
   onOpenInfos,
   onOpenDepartements,
   onOpenSupport,
+  onOpenBlocked,
 }: Props) {
   const s = useDriverProfilScreen(driverName)
 
@@ -52,6 +54,7 @@ export function DriverProfilScreen({
         onOpenInfos={onOpenInfos}
         onOpenDocuments={onOpenDocuments}
         onOpenDepartements={onOpenDepartements}
+        onOpenBlocked={onOpenBlocked}
       />
 
       <ProfileSectionApp onOpenSupport={onOpenSupport} />

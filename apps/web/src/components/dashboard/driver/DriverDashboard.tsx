@@ -22,8 +22,7 @@ import { useDriverAuth } from './useDriverAuth'
 import { useDriverDashboard } from './useDriverDashboard'
 import { DriverHome } from './DriverHome'
 
-// Lazy-load des ecrans non-default : seul DriverHome (tab par defaut) est eager.
-// Reduit le bundle JS initial du dashboard d'environ 40-60%.
+// Lazy-load des ecrans non-default (-40-60% du bundle initial).
 const TabFallback = () => <div className="px-4 md:px-8 pt-[calc(56px+env(safe-area-inset-top))] pb-4 md:pt-6 md:pb-6 max-w-6xl mx-auto"><div className="h-32 rounded-2xl bg-warm-100 motion-safe:animate-pulse" /></div>
 const DriverCoursesScreen = dynamic(() => import('./DriverCoursesScreen').then((m) => m.DriverCoursesScreen), { loading: TabFallback })
 const DriverGroupesScreen = dynamic(() => import('./DriverGroupesScreen').then((m) => m.DriverGroupesScreen), { loading: TabFallback })
@@ -32,6 +31,7 @@ const DocumentsScreen = dynamic(() => import('./profil/DocumentsScreen').then((m
 const PersonalInfoScreen = dynamic(() => import('./profil/PersonalInfoScreen').then((m) => m.PersonalInfoScreen), { loading: TabFallback })
 const DepartementsScreen = dynamic(() => import('./profil/DepartementsScreen').then((m) => m.DepartementsScreen), { loading: TabFallback })
 const SupportScreen = dynamic(() => import('./profil/SupportScreen').then((m) => m.SupportScreen), { loading: TabFallback })
+const BlockedDriversScreen = dynamic(() => import('./profil/BlockedDriversScreen').then((m) => m.BlockedDriversScreen), { loading: TabFallback })
 const MissionDetailScreen = dynamic(() => import('./MissionDetailScreen').then((m) => m.MissionDetailScreen), { loading: TabFallback })
 const PartagerMissionModal = dynamic(() => import('./PartagerMissionModal').then((m) => m.PartagerMissionModal))
 const PostedMissionAcceptPopup = dynamic(() => import('./PostedMissionAcceptPopup').then((m) => m.PostedMissionAcceptPopup))
@@ -150,6 +150,8 @@ export function DriverDashboard() {
                   <DepartementsScreen onBack={() => setProfilSub(null)} />
                 ) : profilSub === 'support' ? (
                   <SupportScreen onBack={() => setProfilSub(null)} />
+                ) : profilSub === 'blocked' ? (
+                  <BlockedDriversScreen onBack={() => setProfilSub(null)} />
                 ) : (
                   <DriverProfilScreen
                     driverName={driverName}
@@ -157,6 +159,7 @@ export function DriverDashboard() {
                     onOpenInfos={() => setProfilSub('infos')}
                     onOpenDepartements={() => setProfilSub('departements')}
                     onOpenSupport={() => setProfilSub('support')}
+                    onOpenBlocked={() => setProfilSub('blocked')}
                   />
                 )}
               </div>

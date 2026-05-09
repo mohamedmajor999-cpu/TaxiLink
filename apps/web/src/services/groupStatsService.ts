@@ -110,7 +110,7 @@ export const groupStatsService = {
       supabase.from('mission_groups')
         .select('missions!inner(status)')
         .eq('group_id', groupId)
-        .eq('missions.status', 'OFFERED'),
+        .eq('missions.status', 'AVAILABLE'),
     ])
     type OnlineRow = { drivers: { is_online: boolean | null; last_seen_at: string | null } | null }
     const onlineCount = ((onlineRes.data ?? []) as OnlineRow[])

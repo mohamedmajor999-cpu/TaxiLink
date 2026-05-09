@@ -119,7 +119,7 @@ export const groupActivityService = {
       supabase.from('mission_groups')
         .select('mission_id, missions!inner(status)')
         .in('group_id', groupIds)
-        .eq('missions.status', 'OFFERED'),
+        .eq('missions.status', 'AVAILABLE'),
     ])
     const onlineDrivers = new Set<string>()
     for (const r of (onlineRes.data ?? []) as Array<{ driver_id: string; drivers: { is_online: boolean | null; last_seen_at: string | null } | null }>) {

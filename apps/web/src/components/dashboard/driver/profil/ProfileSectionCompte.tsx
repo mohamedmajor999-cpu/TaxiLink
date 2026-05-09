@@ -1,5 +1,5 @@
 'use client'
-import { User, Folder, MapPin } from 'lucide-react'
+import { User, Folder, MapPin, Ban } from 'lucide-react'
 import { ProfileSection } from './ProfileSection'
 import { ProfileMenuRow } from './ProfileMenuRow'
 
@@ -11,11 +11,12 @@ interface Props {
   onOpenInfos?: () => void
   onOpenDocuments?: () => void
   onOpenDepartements?: () => void
+  onOpenBlocked?: () => void
 }
 
 export function ProfileSectionCompte({
   email, phone, documentsWarning, departements,
-  onOpenInfos, onOpenDocuments, onOpenDepartements,
+  onOpenInfos, onOpenDocuments, onOpenDepartements, onOpenBlocked,
 }: Props) {
   const infosDescription = [email, phone].filter(Boolean).join(' · ') || 'À compléter'
   const deptsDescription = departements.length > 0
@@ -45,6 +46,12 @@ export function ProfileSectionCompte({
         label="Départements couverts"
         description={deptsDescription}
         onClick={onOpenDepartements}
+      />
+      <ProfileMenuRow
+        icon={<Ban className="w-full h-full" strokeWidth={1.8} />}
+        label="Chauffeurs bloqués"
+        description="Gérer la liste des collègues bloqués"
+        onClick={onOpenBlocked}
       />
     </ProfileSection>
   )

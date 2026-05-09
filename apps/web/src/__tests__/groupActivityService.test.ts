@@ -139,10 +139,10 @@ describe('groupActivityService.getGlobalPulse', () => {
       if (call === 2) return chain({
         data: [
           // m-A partagee dans 2 groupes
-          { mission_id: 'm-A', missions: { status: 'OFFERED' } },
-          { mission_id: 'm-A', missions: { status: 'OFFERED' } },
+          { mission_id: 'm-A', missions: { status: 'AVAILABLE' } },
+          { mission_id: 'm-A', missions: { status: 'AVAILABLE' } },
           // m-B
-          { mission_id: 'm-B', missions: { status: 'OFFERED' } },
+          { mission_id: 'm-B', missions: { status: 'AVAILABLE' } },
         ],
         error: null,
       })
