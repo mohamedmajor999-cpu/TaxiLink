@@ -2,6 +2,7 @@
 import { X, Loader2 } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
 import { useAgendaAddModal, type ManualType } from './useAgendaAddModal'
+import { toIsoLocalDate } from './agendaHelpers'
 
 const FIELD = 'w-full h-12 px-4 rounded-xl border border-warm-200 bg-paper text-[15px] text-ink focus:outline-none focus:border-ink transition-colors'
 const TEXTAREA = 'w-full px-4 py-3 rounded-xl border border-warm-200 bg-paper text-[15px] text-ink focus:outline-none focus:border-ink transition-colors resize-none'
@@ -21,15 +22,13 @@ interface Props {
   maxDate?: Date
 }
 
-function fmtDate(d: Date) { return d.toISOString().slice(0, 10) }
-
 export function AgendaAddModal({ selectedDate, onClose, onAdded, mission = null, minDate, maxDate }: Props) {
   const m = useAgendaAddModal(selectedDate, (saved) => {
     onAdded(saved)
     onClose()
   }, mission)
-  const minStr = minDate ? fmtDate(minDate) : undefined
-  const maxStr = maxDate ? fmtDate(maxDate) : undefined
+  const minStr = minDate ? toIsoLocalDate(minDate) : undefined
+  const maxStr = maxDate ? toIsoLocalDate(maxDate) : undefined
 
   return (
     <div

@@ -29,7 +29,8 @@ export function useAgendaTab() {
   const router = useRouter()
   const missions = useDriverAgendaStore((s) => s.missions)
   const loading = useDriverAgendaStore((s) => s.isLoading && s.loadedFor === null)
-  const error = useDriverAgendaStore((s) => s.error)
+  const storeError = useDriverAgendaStore((s) => s.error)
+  const loadStore = useDriverAgendaStore((s) => s.load)
   const addMissionToStore = useDriverAgendaStore((s) => s.addMission)
   const removeMissionFromStore = useDriverAgendaStore((s) => s.removeMission)
   const updateMissionInStore = useDriverAgendaStore((s) => s.updateMission)
@@ -154,8 +155,15 @@ export function useAgendaTab() {
     })
   }, [missions, user, nowTick])
 
+  // Dismiss erreur affichee : clear l'actionError local + retry du load si le
+  // store etait en erreur (sinon l'utilisateur n'a aucun moyen de reessayer).
+  function dismissError() {
+    setActionError(null)
+    if (storeError && user) void loadStore(user.id, { force: true })
+  }
+
   return {
-    loading, error: error ?? actionError, selected, setSelected,
+    loading, error: storeError ?? actionError, dismissError, selected, setSelected,
     weekDays, weekRangeLabel, planningTitle, events, stats, daysGroups,
     showAddModal, setShowAddModal, addModalDate, openAddModalFor, closeAddModal,
     openDetails, addMission, removeMission: removeMissionFromStore, updateMission: updateMissionInStore,

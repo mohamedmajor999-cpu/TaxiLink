@@ -1,4 +1,5 @@
 'use client'
+import { X } from 'lucide-react'
 import { useAgendaTab } from './useAgendaTab'
 import { AgendaAddModal } from './AgendaAddModal'
 import { AgendaCardMenu } from './AgendaCardMenu'
@@ -30,6 +31,20 @@ export function AgendaTab() {
   return (
     <div className="mt-2 pb-24 md:pb-6 lg:max-w-5xl lg:mx-auto">
       <p className="text-[12px] text-warm-500 -mt-3 mb-1 capitalize">{a.weekRangeLabel}</p>
+
+      {a.error && (
+        <div className="mt-3 px-3 py-2.5 rounded-xl bg-danger-soft text-danger text-[13px] flex items-start justify-between gap-3">
+          <span className="leading-snug">{a.error}</span>
+          <button
+            type="button"
+            onClick={a.dismissError}
+            aria-label="Fermer"
+            className="shrink-0 p-1 rounded-lg hover:bg-danger/10 transition-colors"
+          >
+            <X className="w-4 h-4" strokeWidth={2} />
+          </button>
+        </div>
+      )}
 
       <WeekStrip
         days={a.weekDays}

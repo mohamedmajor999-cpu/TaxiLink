@@ -32,6 +32,16 @@ export function startOfDay(d: Date): Date {
   return r
 }
 
+// Format YYYY-MM-DD en composantes LOCALES — pas via toISOString() qui passe en
+// UTC (decale d'un jour la nuit en metropole ete et systematiquement aux
+// DROM-COM 971-978).
+export function toIsoLocalDate(d: Date): string {
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
 export function startOfWeek(d: Date): Date {
   const r = new Date(d)
   const day = r.getDay()

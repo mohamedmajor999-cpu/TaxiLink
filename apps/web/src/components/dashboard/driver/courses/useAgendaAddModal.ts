@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { missionService } from '@/services/missionService'
 import type { Mission } from '@/lib/supabase/types'
+import { toIsoLocalDate } from './agendaHelpers'
 
 export type ManualType = 'CPAM' | 'PRIVE' | 'TAXILINK'
 
@@ -17,13 +18,12 @@ export interface AddModalForm {
   notes: string
 }
 
-function fmtDate(d: Date) { return d.toISOString().slice(0, 10) }
 function fmtTime(d: Date) { return d.toTimeString().slice(0, 5) }
 function fmtNow() { return new Date().toTimeString().slice(0, 5) }
 
 function emptyForm(date: Date): AddModalForm {
   return {
-    date: fmtDate(date),
+    date: toIsoLocalDate(date),
     time: fmtNow(),
     departure: '',
     destination: '',
@@ -37,7 +37,7 @@ function emptyForm(date: Date): AddModalForm {
 function fromMission(m: Mission): AddModalForm {
   const d = new Date(m.scheduled_at)
   return {
-    date: fmtDate(d),
+    date: toIsoLocalDate(d),
     time: fmtTime(d),
     departure: m.departure ?? '',
     destination: m.destination ?? '',
