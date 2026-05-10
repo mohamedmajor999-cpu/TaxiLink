@@ -14,72 +14,70 @@ export interface MarketplaceCourse {
   group_names: string[]
 }
 
-interface MissionRow {
-  id: string; type: string; scheduled_at: string; departure: string; destination: string
-  price_eur: number | null; patient_name: string | null; visibility: 'PUBLIC' | 'GROUP'
-  shared_by: string | null; status: string
+interface RpcRow {
+  id: string
+  type: string
+  scheduled_at: string
+  departure: string
+  destination: string
+  price_eur: number | null
+  patient_name: string | null  // deja masque (initiales) cote SQL
+  visibility: 'PUBLIC' | 'GROUP'
+  shared_by: string | null
+  mission_groups: { group_id: string }[]
 }
 
 export const patronMarketplaceService = {
-  async getMarketplace(driverId: string): Promise<MarketplaceCourse[]> {
+  // Marketplace patron : passe par get_marketplace_missions (RPC SECURITY
+  // INVOKER) qui applique mask_initials sur patient_name et NULL sur phone/notes.
+  // Sans ca, un patron voyait les noms patients en clair des missions partagees
+  // par d'autres orgs — bug RGPD (cf. 20260504_marketplace_masked_rpc.sql).
+  // Le param driverId reste pour compat de signature mais n'est plus utilise :
+  // le RPC s'appuie sur auth.uid() + RLS pour scope la visibilite.
+  async getMarketplace(_driverId: string): Promise<MarketplaceCourse[]> {
     const supabase = createClient()
-    const nowIso = new Date().toISOString()
+    const { data, error } = await supabase.rpc('get_marketplace_missions', {
+      p_departments: undefined,
+      p_limit: 100,
+    })
+    if (error) throw new Error(error.message)
+    const rows = (data ?? []) as unknown as RpcRow[]
+    if (rows.length === 0) return []
 
-    const { data: memberships } = await supabase
-      .from('group_members').select('group_id').eq('driver_id', driverId)
-    const myGroupIds = (memberships ?? []).map((m) => m.group_id)
+    // Enrichissement : nom du sharer (initiales) + noms des groupes.
+    const sharerIds = Array.from(new Set(rows.map((r) => r.shared_by).filter((id): id is string => !!id)))
+    const groupIds = Array.from(new Set(rows.flatMap((r) => (r.mission_groups ?? []).map((g) => g.group_id))))
 
-    const [pubRes, grpRes] = await Promise.all([
-      supabase.from('missions')
-        .select('id, type, scheduled_at, departure, destination, price_eur, patient_name, visibility, shared_by, status')
-        .eq('status', 'AVAILABLE').eq('visibility', 'PUBLIC').gt('scheduled_at', nowIso),
-      myGroupIds.length === 0
-        ? Promise.resolve({ data: [] as { mission_id: string; missions: MissionRow }[] })
-        : supabase.from('mission_groups')
-            .select('mission_id, missions!inner(id, type, scheduled_at, departure, destination, price_eur, patient_name, visibility, shared_by, status)')
-            .in('group_id', myGroupIds),
+    const [profilesRes, groupsRes] = await Promise.all([
+      sharerIds.length > 0
+        ? supabase.from('profiles').select('id, first_name, last_name').in('id', sharerIds)
+        : Promise.resolve({ data: [] as Array<{ id: string; first_name: string | null; last_name: string | null }> }),
+      groupIds.length > 0
+        ? supabase.from('groups').select('id, name').in('id', groupIds)
+        : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),
     ])
-
-    const all = new Map<string, MissionRow>()
-    for (const m of (pubRes.data ?? []) as MissionRow[]) all.set(m.id, m)
-    for (const r of (grpRes.data ?? []) as { mission_id: string; missions: MissionRow }[]) {
-      const m = r.missions
-      if (m && m.status === 'AVAILABLE' && new Date(m.scheduled_at) > new Date(nowIso)) {
-        all.set(m.id, m)
-      }
-    }
-
-    const missions = Array.from(all.values())
-    if (missions.length === 0) return []
-
-    const sharerIds = Array.from(new Set(missions.map((m) => m.shared_by).filter((id): id is string => !!id)))
     const sharerNames: Record<string, string> = {}
-    if (sharerIds.length > 0) {
-      const { data: profiles } = await supabase.from('profiles').select('id, first_name, last_name').in('id', sharerIds)
-      for (const p of (profiles ?? [])) {
-        sharerNames[p.id] = `${(p.first_name?.[0] ?? '?')}. ${p.last_name ?? ''}`.trim()
-      }
+    for (const p of (profilesRes.data ?? [])) {
+      sharerNames[p.id] = `${(p.first_name?.[0] ?? '?')}. ${p.last_name ?? ''}`.trim()
     }
+    const groupNames: Record<string, string> = {}
+    for (const g of (groupsRes.data ?? [])) groupNames[g.id] = g.name
 
-    const missionIds = missions.map((m) => m.id)
-    const groupNamesByMission: Record<string, string[]> = {}
-    const { data: mgRows } = await supabase
-      .from('mission_groups').select('mission_id, groups(name)').in('mission_id', missionIds)
-    for (const r of (mgRows ?? []) as { mission_id: string; groups: { name: string } | null }[]) {
-      const arr = groupNamesByMission[r.mission_id] ?? []
-      if (r.groups?.name) arr.push(r.groups.name)
-      groupNamesByMission[r.mission_id] = arr
-    }
-
-    return missions
+    return rows
       .map((m) => ({
-        id: m.id, type: m.type, scheduled_at: m.scheduled_at,
+        id: m.id,
+        type: m.type,
+        scheduled_at: m.scheduled_at,
         scheduled_label: relativeTime(m.scheduled_at),
-        departure: m.departure, destination: m.destination,
-        price_eur: m.price_eur, patient_name: m.patient_name,
+        departure: m.departure,
+        destination: m.destination,
+        price_eur: m.price_eur,
+        patient_name: m.patient_name,  // deja masque par le RPC
         visibility: m.visibility,
         shared_by_name: m.shared_by ? sharerNames[m.shared_by] ?? 'Chauffeur' : 'Client',
-        group_names: groupNamesByMission[m.id] ?? [],
+        group_names: (m.mission_groups ?? [])
+          .map((g) => groupNames[g.group_id])
+          .filter((n): n is string => !!n),
       }))
       .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
   },
