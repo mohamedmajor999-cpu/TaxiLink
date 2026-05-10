@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { LoginForm } from '@/components/auth/LoginForm'
+import { redirectIfAuthed } from '@/lib/authPageGuard'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -8,7 +9,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function LoginPage() {
+interface Props {
+  searchParams: Promise<{ redirect?: string }>
+}
+
+export default async function LoginPage({ searchParams }: Props) {
+  const { redirect } = await searchParams
+  await redirectIfAuthed(redirect)
   return (
     <Suspense>
       <LoginForm />

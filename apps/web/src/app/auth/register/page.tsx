@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { RegisterForm } from '@/components/auth/RegisterForm'
+import { redirectIfAuthed } from '@/lib/authPageGuard'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -8,7 +9,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function RegisterPage() {
+interface Props {
+  searchParams: Promise<{ redirect?: string }>
+}
+
+export default async function RegisterPage({ searchParams }: Props) {
+  const { redirect } = await searchParams
+  await redirectIfAuthed(redirect)
   return (
     <Suspense>
       <RegisterForm />
