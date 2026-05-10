@@ -1,5 +1,5 @@
 'use client'
-import { Bell, Mic, HelpCircle, LogOut, Loader2, BellRing, MapPin, Navigation2 } from 'lucide-react'
+import { HelpCircle, LogOut, Loader2, BellRing, MapPin, Navigation2 } from 'lucide-react'
 import { WazeIcon, GMapsIcon } from '@/components/ui/GpsAppIcon'
 import type { GpsPreference } from '@/lib/gpsNavigation'
 import { ProfileSection } from './ProfileSection'
@@ -17,28 +17,6 @@ export function ProfileSectionApp({ onOpenSupport }: Props) {
 
   return (
     <ProfileSection title="Application">
-      <ProfileMenuRow
-        icon={<Bell className="w-full h-full" strokeWidth={1.8} />}
-        label="Notifications"
-        right={
-          <GreenSwitch
-            label="Notifications"
-            checked={a.notifications}
-            onChange={a.setNotifications}
-          />
-        }
-      />
-      <ProfileMenuRow
-        icon={<Mic className="w-full h-full" strokeWidth={1.8} />}
-        label="Voix (dictée vocale)"
-        right={
-          <GreenSwitch
-            label="Dictée vocale"
-            checked={a.voiceDictation}
-            onChange={a.setVoiceDictation}
-          />
-        }
-      />
       <ProfileMenuRow
         icon={<BellRing className="w-full h-full" strokeWidth={1.8} />}
         label="Alertes nouvelles courses"

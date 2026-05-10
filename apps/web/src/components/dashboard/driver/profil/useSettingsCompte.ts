@@ -65,7 +65,11 @@ export function useSettingsCompte(): State {
     setError(null)
     if (firstName.trim().length < 2) { setError('Prénom : 2 caractères minimum'); return }
     if (lastName.trim().length < 2)  { setError('Nom : 2 caractères minimum'); return }
-    if (phone && !isValidPhone(phone)) {
+    // Phone obligatoire : sans phone, le middleware redirige vers
+    // /auth/complete-profile (cf. profile_complete claim). Le supprimer ici
+    // creerait un kick-out a la prochaine navigation.
+    if (!phone.trim()) { setError('Téléphone obligatoire'); return }
+    if (!isValidPhone(phone)) {
       setError('Format de téléphone invalide (ex: 0601020304)')
       return
     }
@@ -73,13 +77,14 @@ export function useSettingsCompte(): State {
     try {
       const first = firstName.trim()
       const last  = lastName.trim()
+      const phoneTrimmed = phone.trim()
       await profileService.updateProfile(user.id, {
         first_name: first,
         last_name:  last,
-        phone: phone.trim() || undefined,
+        phone: phoneTrimmed,
       })
-      updateDriver({ name: `${first} ${last}`, phone: phone.trim() || undefined })
-      setInitial({ firstName: first, lastName: last, phone: phone.trim() })
+      updateDriver({ name: `${first} ${last}`, phone: phoneTrimmed })
+      setInitial({ firstName: first, lastName: last, phone: phoneTrimmed })
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
     } catch (e: unknown) {
