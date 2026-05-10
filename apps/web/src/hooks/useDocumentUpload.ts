@@ -27,14 +27,14 @@ export function useDocumentUpload(
     setError('')
     setUploading(type)
     try {
-      const publicUrl = await documentService.uploadFile(userId, type, file)
+      const filePath = await documentService.uploadFile(userId, type, file)
       const existing = docs.find((d) => d.type === type)
       await documentService.upsertDocument({
         existingId: existing?.id,
         driverId: userId,
         type,
         label: DOC_CONFIG[type].label,
-        fileUrl: publicUrl,
+        filePath,
       })
       await onSuccess()
     } catch (err) {

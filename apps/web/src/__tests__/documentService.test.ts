@@ -3,20 +3,20 @@ import { documentService } from '@/services/documentService'
 
 // ─── Mock Supabase ─────────────────────────────────────────────────────────────
 const { mockFrom, mockSelect, mockInsert, mockUpdate, mockEq, mockOrder,
-        mockUpload, mockGetPublicUrl, mockStorage } = vi.hoisted(() => {
-  const mockUpload      = vi.fn()
-  const mockGetPublicUrl = vi.fn().mockReturnValue({ data: { publicUrl: 'https://cdn.example.com/file.pdf' } })
-  const mockBucket      = vi.fn().mockReturnValue({ upload: mockUpload, getPublicUrl: mockGetPublicUrl })
+        mockUpload, mockCreateSignedUrl, mockStorage } = vi.hoisted(() => {
+  const mockUpload          = vi.fn()
+  const mockCreateSignedUrl = vi.fn().mockResolvedValue({ data: { signedUrl: 'https://signed.example.com/file.pdf?token=abc' }, error: null })
+  const mockBucket          = vi.fn().mockReturnValue({ upload: mockUpload, createSignedUrl: mockCreateSignedUrl })
   return {
-    mockFrom:         vi.fn(),
-    mockSelect:       vi.fn(),
-    mockInsert:       vi.fn(),
-    mockUpdate:       vi.fn(),
-    mockEq:           vi.fn(),
-    mockOrder:        vi.fn(),
+    mockFrom:          vi.fn(),
+    mockSelect:        vi.fn(),
+    mockInsert:        vi.fn(),
+    mockUpdate:        vi.fn(),
+    mockEq:            vi.fn(),
+    mockOrder:         vi.fn(),
     mockUpload,
-    mockGetPublicUrl,
-    mockStorage:      mockBucket,
+    mockCreateSignedUrl,
+    mockStorage:       mockBucket,
   }
 })
 
@@ -33,7 +33,8 @@ beforeEach(() => {
   mockUpdate.mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
   mockFrom.mockReturnValue({ select: mockSelect, insert: mockInsert, update: mockUpdate })
   mockUpload.mockResolvedValue({ error: null })
-  mockStorage.mockReturnValue({ upload: mockUpload, getPublicUrl: mockGetPublicUrl })
+  mockCreateSignedUrl.mockResolvedValue({ data: { signedUrl: 'https://signed.example.com/file.pdf?token=abc' }, error: null })
+  mockStorage.mockReturnValue({ upload: mockUpload, createSignedUrl: mockCreateSignedUrl })
 })
 
 // ─── getDocuments ─────────────────────────────────────────────────────────────
@@ -73,9 +74,10 @@ describe('documentService.uploadFile — validation', () => {
       .rejects.toThrow('Fichier trop volumineux')
   })
 
-  it('retourne une URL publique apres upload reussi', async () => {
-    const url = await documentService.uploadFile('u1', 'carte_grise', makeFile('application/pdf'))
-    expect(url).toBe('https://cdn.example.com/file.pdf')
+  it('retourne le path interne du bucket apres upload reussi', async () => {
+    const path = await documentService.uploadFile('u1', 'carte_grise', makeFile('application/pdf'))
+    // path = `${userId}/${type}_${timestamp}.${ext}` — bucket prive, lecture via getSignedUrl()
+    expect(path).toMatch(/^u1\/carte_grise_\d+\.pdf$/)
     expect(mockUpload).toHaveBeenCalledOnce()
   })
 
@@ -86,20 +88,34 @@ describe('documentService.uploadFile — validation', () => {
   })
 })
 
+// ─── getSignedUrl ─────────────────────────────────────────────────────────────
+describe('documentService.getSignedUrl', () => {
+  it('retourne une URL signee pour le path donne', async () => {
+    const url = await documentService.getSignedUrl('u1/carte_grise_123.pdf', 120)
+    expect(url).toBe('https://signed.example.com/file.pdf?token=abc')
+    expect(mockCreateSignedUrl).toHaveBeenCalledWith('u1/carte_grise_123.pdf', 120)
+  })
+
+  it('leve une erreur si la signature echoue', async () => {
+    mockCreateSignedUrl.mockResolvedValue({ data: null, error: { message: 'Path introuvable' } })
+    await expect(documentService.getSignedUrl('inconnu.pdf')).rejects.toThrow('Path introuvable')
+  })
+})
+
 // ─── upsertDocument ───────────────────────────────────────────────────────────
 describe('documentService.upsertDocument', () => {
-  const base = { driverId: 'd1', type: 'carte_grise', label: 'Carte grise', fileUrl: 'https://cdn.example.com/f.pdf' }
+  const base = { driverId: 'd1', type: 'carte_grise', label: 'Carte grise', filePath: 'u1/carte_grise_123.pdf' }
 
   it('cree un nouveau document si pas d existingId', async () => {
     await expect(documentService.upsertDocument(base)).resolves.toBeUndefined()
-    expect(mockInsert).toHaveBeenCalledWith(expect.objectContaining({ driver_id: 'd1', type: 'carte_grise' }))
+    expect(mockInsert).toHaveBeenCalledWith(expect.objectContaining({ driver_id: 'd1', type: 'carte_grise', file_url: base.filePath }))
   })
 
   it('met a jour un document existant si existingId fourni', async () => {
     const mockEqUpdate = vi.fn().mockResolvedValue({ error: null })
     mockUpdate.mockReturnValue({ eq: mockEqUpdate })
     await expect(documentService.upsertDocument({ ...base, existingId: 'doc-1' })).resolves.toBeUndefined()
-    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'pending', file_url: base.fileUrl }))
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'pending', file_url: base.filePath }))
   })
 
   it('leve une erreur si insert echoue', async () => {
