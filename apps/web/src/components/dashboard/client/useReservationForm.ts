@@ -20,7 +20,11 @@ export function useReservationForm(
     setSubmitting(true)
     setSubmitError(null)
     try {
-      await missionService.create({ type, departure, destination, notes: notes || null })
+      // Convertit le datetime-local (YYYY-MM-DDTHH:MM, fuseau local) en ISO
+      // UTC pour le serveur. Vide => le serveur applique now() par defaut
+      // (course immediate).
+      const scheduled_at = scheduledAt ? new Date(scheduledAt).toISOString() : null
+      await missionService.create({ type, departure, destination, notes: notes || null, scheduled_at })
       setSuccess(true)
       setDeparture(''); setDestination(''); setNotes(''); setScheduledAt('')
       await onBookSuccess()
