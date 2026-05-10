@@ -25,3 +25,13 @@ export async function assertAdmin(): Promise<
 
   return { ok: true, userId: user.id, email: user.email! }
 }
+
+// Variante page : retourne juste un booleen, pour gating les pages debug
+// (/test-voice, /test-maplibre) qui doivent rediriger plutot que renvoyer JSON.
+export async function isAdminPage(): Promise<boolean> {
+  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim()
+  if (!adminEmail) return false
+  const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user?.email?.toLowerCase().trim() === adminEmail
+}
