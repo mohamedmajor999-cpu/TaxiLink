@@ -28,17 +28,31 @@ export interface DriverDetail {
 }
 
 export const patronDriverDetailService = {
-  async getDriverDetail(driverId: string): Promise<DriverDetail | null> {
+  // Defense-in-depth multi-tenancy : si orgId fourni, le query drivers filtre
+  // sur organization_id pour qu'un patron ne puisse pas inspecter un chauffeur
+  // hors de son org meme si la RLS sur drivers est trop laxe (p.ex. en cas de
+  // migration policy). Sans orgId : comportement legacy (ex. caller admin).
+  async getDriverDetail(driverId: string, orgId?: string | null): Promise<DriverDetail | null> {
     const supabase = createClient()
     const monthStart = new Date()
     monthStart.setDate(1)
     monthStart.setHours(0, 0, 0, 0)
 
+    let driverQuery = supabase.from('drivers').select('*').eq('id', driverId)
+    if (orgId) driverQuery = driverQuery.eq('organization_id', orgId)
+    let missionsQuery = supabase
+      .from('missions')
+      .select('price_eur, completed_at')
+      .eq('driver_id', driverId)
+      .gte('completed_at', monthStart.toISOString())
+      .not('completed_at', 'is', null)
+    if (orgId) missionsQuery = missionsQuery.eq('organization_id', orgId)
+
     const [driverRes, profileRes, docsRes, missionsRes] = await Promise.all([
-      supabase.from('drivers').select('*').eq('id', driverId).maybeSingle(),
+      driverQuery.maybeSingle(),
       supabase.from('profiles').select('first_name, last_name, phone').eq('id', driverId).maybeSingle(),
       supabase.from('driver_documents').select('id, label, type, status, expiry_date').eq('driver_id', driverId).order('expiry_date', { ascending: true, nullsFirst: false }),
-      supabase.from('missions').select('price_eur, completed_at').eq('driver_id', driverId).gte('completed_at', monthStart.toISOString()).not('completed_at', 'is', null),
+      missionsQuery,
     ])
 
     const driver = driverRes.data

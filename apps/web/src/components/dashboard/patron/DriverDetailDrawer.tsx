@@ -22,10 +22,10 @@ export function DriverDetailDrawer({ driverId, orgId, canManage, onClose }: Prop
     }
     setLoading(true)
     patronDriverDetailService
-      .getDriverDetail(driverId)
+      .getDriverDetail(driverId, orgId)
       .then(setDetail)
       .finally(() => setLoading(false))
-  }, [driverId])
+  }, [driverId, orgId])
 
   if (!driverId) return null
 

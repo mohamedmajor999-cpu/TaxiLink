@@ -36,7 +36,11 @@ export const patronFleetService = {
 
     const [profilesRes, missionsRes] = await Promise.all([
       supabase.from('profiles').select('id, first_name, last_name').in('id', driverIds),
+      // Scope par organization_id : un chauffeur qui change d'org dans la
+      // journee n'apporte pas ses anciennes courses dans le CA du jour de la
+      // nouvelle org (defense en profondeur, RLS gere deja en theorie).
       supabase.from('missions').select('driver_id, status, price_eur, completed_at')
+        .eq('organization_id', orgId)
         .in('driver_id', driverIds)
         .gte('created_at', todayStart),
     ])
