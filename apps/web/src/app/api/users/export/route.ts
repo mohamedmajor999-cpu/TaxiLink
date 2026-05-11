@@ -35,7 +35,7 @@ export async function GET() {
     admin.from('missions').select('*').eq('shared_by', userId),
     admin.from('missions').select('*').eq('driver_id', userId),
     admin.from('missions').select('*').eq('client_id', userId),
-    admin.from('documents').select('*').eq('driver_id', userId),
+    admin.from('driver_documents').select('*').eq('driver_id', userId),
     admin.from('group_members').select('*').eq('driver_id', userId),
     admin.from('organization_members').select('*').eq('user_id', userId),
   ])
