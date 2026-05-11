@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { organizationService } from '@/services/organizationService'
 
@@ -16,23 +16,37 @@ export function AcceptInvitationClient({ token }: { token: string }) {
   const router = useRouter()
   const [state, setState] = useState<'loading' | 'success' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  // Guard contre double-invocation (React StrictMode dev re-monte le composant,
+  // sinon la 2eme RPC accept_invitation recoit INVITATION_accepted et bascule
+  // a tort sur l'ecran d'erreur).
+  const startedRef = useRef(false)
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
+    if (startedRef.current) return
+    startedRef.current = true
+    let cancelled = false
     organizationService
       .acceptInvitation(token)
       .then((res) => {
+        if (cancelled) return
         if (res.success) {
           setState('success')
-          setTimeout(() => router.push('/dashboard/patron'), 1500)
+          redirectTimerRef.current = setTimeout(() => router.push('/dashboard/patron'), 1500)
         } else {
           setState('error')
           setErrorMessage(ERROR_LABELS[res.error ?? ''] ?? `Erreur : ${res.error}`)
         }
       })
       .catch((e: Error) => {
+        if (cancelled) return
         setState('error')
         setErrorMessage(e.message)
       })
+    return () => {
+      cancelled = true
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current)
+    }
   }, [token, router])
 
   return (

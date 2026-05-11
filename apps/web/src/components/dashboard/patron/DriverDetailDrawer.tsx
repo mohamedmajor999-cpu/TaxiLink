@@ -20,11 +20,17 @@ export function DriverDetailDrawer({ driverId, orgId, canManage, onClose }: Prop
       setDetail(null)
       return
     }
+    // Cancel ref : si l'user clique rapidement driver A puis driver B, sans
+    // cette garde la reponse de A pouvait arriver apres B et ecraser l'UI
+    // avec les donnees du mauvais chauffeur. setLoading idem (state apres
+    // unmount = warning React).
+    let cancelled = false
     setLoading(true)
     patronDriverDetailService
       .getDriverDetail(driverId, orgId)
-      .then(setDetail)
-      .finally(() => setLoading(false))
+      .then((d) => { if (!cancelled) setDetail(d) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [driverId, orgId])
 
   if (!driverId) return null
