@@ -38,6 +38,14 @@ export function useResetPasswordForm() {
     else      { setStatus('invalid'); setError('Session de récupération introuvable. Demande un nouveau lien.') }
   }, [loading, user])
 
+  // Timer redirect post-success : ref pour pouvoir clearTimeout au unmount,
+  // sinon un user qui clique sur un lien dans la fenetre 1800ms se retrouve
+  // sur /auth/login a sa place quand le timer expire.
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    return () => { if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current) }
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -48,7 +56,7 @@ export function useResetPasswordForm() {
       await authService.updatePassword(password)
       await authService.signOut()
       setStatus('done')
-      setTimeout(() => router.push('/auth/login'), 1800)
+      redirectTimerRef.current = setTimeout(() => router.push('/auth/login'), 1800)
     } catch (err) {
       setStatus('ready')
       setError(err instanceof Error ? err.message : 'Erreur lors de la mise à jour du mot de passe')
