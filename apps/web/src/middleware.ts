@@ -45,11 +45,24 @@ export async function middleware(request: NextRequest) {
   const claims = data?.claims
   const pathname = request.nextUrl.pathname
 
+  // NextResponse.redirect() ne porte pas les cookies setes par supabase
+  // pendant getClaims() (rotation du refresh token toutes les ~50 min). Sans
+  // ce port, l'user voit un cookie obsolete au prochain navigate et peut etre
+  // deconnecte prematurement. On copie supabaseResponse.cookies sur chaque
+  // redirect pour preserver les cookies frais.
+  const redirectWithCookies = (url: URL): NextResponse => {
+    const response = NextResponse.redirect(url)
+    supabaseResponse.cookies.getAll().forEach((c) => {
+      response.cookies.set(c.name, c.value, c)
+    })
+    return response
+  }
+
   // 1. Non connecte ou JWT invalide -> login
   if (error || !claims?.sub) {
     const loginUrl = new URL('/auth/login', request.url)
     loginUrl.searchParams.set('redirect', pathname)
-    return NextResponse.redirect(loginUrl)
+    return redirectWithCookies(loginUrl)
   }
 
   const userId = claims.sub
@@ -62,7 +75,7 @@ export async function middleware(request: NextRequest) {
     if (!adminEmail || userEmail !== adminEmail) {
       const role = appMeta.role ?? (await fetchProfileFallback(supabase, userId)).role
       const target = role === 'driver' ? '/dashboard/chauffeur' : '/dashboard/client'
-      return NextResponse.redirect(new URL(target, request.url))
+      return redirectWithCookies(new URL(target, request.url))
     }
     return supabaseResponse
   }
@@ -86,14 +99,14 @@ export async function middleware(request: NextRequest) {
     if (!isComplete) {
       const completeUrl = new URL('/auth/complete-profile', request.url)
       completeUrl.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(completeUrl)
+      return redirectWithCookies(completeUrl)
     }
 
     if (pathname.startsWith('/dashboard/client') && role !== 'client') {
-      return NextResponse.redirect(new URL('/dashboard/chauffeur', request.url))
+      return redirectWithCookies(new URL('/dashboard/chauffeur', request.url))
     }
     if (pathname.startsWith('/dashboard/chauffeur') && role !== 'driver') {
-      return NextResponse.redirect(new URL('/dashboard/client', request.url))
+      return redirectWithCookies(new URL('/dashboard/client', request.url))
     }
     // /dashboard/patron : verification membership deleguee au server component
     // (page.tsx) pour eviter une query DB sur chaque navigation middleware.
