@@ -81,7 +81,7 @@ describe('missionMutations.cancel', () => {
     mockFrom.mockImplementation(() => {
       call++
       if (call === 1) return chain({ data: { notes: 'notes existantes' }, error: null })
-      return chain({ data: null, error: null })
+      return chain({ data: [{ id: 'm1' }], error: null })
     })
     await missionMutations.cancel('m1', 'patient absent')
     expect(call).toBe(2)
@@ -92,10 +92,20 @@ describe('missionMutations.cancel', () => {
     mockFrom.mockImplementation(() => {
       call++
       if (call === 1) return chain({ data: { notes: null }, error: null })
-      return chain({ data: null, error: null })
+      return chain({ data: [{ id: 'm1' }], error: null })
     })
     await missionMutations.cancel('m1', 'pas de raison')
     expect(call).toBe(2)
+  })
+
+  it('throw si l UPDATE n affecte aucune row (mission deja terminee/expiree)', async () => {
+    let call = 0
+    mockFrom.mockImplementation(() => {
+      call++
+      if (call === 1) return chain({ data: { notes: null }, error: null })
+      return chain({ data: [], error: null })
+    })
+    await expect(missionMutations.cancel('m1', 'too late')).rejects.toThrow('plus en cours')
   })
 })
 

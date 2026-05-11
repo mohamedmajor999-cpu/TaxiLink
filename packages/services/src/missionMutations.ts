@@ -55,7 +55,12 @@ export const missionMutations = {
     const existingNotes = current?.notes ?? ''
     const marker = `[Annulation chauffeur ${new Date().toISOString()}: ${reason}]`
     const merged = existingNotes ? `${marker}\n${existingNotes}` : marker
-    const { error } = await supabase
+    // Filtre status : la RLS "Gestion mission chauffeur" autorise l'UPDATE
+    // tant que driver_id = auth.uid(), SANS verifier le status. Sans le filtre
+    // ci-dessous, un chauffeur pouvait "annuler" une mission deja DONE/EXPIRED
+    // et la remettre AVAILABLE -> stats perdues, mission ré-executee par un
+    // autre driver, double facturation possible.
+    const { data, error } = await supabase
       .from('missions')
       .update({
         driver_id: null,
@@ -64,7 +69,12 @@ export const missionMutations = {
         notes: merged,
       })
       .eq('id', missionId)
+      .in('status', ['ACCEPTED', 'IN_PROGRESS'])
+      .select('id')
     if (error) throw new Error(error.message)
+    if (!data || data.length === 0) {
+      throw new Error('Annulation impossible : la course n\'est plus en cours.')
+    }
   },
 
   /** Creer une nouvelle mission (passe par l'API route pour la validation serveur) */
