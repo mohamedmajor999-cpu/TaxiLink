@@ -38,7 +38,10 @@ export function useCourseMap({
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
-  const routeLayerRef = useRef<L.GeoJSON | null>(null)
+  // routeLayerRef ne stockait que la `line` ; le halo blanc en dessous etait
+  // ajoute mais jamais retire -> memory leak progressif a chaque changement
+  // de routeGeometry (carte mission rechargee). On tracke maintenant les deux.
+  const routeLayerRef = useRef<L.FeatureGroup | null>(null)
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -74,12 +77,12 @@ export function useCourseMap({
     if (routeGeometry) {
       const halo = L.geoJSON(routeGeometry as GeoJSON.GeoJsonObject, {
         style: { color: '#FFFFFF', weight: 8, opacity: 0.9 },
-      }).addTo(map)
+      })
       const line = L.geoJSON(routeGeometry as GeoJSON.GeoJsonObject, {
         style: { color: '#0A0A0A', weight: 5, opacity: 1 },
-      }).addTo(map)
-      const group = L.featureGroup([halo, line])
-      routeLayerRef.current = line
+      })
+      const group = L.featureGroup([halo, line]).addTo(map)
+      routeLayerRef.current = group
       const bounds = group.getBounds()
       if (bounds.isValid()) map.fitBounds(bounds.pad(0.15))
     }

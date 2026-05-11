@@ -31,7 +31,16 @@ export function useReservationForm(
       // Convertit le datetime-local (YYYY-MM-DDTHH:MM, fuseau local) en ISO
       // UTC pour le serveur. Vide => le serveur applique now() par defaut
       // (course immediate).
-      const scheduled_at = scheduledAt ? new Date(scheduledAt).toISOString() : null
+      const scheduledDate = scheduledAt ? new Date(scheduledAt) : null
+      // Borne basse : pas de reservation dans le passe (le datetime-local
+      // accepte hier sans broncher si l'user le tape). 1 min de tolerance
+      // pour absorber les decalages d'horloge.
+      if (scheduledDate && scheduledDate.getTime() < Date.now() - 60_000) {
+        setSubmitError('La date doit etre dans le futur')
+        setSubmitting(false)
+        return
+      }
+      const scheduled_at = scheduledDate ? scheduledDate.toISOString() : null
       await missionService.create({ type, departure, destination, notes: notes || null, scheduled_at })
       setSuccess(true)
       setDeparture(''); setDestination(''); setNotes(''); setScheduledAt('')

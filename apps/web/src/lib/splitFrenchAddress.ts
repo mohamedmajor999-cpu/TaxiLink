@@ -5,8 +5,9 @@
  *        → { street: "6 Avenue Henri Romain Boyer", cityLine: "13015 Marseille" }
  * Si aucun code postal n'est détecté, `cityLine` vaut `null` et `street` contient l'adresse brute.
  */
-export function splitFrenchAddress(raw: string): { street: string; cityLine: string | null } {
-  const trimmed = raw.trim()
+export function splitFrenchAddress(raw: string | null | undefined): { street: string; cityLine: string | null } {
+  const trimmed = (raw ?? '').trim()
+  if (!trimmed) return { street: '', cityLine: null }
   const match = /\b\d{5}\b/.exec(trimmed)
   if (!match) return { street: trimmed, cityLine: null }
   const street = trimmed.slice(0, match.index).trim().replace(/,\s*$/, '')
@@ -18,7 +19,7 @@ export function splitFrenchAddress(raw: string): { street: string; cityLine: str
 }
 
 /** Forme « point » attendue par RouteTimeline : rue sur la ligne principale, CP+ville en sous-ligne. */
-export function addressAsPoint(raw: string): { name: string; address?: string } {
+export function addressAsPoint(raw: string | null | undefined): { name: string; address?: string } {
   const { street, cityLine } = splitFrenchAddress(raw)
   return cityLine ? { name: street, address: cityLine } : { name: street }
 }
