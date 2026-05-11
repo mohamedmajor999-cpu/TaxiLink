@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDriverAgendaStore } from '@/store/driverAgendaStore'
 
@@ -25,8 +25,20 @@ export function useTodayTab() {
     [router]
   )
 
-  const today = startOfToday()
-  const tomorrow = startOfTomorrow()
+  // Tick chaque minute : sert a 1) recalculer today/tomorrow quand on passe
+  // minuit (sinon les courses d'hier restent visibles jusqu'au prochain
+  // realtime event), 2) garantir refs stables pour les useMemo en dessous.
+  const [nowTick, setNowTick] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNowTick(Date.now()), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Memoize sur nowTick pour stabiliser les refs : avant, today/tomorrow
+  // etaient recreees a chaque render -> les useMemo en dessous etaient
+  // invalides systematiquement (zero cache).
+  const today = useMemo(() => startOfToday(), [nowTick])
+  const tomorrow = useMemo(() => startOfTomorrow(), [nowTick])
 
   // Course "active" = celle que le chauffeur execute reellement (en route ou
   // patient a bord). Une mission tout juste acceptee mais sans horodatage de
