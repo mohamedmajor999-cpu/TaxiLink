@@ -23,24 +23,31 @@ export function ServiceWorkerRegistrar() {
     // les suivants signaleront un vrai deploy.
     const hadController = !!navigator.serviceWorker.controller
     let reloading = false
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
+    const onControllerChange = () => {
       if (!hadController) return
       if (reloading) return
       reloading = true
       window.location.reload()
-    })
+    }
+    navigator.serviceWorker.addEventListener('controllerchange', onControllerChange)
 
     // updateViaCache: 'none' force le navigateur a comparer /sw.js a chaque
     // appel a register/update sans le servir depuis son propre cache HTTP.
     // Couple a un check au focus de l'onglet, on attrape les deploys vite.
+    let onVisibility: (() => void) | null = null
     navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
       .then((reg) => {
-        const triggerUpdate = () => { reg.update().catch(() => { /* noop */ }) }
-        document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible') triggerUpdate()
-        })
+        onVisibility = () => {
+          if (document.visibilityState === 'visible') reg.update().catch(() => { /* noop */ })
+        }
+        document.addEventListener('visibilitychange', onVisibility)
       })
       .catch(() => { /* noop */ })
+
+    return () => {
+      navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange)
+      if (onVisibility) document.removeEventListener('visibilitychange', onVisibility)
+    }
   }, [])
   return null
 }

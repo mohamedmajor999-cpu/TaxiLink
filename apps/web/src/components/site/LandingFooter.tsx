@@ -39,7 +39,6 @@ export function LandingFooter() {
 
       <div className="border-t border-warm-100 pt-5 flex justify-between flex-wrap gap-3.5 text-[12.5px] text-warm-500">
         <span>© 2026 TaxiLink. Hébergé en France.</span>
-        <span>v. 2.4.1</span>
       </div>
     </footer>
   )
