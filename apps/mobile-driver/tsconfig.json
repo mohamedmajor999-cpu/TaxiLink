@@ -1,0 +1,23 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@taxilink/core": ["../../packages/core/src/index.ts"],
+      "@taxilink/design-tokens": ["../../packages/design-tokens/src/index.ts"],
+      "@taxilink/supabase-types": ["../../packages/supabase-types/src/index.ts"],
+      "@taxilink/services": ["../../packages/services/src/index.ts"],
+      "@taxilink/stores": ["../../packages/stores/src/index.ts"],
+      "@taxilink/ui-mobile": ["../../packages/ui-mobile/src/index.ts"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}

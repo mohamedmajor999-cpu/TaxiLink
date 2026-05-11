@@ -18,16 +18,30 @@ npm run dev          # next dev --port 3000
 npm run test         # vitest run (single run)
 npm run test:watch   # vitest (interactive)
 npm run type-check   # tsc --noEmit
+
+# From apps/mobile-driver
+npm run dev                    # alias de `expo start` (bundler Metro + QR Expo Go)
+npm run android                # `expo start --android` (lance sur emulateur ou device USB)
+npm run type-check             # tsc --noEmit
+npm run build:android:preview  # APK signe via EAS, distribution interne
+npm run build:android:dev      # APK dev client (hot-reload sur device)
+npm run build:ios:dev          # IPA dev client (TestFlight interne)
 ```
 
 ## Architecture
 
 **Monorepo** (npm workspaces + Turbo):
 - `apps/web` — Next.js 14 App Router, the entire product
+- `apps/mobile-driver` — Expo SDK 52 + Expo Router 4, app chauffeur native (iOS + Android). Phase 1 Sem 1 bootstrappee 2026-05-10. Boot = `app/_layout.tsx` appelle `initApp()` (cf. `src/lib/init.ts`) qui branche les packages `@taxilink/services` au client Supabase mobile (storage = expo-secure-store), puis `setApiBaseUrl` + `setErrorReporter` (Sentry RN) + `setRoutingGoogleMapsKey`. Equivalent du `_bridge.ts` web. Style via NativeWind v4 + tokens `@taxilink/design-tokens`. Build via EAS (`eas.json` profils development/preview/production). Path alias : `@/*` → `apps/mobile-driver/src/*`.
 - `packages/core` — Shared TypeScript types (`Driver`, `Mission`, `Agenda`, `Group`) and mock data (`mock/missions`, `mock/agenda`). Imported as `@taxilink/core`.
-- `packages/ui` — `tokens.ts` (colors/shadows/radii constants). Source of truth for **legacy dashboard tokens** (imported into `apps/web/tailwind.config.ts`). Refonte tokens (ink/paper/brand/warm/danger, typography, animations) still live inline in the Tailwind config — not yet shared.
+- `packages/design-tokens` — Tokens unifies cross-plateforme : `colors`, `shadows`, `borderRadius`, `fontFamily`, `fontSize`, `animation`, `keyframes`, `mobileFontFamily`. Importes par `apps/web/tailwind.config.ts` (Tailwind classique) ET par `apps/mobile-driver/tailwind.config.js` (NativeWind preset).
+- `packages/supabase-types` — Types Supabase generes (`Database`, `Json`, types de tables `Driver`/`Mission`/etc.). Source unique pour web et mobile. `apps/web/src/lib/supabase/types.ts` re-exporte depuis ce package pour preserver les imports `@/lib/supabase/types`.
+- `packages/services` — Services Supabase et API cross-platform avec injection client (`getSupabaseClient`/`setSupabaseClient`). 22 services migres en Phase 0 (auth, profile, driver, mission*, payment, voice*, routing*, etc.). Re-exports dans `apps/web/src/services/<name>.ts` via `bridgeService()` (Proxy) pour brancher le client web sur le singleton du package au premier appel — voir `apps/web/src/services/_bridge.ts`. Cote mobile, le bridge est dans `apps/mobile-driver/src/lib/init.ts` (eager au boot, pas lazy car pas de TDZ vitest a esquiver).
+- `packages/stores` — 11 stores Zustand cross-platform (driverStore, missionStore, gpsStore, etc.). Persistence opt-in via `localStorage` (web) ou `@react-native-async-storage/async-storage` (mobile, a brancher via `createJSONStorage` dans le store consommateur).
+- `packages/ui-mobile` — Composants RN partages entre apps/mobile-* (Button, Card, Sheet, Header, MapView…). **Squelette vide cree 2026-05-10**, populated incrementally pendant Phase 1. Suit la regle des 3 (cf. plus bas).
+- `packages/ui` — `tokens.ts` legacy. **Plus aucun consommateur** depuis la migration vers `@taxilink/design-tokens`. Sera supprime ou repurpose (composants UI partages) en session future.
 
-**Path alias**: `@/*` → `apps/web/src/*`
+**Path alias**: `@/*` → `apps/web/src/*` (web) ou `apps/mobile-driver/src/*` (mobile, declare dans `apps/mobile-driver/tsconfig.json`)
 
 ### State: Zustand stores (`src/store/`)
 
@@ -109,7 +123,7 @@ Stockage : `auth.users.raw_user_meta_data.dept_preferences: string[]`. `missionQ
 
 ## Design system
 
-Tailwind tokens live in `apps/web/tailwind.config.ts`. Legacy dashboard tokens (colors, shadows, radii) are imported from `@taxilink/ui`; refonte-specific tokens are inline.
+Tous les tokens Tailwind viennent de `@taxilink/design-tokens` (un seul package, cross-platform web + mobile a venir). `apps/web/tailwind.config.ts` importe `colors`, `shadows`, `borderRadius`, `fontFamily`, `fontSize`, `animation`, `keyframes` et les passe au theme.extend tels quels.
 
 **Colors**:
 - Dashboard (legacy, kept): `primary` = `#FFD23F` (yellow), `secondary` = `#1A1A1A`, `accent` = `#3B82F6`, `bgsoft`, `line`, `muted`.

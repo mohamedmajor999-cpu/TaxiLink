@@ -2,14 +2,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useMissionStore } from '@/store/missionStore'
 import { useDriverStore } from '@/store/driverStore'
 
-vi.mock('@/services/missionService', () => ({
-  missionService: {
-    accept:   vi.fn().mockResolvedValue(undefined),
-    complete: vi.fn().mockResolvedValue(undefined),
-    getAvailable: vi.fn().mockResolvedValue([]),
-    getCurrentForDriver: vi.fn().mockResolvedValue(null),
-  },
-}))
+// Le store vit dans @taxilink/stores et importe missionService depuis
+// @taxilink/services. On mock le package, pas le re-export apps/web.
+vi.mock('@taxilink/services', async () => {
+  const actual = await vi.importActual<typeof import('@taxilink/services')>('@taxilink/services')
+  return {
+    ...actual,
+    missionService: {
+      accept: vi.fn().mockResolvedValue(undefined),
+      complete: vi.fn().mockResolvedValue(undefined),
+      getAvailable: vi.fn().mockResolvedValue([]),
+      getCurrentForDriver: vi.fn().mockResolvedValue(null),
+    },
+  }
+})
 
 // Reset les stores avant chaque test
 beforeEach(() => {

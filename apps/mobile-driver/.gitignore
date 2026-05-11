@@ -1,0 +1,40 @@
+node_modules/
+.expo/
+dist/
+web-build/
+ios/
+android/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# IDE
+.idea/
+.vscode/
+
+# Sentry
+.sentryclirc
+
+# Native build artifacts
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Expo / EAS
+*.tsbuildinfo
+expo-env.d.ts

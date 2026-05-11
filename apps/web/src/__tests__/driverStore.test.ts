@@ -7,20 +7,20 @@ const mockGetDriver  = vi.fn()
 const mockSetOnline  = vi.fn()
 const mockAuthSignOut = vi.fn()
 
-vi.mock('@/services/profileService', () => ({
-  profileService: { getProfile: (...a: unknown[]) => mockGetProfile(...a) },
-}))
-
-vi.mock('@/services/driverService', () => ({
-  driverService: {
-    getDriver:  (...a: unknown[]) => mockGetDriver(...a),
-    setOnline:  (...a: unknown[]) => mockSetOnline(...a),
-  },
-}))
-
-vi.mock('@/services/authService', () => ({
-  authService: { signOut: (...a: unknown[]) => mockAuthSignOut(...a) },
-}))
+// Le store vit dans @taxilink/stores et importe les services depuis
+// @taxilink/services. On mock le package, pas les re-exports apps/web.
+vi.mock('@taxilink/services', async () => {
+  const actual = await vi.importActual<typeof import('@taxilink/services')>('@taxilink/services')
+  return {
+    ...actual,
+    profileService: { getProfile: (...a: unknown[]) => mockGetProfile(...a) },
+    driverService: {
+      getDriver: (...a: unknown[]) => mockGetDriver(...a),
+      setOnline: (...a: unknown[]) => mockSetOnline(...a),
+    },
+    authService: { signOut: (...a: unknown[]) => mockAuthSignOut(...a) },
+  }
+})
 
 const defaultDriver = {
   id: '',

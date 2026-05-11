@@ -1,34 +1,14 @@
 import { createClient } from '@/lib/supabase/client'
 import type { GroupMember, GroupMemberStats, GroupRole } from '@taxilink/core'
+import {
+  isFreshlyOnline,
+  type GroupActivitySummary,
+  type GroupDailyActivity,
+} from './groupStatsService.helpers'
+
+export type { GroupActivitySummary, GroupDailyActivity }
 
 const supabase = createClient()
-
-// TTL de presence : un chauffeur compte comme "en ligne" uniquement si son
-// last_seen_at est < ONLINE_TTL_MS. Le client ping toutes les 60s
-// (useDriverHeartbeat) ; on tolere donc un retard d'un cycle.
-const ONLINE_TTL_MS = 120_000
-
-function isFreshlyOnline(isOnline: boolean | undefined, lastSeenAt: string | null | undefined): boolean {
-  if (!isOnline) return false
-  if (!lastSeenAt) return false
-  return Date.now() - new Date(lastSeenAt).getTime() < ONLINE_TTL_MS
-}
-
-export interface GroupActivitySummary {
-  available:      number
-  exchanged7d:    number
-  reprisePercent: number
-  onlineCount:    number
-  /** ISO date du dernier événement (post ou acceptation) sur les 7 derniers
-   *  jours. Null si aucun événement. Utilisé côté client pour décider
-   *  d'afficher la pastille « nouveau » si > lastVisited. */
-  lastEventAt:    string | null
-}
-
-export interface GroupDailyActivity {
-  date:  string
-  count: number
-}
 
 export const groupStatsService = {
   /** Membres d'un groupe */
@@ -110,8 +90,6 @@ export const groupStatsService = {
         .gte('missions.created_at', since),
       // Aligne avec le filtre serveur de get_marketplace_missions :
       //   status = 'AVAILABLE' AND scheduled_at > now()
-      // Sans le filtre temporel, des missions fantomes (heure de depart passee,
-      // jamais finalisees en DB) etaient comptees comme dispo.
       supabase.from('mission_groups')
         .select('missions!inner(status)')
         .eq('group_id', groupId)

@@ -16,7 +16,12 @@
         "GEMINI_API_KEY",
         "ADMIN_EMAIL",
         "SUPABASE_SERVICE_ROLE_KEY",
-        "SENTRY_DSN"
+        "SENTRY_DSN",
+        "EXPO_PUBLIC_SUPABASE_URL",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY",
+        "EXPO_PUBLIC_GOOGLE_MAPS_KEY",
+        "EXPO_PUBLIC_SENTRY_DSN",
+        "EXPO_PUBLIC_API_BASE_URL"
       ]
     },
     "dev": {

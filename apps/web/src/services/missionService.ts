@@ -1,15 +1,5 @@
-import { missionQueries } from './missionQueries'
-import { missionMutations } from './missionMutations'
-import { missionProgressMutations } from './missionProgressMutations'
-import { missionCorrectionService } from './missionCorrectionService'
-import { missionManualService } from './missionManualService'
+// Re-export depuis @taxilink/services. Bridge lazy via Proxy : voir _bridge.ts.
+import { missionService as _missionService } from '@taxilink/services'
+import { bridgeService } from './_bridge'
 
-export const missionService = {
-  ...missionQueries,
-  ...missionMutations,
-  ...missionProgressMutations,
-  ...missionCorrectionService,
-  createManual: missionManualService.create,
-  updateManual: missionManualService.update,
-  removeManual: missionManualService.remove,
-}
+export const missionService = bridgeService(_missionService)

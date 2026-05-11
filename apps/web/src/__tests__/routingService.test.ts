@@ -13,9 +13,15 @@ vi.mock('@/lib/persistedLru', () => {
   }
 })
 
-vi.mock('@/lib/decodePolyline', () => ({
-  decodePolyline: (s: string) => (s ? [[1, 2], [3, 4]] : []),
-}))
+// Le service vit dans @taxilink/services et importe decodePolyline depuis
+// @taxilink/core. On mock la source cross-platform, pas le re-export web.
+vi.mock('@taxilink/core', async () => {
+  const actual = await vi.importActual<typeof import('@taxilink/core')>('@taxilink/core')
+  return {
+    ...actual,
+    decodePolyline: (s: string) => (s ? [[1, 2], [3, 4]] : []),
+  }
+})
 
 import { computeRoute, computeRouteGoogle } from '@/services/routingService'
 

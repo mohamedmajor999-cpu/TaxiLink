@@ -23,8 +23,17 @@
       "@taxilink/core": [
         "../../packages/core/src/index.ts"
       ],
-      "@taxilink/ui": [
-        "../../packages/ui/src/index.ts"
+      "@taxilink/design-tokens": [
+        "../../packages/design-tokens/src/index.ts"
+      ],
+      "@taxilink/supabase-types": [
+        "../../packages/supabase-types/src/index.ts"
+      ],
+      "@taxilink/services": [
+        "../../packages/services/src/index.ts"
+      ],
+      "@taxilink/stores": [
+        "../../packages/stores/src/index.ts"
       ]
     },
     "plugins": [

@@ -2,7 +2,13 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@taxilink/core', '@taxilink/ui'],
+  transpilePackages: [
+    '@taxilink/core',
+    '@taxilink/design-tokens',
+    '@taxilink/supabase-types',
+    '@taxilink/services',
+    '@taxilink/stores',
+  ],
 
   experimental: {
     instrumentationHook: true,

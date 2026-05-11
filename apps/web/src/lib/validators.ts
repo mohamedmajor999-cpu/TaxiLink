@@ -1,17 +1,13 @@
-// Umbrella d'exports de validation (auth + missions).
-// Les règles métier des missions sont dans ./missionValidators.
-
-export { isValidPhone, isValidEmail, isValidPassword, isValidName } from './authValidators'
-
-export interface ValidationError {
-  field: string
-  message: string
-}
-
+// Re-export depuis @taxilink/core (validators auth + missions).
 export {
+  isValidPhone,
+  isValidEmail,
+  isValidPassword,
+  isValidName,
   validateMission,
+  type ValidationError,
   type MissionInput,
   type MissionVisibility,
   type MedicalMotif,
   type TransportType,
-} from './missionValidators'
+} from '@taxilink/core'

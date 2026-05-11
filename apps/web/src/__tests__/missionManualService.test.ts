@@ -21,9 +21,15 @@ vi.mock('@/lib/supabase/client', () => ({
   createClient: () => ({ from: mockFrom }),
 }))
 
-vi.mock('@/lib/departement', () => ({
-  extractDepartement: (addr: string) => addr.includes('Paris') ? '75' : null,
-}))
+// Le service vit dans @taxilink/services et importe extractDepartement depuis
+// @taxilink/core. On mock la source cross-platform, pas le re-export web.
+vi.mock('@taxilink/core', async () => {
+  const actual = await vi.importActual<typeof import('@taxilink/core')>('@taxilink/core')
+  return {
+    ...actual,
+    extractDepartement: (addr: string) => (addr.includes('Paris') ? '75' : null),
+  }
+})
 
 const mission = {
   id: 'm1',
