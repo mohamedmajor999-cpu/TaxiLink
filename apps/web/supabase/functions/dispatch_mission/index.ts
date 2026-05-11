@@ -264,9 +264,13 @@ Deno.serve(async (req: Request) => {
       // existante) ou erreur transitoire ne doit pas bloquer la cascade.
     } else {
       totalOffers += newCandidates.length;
-      newCandidates.forEach((c) => alreadyOffered.add(c.driver_id));
       ringsExplored.push(radiusKm);
     }
+    // Marquer comme deja tente meme si l'INSERT a echoue : sinon, en cas de
+    // conflit (race avec un autre dispatch ou cron) on retentait les memes
+    // candidats a chaque palier suivant, en spammant l'INSERT 5 fois sans
+    // effet. La cascade doit avancer aux nouveaux rayons, pas boucler.
+    newCandidates.forEach((c) => alreadyOffered.add(c.driver_id));
 
     // Attente 20s avant le prochain palier
     await new Promise((r) => setTimeout(r, RING_DURATION_MS));
