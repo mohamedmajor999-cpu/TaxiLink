@@ -36,12 +36,16 @@ export function useDocumentUpload(
         label: DOC_CONFIG[type].label,
         filePath,
       })
-      await onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur lors de l'envoi")
-    } finally {
       setUploading(null)
+      return
     }
+    // Le refresh est hors try : un echec ici n'est pas une erreur d'envoi
+    // (le fichier est en base). Sinon l'user voyait "Erreur lors de l'envoi"
+    // et re-uploadait un fichier deja sauvegarde.
+    try { await onSuccess() } catch { /* silencieux */ }
+    setUploading(null)
   }
 
   return { uploading, error, fileInputRef, triggerUpload, handleFileChange }

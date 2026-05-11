@@ -18,11 +18,17 @@ export function useDeptPreferences() {
 
   useEffect(() => {
     let active = true
-    userPrefsService.getDeptPreferences().then((v) => {
-      if (!active) return
-      setDepts(v.length === 0 ? EMPTY : v)
-      setLoading(false)
-    })
+    userPrefsService.getDeptPreferences()
+      .then((v) => {
+        if (!active) return
+        setDepts(v.length === 0 ? EMPTY : v)
+        setLoading(false)
+      })
+      .catch(() => {
+        // Sans catch, un reject (reseau down) laissait `loading` a true
+        // indefiniment → spinner bloque dans DeptPreferencesCard.
+        if (active) setLoading(false)
+      })
     return () => { active = false }
   }, [])
 
