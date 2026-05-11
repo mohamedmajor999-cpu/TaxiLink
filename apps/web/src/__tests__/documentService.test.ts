@@ -76,8 +76,10 @@ describe('documentService.uploadFile — validation', () => {
 
   it('retourne le path interne du bucket apres upload reussi', async () => {
     const path = await documentService.uploadFile('u1', 'carte_grise', makeFile('application/pdf'))
-    // path = `${userId}/${type}_${timestamp}.${ext}` — bucket prive, lecture via getSignedUrl()
-    expect(path).toMatch(/^u1\/carte_grise_\d+\.pdf$/)
+    // path = `${userId}/${type}.${ext}` (deterministe) — bucket prive,
+    // lecture via getSignedUrl(). Pas de Date.now() : un re-upload ecrase
+    // l'ancien fichier au lieu de creer un orphelin.
+    expect(path).toBe('u1/carte_grise.pdf')
     expect(mockUpload).toHaveBeenCalledOnce()
   })
 

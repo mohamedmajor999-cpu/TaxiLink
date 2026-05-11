@@ -89,7 +89,7 @@ describe('useDocumentUpload — handleFileChange (succès)', () => {
     const file = new File(['x'], 'carte.pdf', { type: 'application/pdf' })
     await act(async () => { await result.current.handleFileChange(createEvent(file)) })
 
-    expect(mockUploadFile).toHaveBeenCalledWith('u1', 'carte_pro', file)
+    expect(mockUploadFile).toHaveBeenCalledWith('u1', 'carte_pro', file, null)
     expect(mockUpsertDocument).toHaveBeenCalled()
     expect(mockOnSuccess).toHaveBeenCalled()
     expect(result.current.uploading).toBeNull()

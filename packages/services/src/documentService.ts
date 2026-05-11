@@ -17,7 +17,7 @@ export const documentService = {
   // 20260510_driver_documents_bucket.sql). On retourne le `path` interne au
   // bucket, qu'on stocke en BD via upsertDocument. La lecture passe par
   // createSignedUrl (cote driver) ou par le service-role (cote admin).
-  async uploadFile(userId: string, type: string, file: File): Promise<string> {
+  async uploadFile(userId: string, type: string, file: File, previousPath?: string | null): Promise<string> {
     const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
     if (!ALLOWED_TYPES.includes(file.type)) {
       throw new Error('Type de fichier non autorisé. Formats acceptés : PDF, JPG, PNG.')
@@ -28,7 +28,16 @@ export const documentService = {
     }
     const supabase = getSupabaseClient()
     const ext = (file.name.split('.').pop() ?? '').toLowerCase() || 'bin'
-    const path = `${userId}/${type}_${Date.now()}.${ext}`
+    // Path deterministe (${userId}/${type}.${ext}) : `upsert: true` ecrase
+    // ainsi l'ancien fichier de meme type+extension. Avant on incluait
+    // Date.now() dans le path -> chaque re-upload creait un NOUVEAU fichier
+    // et l'ancien restait orphelin dans le bucket (storage leak).
+    // Si l'extension change (ex: pdf -> jpg), on supprime explicitement
+    // l'ancien path qui ne sera pas ecrase par l'upsert.
+    const path = `${userId}/${type}.${ext}`
+    if (previousPath && previousPath !== path) {
+      await supabase.storage.from('driver-documents').remove([previousPath]).catch(() => { /* tolerant : si l'ancien n'existe plus, pas grave */ })
+    }
     const { error } = await supabase.storage
       .from('driver-documents')
       .upload(path, file, { upsert: true })
