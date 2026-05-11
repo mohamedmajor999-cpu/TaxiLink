@@ -118,7 +118,12 @@ export function useDriverMissions() {
       setShowConfetti(false)
       const msg = err instanceof Error ? err.message : "Impossible d'accepter la mission"
       addToast({ message: msg, type: 'warning' })
-      if (msg.includes('déjà acceptée')) await loadMissions()
+      // Re-sync la liste dans tous les cas d'echec : avant on ne le faisait
+      // qu'en matchant `msg.includes('deja acceptee')`, mais ce check sur le
+      // texte exact du message etait fragile (un changement de wording cote
+      // service cassait la sync silencieusement). Un re-fetch defensif est
+      // leger en cas de "deja prise" et inoffensif sur erreur reseau.
+      await loadMissions().catch(() => { /* ignore : on a deja affiche le toast */ })
     } finally {
       setAccepting(null)
     }
