@@ -9,7 +9,10 @@ interface SparklineProps {
 // Utilise currentColor pour s'adapter au theme parent.
 export function Sparkline({ values, height = 40, className = '', fillOpacity = 0.15 }: SparklineProps) {
   if (values.length < 2) {
-    return <div className={`h-${height} ${className}`} />
+    // height en style inline : `h-${height}` etait une classe Tailwind
+    // dynamique non purgee (h-100 n'existe pas dans la palette par defaut)
+    // -> le placeholder etait invisible pour height>96.
+    return <div className={className} style={{ height }} />
   }
 
   const max = Math.max(...values, 1)
