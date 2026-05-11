@@ -25,10 +25,19 @@ export function useDriverHeartbeat() {
         Sentry.captureException(err, { tags: { context: 'heartbeat' } })
       })
     }
-    // Ping immediat pour rafraichir last_seen_at apres un retour de focus
-    // (le tab a pu rester ouvert sans heartbeat pendant la mise en veille).
     ping()
     const id = setInterval(ping, HEARTBEAT_INTERVAL_MS)
-    return () => clearInterval(id)
+    // Ping au retour de focus : Safari iOS / PWA en background peut totalement
+    // suspendre setInterval pendant plusieurs minutes. Sans ce ping, le driver
+    // apparait offline au cron jusqu'au prochain tick (60s d'invisibilite max
+    // sur dispatch). On ping aussi sur 'focus' pour les bureaux desktop.
+    const onVisible = () => { if (document.visibilityState === 'visible') ping() }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', ping)
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', ping)
+    }
   }, [driverId, isOnline])
 }
