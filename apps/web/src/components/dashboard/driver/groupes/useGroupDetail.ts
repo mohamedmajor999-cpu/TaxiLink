@@ -61,6 +61,10 @@ export function useGroupDetail(groupId: string) {
 
   const leave = async () => {
     if (!user?.id || !group) return
+    // Garde-fou clic accidentel : quitter un groupe est destructif (il faut
+    // une re-invitation pour revenir). On reste sur confirm() natif tant
+    // qu'on n'a pas de modale custom dediee.
+    if (typeof window !== 'undefined' && !window.confirm(`Quitter le groupe "${group.name}" ?`)) return
     setLeaving(true)
     try {
       await groupService.leave(group.id, user.id)
