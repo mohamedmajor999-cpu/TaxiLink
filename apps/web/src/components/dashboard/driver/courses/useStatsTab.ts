@@ -29,6 +29,13 @@ function startOfDay(d: Date): Date {
   return r
 }
 
+// Parse YYYY-MM-DD en composantes LOCALES (pas via new Date(s) qui retombe
+// en UTC midnight et decale d'1-2h en metropole, d'1 jour aux DROM-COM).
+function parseYmdLocal(s: string): Date {
+  const [y, m, d] = s.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
 export function useStatsTab() {
   const { user } = useAuth()
   const [missions, setMissions] = useState<Mission[]>([])
@@ -66,8 +73,8 @@ export function useStatsTab() {
   // max et on swap si l'utilisateur a inverse les dates.
   const range = useMemo(() => {
     if (period === 'custom') {
-      let from = new Date(customFrom)
-      let to = new Date(customTo)
+      let from = parseYmdLocal(customFrom)
+      let to = parseYmdLocal(customTo)
       if (from > to) [from, to] = [to, from]
       if (from < minDate) from = new Date(minDate)
       to.setHours(23, 59, 59, 999)
