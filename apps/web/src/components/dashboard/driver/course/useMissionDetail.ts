@@ -82,8 +82,7 @@ export function useMissionDetail(missionId: string) {
     setCancelling(true)
     try {
       await missionService.cancel(mission.id, reason)
-      // Dismiss store comme complete/noShow : sinon la banniere "course en
-      // cours" reste affichee jusqu'au prochain realtime UPDATE.
+      // Dismiss store sinon banniere "course en cours" persiste jusqu'au realtime UPDATE.
       const storeCurrent = useMissionStore.getState().currentMission
       if (storeCurrent?.id === mission.id) useMissionStore.getState().dismissCurrentMission()
       router.back()
