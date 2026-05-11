@@ -16,7 +16,10 @@ export function useClientDashboard() {
     if (next === 'reserver') params.delete('tab')
     else params.set('tab', next)
     const qs = params.toString()
-    router.push(qs ? `${pathname}?${qs}` : pathname)
+    // replace plutot que push : un click sur tab ne doit pas polluer
+    // l'historique (back retournerait alors d'onglet en onglet plutot que
+    // de quitter le dashboard).
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
   }
 
   return { tab, setTab }

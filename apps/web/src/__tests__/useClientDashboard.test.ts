@@ -3,11 +3,11 @@ import { renderHook, act } from '@testing-library/react'
 import { useClientDashboard } from '@/components/dashboard/client/useClientDashboard'
 
 // ─── Mocks next/navigation ────────────────────────────────────────────────────
-const mockPush = vi.fn()
+const mockReplace = vi.fn()
 let currentSearch = ''
 
 vi.mock('next/navigation', () => ({
-  useRouter:       () => ({ push: mockPush }),
+  useRouter:       () => ({ replace: mockReplace }),
   usePathname:     () => '/dashboard/client',
   useSearchParams: () => new URLSearchParams(currentSearch),
 }))
@@ -37,16 +37,16 @@ describe('useClientDashboard — état initial', () => {
 })
 
 describe('useClientDashboard — setTab', () => {
-  it('push /dashboard/client?tab=mes-courses', () => {
+  it('replace /dashboard/client?tab=mes-courses', () => {
     const { result } = renderHook(() => useClientDashboard())
     act(() => { result.current.setTab('mes-courses') })
-    expect(mockPush).toHaveBeenCalledWith('/dashboard/client?tab=mes-courses')
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard/client?tab=mes-courses')
   })
 
-  it('push /dashboard/client (sans query) quand on revient sur "reserver"', () => {
+  it('replace /dashboard/client (sans query) quand on revient sur "reserver"', () => {
     currentSearch = 'tab=mes-courses'
     const { result } = renderHook(() => useClientDashboard())
     act(() => { result.current.setTab('reserver') })
-    expect(mockPush).toHaveBeenCalledWith('/dashboard/client')
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard/client')
   })
 })

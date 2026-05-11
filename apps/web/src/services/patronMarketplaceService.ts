@@ -86,6 +86,10 @@ export const patronMarketplaceService = {
 function relativeTime(iso: string): string {
   const target = new Date(iso).getTime()
   const diffMin = Math.round((target - Date.now()) / 60000)
+  // Mission deja passee : affiche la date absolue plutot que "Dans -X min".
+  if (diffMin < 0) {
+    return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso))
+  }
   if (diffMin < 60) return `Dans ${diffMin} min`
   if (diffMin < 24 * 60) return `Dans ${Math.round(diffMin / 60)}h`
   return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso))

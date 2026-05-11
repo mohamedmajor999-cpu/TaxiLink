@@ -13,6 +13,8 @@ export function normalizePhone(phone: string): string {
 }
 
 export function buildInvitationLink(token: string): string {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://taxi-link-web.vercel.app'
+  // Fallback prod = taxilink.fr (domaine canonique), pas l'ancien
+  // taxi-link-web.vercel.app qui n'est plus le canonique meme s'il reste actif.
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://taxilink.fr'
   return `${origin}/invite/${token}`
 }
