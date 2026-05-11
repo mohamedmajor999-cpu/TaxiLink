@@ -169,6 +169,7 @@ export function DriverDashboard() {
         <MobileTopbar
           variant={activeTab === 'home' ? 'floating' : 'bar'}
           hasNotif={totalUnseenAds > 0}
+          isOpen={drawerOpen}
           onOpen={() => setDrawerOpen(true)}
         />
       )}

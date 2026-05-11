@@ -1,4 +1,5 @@
 'use client'
+import { useEffect } from 'react'
 import { Home, List, Plus, Users, User, LogOut, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useDriverStore } from '@/store/driverStore'
@@ -45,6 +46,15 @@ export function MobileNavDrawer({
     onClose()
   }
 
+  // Bloquer le scroll du body quand le drawer est ouvert : sinon swipe sur
+  // backdrop scrolle la page derriere en plus de fermer le drawer.
+  useEffect(() => {
+    if (!open) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = previous }
+  }, [open])
+
   return (
     <>
       <div
@@ -53,6 +63,7 @@ export function MobileNavDrawer({
         aria-hidden="true"
       />
       <aside
+        id="mobile-nav-drawer"
         className={`md:hidden fixed top-0 bottom-0 left-0 z-[1101] w-[78%] max-w-[320px] bg-paper dark:bg-night-bg shadow-[8px_0_24px_rgba(0,0,0,0.18)] transform transition-transform duration-200 ease-out ${open ? 'translate-x-0' : '-translate-x-full'}`}
         role="dialog"
         aria-label="Menu navigation"

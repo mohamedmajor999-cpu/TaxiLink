@@ -4,16 +4,19 @@ import { Menu } from 'lucide-react'
 interface Props {
   variant: 'floating' | 'bar'
   hasNotif?: boolean
+  isOpen?: boolean
   onOpen: () => void
 }
 
-export function MobileTopbar({ variant, hasNotif, onOpen }: Props) {
+export function MobileTopbar({ variant, hasNotif, isOpen, onOpen }: Props) {
   if (variant === 'floating') {
     return (
       <button
         type="button"
         onClick={onOpen}
         aria-label="Ouvrir le menu"
+        aria-expanded={isOpen ?? false}
+        aria-controls="mobile-nav-drawer"
         className="md:hidden fixed top-3 left-3 z-[600] w-11 h-11 rounded-full bg-paper/95 dark:bg-night-surface/95 backdrop-blur-md border border-warm-200 dark:border-night-border shadow-[0_4px_14px_rgba(0,0,0,0.12)] flex items-center justify-center text-ink dark:text-night-text active:scale-95 transition-transform"
         style={{ marginTop: 'env(safe-area-inset-top)' }}
       >
@@ -33,6 +36,8 @@ export function MobileTopbar({ variant, hasNotif, onOpen }: Props) {
         type="button"
         onClick={onOpen}
         aria-label="Ouvrir le menu"
+        aria-expanded={isOpen ?? false}
+        aria-controls="mobile-nav-drawer"
         className="relative w-10 h-10 rounded-full hover:bg-warm-50 dark:hover:bg-night-elevated flex items-center justify-center text-ink dark:text-night-text active:scale-95 transition-transform"
       >
         <Menu className="w-5 h-5" strokeWidth={2} />
