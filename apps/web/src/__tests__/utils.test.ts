@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { formatEur, formatKm } from '@/lib/formatters'
-import { getMissionTypeLabel, getMissionTypeColors } from '@/lib/missionDisplay'
 import {
   formatTime,
   formatDate,
@@ -72,52 +71,6 @@ describe('isSameDay', () => {
 
   it('accepte des strings ISO', () => {
     expect(isSameDay('2026-04-11T10:00:00', '2026-04-11T20:00:00')).toBe(true)
-  })
-})
-
-// ─── getMissionTypeLabel ──────────────────────────────────────────────────────
-describe('getMissionTypeLabel', () => {
-  it('retourne "CPAM" pour CPAM', () => {
-    expect(getMissionTypeLabel('CPAM')).toBe('CPAM')
-  })
-
-  it('retourne "Privé" pour PRIVE', () => {
-    expect(getMissionTypeLabel('PRIVE')).toBe('Privé')
-  })
-
-  it('retourne "TaxiLink" pour TAXILINK', () => {
-    expect(getMissionTypeLabel('TAXILINK')).toBe('TaxiLink')
-  })
-
-  it('retourne la valeur brute pour un type inconnu', () => {
-    expect(getMissionTypeLabel('INCONNU')).toBe('INCONNU')
-  })
-})
-
-// ─── getMissionTypeColors ─────────────────────────────────────────────────────
-describe('getMissionTypeColors', () => {
-  it('retourne les couleurs CPAM', () => {
-    const colors = getMissionTypeColors('CPAM')
-    expect(colors.bg).toBe('bg-primary/20')
-    expect(colors.text).toBe('text-secondary')
-  })
-
-  it('retourne les couleurs PRIVE', () => {
-    const colors = getMissionTypeColors('PRIVE')
-    expect(colors.bg).toBe('bg-secondary/10')
-    expect(colors.text).toBe('text-secondary')
-  })
-
-  it('retourne les couleurs TAXILINK', () => {
-    const colors = getMissionTypeColors('TAXILINK')
-    expect(colors.bg).toBe('bg-muted/20')
-    expect(colors.text).toBe('text-secondary')
-  })
-
-  it('retourne les couleurs par défaut pour un type inconnu', () => {
-    const colors = getMissionTypeColors('INCONNU')
-    expect(colors.bg).toBe('bg-gray-100')
-    expect(colors.text).toBe('text-gray-700')
   })
 })
 

@@ -19,6 +19,13 @@ export function OnboardingPage() {
     if (window.matchMedia('(min-width: 768px)').matches) router.replace('/')
   }, [router])
 
+  // Marque l'onboarding comme vu des qu'on atteint la welcome screen, pas
+  // seulement au clic CTA. Sans ca, fermer l'app ou swipe-back rejouait
+  // l'onboarding en boucle a chaque ouverture PWA standalone.
+  useEffect(() => {
+    if (step === 'welcome') markSeen()
+  }, [step, markSeen])
+
   if (step === 'splash') return <OnboardingSplash onNext={next} />
 
   if (step === 'welcome') return <OnboardingWelcome onEnter={markSeen} />

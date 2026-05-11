@@ -11,7 +11,10 @@ export function splitFrenchAddress(raw: string): { street: string; cityLine: str
   if (!match) return { street: trimmed, cityLine: null }
   const street = trimmed.slice(0, match.index).trim().replace(/,\s*$/, '')
   const cityLine = trimmed.slice(match.index).trim()
-  return { street: street || trimmed, cityLine: cityLine || null }
+  // Si l'adresse commence par le CP (pas de rue), eviter la duplication
+  // street=cityLine="13001 Marseille" -> garder uniquement la ligne brute.
+  if (!street) return { street: trimmed, cityLine: null }
+  return { street, cityLine: cityLine || null }
 }
 
 /** Forme « point » attendue par RouteTimeline : rue sur la ligne principale, CP+ville en sous-ligne. */
