@@ -29,13 +29,21 @@ export function useCourseActionsMenu({ mission }: Options) {
     return () => document.removeEventListener('mousedown', onClickOutside)
   }, [open])
 
+  const [error, setError] = useState<string | null>(null)
+
   const submitCancel = useCallback(async (reason: string) => {
     if (busy) return
     setBusy(true)
+    setError(null)
     try {
       await missionService.cancel(mission.id, reason)
       useMissionStore.getState().dismissCurrentMission()
       setCancelOpen(false)
+    } catch (err) {
+      // Avant : try/finally sans catch -> echec silencieux (Promise rejetee
+      // swallow par React, dialog reste ouvert sans feedback). Maintenant on
+      // expose l'erreur dans le menu pour que l'user puisse retry ou bypass.
+      setError(err instanceof Error ? err.message : "Impossible d'annuler la course")
     } finally {
       setBusy(false)
     }
@@ -44,10 +52,13 @@ export function useCourseActionsMenu({ mission }: Options) {
   const submitNoShow = useCallback(async (reason: string) => {
     if (busy) return
     setBusy(true)
+    setError(null)
     try {
       await missionService.markNoShow(mission.id, reason)
       useMissionStore.getState().dismissCurrentMission()
       setNoShowOpen(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Impossible de signaler l\'absence')
     } finally {
       setBusy(false)
     }
@@ -61,6 +72,7 @@ export function useCourseActionsMenu({ mission }: Options) {
     cancelOpen, openCancel: () => { setCancelOpen(true); setOpen(false) }, closeCancel: () => setCancelOpen(false),
     noShowOpen, openNoShow: () => { setNoShowOpen(true); setOpen(false) }, closeNoShow: () => setNoShowOpen(false),
     submitCancel, submitNoShow, busy,
+    error, dismissError: () => setError(null),
     notifyPatient: () => { notifyPatientSms(mission); setOpen(false) },
   }
 }

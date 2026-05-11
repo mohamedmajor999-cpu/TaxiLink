@@ -28,7 +28,10 @@ export function formatScheduledTime(iso: string): string {
 }
 
 // Décompte humain jusqu'à scheduled_at. Négatif = rendez-vous passé.
-export function formatCountdown(iso: string, now: Date = new Date()): string {
+// Renommé depuis formatCountdown pour eviter la collision avec
+// lib/formatDuration.ts (signature differente : ms vs iso). L'auto-import
+// IDE prenait parfois le mauvais.
+export function formatScheduledCountdown(iso: string, now: Date = new Date()): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
   const diffMin = Math.round((d.getTime() - now.getTime()) / 60000)

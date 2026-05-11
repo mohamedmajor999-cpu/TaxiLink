@@ -7,8 +7,7 @@ import { addressAsPoint } from '@/lib/splitFrenchAddress'
 import { computeDisplayFare } from '@/lib/missionFare'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionDetail } from './course/useMissionDetail'
-import { CancelMissionDialog } from './course/CancelMissionDialog'
-import { NoShowDialog } from './course/NoShowDialog'
+import { ReasonDialog, CANCEL_REASONS, NO_SHOW_REASONS } from './course/ReasonDialog'
 import { CourseTopStats } from './course/CourseTopStats'
 import { CourseDetailsTable } from './course/CourseDetailsTable'
 import { CourseActions } from './course/CourseActions'
@@ -153,16 +152,27 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
         />
       )}
 
-      <CancelMissionDialog
+      <ReasonDialog
         open={c.cancelOpen}
         submitting={c.cancelling}
+        title="Annuler la course"
+        reasons={CANCEL_REASONS}
+        submitLabel="Confirmer"
+        submittingLabel="Annulation…"
+        variant="danger"
         onClose={() => c.setCancelOpen(false)}
         onSubmit={c.cancel}
       />
 
-      <NoShowDialog
+      <ReasonDialog
         open={c.noShowOpen}
         submitting={c.noShowSubmitting}
+        title="Client absent"
+        subtitle="La course sera clôturée mais ne comptera pas dans votre CA."
+        reasons={NO_SHOW_REASONS}
+        submitLabel="Confirmer l'absence"
+        submittingLabel="Envoi…"
+        variant="ink"
         onClose={() => c.setNoShowOpen(false)}
         onSubmit={c.noShow}
       />

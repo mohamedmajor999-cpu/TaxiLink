@@ -6,7 +6,7 @@ import { AgendaCardMenu } from './AgendaCardMenu'
 import { WeekStrip } from './WeekStrip'
 import { AgendaDayBlock } from './AgendaDayBlock'
 import { agendaDayLabel, startOfDay, addDays } from './agendaHelpers'
-import { CancelMissionDialog } from '../course/CancelMissionDialog'
+import { ReasonDialog, CANCEL_REASONS } from '../course/ReasonDialog'
 import { ConfirmDeleteCourseDialog } from './ConfirmDeleteCourseDialog'
 
 export function AgendaTab() {
@@ -118,9 +118,14 @@ export function AgendaTab() {
         onConfirm={() => a.deletingMission && a.deleteMission(a.deletingMission.id)}
       />
 
-      <CancelMissionDialog
+      <ReasonDialog
         open={a.cancelOpenId !== null}
         submitting={a.busyId === a.cancelOpenId}
+        title="Annuler la course"
+        reasons={CANCEL_REASONS}
+        submitLabel="Confirmer"
+        submittingLabel="Annulation…"
+        variant="danger"
         onClose={a.closeCancel}
         onSubmit={(reason) => a.cancelOpenId && a.cancelMission(a.cancelOpenId, reason)}
       />

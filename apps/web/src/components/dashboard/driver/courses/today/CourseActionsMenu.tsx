@@ -2,8 +2,7 @@
 import type { ReactNode } from 'react'
 import { MoreHorizontal, MessageSquare, Pencil, UserX, X } from 'lucide-react'
 import type { Mission } from '@/lib/supabase/types'
-import { CancelMissionDialog } from '../../course/CancelMissionDialog'
-import { NoShowDialog } from '../../course/NoShowDialog'
+import { ReasonDialog, CANCEL_REASONS, NO_SHOW_REASONS } from '../../course/ReasonDialog'
 import { useCourseActionsMenu } from './useCourseActionsMenu'
 
 interface Props {
@@ -55,8 +54,31 @@ export function CourseActionsMenu({ mission, onEdit }: Props) {
         )}
       </div>
 
-      <CancelMissionDialog open={m.cancelOpen} submitting={m.busy} onClose={m.closeCancel} onSubmit={m.submitCancel} />
-      <NoShowDialog open={m.noShowOpen} submitting={m.busy} onClose={m.closeNoShow} onSubmit={m.submitNoShow} />
+      <ReasonDialog
+        open={m.cancelOpen}
+        submitting={m.busy}
+        title="Annuler la course"
+        reasons={CANCEL_REASONS}
+        submitLabel="Confirmer"
+        submittingLabel="Annulation…"
+        variant="danger"
+        error={m.cancelOpen ? m.error : null}
+        onClose={() => { m.closeCancel(); m.dismissError() }}
+        onSubmit={m.submitCancel}
+      />
+      <ReasonDialog
+        open={m.noShowOpen}
+        submitting={m.busy}
+        title="Client absent"
+        subtitle="La course sera clôturée mais ne comptera pas dans votre CA."
+        reasons={NO_SHOW_REASONS}
+        submitLabel="Confirmer l'absence"
+        submittingLabel="Envoi…"
+        variant="ink"
+        error={m.noShowOpen ? m.error : null}
+        onClose={() => { m.closeNoShow(); m.dismissError() }}
+        onSubmit={m.submitNoShow}
+      />
     </>
   )
 }
