@@ -9,10 +9,9 @@ import { usePublishedFeedbackStore } from '@/store/publishedFeedbackStore'
 import { playNotificationSound } from '@/lib/playNotificationSound'
 import { maskMissionForViewer } from '@/lib/missionMask'
 
-const TYPE_LABEL: Record<'CPAM' | 'PRIVE' | 'PRESCRIPTION', string> = {
+const TYPE_LABEL: Record<'CPAM' | 'PRIVE', string> = {
   CPAM: 'CPAM',
   PRIVE: 'Privé',
-  PRESCRIPTION: 'Prescription',
 }
 
 export function useDriverMissions() {
