@@ -74,11 +74,19 @@ export const earningsService = {
       }
     }
 
+    // Arrondit aussi les buckets : sans ca, l'UI qui somme la semaine
+    // (useCoursesEarningsChip) accumulait les erreurs de precision flottante
+    // -> affichage "80.94999..." au lieu de "80.95" en cas de prix decimaux.
+    const weekSparkline = Array.from(buckets.values()).map((b) => ({
+      ...b,
+      earnings: Math.round(b.earnings * 100) / 100,
+    }))
+
     return {
       todayEarnings: Math.round(todayEarnings * 100) / 100,
       todayCount,
       yesterdayEarnings: Math.round(yesterdayEarnings * 100) / 100,
-      weekSparkline: Array.from(buckets.values()),
+      weekSparkline,
     }
   },
 }
