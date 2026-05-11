@@ -1,11 +1,14 @@
+// Donnees fictives pour le mockup. Ne pas remplacer par de vrais noms /
+// numeros : la landing est publique, toute personne mentionnee pourrait
+// faire valoir un droit a l'effacement (RGPD art. 17) + plainte CNIL.
 const MESSAGES = [
-  { sender: 'Nidhal Régul', color: '#FFA726', body: '13H30 13014 → 13011', time: '13:11' },
-  { sender: '~Samir', color: '#FF8A9B', phone: '+33 6 28 88 61 61', body: 'Nord → Châteauneuf les Martigues J\'ai', time: '13:13' },
-  { sender: 'Nidhal Régul', color: '#FFA726', body: '14H 13015 → TIMONE', time: '13:35' },
-  { sender: 'Nidhal Régul', color: '#FFA726', body: '14H30 13014 → ST JOSEPH', time: '13:43' },
-  { sender: '~Rihab 265', color: '#53BDEB', phone: '+33 6 72 00 54 47', quote: { name: 'Nidhal Régul', text: '14H30 13014 → ST JOSEPH' }, body: 'Okok', time: '13:43' },
-  { sender: 'Nidhal Régul', color: '#FFA726', quote: { name: '~Rihab 265', text: 'Okok' }, body: 'Dsl placé merci quand même', time: '13:44' },
-  { sender: '~Remy Pacini', color: '#06CF9C', phone: '+33 6 17 24 86 68', body: 'Aix pr Trets', time: '14:03' },
+  { sender: 'Karim Régul',  color: '#FFA726', body: '13H30 13014 → 13011', time: '13:11' },
+  { sender: '~Sami',        color: '#FF8A9B', phone: '+33 6 12 34 56 78', body: 'Nord → Châteauneuf les Martigues J\'ai', time: '13:13' },
+  { sender: 'Karim Régul',  color: '#FFA726', body: '14H 13015 → TIMONE', time: '13:35' },
+  { sender: 'Karim Régul',  color: '#FFA726', body: '14H30 13014 → ST JOSEPH', time: '13:43' },
+  { sender: '~Lina 265',    color: '#53BDEB', phone: '+33 6 98 76 54 32', quote: { name: 'Karim Régul', text: '14H30 13014 → ST JOSEPH' }, body: 'Okok', time: '13:43' },
+  { sender: 'Karim Régul',  color: '#FFA726', quote: { name: '~Lina 265', text: 'Okok' }, body: 'Dsl placé merci quand même', time: '13:44' },
+  { sender: '~Théo P.',     color: '#06CF9C', phone: '+33 6 11 22 33 44', body: 'Aix pr Trets', time: '14:03' },
 ]
 
 export function ProblemWhatsappCard() {
