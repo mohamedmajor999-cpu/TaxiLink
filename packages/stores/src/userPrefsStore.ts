@@ -17,7 +17,7 @@ async function persist(patch: Partial<{ popupNewMission: boolean; geolocPushEnab
   await userPrefsService.updateNotificationPrefs({ ...current, ...patch })
 }
 
-export const useUserPrefs = create<UserPrefsState>((set) => ({
+export const useUserPrefs = create<UserPrefsState>((set, get) => ({
   ...DEFAULTS,
   loaded: false,
 
@@ -30,13 +30,26 @@ export const useUserPrefs = create<UserPrefsState>((set) => ({
     })
   },
 
+  // Optimistic update + rollback en cas d'echec persist : avant, on flippait
+  // l'UI mais le serveur restait sur l'ancienne valeur -> au prochain load(),
+  // la pref reapparaissait dans son etat d'origine sans explication.
   setPopupNewMission: async (v) => {
+    const previous = get().popupNewMission
     set({ popupNewMission: v })
-    await persist({ popupNewMission: v }).catch(() => { /* silencieux : pref pas critique */ })
+    try {
+      await persist({ popupNewMission: v })
+    } catch {
+      set({ popupNewMission: previous })
+    }
   },
 
   setGeolocPushEnabled: async (v) => {
+    const previous = get().geolocPushEnabled
     set({ geolocPushEnabled: v })
-    await persist({ geolocPushEnabled: v }).catch(() => { /* silencieux */ })
+    try {
+      await persist({ geolocPushEnabled: v })
+    } catch {
+      set({ geolocPushEnabled: previous })
+    }
   },
 }))

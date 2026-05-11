@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       ai_usage: {
         Row: {
+          audio_seconds: number | null
           cost_usd: number
           created_at: string
           endpoint: string
@@ -26,6 +27,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          audio_seconds?: number | null
           cost_usd?: number
           created_at?: string
           endpoint: string
@@ -36,6 +38,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          audio_seconds?: number | null
           cost_usd?: number
           created_at?: string
           endpoint?: string

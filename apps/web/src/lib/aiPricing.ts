@@ -15,11 +15,15 @@ const PRICING: Record<string, ModelPricing> = {
   'whisper-1':                  { inputPerMillion: 0,    outputPerMillion: 0    },
 }
 
+// Whisper-1 : $0.006 / minute = $0.0001 / seconde (OpenAI 2026-05).
+const WHISPER_USD_PER_SECOND = 0.0001
+
 export function getPricing(model: string): ModelPricing | null {
   return PRICING[model] ?? null
 }
 
-export function computeCostUsd(model: string, inputTokens: number, outputTokens: number): number {
+export function computeCostUsd(model: string, inputTokens: number, outputTokens: number, audioSeconds = 0): number {
+  if (model === 'whisper-1') return audioSeconds * WHISPER_USD_PER_SECOND
   const p = getPricing(model)
   if (!p) return 0
   return (inputTokens * p.inputPerMillion + outputTokens * p.outputPerMillion) / 1_000_000

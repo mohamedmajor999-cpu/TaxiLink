@@ -80,6 +80,11 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     const driverId = useDriverStore.getState().driver.id
     if (!driverId) return
     await missionService.accept(id, driverId)
+    // status='IN_PROGRESS' echo le service qui flip directement la DB en
+    // IN_PROGRESS (skip de la phase 'ACCEPTED'). C'est intentionnel : la
+    // distinction "course vraiment en cours" se fait via enroute_at/pickup_at
+    // dans useTodayTab, pas via le status seul. Ne pas changer ici sans
+    // synchroniser missionMutations.accept et useTodayTab.current.
     set({
       currentMission: { ...mission, status: 'IN_PROGRESS', driverId },
       missions: missions.filter((m) => m.id !== id),

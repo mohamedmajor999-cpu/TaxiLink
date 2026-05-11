@@ -19,6 +19,9 @@ const WHISPER_PROMPT =
 export interface TranscribeResult {
   text: string
   elapsedMs: number
+  // Duree audio en secondes, telle que Whisper l'a calculee. Utilisee par
+  // logAiUsage pour facturer ($0.006/min). null si Whisper ne l'a pas renvoye.
+  audioSeconds: number | null
 }
 
 export class TranscribeError extends Error {
@@ -30,7 +33,9 @@ export async function transcribeAudio(audio: File, apiKey: string): Promise<Tran
   form.append('file', audio, audio.name || 'audio.webm')
   form.append('model', 'whisper-1')
   form.append('language', 'fr')
-  form.append('response_format', 'json')
+  // verbose_json : Whisper renvoie aussi le champ `duration` (secondes audio)
+  // dont on a besoin pour facturer correctement dans ai_usage.
+  form.append('response_format', 'verbose_json')
   form.append('prompt', WHISPER_PROMPT)
 
   const start = Date.now()
@@ -54,6 +59,7 @@ export async function transcribeAudio(audio: File, apiKey: string): Promise<Tran
     throw new TranscribeError(res.status, `Whisper ${res.status}`)
   }
 
-  const json = (await res.json()) as { text?: string }
-  return { text: (json.text ?? '').trim(), elapsedMs }
+  const json = (await res.json()) as { text?: string; duration?: number }
+  const audioSeconds = typeof json.duration === 'number' ? json.duration : null
+  return { text: (json.text ?? '').trim(), elapsedMs, audioSeconds }
 }

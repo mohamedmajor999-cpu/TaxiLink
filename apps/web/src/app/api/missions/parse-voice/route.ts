@@ -36,7 +36,10 @@ export async function POST(request: Request) {
   try {
     const r = await transcribeAudio(audio, apiKey)
     transcript = r.text
-    log.info(`whisper → ${transcript.length} chars in ${r.elapsedMs}ms`)
+    log.info(`whisper → ${transcript.length} chars in ${r.elapsedMs}ms (${r.audioSeconds ?? '?'}s audio)`)
+    if (r.audioSeconds != null) {
+      await logAiUsage({ endpoint: 'parse-voice', model: 'whisper-1', audioSeconds: r.audioSeconds })
+    }
   } catch (err) {
     if (err instanceof TranscribeError) return NextResponse.json({ error: err.message }, { status: err.status })
     throw err
