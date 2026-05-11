@@ -8,6 +8,7 @@ import { computeDisplayFare } from '@/lib/missionFare'
 import { useDriverStore } from '@/store/driverStore'
 import { useMissionDetail } from './course/useMissionDetail'
 import { CancelMissionDialog } from './course/CancelMissionDialog'
+import { NoShowDialog } from './course/NoShowDialog'
 import { CourseTopStats } from './course/CourseTopStats'
 import { CourseDetailsTable } from './course/CourseDetailsTable'
 import { CourseActions } from './course/CourseActions'
@@ -138,6 +139,7 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
           onAdvance={c.advanceStep}
           onComplete={c.complete}
           onCancel={() => c.setCancelOpen(true)}
+          onNoShow={() => c.setNoShowOpen(true)}
           advancing={c.advancing}
           completing={c.completing}
         />
@@ -156,6 +158,13 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
         submitting={c.cancelling}
         onClose={() => c.setCancelOpen(false)}
         onSubmit={c.cancel}
+      />
+
+      <NoShowDialog
+        open={c.noShowOpen}
+        submitting={c.noShowSubmitting}
+        onClose={() => c.setNoShowOpen(false)}
+        onSubmit={c.noShow}
       />
 
       {c.isManual && c.editOpen && (

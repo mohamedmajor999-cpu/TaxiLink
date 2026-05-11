@@ -11,6 +11,7 @@ import { fetchOsrmRoute, type OsrmRoute } from '@/lib/osrmRoute'
 import { fetchGoogleRoutesTraffic, type TrafficEstimate } from '@/lib/googleRoutes'
 import { maskMissionForViewer, canSeeFullMission } from '@/lib/missionMask'
 import { useMissionProgressActions } from '@/hooks/useMissionProgressActions'
+import { buildSmsHref, buildGmapsHref } from './missionLinks'
 
 interface Coords { lat: number; lng: number }
 
@@ -91,11 +92,25 @@ export function useMissionDetail(missionId: string) {
     }
   }
 
-  // Course manuelle = saisie chauffeur (ni publiée, ni venant d'un client),
-  // toujours en statut ACCEPTED tant qu'elle n'est pas démarrée.
-  const isManual = Boolean(
-    mission && mission.shared_by === null && mission.client_id === null && mission.status === 'ACCEPTED',
-  )
+  // No-show : flow distinct de cancel — markNoShow clot sans compter au CA.
+  const [noShowOpen, setNoShowOpen] = useState(false)
+  const [noShowSubmitting, setNoShowSubmitting] = useState(false)
+  const noShow = async (reason: string) => {
+    if (!mission) return
+    setNoShowSubmitting(true)
+    try {
+      await missionService.markNoShow(mission.id, reason)
+      const storeCurrent = useMissionStore.getState().currentMission
+      if (storeCurrent?.id === mission.id) useMissionStore.getState().dismissCurrentMission()
+      router.back()
+    } catch (err) {
+      setNoShowSubmitting(false)
+      addToast({ message: err instanceof Error ? err.message : "Impossible de signaler l'absence", type: 'warning' })
+    }
+  }
+
+  // Course manuelle = saisie chauffeur (ACCEPTED, ni postee, ni d'un client).
+  const isManual = Boolean(mission && mission.shared_by === null && mission.client_id === null && mission.status === 'ACCEPTED')
 
   const [removing, setRemoving] = useState(false)
   const remove = async () => {
@@ -123,13 +138,9 @@ export function useMissionDetail(missionId: string) {
     setCompleting(true)
     try {
       await missionService.complete(mission.id)
-      // Si on completait la course en cours du store, on la dismiss pour
-      // que la banniere "course en cours" disparaisse de la home sans
-      // attendre un refresh.
+      // Dismiss store si c'etait la course en cours (sinon banniere persiste).
       const storeCurrent = useMissionStore.getState().currentMission
-      if (storeCurrent?.id === mission.id) {
-        useMissionStore.getState().dismissCurrentMission()
-      }
+      if (storeCurrent?.id === mission.id) useMissionStore.getState().dismissCurrentMission()
       router.back()
     } catch (err) {
       setCompleting(false)
@@ -157,7 +168,9 @@ export function useMissionDetail(missionId: string) {
     }
   }
 
-  const { step, advanceStep, advancing } = useMissionProgressActions(mission, setMission)
+  const { step, advanceStep, advancing } = useMissionProgressActions(mission, setMission, (msg) =>
+    addToast({ message: msg, type: 'warning' }),
+  )
 
   const smsHref = mission?.phone
     ? buildSmsHref(mission.phone, driver.name || '')
@@ -171,6 +184,7 @@ export function useMissionDetail(missionId: string) {
     loading, mission, isMasked, from, to, route, traffic,
     smsHref, wazeHref, gmapsHref,
     cancel, cancelling, cancelOpen, setCancelOpen,
+    noShow, noShowSubmitting, noShowOpen, setNoShowOpen,
     complete, completing,
     correct, correcting,
     step, advanceStep, advancing,
@@ -180,16 +194,3 @@ export function useMissionDetail(missionId: string) {
   }
 }
 
-function buildSmsHref(phone: string, driverName: string): string {
-  const clean = phone.replace(/\s/g, '')
-  const body = driverName
-    ? `Bonjour, je suis ${driverName}, votre chauffeur. J'arrive au point de rendez-vous.`
-    : `Bonjour, je suis votre chauffeur. J'arrive au point de rendez-vous.`
-  return `sms:${clean}?body=${encodeURIComponent(body)}`
-}
-
-function buildGmapsHref(to: Coords | null, fallbackAddress?: string | null): string | null {
-  if (to) return `https://www.google.com/maps/dir/?api=1&destination=${to.lat},${to.lng}&travelmode=driving`
-  if (fallbackAddress) return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fallbackAddress)}&travelmode=driving`
-  return null
-}

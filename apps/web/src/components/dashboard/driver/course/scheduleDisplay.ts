@@ -41,15 +41,3 @@ export function formatCountdown(iso: string, now: Date = new Date()): string {
   const days = Math.floor(h / 24)
   return days === 1 ? 'Demain' : `Dans ${days} jours`
 }
-
-// ETA = max(scheduled_at, now) + durée. Si le RDV est futur on part de l'heure
-// prévue ; s'il est déjà passé ou imminent, on repart de maintenant.
-export function computeEta(scheduledIso: string | null, durationSec: number | null, now: Date = new Date()): string {
-  if (!durationSec) return '—'
-  const scheduled = scheduledIso ? new Date(scheduledIso) : null
-  const base = scheduled && !Number.isNaN(scheduled.getTime()) && scheduled.getTime() > now.getTime()
-    ? scheduled
-    : now
-  const eta = new Date(base.getTime() + durationSec * 1000)
-  return eta.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-}

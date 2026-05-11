@@ -13,6 +13,7 @@ import { getMissionProgress, type MissionProgressStep } from '@/lib/missionProgr
 export function useMissionProgressActions(
   mission: Mission | null,
   onLocalUpdate: (next: Mission) => void,
+  onError?: (message: string) => void,
 ): {
   step: MissionProgressStep
   advanceStep: () => Promise<void>
@@ -36,6 +37,10 @@ export function useMissionProgressActions(
         await missionService.markDropped(mission.id)
         onLocalUpdate({ ...mission, dropoff_at: ts })
       }
+    } catch (err) {
+      // Avant : try/finally sans catch -> Promise rejetee swallow dans React,
+      // user voit le bouton se reactiver sans message ni changement d'etape.
+      onError?.(err instanceof Error ? err.message : "Impossible d'avancer la course")
     } finally {
       setAdvancing(false)
     }
