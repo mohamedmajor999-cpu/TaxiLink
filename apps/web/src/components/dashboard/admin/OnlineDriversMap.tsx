@@ -27,7 +27,7 @@ export function OnlineDriversMap() {
   return (
     <SectionShell
       title="Carte temps réel"
-      subtitle="Chauffeurs en ligne · marker = fix GPS < 5 min"
+      subtitle="Chauffeurs en ligne · dernière position connue"
       iconName="map"
       right={right}
     >

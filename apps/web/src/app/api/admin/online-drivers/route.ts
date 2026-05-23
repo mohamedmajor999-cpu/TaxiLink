@@ -27,17 +27,11 @@ export interface OnlineDriver {
   lastSeenAt: string | null
 }
 
-// TTL position : un fix GPS plus vieux que ca est considere "perime" et
-// le marker tombe de la carte. Le chauffeur reste dans le listing (en gris)
-// tant que is_online=true (heartbeat frais cote DB via cron 180s).
-const POSITION_TTL_MS = 5 * 60 * 1000
-
 export async function GET() {
   const auth = await assertAdmin()
   if (!auth.ok) return auth.response
 
   const supabase = createAdminSupabaseClient()
-  const positionCutoff = Date.now() - POSITION_TTL_MS
 
   // Pas de filtre .not('current_lat') ni .gte('current_position_updated_at') :
   // on remonte TOUS les chauffeurs is_online=true, meme sans fix GPS frais.
@@ -61,17 +55,21 @@ export async function GET() {
 
   const profById = new Map(((profiles ?? []) as ProfileRow[]).map((p) => [p.id, p]))
 
+  // Pas de TTL position : tant que is_online=true (garanti frais par le cron
+  // 180s qui flip en offline), on expose la derniere position connue. Sinon
+  // le pin clignotait quand le chauffeur immobile pingait toutes les 2-5min
+  // (mode stationary HyperSense) et tombait pile sur la limite des 5min.
+  // L'age de la position est dans updatedAt → le client peut afficher
+  // "position il y a X min" en popup.
   const items: OnlineDriver[] = list.map((d) => {
     const p = profById.get(d.id)
-    const posTs = d.current_position_updated_at ? new Date(d.current_position_updated_at).getTime() : 0
-    const fresh = posTs > 0 && posTs >= positionCutoff
     return {
       userId:     d.id,
       name:       `${p?.first_name ?? ''} ${p?.last_name ?? ''}`.trim() || 'Sans nom',
       phone:      p?.phone ?? null,
-      lat:        fresh && d.current_lat != null ? Number(d.current_lat) : null,
-      lng:        fresh && d.current_lng != null ? Number(d.current_lng) : null,
-      updatedAt:  fresh ? d.current_position_updated_at : null,
+      lat:        d.current_lat != null ? Number(d.current_lat) : null,
+      lng:        d.current_lng != null ? Number(d.current_lng) : null,
+      updatedAt:  d.current_position_updated_at,
       lastSeenAt: d.last_seen_at,
     }
   })
