@@ -1,20 +1,18 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { adminAnalyticsService, type OnlineDriver } from '@/services/adminAnalyticsService'
+import { createClient } from '@/lib/supabase/client'
+import { driverIcon, driverPopupHtml } from './onlineDriverMapHelpers'
 
 const MAPBOX_STYLE = 'streets-v12'
 const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const REFRESH_MS = 10_000
-
-const driverIcon = L.divIcon({
-  className: 'admin-driver-pin',
-  html: '<div style="width:18px;height:18px;border-radius:50%;background:#FFD11A;border:3px solid #0A0A0A;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>',
-  iconSize: [18, 18],
-  iconAnchor: [9, 9],
-})
+// Polling fallback : Realtime fournit < 1s en nominal, on garde un filet
+// au cas ou le canal drop (reconnexion reseau).
+const FALLBACK_POLL_MS = 30_000
+const REALTIME_DEBOUNCE_MS = 400
 
 export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement | null>) {
   const mapRef = useRef<L.Map | null>(null)
@@ -24,7 +22,13 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Init map (une seule fois)
+  const withGps = useMemo(
+    () => drivers.filter((d): d is OnlineDriver & { lat: number; lng: number; updatedAt: string } =>
+      d.lat != null && d.lng != null && d.updatedAt != null
+    ),
+    [drivers],
+  )
+
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
     const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
@@ -32,7 +36,7 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
       zoomControl: true,
       attributionControl: false,
       scrollWheelZoom: true,
-    }).setView([46.5, 2.5], 6) // centre France par défaut
+    }).setView([46.5, 2.5], 6)
 
     if (token) {
       L.tileLayer(
@@ -47,9 +51,10 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Fetch initial + polling 10s
   useEffect(() => {
     let cancelled = false
+    let pendingTimer: ReturnType<typeof setTimeout> | null = null
+
     async function load() {
       try {
         const { items } = await adminAnalyticsService.getOnlineDrivers()
@@ -60,54 +65,63 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
         if (!cancelled) setLoading(false)
       }
     }
+
+    function scheduleReload() {
+      if (pendingTimer) return
+      pendingTimer = setTimeout(() => { pendingTimer = null; if (!cancelled) load() }, REALTIME_DEBOUNCE_MS)
+    }
+
     load()
-    const id = setInterval(load, REFRESH_MS)
-    return () => { cancelled = true; clearInterval(id) }
+    const pollId = setInterval(load, FALLBACK_POLL_MS)
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel('admin-online-drivers')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'drivers' }, scheduleReload)
+      .subscribe()
+
+    return () => {
+      cancelled = true
+      clearInterval(pollId)
+      if (pendingTimer) clearTimeout(pendingTimer)
+      supabase.removeChannel(channel)
+    }
   }, [])
 
-  // Sync markers with drivers (update in place pour éviter le flicker)
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
-    const next = new Set(drivers.map((d) => d.userId))
+    const next = new Set(withGps.map((d) => d.userId))
 
     markersRef.current.forEach((marker, id) => {
-      if (!next.has(id)) {
-        map.removeLayer(marker)
-        markersRef.current.delete(id)
-      }
+      if (!next.has(id)) { map.removeLayer(marker); markersRef.current.delete(id) }
     })
 
-    for (const d of drivers) {
-      const popupHtml = `<div style="font-family:Inter,sans-serif"><strong>${escapeHtml(d.name)}</strong>${d.phone ? `<br/><a href="tel:${d.phone}" style="color:#3B82F6">${escapeHtml(d.phone)}</a>` : ''}<br/><small style="color:#6b7280">Mis à jour: ${formatRelative(d.updatedAt)}</small></div>`
+    for (const d of withGps) {
+      const popup = driverPopupHtml(d.name, d.phone, d.updatedAt)
       const existing = markersRef.current.get(d.userId)
       if (existing) {
         existing.setLatLng([d.lat, d.lng])
-        existing.setPopupContent(popupHtml)
+        existing.setPopupContent(popup)
       } else {
-        const marker = L.marker([d.lat, d.lng], { icon: driverIcon, title: d.name }).bindPopup(popupHtml)
+        const marker = L.marker([d.lat, d.lng], { icon: driverIcon, title: d.name }).bindPopup(popup)
         marker.addTo(map)
         markersRef.current.set(d.userId, marker)
       }
     }
 
-    if (!hasFitRef.current && drivers.length > 0) {
-      const bounds = L.latLngBounds(drivers.map((d) => [d.lat, d.lng] as [number, number]))
+    if (!hasFitRef.current && withGps.length > 0) {
+      const bounds = L.latLngBounds(withGps.map((d) => [d.lat, d.lng] as [number, number]))
       map.fitBounds(bounds.pad(0.2), { maxZoom: 12 })
       hasFitRef.current = true
     }
-  }, [drivers])
+  }, [withGps])
 
-  return { drivers, loading, error }
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c))
-}
-
-function formatRelative(iso: string): string {
-  const diffSec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
-  if (diffSec < 60) return `il y a ${diffSec}s`
-  if (diffSec < 3600) return `il y a ${Math.floor(diffSec / 60)} min`
-  return `il y a ${Math.floor(diffSec / 3600)} h`
+  return {
+    drivers,
+    withGpsCount:    withGps.length,
+    withoutGpsCount: drivers.length - withGps.length,
+    loading,
+    error,
+  }
 }

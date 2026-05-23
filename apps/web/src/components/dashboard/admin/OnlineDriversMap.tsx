@@ -6,7 +6,7 @@ import { SectionShell } from './ui/SectionShell'
 
 export function OnlineDriversMap() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { drivers, loading, error } = useOnlineDriversMap(containerRef)
+  const { drivers, withGpsCount, withoutGpsCount, loading, error } = useOnlineDriversMap(containerRef)
 
   const right = (
     <div className="flex items-center gap-2 rounded-full bg-bgsoft px-3 py-1.5 ring-1 ring-line/60">
@@ -17,14 +17,17 @@ export function OnlineDriversMap() {
       <span className="text-xs font-medium text-secondary">
         {loading ? 'Chargement…' : `${drivers.length} en ligne`}
       </span>
-      <span className="text-[10px] text-muted">· maj 30s</span>
+      {!loading && withoutGpsCount > 0 && (
+        <span className="text-[10px] text-amber-700">· {withoutGpsCount} sans GPS</span>
+      )}
+      <span className="text-[10px] text-muted">· live</span>
     </div>
   )
 
   return (
     <SectionShell
       title="Carte temps réel"
-      subtitle="Chauffeurs avec position GPS active (< 5 min)"
+      subtitle="Chauffeurs en ligne · marker = fix GPS < 5 min"
       iconName="map"
       right={right}
     >
@@ -34,7 +37,12 @@ export function OnlineDriversMap() {
         <div ref={containerRef} className="absolute inset-0" aria-label="Carte des chauffeurs en ligne" />
         {!loading && drivers.length === 0 && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-bgsoft/70 text-sm text-muted">
-            Aucun chauffeur en ligne avec position GPS active
+            Aucun chauffeur en ligne
+          </div>
+        )}
+        {!loading && drivers.length > 0 && withGpsCount === 0 && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-bgsoft/70 text-sm text-muted">
+            {drivers.length} chauffeur{drivers.length > 1 ? 's' : ''} en ligne sans fix GPS récent
           </div>
         )}
       </div>
