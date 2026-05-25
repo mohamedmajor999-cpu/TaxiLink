@@ -5,7 +5,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { adminAnalyticsService, type OnlineDriver } from '@/services/adminAnalyticsService'
 import { createClient } from '@/lib/supabase/client'
-import { driverIcon, driverPopupHtml } from './onlineDriverMapHelpers'
+import { buildDriverIcon, driverPopupHtml } from './onlineDriverMapHelpers'
 
 const MAPBOX_STYLE = 'streets-v12'
 const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -21,6 +21,14 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
   const [drivers, setDrivers] = useState<OnlineDriver[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Tick d'horloge 1s pour mettre a jour le badge chrono sur chaque pin
+  // (ex : "8s", "15s", "1m"...). nowMs est passe au builder d'icone, qui
+  // calcule l'age du dernier fix et choisit la couleur. Demande user 2026-05-25.
+  const [nowMs, setNowMs] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   const withGps = useMemo(
     () => drivers.filter((d): d is OnlineDriver & { lat: number; lng: number; updatedAt: string } =>
@@ -99,12 +107,14 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
 
     for (const d of withGps) {
       const popup = driverPopupHtml(d.name, d.phone, d.updatedAt)
+      const icon = buildDriverIcon(d.updatedAt, nowMs)
       const existing = markersRef.current.get(d.userId)
       if (existing) {
         existing.setLatLng([d.lat, d.lng])
+        existing.setIcon(icon)
         existing.setPopupContent(popup)
       } else {
-        const marker = L.marker([d.lat, d.lng], { icon: driverIcon, title: d.name }).bindPopup(popup)
+        const marker = L.marker([d.lat, d.lng], { icon, title: d.name }).bindPopup(popup)
         marker.addTo(map)
         markersRef.current.set(d.userId, marker)
       }
@@ -115,7 +125,7 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
       map.fitBounds(bounds.pad(0.2), { maxZoom: 12 })
       hasFitRef.current = true
     }
-  }, [withGps])
+  }, [withGps, nowMs])
 
   return {
     drivers,

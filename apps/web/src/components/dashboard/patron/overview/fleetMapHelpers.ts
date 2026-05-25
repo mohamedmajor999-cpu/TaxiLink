@@ -17,17 +17,47 @@ export function injectPinKeyframesOnce() {
   document.head.appendChild(style)
 }
 
-export function makePinIcon(status: PatronFleetMember['status'], initials: string): L.DivIcon {
+// Calcule un libelle court pour le chrono pin : "Xs" jusqu'a 60s, puis "Xm".
+function chronoLabel(ageSec: number): string {
+  if (ageSec < 60) return `${ageSec}s`
+  const min = Math.min(99, Math.floor(ageSec / 60))
+  return `${min}m`
+}
+
+// Choisit la couleur du badge chrono selon la fraicheur du dernier fix GPS.
+// Vert <15s = en ligne actif ; rouge >60s = service GPS probablement coupe.
+function chronoColor(ageSec: number): string {
+  if (ageSec < 15) return '#10B981'
+  if (ageSec < 30) return '#FACC15'
+  if (ageSec < 60) return '#F97316'
+  return '#EF4444'
+}
+
+export function makePinIcon(
+  status: PatronFleetMember['status'],
+  initials: string,
+  updatedAt: string | null = null,
+  nowMs: number = Date.now(),
+): L.DivIcon {
   const color = status === 'in-mission' ? '#FFD11A' : status === 'online' ? '#22C55E' : '#9CA3AF'
   const fg = status === 'in-mission' ? '#0A0A0A' : '#FFFFFF'
   const showPulse = status === 'in-mission' || status === 'online'
   const pulseHtml = showPulse
     ? `<span style="position:absolute;inset:0;border-radius:50%;background:${color};opacity:0.45;animation:patron-pin-pulse 1.8s ease-out infinite;pointer-events:none"></span>`
     : ''
+  // Chrono badge (sous le pin) : age du dernier signal GPS. Affiche uniquement
+  // si on a un updatedAt (le chauffeur a deja envoye une position). Demande
+  // user 2026-05-25 : "savoir dans combien de temps un nouveau signal".
+  let chronoHtml = ''
+  if (updatedAt) {
+    const ageSec = Math.max(0, Math.floor((nowMs - new Date(updatedAt).getTime()) / 1000))
+    const cBg = chronoColor(ageSec)
+    chronoHtml = `<div style="position:absolute;left:50%;top:38px;transform:translateX(-50%);padding:1px 5px;border-radius:8px;background:${cBg};color:#fff;font-size:9px;font-weight:800;font-family:Inter,system-ui,sans-serif;letter-spacing:-0.2px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.3)">${chronoLabel(ageSec)}</div>`
+  }
   return L.divIcon({
     className: 'patron-fleet-pin',
-    html: `<div style="position:relative;width:36px;height:36px">${pulseHtml}<div style="position:relative;width:36px;height:36px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:${fg};font-weight:800;font-size:11px;font-family:Inter,system-ui,sans-serif;letter-spacing:0.02em">${initials}</div></div>`,
-    iconSize: [36, 36],
+    html: `<div style="position:relative;width:36px;height:36px">${pulseHtml}<div style="position:relative;width:36px;height:36px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:${fg};font-weight:800;font-size:11px;font-family:Inter,system-ui,sans-serif;letter-spacing:0.02em">${initials}</div>${chronoHtml}</div>`,
+    iconSize: [36, 56],
     iconAnchor: [18, 18],
   })
 }

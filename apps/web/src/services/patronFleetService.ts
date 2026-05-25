@@ -8,6 +8,10 @@ export interface PatronFleetMember {
   vehicle: string | null
   lat: number | null
   lng: number | null
+  /** ISO timestamp du dernier fix GPS du chauffeur. Permet de calculer
+   * "age" du signal cote UI (chrono live sur le pin). null si le chauffeur
+   * n'a jamais envoye de position depuis l'install de l'app. */
+  updatedAt: string | null
   todayMissions: number
   todayRevenue: number
   rating: number
@@ -27,7 +31,7 @@ export const patronFleetService = {
 
     const { data: drivers, error: dErr } = await supabase
       .from('drivers')
-      .select('id, is_online, vehicle_plate, current_lat, current_lng, rating')
+      .select('id, is_online, vehicle_plate, current_lat, current_lng, current_position_updated_at, rating')
       .eq('organization_id', orgId)
     if (dErr) throw new Error(dErr.message)
 
@@ -66,6 +70,7 @@ export const patronFleetService = {
         vehicle: d.vehicle_plate,
         lat: d.current_lat == null ? null : Number(d.current_lat),
         lng: d.current_lng == null ? null : Number(d.current_lng),
+        updatedAt: d.current_position_updated_at ?? null,
         todayMissions: completed.length,
         todayRevenue,
         rating: d.rating,

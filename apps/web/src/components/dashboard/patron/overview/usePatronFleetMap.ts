@@ -21,6 +21,13 @@ export function usePatronFleetMap(
   const markersRef = useRef<Map<string, L.Marker>>(new Map())
   const hasFitRef = useRef(false)
   const [mapReady, setMapReady] = useState(false)
+  // Tick 1s pour rafraichir le badge chrono "Xs" sur chaque pin (age depuis
+  // le dernier fix GPS du chauffeur). Demande user 2026-05-25.
+  const [nowMs, setNowMs] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     injectPinKeyframesOnce()
@@ -61,11 +68,12 @@ export function usePatronFleetMap(
     for (const d of positioned) {
       const [lat, lng] = offsets.get(d.id) ?? [d.lat, d.lng]
       const popupHtml = `<div style="font-family:Inter,sans-serif"><strong>${escapeHtml(d.name)}</strong><br/><small style="color:#6b7280">${d.todayMissions} courses · ${d.todayRevenue}€ aujourd'hui</small></div>`
+      const icon = makePinIcon(d.status, d.initials, d.updatedAt, nowMs)
       const existing = markersRef.current.get(d.id)
       if (existing) {
-        existing.setLatLng([lat, lng]); existing.setIcon(makePinIcon(d.status, d.initials)); existing.setPopupContent(popupHtml)
+        existing.setLatLng([lat, lng]); existing.setIcon(icon); existing.setPopupContent(popupHtml)
       } else {
-        const marker = L.marker([lat, lng], { icon: makePinIcon(d.status, d.initials), title: d.name }).bindPopup(popupHtml)
+        const marker = L.marker([lat, lng], { icon, title: d.name }).bindPopup(popupHtml)
         marker.addTo(map); markersRef.current.set(d.id, marker)
       }
     }
@@ -74,7 +82,7 @@ export function usePatronFleetMap(
       map.fitBounds(bounds.pad(0.2), { maxZoom: 13 })
       hasFitRef.current = true
     }
-  }, [mapReady, fleet])
+  }, [mapReady, fleet, nowMs])
 
   const zoomIn = useCallback(() => mapRef.current?.zoomIn(), [])
   const zoomOut = useCallback(() => mapRef.current?.zoomOut(), [])
