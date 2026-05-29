@@ -9,15 +9,20 @@ import { buildDriverIcon, driverPopupHtml } from './onlineDriverMapHelpers'
 
 const MAPBOX_STYLE = 'streets-v12'
 const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-// Polling fallback : Realtime fournit < 1s en nominal, on garde un filet
-// au cas ou le canal drop (reconnexion reseau).
-const FALLBACK_POLL_MS = 30_000
+// Realtime (postgres_changes sur `drivers`) patche les pins en < 1s. Le poll
+// reste un filet : (a) si le canal drop, (b) pour les chauffeurs hors org de
+// l'admin que la RLS exclut du realtime navigateur (l'API tourne en
+// service-role et les voit, elle). 10s = compromis fraicheur / charge.
+const FALLBACK_POLL_MS = 10_000
 const REALTIME_DEBOUNCE_MS = 400
 
 export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement | null>) {
   const mapRef = useRef<L.Map | null>(null)
   const markersRef = useRef<Map<string, L.Marker>>(new Map())
   const hasFitRef = useRef(false)
+  // Ids des chauffeurs deja en state : permet au handler realtime de decider
+  // patch direct (chauffeur connu) vs reload complet (nouveau → besoin profil).
+  const driverIdsRef = useRef<Set<string>>(new Set())
   const [drivers, setDrivers] = useState<OnlineDriver[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -36,6 +41,10 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
     ),
     [drivers],
   )
+
+  useEffect(() => {
+    driverIdsRef.current = new Set(drivers.map((d) => d.userId))
+  }, [drivers])
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -85,7 +94,29 @@ export function useOnlineDriversMap(containerRef: React.RefObject<HTMLDivElement
     const supabase = createClient()
     const channel = supabase
       .channel('admin-online-drivers')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'drivers' }, scheduleReload)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'drivers' }, (payload) => {
+        const row = payload.new as {
+          id?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          current_position_updated_at?: string | null
+          is_online?: boolean
+        }
+        const id = row?.id ?? (payload.old as { id?: string })?.id
+        // Chauffeur deja affiche + toujours en ligne : patch direct du pin
+        // depuis le payload (pas de re-fetch API) → deplacement instantane.
+        if (payload.eventType === 'UPDATE' && id && row.is_online !== false && driverIdsRef.current.has(id)) {
+          setDrivers((prev) => prev.map((d) => d.userId === id ? {
+            ...d,
+            lat:       row.current_lat != null ? Number(row.current_lat) : d.lat,
+            lng:       row.current_lng != null ? Number(row.current_lng) : d.lng,
+            updatedAt: row.current_position_updated_at ?? d.updatedAt,
+          } : d))
+          return
+        }
+        // INSERT / passage offline / chauffeur inconnu → reload complet (profil).
+        scheduleReload()
+      })
       .subscribe()
 
     return () => {

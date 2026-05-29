@@ -1,0 +1,22 @@
+-- Réactive le temps réel des positions chauffeurs.
+--
+-- La table `drivers` n'était pas (ou plus) dans la publication supabase_realtime
+-- (seule mission_offers y figurait). Conséquence : l'abonnement postgres_changes
+-- des cartes admin (useOnlineDriversMap) et patron (usePatronOverview) ne se
+-- déclenchait JAMAIS → positions rafraîchies seulement par le poll de secours
+-- 30s côté admin, et FIGÉES côté patron (qui n'a aucun poll de secours).
+--
+-- Pas de fuite PII : la RLS `drivers_select` restreint déjà la lecture aux
+-- drivers de la même org (organization_id IN current_org_ids()) ou des mêmes
+-- groupes. On expose en realtime uniquement des lignes que ces clients peuvent
+-- déjà lire via SELECT. C'est différent de `missions`, qui exposait
+-- patient_name/phone en clair (d'où le pattern broadcast no-PII pour celles-ci).
+--
+-- Réplica identity DEFAULT suffit : Realtime envoie la ligne `new` complète sur
+-- UPDATE, donc le filtre patron `organization_id=eq.X` et les colonnes de
+-- position (current_lat/current_lng/current_position_updated_at/is_online) sont
+-- bien présentes dans le payload.
+--
+-- Réversible : ALTER PUBLICATION supabase_realtime DROP TABLE public.drivers;
+
+ALTER PUBLICATION supabase_realtime ADD TABLE public.drivers;
