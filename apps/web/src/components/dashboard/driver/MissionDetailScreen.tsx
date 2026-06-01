@@ -1,6 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic'
-import { Lock } from 'lucide-react'
+import { Lock, AlertTriangle } from 'lucide-react'
 import { RouteTimeline } from '@/components/taxilink/RouteTimeline'
 import { ToastContainer } from '@/components/ui/Toast'
 import { addressAsPoint } from '@/lib/splitFrenchAddress'
@@ -30,6 +30,7 @@ interface Props {
 export function MissionDetailScreen({ missionId, onBack }: Props) {
   const c = useMissionDetail(missionId)
   const driverId = useDriverStore((s) => s.driver.id)
+  const cpamEnabled = useDriverStore((s) => s.driver.cpamEnabled)
 
   if (c.loading) return <MissionDetailShell onBack={onBack}><div className="h-64 rounded-3xl bg-warm-100 motion-safe:animate-pulse mb-3" /></MissionDetailShell>
   if (!c.mission) return (
@@ -82,6 +83,16 @@ export function MissionDetailScreen({ missionId, onBack }: Props) {
             <strong>Coordonnées masquées.</strong> Le nom complet, le téléphone
             et les notes seront visibles uniquement après acceptation de la
             course{mission.type === 'CPAM' ? ' (RGPD Art. 9, données de santé)' : ''}.
+          </p>
+        </div>
+      )}
+      {mission.type === 'CPAM' && !cpamEnabled && mission.driver_id !== driverId && (
+        <div className="mb-3 flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-3">
+          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" strokeWidth={2} />
+          <p className="text-[12.5px] text-amber-800 leading-snug">
+            <strong>Transport médical (CPAM).</strong> Votre compte n&apos;est pas
+            enregistré comme conventionné CPAM. Assurez-vous d&apos;être autorisé à
+            réaliser ce transport (convention en règle) avant de l&apos;accepter.
           </p>
         </div>
       )}

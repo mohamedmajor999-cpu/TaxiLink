@@ -2,6 +2,7 @@
 
 import { useIncomingMissionOffer } from '@/hooks/useIncomingMissionOffer'
 import { Icon } from '@/components/ui/Icon'
+import { useDriverStore } from '@/store/driverStore'
 
 function formatPrice(min: number | null, max: number | null, exact: number | null): string {
   if (exact != null) return `${exact.toFixed(2)} €`
@@ -26,6 +27,7 @@ function formatHorizon(scheduledAt: string): string {
  */
 export function IncomingMissionOfferModal() {
   const { state, loading, error, accept, refuse } = useIncomingMissionOffer()
+  const cpamEnabled = useDriverStore((s) => s.driver.cpamEnabled)
   if (!state) return null
   const { offer, mission, secondsLeft } = state
 
@@ -78,6 +80,16 @@ export function IncomingMissionOfferModal() {
               <span className="text-xs font-semibold text-muted ml-auto">{distanceLabel}</span>
             )}
           </div>
+
+          {isCpam && !cpamEnabled && (
+            <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2">
+              <Icon name="error" size={16} className="text-amber-600 mt-0.5 shrink-0" />
+              <p className="text-[12px] text-amber-800 leading-snug font-medium">
+                Transport médical CPAM : votre compte n&apos;est pas conventionné.
+                Assurez-vous d&apos;être autorisé avant d&apos;accepter.
+              </p>
+            </div>
+          )}
 
           <div className="space-y-2">
             <div className="flex items-start gap-2">
