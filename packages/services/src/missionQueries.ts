@@ -81,6 +81,28 @@ export const missionQueries = {
   },
 
   /**
+   * Mobile RGPD (audit H-01) : recupere une mission via le RPC masque
+   * `get_mission_detail`. La PII patient (nom/tel/notes/signature/voucher) n'est
+   * renvoyee que si l'appelant est proprietaire / chauffeur assigne / auteur ;
+   * sinon elle est NULL cote serveur (et une mission non-AVAILABLE non possedee
+   * leve une erreur → null ici). A utiliser cote mobile a la place de getById
+   * pour le detail/offre, afin que la PII ne quitte pas Postgres en clair.
+   * Le RPC ne renvoie PAS l'embed mission_groups (non consomme cote mobile).
+   */
+  async getByIdMasked(id: string): Promise<Mission | null> {
+    const supabase = getSupabaseClient()
+    // get_mission_detail a ete cree en prod (migration audit 20260529). Les types
+    // Supabase generes (packages/supabase-types/src/database.types.ts) ne l'incluent
+    // pas encore → directive ci-dessous jusqu'au prochain `supabase gen types`.
+    // Le nom du RPC et l'argument p_mission_id sont corrects. Quand les types seront
+    // regeneres, cette directive deviendra "unused" et signalera son propre retrait.
+    // @ts-expect-error nom de RPC absent des types generes (cf. commentaire ci-dessus)
+    const { data, error } = await supabase.rpc('get_mission_detail', { p_mission_id: id })
+    if (error || !data) return null
+    return data as unknown as Mission
+  },
+
+  /**
    * Annonces postees par un user (shared_by = userId) depuis une date pivot.
    * Pas de filtre status : on inclut DONE pour afficher les annonces effectuees
    * dans le tracker de l'onglet "Mes annonces".

@@ -3,7 +3,7 @@ import type { RefObject } from 'react'
 import { MoreVertical, Copy, MessageSquare, Share2, LogOut, Trash2 } from 'lucide-react'
 
 interface Props {
-  menuRef:        RefObject<HTMLDivElement>
+  menuRef:        RefObject<HTMLDivElement | null>
   menuOpen:       boolean
   toggleMenu:     () => void
   copied:         boolean
