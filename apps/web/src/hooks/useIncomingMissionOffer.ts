@@ -39,7 +39,10 @@ export function useIncomingMissionOffer() {
         if (cancelled) return
         const fresh = offers.find((o) => !dismissedIdsRef.current.has(o.id))
         if (!fresh) return
-        const mission = await missionService.getById(fresh.mission_id)
+        // RPC masqué (get_mission_detail) : l'offre porte sur une course non
+        // encore acceptée → PII patient masquée côté serveur. Permet de resserrer
+        // la policy RLS SELECT (audit H-01) sans casser la réception d'offre.
+        const mission = await missionService.getByIdMasked(fresh.mission_id)
         if (cancelled || !mission) return
         const secondsLeft = Math.max(0, Math.floor((new Date(fresh.expires_at).getTime() - Date.now()) / 1000))
         if (secondsLeft <= 0) return
