@@ -119,10 +119,13 @@ describe('isValidEmail', () => {
   it('rejette un email sans domaine', () => expect(isValidEmail('test@')).toBe(false))
 })
 
-// ─── isValidPassword ──────────────────────────────────────────────────────────
+// ─── isValidPassword (CNIL : 14+ avec maj/min/chiffre — cf. audit L-01) ─────────
 describe('isValidPassword', () => {
-  it('accepte un mot de passe >= 8 caractères', () => expect(isValidPassword('12345678')).toBe(true))
-  it('rejette un mot de passe < 8 caractères', () => expect(isValidPassword('1234567')).toBe(false))
+  it('accepte 14+ caractères avec maj + min + chiffre', () => expect(isValidPassword('Abcdefghij1234')).toBe(true))
+  it('rejette < 14 caractères même avec complexité', () => expect(isValidPassword('Abcdefgh123')).toBe(false))
+  it('rejette 14+ sans majuscule', () => expect(isValidPassword('abcdefghij1234')).toBe(false))
+  it('rejette 14+ sans minuscule', () => expect(isValidPassword('ABCDEFGHIJ1234')).toBe(false))
+  it('rejette 14+ sans chiffre', () => expect(isValidPassword('Abcdefghijklmn')).toBe(false))
   it('rejette une chaîne vide', () => expect(isValidPassword('')).toBe(false))
 })
 

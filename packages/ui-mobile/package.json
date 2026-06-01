@@ -8,18 +8,18 @@
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "nativewind": "^4.1.23",
-    "react": "^18.3.1",
-    "react-native": "0.76.9"
+    "nativewind": "^4.2.3",
+    "react": "^19.1.0",
+    "react-native": "0.81.5"
   },
   "dependencies": {
     "@taxilink/design-tokens": "*"
   },
   "devDependencies": {
-    "@types/react": "~18.3.12",
-    "nativewind": "^4.1.23",
-    "react": "18.3.1",
-    "react-native": "0.76.9",
+    "@types/react": "~19.1.0",
+    "nativewind": "^4.2.3",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
     "typescript": "^5.7.3"
   }
 }

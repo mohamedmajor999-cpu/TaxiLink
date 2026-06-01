@@ -4,6 +4,7 @@
 
 import { createPersistedLru } from './lib/persistedLru'
 import { decodePolyline } from '@taxilink/core'
+import { getGoogleProxyClient } from './lib/googleProxy'
 
 const GOOGLE_ROUTES_ENDPOINT = 'https://routes.googleapis.com/directions/v2:computeRoutes'
 const OSRM_ENDPOINT = 'https://router.project-osrm.org/route/v1/driving/'
@@ -64,42 +65,53 @@ export async function computeRouteGoogle(
   const cached = cache.get(rKey)
   if (cached) return cached
   const key = getKey()
-  if (!key) return null
+  const proxy = getGoogleProxyClient()
+  if (!key && !proxy) return null
 
-  const body: Record<string, unknown> = {
-    origin: { location: { latLng: { latitude: from.lat, longitude: from.lng } } },
-    destination: { location: { latLng: { latitude: to.lat, longitude: to.lng } } },
-    travelMode: 'DRIVE',
-    routingPreference: 'TRAFFIC_AWARE',
-    languageCode: 'fr',
-    regionCode: 'fr',
-  }
-  if (departureTime) {
-    const ts = Date.parse(departureTime)
-    if (!Number.isNaN(ts) && ts > Date.now()) {
-      body.departureTime = new Date(ts).toISOString()
+  let json: { routes?: Array<{ distanceMeters?: number; duration?: string; staticDuration?: string; polyline?: { encodedPolyline?: string } }> }
+  if (proxy) {
+    try {
+      json = (await proxy('route', { from, to, departureTime: departureTime ?? null }, signal)) as typeof json
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') throw err
+      return null
     }
-  }
+  } else {
+    if (!key) return null
+    const body: Record<string, unknown> = {
+      origin: { location: { latLng: { latitude: from.lat, longitude: from.lng } } },
+      destination: { location: { latLng: { latitude: to.lat, longitude: to.lng } } },
+      travelMode: 'DRIVE',
+      routingPreference: 'TRAFFIC_AWARE',
+      languageCode: 'fr',
+      regionCode: 'fr',
+    }
+    if (departureTime) {
+      const ts = Date.parse(departureTime)
+      if (!Number.isNaN(ts) && ts > Date.now()) {
+        body.departureTime = new Date(ts).toISOString()
+      }
+    }
 
-  let res: Response
-  try {
-    res = await fetch(GOOGLE_ROUTES_ENDPOINT, {
-      method: 'POST',
-      signal,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': key,
-        'X-Goog-FieldMask': 'routes.duration,routes.staticDuration,routes.distanceMeters,routes.polyline.encodedPolyline',
-      },
-      body: JSON.stringify(body),
-    })
-  } catch (err) {
-    if ((err as Error).name === 'AbortError') throw err
-    return null
+    let res: Response
+    try {
+      res = await fetch(GOOGLE_ROUTES_ENDPOINT, {
+        method: 'POST',
+        signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': key,
+          'X-Goog-FieldMask': 'routes.duration,routes.staticDuration,routes.distanceMeters,routes.polyline.encodedPolyline',
+        },
+        body: JSON.stringify(body),
+      })
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') throw err
+      return null
+    }
+    if (!res.ok) return null
+    json = (await res.json()) as typeof json
   }
-  if (!res.ok) return null
-
-  const json = (await res.json()) as { routes?: Array<{ distanceMeters?: number; duration?: string; staticDuration?: string; polyline?: { encodedPolyline?: string } }> }
   const route = json.routes?.[0]
   const meters = route?.distanceMeters
   const durationStr = route?.duration

@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink Patron — POC mobile compagnon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+<style>
+  :root {
+    --primary: #FFD23F;
+    --ink: #0A0A0A;
+    --ink-2: #1A1A1A;
+    --muted: #6B6B6B;
+    --line: #E8E6E1;
+    --paper: #FFFFFF;
+    --warm-50: #FAF8F4;
+    --warm-100: #F4F1EB;
+    --warm-200: #E8E6E1;
+    --danger: #DC2626;
+    --green: #16A34A;
+    --blue: #2563EB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { font-family: 'Inter', system-ui, sans-serif; color: var(--ink); background: #F2EEE5; }
+  body {
+    min-height: 100vh;
+    padding: 48px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .header {
+    text-align: center;
+    max-width: 760px;
+  }
+  .header .eyebrow {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .header p { color: var(--muted); font-size: 15px; line-height: 1.5; }
+  .header code { background: var(--warm-100); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+
+  .stage {
+    display: flex;
+    gap: 56px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* iPhone frame */
+  .phone {
+    width: 380px;
+    height: 820px;
+    background: #0A0A0A;
+    border-radius: 56px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 2px #2A2A2A inset,
+      0 50px 80px -20px rgba(0,0,0,0.35),
+      0 20px 40px -20px rgba(0,0,0,0.25);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 22px; left: 50%;
+    transform: translateX(-50%);
+    width: 110px; height: 32px;
+    background: #0A0A0A;
+    border-radius: 999px;
+    z-index: 50;
+  }
+  .screen {
+    width: 100%; height: 100%;
+    background: var(--warm-50);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+  }
+  .status-bar {
+    height: 54px;
+    padding: 18px 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    position: relative;
+    z-index: 40;
+  }
+  .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+  .status-bar .icons .material-symbols-rounded { font-size: 16px; }
+  .home-indicator {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    background: var(--ink);
+    border-radius: 999px;
+    z-index: 100;
+  }
+
+  .label {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .label strong { color: var(--ink); display: block; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+
+  /* Scrollable content area (between status bar and tab bar) */
+  .content {
+    position: absolute;
+    top: 54px;
+    left: 0; right: 0;
+    bottom: 80px;
+    overflow-y: auto;
+    padding: 6px 16px 20px;
+  }
+
+  /* === PATRON HEADER === */
+  .patron-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4px 16px;
+  }
+  .patron-greeting .hi { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .patron-greeting .name {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+    line-height: 1.1; margin-top: 2px;
+  }
+  .org-switcher {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--paper);
+    border-radius: 14px;
+    padding: 6px 10px 6px 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .org-switcher .org-logo {
+    width: 32px; height: 32px;
+    background: var(--ink); color: var(--primary);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px;
+  }
+  .org-switcher .org-name { font-size: 12px; font-weight: 700; line-height: 1.1; max-width: 70px; }
+  .org-switcher .material-symbols-rounded { font-size: 18px; color: var(--muted); }
+
+  /* === KPI grid === */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .kpi {
+    background: var(--paper);
+    border-radius: 18px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .kpi.featured { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .kpi .icon {
+    width: 32px; height: 32px;
+    background: var(--warm-100);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+  }
+  .kpi.featured .icon { background: rgba(255,210,63,0.15); }
+  .kpi .icon .material-symbols-rounded { font-size: 18px; color: var(--ink); }
+  .kpi.featured .icon .material-symbols-rounded { color: var(--primary); }
+  .kpi .label-kpi {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+  .kpi.featured .label-kpi { color: rgba(255,255,255,0.65); }
+  .kpi .value {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .kpi .delta {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .kpi .delta.up { color: var(--green); }
+  .kpi.featured .delta.up { color: #4ADE80; }
+  .kpi .delta.alert { color: var(--danger); }
+
+  /* === Section titre === */
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 4px 10px;
+  }
+  .section-title h2 {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .section-title .see-all {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  /* === Mini fleet map === */
+  .mini-map {
+    height: 180px;
+    background:
+      radial-gradient(circle at 30% 40%, #FFF7E0 0%, transparent 40%),
+      radial-gradient(circle at 70% 60%, #E8F0FF 0%, transparent 50%),
+      linear-gradient(135deg, #F4F1EB 0%, #EAE6DD 100%);
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    margin-bottom: 6px;
+  }
+  .mini-map::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 0.6;
+  }
+  .mini-map .road { position: absolute; background: rgba(255,255,255,0.85); }
+  .mini-map .road.h1 { top: 38%; left: -10%; right: -10%; height: 8px; transform: rotate(-3deg); border-radius: 4px; }
+  .mini-map .road.v1 { top: -10%; bottom: -10%; left: 55%; width: 8px; transform: rotate(8deg); border-radius: 4px; }
+
+  .car-pin {
+    position: absolute;
+    width: 32px; height: 32px;
+    background: var(--primary);
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  .car-pin .material-symbols-rounded { font-size: 16px; color: var(--ink); }
+  .car-pin.idle { background: var(--paper); }
+  .car-pin.busy { background: var(--ink); }
+  .car-pin.busy .material-symbols-rounded { color: var(--primary); }
+
+  .map-legend {
+    position: absolute;
+    bottom: 8px; left: 8px;
+    display: flex; gap: 6px;
+    z-index: 10;
+  }
+  .legend-pill {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(4px);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .legend-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* === Alertes === */
+  .alert-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .alert {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .alert.critical { border-color: var(--danger); background: #FEF2F2; }
+  .alert.warning { border-left: 3px solid var(--primary); }
+  .alert .alert-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .alert.critical .alert-icon { background: var(--danger); color: var(--paper); }
+  .alert.warning .alert-icon { background: var(--primary); color: var(--ink); }
+  .alert .alert-icon .material-symbols-rounded { font-size: 18px; }
+  .alert .alert-content { flex: 1; min-width: 0; }
+  .alert .alert-title { font-size: 13px; font-weight: 700; line-height: 1.2; }
+  .alert .alert-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .alert .material-symbols-rounded.chev { font-size: 20px; color: var(--muted); flex-shrink: 0; }
+
+  /* === Quick actions === */
+  .quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .quick-btn {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .quick-btn .material-symbols-rounded {
+    background: var(--primary);
+    color: var(--ink);
+    padding: 6px;
+    border-radius: 10px;
+    font-size: 18px;
+  }
+  .quick-btn.dark { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .quick-btn.dark .material-symbols-rounded { background: var(--primary); color: var(--ink); }
+
+  /* === Tab bar === */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+    display: flex;
+    z-index: 50;
+    padding: 8px 0 24px;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: #9A9A9A;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .tab.active { color: var(--ink); }
+  .tab .material-symbols-rounded { font-size: 24px; }
+  .tab.active .material-symbols-rounded {
+    background: var(--primary);
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-variation-settings: 'FILL' 1;
+  }
+  .tab .badge {
+    position: absolute;
+    top: 6px;
+    background: var(--danger);
+    color: var(--paper);
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 999px;
+    margin-left: 18px;
+  }
+
+  /* === Screen 2: Agenda jour === */
+  .agenda-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 4px 12px;
+  }
+  .agenda-header .arrow {
+    width: 36px; height: 36px;
+    background: var(--paper);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .agenda-header .day-label {
+    text-align: center;
+  }
+  .agenda-header .day-label .l { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+  .agenda-header .day-label .d { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; line-height: 1; margin-top: 2px; }
+
+  .week-strip {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding: 4px;
+  }
+  .week-day {
+    flex: 1;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 8px 0;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .week-day .wn { color: var(--muted); font-size: 10px; font-weight: 600; }
+  .week-day .wd { font-size: 16px; font-weight: 800; margin-top: 2px; }
+  .week-day .dot-mini { width: 4px; height: 4px; background: var(--ink); border-radius: 50%; margin: 4px auto 0; }
+  .week-day.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .week-day.active .wn { color: rgba(255,255,255,0.65); }
+  .week-day.active .dot-mini { background: var(--primary); }
+
+  .day-stats {
+    display: flex; justify-content: space-around;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 18px;
+  }
+  .day-stat .v { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+  .day-stat .l { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 56px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 8px; bottom: 8px;
+    left: 36px;
+    width: 2px;
+    background: var(--line);
+  }
+  .tl-row {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .tl-time {
+    position: absolute;
+    left: -56px;
+    top: 6px;
+    width: 32px;
+    text-align: right;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .tl-time.now { color: var(--ink); }
+  .tl-dot {
+    position: absolute;
+    left: -27px;
+    top: 8px;
+    width: 12px; height: 12px;
+    background: var(--paper);
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    z-index: 2;
+  }
+  .tl-dot.now { background: var(--ink); border-color: var(--ink); box-shadow: 0 0 0 3px rgba(0,0,0,0.08); }
+  .tl-dot.live::after {
+    content: '';
+    position: absolute; inset: -4px;
+    border: 2px solid var(--danger);
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  .tl-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+  }
+  .tl-card.live { border-color: var(--danger); }
+  .tl-card.featured { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .tl-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 10px; margin-bottom: 6px;
+  }
+  .tl-head .driver-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--warm-100);
+    padding: 3px 8px 3px 3px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .tl-card.featured .driver-chip { background: rgba(255,210,63,0.2); }
+  .tl-head .driver-chip .av {
+    width: 18px; height: 18px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 800;
+    color: var(--ink);
+  }
+  .tl-head .price { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; }
+  .tl-route { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .tl-route .from { color: var(--muted); font-weight: 500; font-size: 12px; }
+  .tl-card.featured .tl-route .from { color: rgba(255,255,255,0.6); }
+  .tl-card.featured .tl-route .to { color: var(--primary); }
+  .tl-meta {
+    margin-top: 8px;
+    display: flex; gap: 10px;
+    font-size: 11px; color: var(--muted);
+    font-weight: 500;
+  }
+  .tl-card.featured .tl-meta { color: rgba(255,255,255,0.6); }
+  .tl-meta .live-pill {
+    background: var(--danger); color: var(--paper);
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  .tl-meta .material-symbols-rounded { font-size: 13px; vertical-align: -2px; margin-right: 2px; }
+
+  /* Annotations */
+  .annotations {
+    margin-top: 24px;
+    max-width: 900px;
+    background: var(--paper);
+    border-radius: 24px;
+    padding: 28px 32px;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+    border: 1px solid var(--line);
+  }
+  .annotations h3 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .annotations .sub-h {
+    font-size: 13px; color: var(--muted); margin-bottom: 18px;
+  }
+  .ann-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 32px;
+  }
+  .ann {
+    display: flex; gap: 10px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .ann .num {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    background: var(--primary);
+    color: var(--ink);
+    border-radius: 6px;
+    font-weight: 800; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ann strong { font-weight: 700; }
+  .ann .sub { color: var(--muted); display: block; margin-top: 2px; }
+
+  .vs-box {
+    background: var(--warm-50);
+    border: 1px dashed var(--warm-200);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-top: 18px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .vs-box strong { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="eyebrow">POC · TaxiLink Patron · Mobile compagnon</span>
+  <h1>Patron : le PC reste le bureau, le mobile devient l'œil</h1>
+  <p>
+    Le dashboard PC (4 KPIs + carte + revenue + flotte + activité + marketplace + alertes) est <strong>volontairement réduit</strong> sur mobile. Le patron ne pilote pas sa flotte depuis le téléphone — il <em>surveille</em> en déplacement et réagit aux alertes. Mêmes tokens que le web (<code>#FFD23F</code>, Inter, rounded), philosophie produit différente.
+  </p>
+</div>
+
+<div class="stage">
+
+  <!-- ============== SCREEN 1: Vue d'ensemble (monitoring) ============== -->
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span class="icons">
+            <span class="material-symbols-rounded">signal_cellular_alt</span>
+            <span class="material-symbols-rounded">wifi</span>
+            <span class="material-symbols-rounded">battery_full</span>
+          </span>
+        </div>
+
+        <div class="content">
+          <!-- Patron header -->
+          <div class="patron-header">
+            <div class="patron-greeting">
+              <div class="hi">Bonjour</div>
+              <div class="name">Mohamed</div>
+            </div>
+            <div class="org-switcher">
+              <div class="org-logo">TL</div>
+              <div class="org-name">TaxiLink Marseille</div>
+              <span class="material-symbols-rounded">unfold_more</span>
+            </div>
+          </div>
+
+          <!-- KPIs 2x2 -->
+          <div class="kpi-grid">
+            <div class="kpi featured">
+              <div class="icon"><span class="material-symbols-rounded">payments</span></div>
+              <div class="label-kpi">CA estimé</div>
+              <div class="value">1 247 €</div>
+              <div class="delta up"><span class="material-symbols-rounded" style="font-size:12px;">arrow_upward</span> +18% vs hier</div>
+            </div>
+            <div class="kpi">
+              <div class="icon"><span class="material-symbols-rounded">local_taxi</span></div>
+              <div class="label-kpi">Courses jour</div>
+              <div class="value">23</div>
+              <div class="delta up"><span class="material-symbols-rounded" style="font-size:12px;">arrow_upward</span> 8 en cours</div>
+            </div>
+            <div class="kpi">
+              <div class="icon"><span class="material-symbols-rounded">groups</span></div>
+              <div class="label-kpi">Chauffeurs actifs</div>
+              <div class="value">5<span style="font-size:14px; color:var(--muted); font-weight:600;">/7</span></div>
+              <div class="delta">2 en pause</div>
+            </div>
+            <div class="kpi">
+              <div class="icon"><span class="material-symbols-rounded">notifications_active</span></div>
+              <div class="label-kpi">Alertes</div>
+              <div class="value" style="color:var(--danger);">3</div>
+              <div class="delta alert">1 critique</div>
+            </div>
+          </div>
+
+          <!-- Section: Flotte temps réel -->
+          <div class="section-title">
+            <h2>Flotte en direct</h2>
+            <span class="see-all">Voir carte <span class="material-symbols-rounded" style="font-size:14px;vertical-align:-2px;">chevron_right</span></span>
+          </div>
+          <div class="mini-map">
+            <div class="road h1"></div>
+            <div class="road v1"></div>
+            <div class="car-pin busy" style="top: 30%; left: 30%;"><span class="material-symbols-rounded">local_taxi</span></div>
+            <div class="car-pin busy" style="top: 55%; left: 60%;"><span class="material-symbols-rounded">local_taxi</span></div>
+            <div class="car-pin idle" style="top: 70%; left: 25%;"><span class="material-symbols-rounded">local_taxi</span></div>
+            <div class="car-pin" style="top: 25%; left: 70%;"><span class="material-symbols-rounded">local_taxi</span></div>
+            <div class="map-legend">
+              <span class="legend-pill"><span class="dot" style="background:var(--ink);"></span> 3 en course</span>
+              <span class="legend-pill"><span class="dot" style="background:var(--paper);border:1px solid var(--ink);"></span> 2 dispo</span>
+            </div>
+          </div>
+
+          <div style="height:18px;"></div>
+
+          <!-- Section: Alertes -->
+          <div class="section-title">
+            <h2>À traiter <span style="color:var(--danger);">·  3</span></h2>
+            <span class="see-all">Tout voir <span class="material-symbols-rounded" style="font-size:14px;vertical-align:-2px;">chevron_right</span></span>
+          </div>
+          <div class="alert-stack">
+            <div class="alert critical">
+              <div class="alert-icon"><span class="material-symbols-rounded">running_with_errors</span></div>
+              <div class="alert-content">
+                <div class="alert-title">Course pas prise depuis 4 min</div>
+                <div class="alert-sub">Timone → Aix · 42 € · Mme Aïcha B.</div>
+              </div>
+              <span class="material-symbols-rounded chev">chevron_right</span>
+            </div>
+            <div class="alert warning">
+              <div class="alert-icon"><span class="material-symbols-rounded">badge</span></div>
+              <div class="alert-content">
+                <div class="alert-title">Carte pro Karim expire dans 7 j</div>
+                <div class="alert-sub">Renouvellement à prévoir</div>
+              </div>
+              <span class="material-symbols-rounded chev">chevron_right</span>
+            </div>
+          </div>
+
+          <!-- Quick actions -->
+          <div class="quick-actions">
+            <div class="quick-btn dark">
+              <span class="material-symbols-rounded">add_road</span>
+              Poster course
+            </div>
+            <div class="quick-btn">
+              <span class="material-symbols-rounded">person_add</span>
+              Inviter
+            </div>
+          </div>
+        </div>
+
+        <!-- tab bar -->
+        <div class="tab-bar">
+          <div class="tab active">
+            <span class="material-symbols-rounded">dashboard</span>
+            <span>Vue</span>
+          </div>
+          <div class="tab" style="position:relative;">
+            <span class="material-symbols-rounded">list_alt</span>
+            <span>Courses</span>
+            <span class="badge">8</span>
+          </div>
+          <div class="tab">
+            <span class="material-symbols-rounded">calendar_month</span>
+            <span>Agenda</span>
+          </div>
+          <div class="tab">
+            <span class="material-symbols-rounded">person</span>
+            <span>Profil</span>
+          </div>
+        </div>
+
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+    <div class="label"><strong>Écran 1 — Vue d'ensemble</strong>Glance + alertes, pas de pilotage profond</div>
+  </div>
+
+
+  <!-- ============== SCREEN 2: Agenda jour ============== -->
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span>9:47</span>
+          <span class="icons">
+            <span class="material-symbols-rounded">signal_cellular_alt</span>
+            <span class="material-symbols-rounded">wifi</span>
+            <span class="material-symbols-rounded">battery_full</span>
+          </span>
+        </div>
+
+        <div class="content">
+          <!-- Header -->
+          <div class="agenda-header">
+            <div class="arrow"><span class="material-symbols-rounded" style="font-size:18px;">chevron_left</span></div>
+            <div class="day-label">
+              <div class="l">Aujourd'hui</div>
+              <div class="d">Lundi 11 mai</div>
+            </div>
+            <div class="arrow"><span class="material-symbols-rounded" style="font-size:18px;">chevron_right</span></div>
+          </div>
+
+          <!-- Week strip -->
+          <div class="week-strip">
+            <div class="week-day"><div class="wn">VEN</div><div class="wd">9</div></div>
+            <div class="week-day"><div class="wn">SAM</div><div class="wd">10</div><div class="dot-mini"></div></div>
+            <div class="week-day active"><div class="wn">LUN</div><div class="wd">11</div><div class="dot-mini"></div></div>
+            <div class="week-day"><div class="wn">MAR</div><div class="wd">12</div><div class="dot-mini"></div></div>
+            <div class="week-day"><div class="wn">MER</div><div class="wd">13</div></div>
+            <div class="week-day"><div class="wn">JEU</div><div class="wd">14</div><div class="dot-mini"></div></div>
+          </div>
+
+          <!-- Day stats -->
+          <div class="day-stats">
+            <div class="day-stat">
+              <div class="v">12</div>
+              <div class="l">courses</div>
+            </div>
+            <div class="day-stat">
+              <div class="v">847 €</div>
+              <div class="l">prévu</div>
+            </div>
+            <div class="day-stat">
+              <div class="v">5/7</div>
+              <div class="l">chauffeurs</div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="timeline">
+            <div class="tl-row">
+              <div class="tl-time">8:30</div>
+              <div class="tl-dot"></div>
+              <div class="tl-card">
+                <div class="tl-head">
+                  <div class="driver-chip"><div class="av">KH</div> Karim</div>
+                  <div class="price">35 €</div>
+                </div>
+                <div class="tl-route"><span class="from">Marseille 8e →</span><span class="to"> Clinique Bouchard</span></div>
+                <div class="tl-meta">
+                  <span><span class="material-symbols-rounded">check_circle</span>Terminée · 9:12</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-row">
+              <div class="tl-time now">9:45</div>
+              <div class="tl-dot now live"></div>
+              <div class="tl-card live">
+                <div class="tl-head">
+                  <div class="driver-chip"><div class="av">YA</div> Yanis</div>
+                  <div class="price">42 €</div>
+                </div>
+                <div class="tl-route"><span class="from">Hôpital Timone →</span><span class="to"> Aix-en-Provence</span></div>
+                <div class="tl-meta">
+                  <span class="live-pill">EN COURSE</span>
+                  <span><span class="material-symbols-rounded">schedule</span>+12 min</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-row">
+              <div class="tl-time">10:30</div>
+              <div class="tl-dot"></div>
+              <div class="tl-card featured">
+                <div class="tl-head">
+                  <div class="driver-chip"><div class="av">SL</div> Sofiane</div>
+                  <div class="price">28 €</div>
+                </div>
+                <div class="tl-route"><span class="from">Endoume →</span><span class="to"> Saint-Pierre</span></div>
+                <div class="tl-meta">
+                  <span><span class="material-symbols-rounded">person</span>Mme Faliana D.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-row">
+              <div class="tl-time">11:15</div>
+              <div class="tl-dot"></div>
+              <div class="tl-card">
+                <div class="tl-head">
+                  <div class="driver-chip" style="background:#FEF2F2;color:var(--danger);"><span class="material-symbols-rounded" style="font-size:14px;">error</span> Non assigné</div>
+                  <div class="price">52 €</div>
+                </div>
+                <div class="tl-route"><span class="from">Aubagne →</span><span class="to"> Hôpital Nord</span></div>
+                <div class="tl-meta">
+                  <span style="color:var(--danger);font-weight:700;">Action requise · attribuer</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-row">
+              <div class="tl-time">14:00</div>
+              <div class="tl-dot"></div>
+              <div class="tl-card">
+                <div class="tl-head">
+                  <div class="driver-chip"><div class="av">KH</div> Karim</div>
+                  <div class="price">68 €</div>
+                </div>
+                <div class="tl-route"><span class="from">Vauban →</span><span class="to"> Aéroport MRS</span></div>
+                <div class="tl-meta">
+                  <span><span class="material-symbols-rounded">flight_takeoff</span>Aller-retour</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- tab bar -->
+        <div class="tab-bar">
+          <div class="tab">
+            <span class="material-symbols-rounded">dashboard</span>
+            <span>Vue</span>
+          </div>
+          <div class="tab" style="position:relative;">
+            <span class="material-symbols-rounded">list_alt</span>
+            <span>Courses</span>
+          </div>
+          <div class="tab active">
+            <span class="material-symbols-rounded">calendar_month</span>
+            <span>Agenda</span>
+          </div>
+          <div class="tab">
+            <span class="material-symbols-rounded">person</span>
+            <span>Profil</span>
+          </div>
+        </div>
+
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+    <div class="label"><strong>Écran 2 — Agenda du jour</strong>Timeline verticale + état live + course non assignée</div>
+  </div>
+
+</div>
+
+<div class="annotations">
+  <h3>Différences vs l'app Chauffeur (même DNA, philosophie produit opposée)</h3>
+  <div class="sub-h">Chauffeur = mobile-first action ; Patron = mobile-companion monitoring.</div>
+  <div class="ann-grid">
+    <div class="ann">
+      <div class="num">1</div>
+      <div><strong>Pas de carte plein écran par défaut</strong><span class="sub">Le patron ne navigue pas — il regarde un mini-cartouche flotte pour voir où sont les voitures, c'est tout. La vraie carte est sur PC.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">2</div>
+      <div><strong>KPI hero "CA jour" en noir</strong><span class="sub">L'unique métrique vraiment scannée en déplacement. Les 3 autres en blanc. Hiérarchie visuelle = priorité produit.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">3</div>
+      <div><strong>Section "À traiter" au-dessus de la flotte</strong><span class="sub">Sur PC, les alertes sont en bas. Sur mobile, elles remontent — c'est la raison principale d'ouvrir l'app en déplacement.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">4</div>
+      <div><strong>Org switcher condensé en haut</strong><span class="sub">Multi-tenancy obligatoire (mémoire patron Phase 1) mais 32×32, pas de menu écran complet. Le patron a en moyenne 1-2 orgs.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">5</div>
+      <div><strong>Agenda timeline verticale (pas grid)</strong><span class="sub">Sur PC, l'agenda est une grille 7 jours × 24h. Sur mobile, scroll vertical d'un seul jour, week-strip pour changer.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">6</div>
+      <div><strong>Course non assignée = rouge action</strong><span class="sub">État critique mis en avant — le patron peut tap-to-assign en 1 geste, c'est la valeur ajoutée du mobile vs le PC.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">7</div>
+      <div><strong>Course "live" qui pulse</strong><span class="sub">Anneau rouge animé sur la course en cours — le patron voit en un coup d'œil ce qui se passe maintenant.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">8</div>
+      <div><strong>Pas de Marketplace, Revenue chart, Top drivers, Doc grid</strong><span class="sub">Tout ce qui demande analyse profonde reste sur PC. Mobile = glance + 2-3 actions critiques.</span></div>
+    </div>
+  </div>
+
+  <div class="vs-box">
+    <strong>Le test "qu'est-ce qu'on coupe ?"</strong> · Sur PC le patron voit 7 sections (KPIs, FleetMap, RevenueChart, TopDrivers, FleetList, ActivityList, MarketplacePreview, DocAlerts). Sur mobile : <strong>4 sections</strong> (KPIs, FleetMap mini, Alertes, Quick actions). Tout le reste vit dans les onglets Courses / Agenda / Profil.
+  </div>
+</div>
+
+</body>
+</html>

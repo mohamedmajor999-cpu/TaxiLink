@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink Chauffeur — POC mobile native</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+<style>
+  :root {
+    --primary: #FFD23F;
+    --ink: #0A0A0A;
+    --ink-2: #1A1A1A;
+    --muted: #6B6B6B;
+    --line: #E8E6E1;
+    --paper: #FFFFFF;
+    --warm-50: #FAF8F4;
+    --warm-100: #F4F1EB;
+    --warm-200: #E8E6E1;
+    --danger: #DC2626;
+    --green: #16A34A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { font-family: 'Inter', system-ui, sans-serif; color: var(--ink); background: #F2EEE5; }
+  body {
+    min-height: 100vh;
+    padding: 48px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .header {
+    text-align: center;
+    max-width: 760px;
+  }
+  .header .eyebrow {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .stage {
+    display: flex;
+    gap: 56px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* iPhone frame */
+  .phone {
+    width: 380px;
+    height: 820px;
+    background: #0A0A0A;
+    border-radius: 56px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 2px #2A2A2A inset,
+      0 50px 80px -20px rgba(0,0,0,0.35),
+      0 20px 40px -20px rgba(0,0,0,0.25);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 32px;
+    background: #0A0A0A;
+    border-radius: 999px;
+    z-index: 50;
+  }
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: var(--paper);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+  }
+  .status-bar {
+    height: 54px;
+    padding: 18px 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    position: relative;
+    z-index: 40;
+  }
+  .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+  .status-bar .icons .material-symbols-rounded { font-size: 16px; }
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: var(--ink);
+    border-radius: 999px;
+    z-index: 100;
+  }
+
+  .label {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .label strong { color: var(--ink); display: block; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+
+  /* === SCREEN 1: Home / Disponible (map + sheet) === */
+  .map {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 40%, #FFF7E0 0%, transparent 40%),
+      radial-gradient(circle at 70% 60%, #E8F0FF 0%, transparent 50%),
+      linear-gradient(135deg, #F4F1EB 0%, #EAE6DD 100%);
+    z-index: 1;
+  }
+  .map::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.6;
+  }
+  /* Roads */
+  .road {
+    position: absolute;
+    background: rgba(255,255,255,0.85);
+    z-index: 2;
+  }
+  .road.h1 { top: 28%; left: -10%; right: -10%; height: 14px; transform: rotate(-3deg); border-radius: 8px; }
+  .road.h2 { top: 62%; left: -10%; right: -10%; height: 10px; transform: rotate(2deg); border-radius: 8px; }
+  .road.v1 { top: -10%; bottom: -10%; left: 38%; width: 12px; transform: rotate(8deg); border-radius: 8px; }
+  .road.v2 { top: -10%; bottom: -10%; left: 72%; width: 8px; transform: rotate(-4deg); border-radius: 8px; }
+
+  /* Top overlay (online toggle + count + avatar) */
+  .top-overlay {
+    position: absolute;
+    top: 60px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 30;
+    gap: 10px;
+  }
+  .pill {
+    background: var(--paper);
+    border-radius: 999px;
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    box-shadow: 0 6px 20px -4px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.06);
+  }
+  .pill.online {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .pill.online .dot { background: #4ADE80; box-shadow: 0 0 0 3px rgba(74,222,128,0.25); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    color: var(--ink);
+  }
+
+  /* Filter chips floating */
+  .chips {
+    position: absolute;
+    top: 116px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    z-index: 30;
+    padding-bottom: 4px;
+  }
+  .chip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    background: var(--paper);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px -2px rgba(0,0,0,0.1);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--ink-2);
+  }
+  .chip.active { background: var(--ink); color: var(--paper); }
+  .chip .badge { background: var(--primary); color: var(--ink); padding: 1px 6px; border-radius: 999px; font-size: 10px; font-weight: 800; }
+  .chip.active .badge { background: var(--primary); color: var(--ink); }
+
+  /* Mission pins on map */
+  .pin {
+    position: absolute;
+    z-index: 5;
+    transform: translate(-50%, -100%);
+  }
+  .pin .price {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    color: var(--ink);
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    white-space: nowrap;
+  }
+  .pin.urgent .price { background: var(--primary); }
+  .pin .price::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid var(--ink);
+  }
+  .pin.user-loc {
+    width: 18px; height: 18px;
+    background: #2563EB;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 8px rgba(37,99,235,0.18), 0 4px 8px rgba(0,0,0,0.2);
+  }
+
+  /* Bottom sheet */
+  .sheet {
+    position: absolute;
+    bottom: 80px; /* leave room for tab bar */
+    left: 0; right: 0;
+    background: var(--paper);
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.12);
+    z-index: 20;
+    height: 340px;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0;
+  }
+  .sheet .handle {
+    height: 5px; width: 44px;
+    background: #D4D4D4;
+    border-radius: 999px;
+    margin: 10px auto 6px;
+  }
+  .sheet-header {
+    padding: 4px 20px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .sheet-header h2 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .sheet-header .scope {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .mission-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .mission-card {
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 18px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+  .mission-card.selected {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+  }
+  .mission-card.urgent::before {
+    content: 'URGENT';
+    position: absolute;
+    top: -8px; left: 14px;
+    background: var(--ink);
+    color: var(--primary);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .mission-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .mission-route {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+  .route-line {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .route-line .material-symbols-rounded { font-size: 16px; flex-shrink: 0; }
+  .route-line.from .material-symbols-rounded { color: #2563EB; }
+  .route-line.to .material-symbols-rounded { color: var(--danger); }
+  .route-line .place {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .mission-price {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .mission-meta {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .mission-meta .sep { color: var(--line); }
+  .meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .meta-pill .material-symbols-rounded { font-size: 13px; }
+
+  /* Sticky CTA above tab bar */
+  .cta-bar {
+    position: absolute;
+    bottom: 80px;
+    left: 0; right: 0;
+    padding: 12px 16px 14px;
+    background: linear-gradient(to top, var(--paper) 80%, rgba(255,255,255,0.6) 100%);
+    z-index: 25;
+    display: none; /* shown only on screen 2 */
+  }
+  .cta {
+    width: 100%;
+    background: var(--primary);
+    color: var(--ink);
+    border: none;
+    border-radius: 18px;
+    padding: 18px 20px;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    box-shadow: 0 8px 20px -4px rgba(255,210,63,0.5), 0 0 0 1px rgba(0,0,0,0.04);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .cta.dark {
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: 0 8px 20px -4px rgba(0,0,0,0.3);
+  }
+
+  /* FAB */
+  .fab {
+    position: absolute;
+    right: 16px;
+    bottom: 440px; /* above sheet */
+    width: 56px; height: 56px;
+    background: var(--ink);
+    color: var(--primary);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 24px -4px rgba(0,0,0,0.4);
+    z-index: 28;
+  }
+  .fab .material-symbols-rounded { font-size: 28px; }
+
+  /* Bottom tab bar */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+    display: flex;
+    z-index: 50;
+    padding: 8px 0 24px;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: #9A9A9A;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .tab.active { color: var(--ink); }
+  .tab .material-symbols-rounded { font-size: 24px; }
+  .tab.active .material-symbols-rounded {
+    background: var(--primary);
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-variation-settings: 'FILL' 1;
+  }
+
+  /* === SCREEN 2: Mission active === */
+  .nav-card {
+    position: absolute;
+    top: 60px;
+    left: 16px; right: 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 24px;
+    padding: 18px 20px;
+    z-index: 30;
+    box-shadow: 0 12px 32px -8px rgba(0,0,0,0.4);
+  }
+  .nav-card .step-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--primary);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .nav-card h3 {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .nav-meta {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  .nav-meta-item .v {
+    font-size: 18px; font-weight: 800; letter-spacing: -0.01em;
+    display: block;
+  }
+  .nav-meta-item .l {
+    font-size: 10px; color: rgba(255,255,255,0.6);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .nav-meta-item .v.yellow { color: var(--primary); }
+
+  .route-display {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+  .route-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .pickup-pin {
+    position: absolute;
+    top: 38%;
+    left: 28%;
+    z-index: 6;
+    transform: translate(-50%, -100%);
+  }
+  .pickup-pin .badge {
+    background: #2563EB;
+    color: var(--paper);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+  }
+  .pickup-pin .badge::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #2563EB;
+  }
+
+  .driver-marker {
+    position: absolute;
+    top: 56%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 7;
+  }
+  .driver-marker .car {
+    width: 44px; height: 44px;
+    background: var(--primary);
+    border: 3px solid var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  }
+  .driver-marker .car .material-symbols-rounded {
+    font-size: 22px; color: var(--ink);
+  }
+
+  .info-pill {
+    position: absolute;
+    bottom: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    background: var(--paper);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .info-pill .material-symbols-rounded { font-size: 14px; }
+
+  /* Action sheet bottom on screen 2 */
+  .action-sheet {
+    position: absolute;
+    bottom: 80px;
+    left: 0; right: 0;
+    background: var(--paper);
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.12);
+    z-index: 20;
+    padding: 14px 16px 16px;
+  }
+  .passenger-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 4px 14px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+  }
+  .passenger-row .av {
+    width: 44px; height: 44px;
+    background: var(--warm-100);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: var(--ink);
+  }
+  .passenger-row .name { font-weight: 700; font-size: 15px; line-height: 1.2; }
+  .passenger-row .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .passenger-row .actions { margin-left: auto; display: flex; gap: 8px; }
+  .icon-btn {
+    width: 40px; height: 40px;
+    background: var(--warm-100);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink);
+  }
+  .icon-btn.primary { background: var(--primary); }
+  .icon-btn .material-symbols-rounded { font-size: 20px; }
+
+  /* Annotation callouts (between phones) */
+  .annotations {
+    margin-top: 24px;
+    max-width: 900px;
+    background: var(--paper);
+    border-radius: 24px;
+    padding: 28px 32px;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+    border: 1px solid var(--line);
+  }
+  .annotations h3 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .ann-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 32px;
+  }
+  .ann {
+    display: flex;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .ann .num {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    background: var(--primary);
+    color: var(--ink);
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ann strong { font-weight: 700; }
+  .ann .sub { color: var(--muted); display: block; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="eyebrow">POC · TaxiLink Chauffeur · Mobile native</span>
+  <h1>Même DNA visuel, écrans repensés pour le pouce</h1>
+  <p>
+    Mêmes tokens que le web (jaune <code>#FFD23F</code>, noir <code>#1A1A1A</code>, Inter, rounded 2xl/3xl) — mais layout 100% mobile : carte plein écran, bottom sheet draggable, tab bar pouce, FAB ergonomique, CTA sticky. Aucun élément du dashboard web n'est porté tel quel.
+  </p>
+</div>
+
+<div class="stage">
+
+  <!-- ============== SCREEN 1: Disponible / liste missions ============== -->
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span class="icons">
+            <span class="material-symbols-rounded">signal_cellular_alt</span>
+            <span class="material-symbols-rounded">wifi</span>
+            <span class="material-symbols-rounded">battery_full</span>
+          </span>
+        </div>
+
+        <div class="map">
+          <div class="road h1"></div>
+          <div class="road h2"></div>
+          <div class="road v1"></div>
+          <div class="road v2"></div>
+        </div>
+
+        <!-- top overlay -->
+        <div class="top-overlay">
+          <div class="pill online"><span class="dot"></span> En ligne</div>
+          <div class="pill"><span class="material-symbols-rounded" style="font-size:14px;color:#FFD23F;">bolt</span> 12 courses</div>
+          <div class="avatar">MM</div>
+        </div>
+
+        <!-- chips -->
+        <div class="chips">
+          <div class="chip active">Toutes <span class="badge">12</span></div>
+          <div class="chip">Pour moi <span class="badge">3</span></div>
+          <div class="chip">Patron <span class="badge">5</span></div>
+          <div class="chip">Marketplace</div>
+        </div>
+
+        <!-- pins on map -->
+        <div class="pin urgent" style="top: 32%; left: 38%;">
+          <div class="price">42 €</div>
+        </div>
+        <div class="pin" style="top: 50%; left: 68%;">
+          <div class="price">28 €</div>
+        </div>
+        <div class="pin" style="top: 22%; left: 72%;">
+          <div class="price">35 €</div>
+        </div>
+        <div class="pin user-loc" style="top: 56%; left: 50%;"></div>
+
+        <!-- FAB poster une course -->
+        <div class="fab"><span class="material-symbols-rounded">add</span></div>
+
+        <!-- Bottom sheet -->
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="sheet-header">
+            <h2>Courses dispo</h2>
+            <span class="scope">Bouches-du-Rhône · 13</span>
+          </div>
+          <div class="mission-list">
+            <div class="mission-card urgent selected">
+              <div class="mission-row">
+                <div class="mission-route">
+                  <div class="route-line from"><span class="material-symbols-rounded">radio_button_checked</span><span class="place">Hôpital de la Timone</span></div>
+                  <div class="route-line to"><span class="material-symbols-rounded">place</span><span class="place">Aix Pont-de-l'Arc · Centre dialyse</span></div>
+                </div>
+                <div class="mission-price">42 €</div>
+              </div>
+              <div class="mission-meta">
+                <span class="meta-pill"><span class="material-symbols-rounded">schedule</span> Maintenant</span>
+                <span class="sep">·</span>
+                <span class="meta-pill"><span class="material-symbols-rounded">straighten</span> 28 km</span>
+                <span class="sep">·</span>
+                <span class="meta-pill"><span class="material-symbols-rounded">directions_car</span> 9 min de toi</span>
+              </div>
+            </div>
+            <div class="mission-card">
+              <div class="mission-row">
+                <div class="mission-route">
+                  <div class="route-line from"><span class="material-symbols-rounded">radio_button_checked</span><span class="place">Marseille 8e · Prado</span></div>
+                  <div class="route-line to"><span class="material-symbols-rounded">place</span><span class="place">Clinique Bouchard</span></div>
+                </div>
+                <div class="mission-price">28 €</div>
+              </div>
+              <div class="mission-meta">
+                <span class="meta-pill"><span class="material-symbols-rounded">schedule</span> 10:30</span>
+                <span class="sep">·</span>
+                <span class="meta-pill"><span class="material-symbols-rounded">straighten</span> 12 km</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- tab bar -->
+        <div class="tab-bar">
+          <div class="tab active">
+            <span class="material-symbols-rounded">explore</span>
+            <span>Carte</span>
+          </div>
+          <div class="tab">
+            <span class="material-symbols-rounded">list_alt</span>
+            <span>Courses</span>
+          </div>
+          <div class="tab">
+            <span class="material-symbols-rounded">groups</span>
+            <span>Groupes</span>
+          </div>
+          <div class="tab">
+            <span class="material-symbols-rounded">person</span>
+            <span>Profil</span>
+          </div>
+        </div>
+
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+    <div class="label"><strong>Écran 1 — Home / Disponible</strong>Carte plein écran + sheet draggable + tab bar</div>
+  </div>
+
+
+  <!-- ============== SCREEN 2: Mission en cours ============== -->
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span>9:47</span>
+          <span class="icons">
+            <span class="material-symbols-rounded">signal_cellular_alt</span>
+            <span class="material-symbols-rounded">wifi</span>
+            <span class="material-symbols-rounded">battery_full</span>
+          </span>
+        </div>
+
+        <div class="map">
+          <div class="road h1"></div>
+          <div class="road h2"></div>
+          <div class="road v1"></div>
+          <div class="road v2"></div>
+        </div>
+
+        <!-- Route line -->
+        <svg class="route-svg" viewBox="0 0 380 820" preserveAspectRatio="none">
+          <path d="M 110 320 Q 160 380, 190 460" stroke="#FFD23F" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="0" />
+          <path d="M 110 320 Q 160 380, 190 460" stroke="#0A0A0A" stroke-width="3" fill="none" stroke-linecap="round" />
+        </svg>
+
+        <!-- Nav card -->
+        <div class="nav-card">
+          <div class="step-label">→ Direction · pickup</div>
+          <h3>Hôpital de la Timone<br>entrée principale</h3>
+          <div class="nav-meta">
+            <div class="nav-meta-item">
+              <span class="v yellow">9 min</span>
+              <span class="l">Arrivée</span>
+            </div>
+            <div class="nav-meta-item">
+              <span class="v">2,4 km</span>
+              <span class="l">Distance</span>
+            </div>
+            <div class="nav-meta-item">
+              <span class="v">42 €</span>
+              <span class="l">Course</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pickup pin -->
+        <div class="pickup-pin">
+          <div class="badge">Mme Aïcha B.</div>
+        </div>
+
+        <!-- Driver -->
+        <div class="driver-marker">
+          <div class="car"><span class="material-symbols-rounded">local_taxi</span></div>
+        </div>
+
+        <!-- Action sheet -->
+        <div class="action-sheet">
+          <div class="passenger-row">
+            <div class="av">AB</div>
+            <div>
+              <div class="name">Aïcha B.</div>
+              <div class="sub">Bon transport · Patient assis</div>
+            </div>
+            <div class="actions">
+              <div class="icon-btn"><span class="material-symbols-rounded">message</span></div>
+              <div class="icon-btn primary"><span class="material-symbols-rounded">call</span></div>
+            </div>
+          </div>
+          <button class="cta dark">
+            <span class="material-symbols-rounded">check_circle</span>
+            Je suis arrivé
+          </button>
+        </div>
+
+        <!-- tab bar -->
+        <div class="tab-bar">
+          <div class="tab">
+            <span class="material-symbols-rounded">explore</span>
+            <span>Carte</span>
+          </div>
+          <div class="tab active">
+            <span class="material-symbols-rounded">directions_car</span>
+            <span>En course</span>
+          </div>
+          <div class="tab">
+            <span class="material-symbols-rounded">groups</span>
+            <span>Groupes</span>
+          </div>
+          <div class="tab">
+            <span class="material-symbols-rounded">person</span>
+            <span>Profil</span>
+          </div>
+        </div>
+
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+    <div class="label"><strong>Écran 2 — Mission en cours</strong>Nav card sticky · CTA primaire pouce · raccourcis appel/SMS</div>
+  </div>
+
+</div>
+
+<div class="annotations">
+  <h3>Ce qui change vs le web (sans toucher au DNA)</h3>
+  <div class="ann-grid">
+    <div class="ann">
+      <div class="num">1</div>
+      <div><strong>Carte plein écran, sheet draggable</strong><span class="sub">Web : split 58/42 fixe. Mobile : carte = 100% du viewport, sheet snap 3 niveaux comme Apple Plans.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">2</div>
+      <div><strong>Tab bar bottom (4 onglets)</strong><span class="sub">Web : sidebar gauche. Mobile : tabs accessibles au pouce, badge non-lus identique au web.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">3</div>
+      <div><strong>Cartes mission verticales 1 colonne</strong><span class="sub">Web : grid 2-3 colonnes. Mobile : 1 carte par ligne, scroll vertical, prix gros en typo.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">4</div>
+      <div><strong>FAB carré 18 px radius (pas rond)</strong><span class="sub">Garde le langage rounded TaxiLink (pas un FAB Material standard) — DNA jaune/noir conservé.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">5</div>
+      <div><strong>Tap targets ≥ 48 px</strong><span class="sub">Boutons appel/SMS, chips, CTA — toutes les zones cliquables respectent le minimum HIG/Material.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">6</div>
+      <div><strong>Nav card "Waze-style" en course</strong><span class="sub">Web : panneau latéral. Mobile : carte noire haute, ETA jaune en avant pour lisibilité conduite.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">7</div>
+      <div><strong>Status bar + home indicator iOS natifs</strong><span class="sub">Safe areas top (44-54 px) et bottom (34 px) respectées — ce que la PWA web ne peut pas faire correctement.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">8</div>
+      <div><strong>Tokens 100% identiques</strong><span class="sub">Mêmes #FFD23F, #1A1A1A, Inter, Material Symbols Rounded, radii 2xl/3xl — un user qui passe du web au mobile reconnaît TaxiLink instantanément.</span></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

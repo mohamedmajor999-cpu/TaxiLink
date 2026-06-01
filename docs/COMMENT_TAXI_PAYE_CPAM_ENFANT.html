@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Comment un taxi se fait payer par la CPAM ? — Expliqué à un enfant de 10 ans</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a2e;
+    line-height: 1.55;
+    font-size: 12pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 26pt;
+    color: #1a1a2e;
+    background: linear-gradient(90deg, #FBBF24 0%, #FDE68A 100%);
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: 18pt;
+    color: #fff;
+    background: #1a1a2e;
+    padding: 10px 16px;
+    border-radius: 10px;
+    margin: 28px 0 14px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 14pt;
+    color: #1a1a2e;
+    margin: 18px 0 8px 0;
+    border-left: 5px solid #FBBF24;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #555;
+    margin: 0 0 24px 4px;
+    font-style: italic;
+  }
+  .intro-box {
+    background: #FEF3C7;
+    border: 2px dashed #FBBF24;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .step {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-left: 6px solid #FBBF24;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+  .step-title {
+    font-weight: 700;
+    font-size: 13pt;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+  }
+  .step-num {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    font-weight: 800;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    margin-right: 10px;
+  }
+  .problem {
+    background: #FEE2E2;
+    border-left: 6px solid #DC2626;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .problem-title { font-weight: 700; color: #991B1B; }
+  .solution {
+    background: #DCFCE7;
+    border-left: 6px solid #16A34A;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .solution-title { font-weight: 700; color: #14532D; }
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .tool-card {
+    background: #F3F4F6;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid #E5E7EB;
+  }
+  .tool-card-title { font-weight: 700; color: #1a1a2e; font-size: 11.5pt; }
+  .tool-card-price { color: #DC2626; font-weight: 600; font-size: 10.5pt; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+  }
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+  tr:nth-child(even) td { background: #FAFAFA; }
+  .analogy {
+    background: #DBEAFE;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-left: 6px solid #2563EB;
+    page-break-inside: avoid;
+  }
+  .analogy-title { font-weight: 700; color: #1E3A8A; }
+  .pill {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 10pt;
+  }
+  .arrow {
+    text-align: center;
+    color: #FBBF24;
+    font-size: 22pt;
+    margin: 4px 0;
+    font-weight: 800;
+  }
+  .footer {
+    margin-top: 30px;
+    padding-top: 14px;
+    border-top: 2px solid #FBBF24;
+    color: #6B7280;
+    font-size: 9.5pt;
+    text-align: center;
+  }
+  .big-number {
+    font-size: 30pt;
+    font-weight: 800;
+    color: #FBBF24;
+    line-height: 1;
+  }
+  .summary-card {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .summary-card h3 {
+    color: #FBBF24;
+    border: none;
+    padding: 0;
+    margin: 0 0 8px 0;
+    font-size: 14pt;
+  }
+  .check { color: #16A34A; font-weight: 800; }
+  .cross { color: #DC2626; font-weight: 800; }
+  ul { padding-left: 22px; }
+  li { margin: 4px 0; }
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1>Comment un taxi se fait payer par la Sécu ?</h1>
+<p class="subtitle">Expliqué comme à un enfant de 10 ans — pour comprendre TaxiLink</p>
+
+<div class="intro-box">
+  <p style="margin:0;"><strong>Imagine</strong> que tu es malade. Ta maman appelle un taxi spécial pour t'emmener à l'hôpital. À l'arrivée, ta maman ne paie <strong>rien</strong>. Pourtant, le chauffeur, lui, doit gagner sa vie. Alors comment il est payé ?</p>
+  <p style="margin:8px 0 0 0;">👉 La réponse : c'est la <strong>Sécurité Sociale (la CPAM)</strong> qui paie le taxi à la place du patient. Mais pour ça, le chauffeur doit suivre une procédure compliquée. C'est ce qu'on va t'expliquer ici.</p>
+</div>
+
+<h2>1. C'est quoi un "taxi conventionné" ?</h2>
+
+<div class="analogy">
+  <div class="analogy-title">L'image facile à comprendre</div>
+  <p style="margin:6px 0 0 0;">Un taxi conventionné, c'est comme un livreur de pizza qui a signé un contrat avec une grande chaîne (genre Domino's). Il peut faire des courses normales, ET en plus, il a le droit de transporter des malades pour la Sécu. La Sécu lui dit : <em>"Si tu transportes un malade et que tu suis mes règles, je te paierai."</em></p>
+</div>
+
+<p>En France, il y a environ <strong>54 000 taxis</strong>. Parmi eux, <strong>32 000 sont conventionnés CPAM</strong> (60 %). À Marseille seul, c'est <strong>1 200 taxis conventionnés</strong>.</p>
+
+<h2>2. La grande aventure d'une course médicale (en 7 étapes)</h2>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">1</span>AVANT la course — Le médecin écrit un "bon de transport"</div>
+  <p>Le médecin (ou l'hôpital) remplit une <span class="pill">prescription médicale de transport</span>. C'est un <strong>papier obligatoire</strong> qui dit : <em>"Mr Dupont a besoin d'un taxi le 5 mai pour aller à l'hôpital de la Timone."</em></p>
+  <p style="margin-bottom:0;">⚠️ <strong>Sans ce papier, le chauffeur ne sera JAMAIS payé.</strong> Même s'il a fait la course.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">2</span>PENDANT la course — Le chauffeur récupère les infos</div>
+  <p>Quand le patient monte dans le taxi, le chauffeur lui demande :</p>
+  <ul>
+    <li>Le bon de transport (papier signé du médecin)</li>
+    <li>Sa <strong>carte Vitale</strong> (la carte verte de la Sécu)</li>
+    <li>Sa carte de mutuelle (pour la part complémentaire)</li>
+  </ul>
+  <p style="margin-bottom:0;">Le chauffeur démarre, le compteur tourne, le GPS enregistre la distance.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">3</span>FIN DE COURSE — Le moment de la machine magique</div>
+  <p>Arrivé à destination, le chauffeur sort sa <strong>machine bi-fente</strong> (un appareil à 200 €, comme une grosse calculatrice avec deux fentes pour cartes).</p>
+  <ul>
+    <li>Fente 1 : il met sa <strong>carte CPS</strong> (sa carte de Pro de Santé, sa "carte d'employé Sécu")</li>
+    <li>Fente 2 : il met la <strong>carte Vitale</strong> du patient</li>
+  </ul>
+  <p style="margin-bottom:0;">Sur l'écran, il tape : kilomètres parcourus, tarif, heure, etc. C'est <strong>long</strong>, et il faut <strong>zéro erreur</strong>.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">4</span>FABRICATION de la "Feuille de Soins Électronique" (FSE)</div>
+  <p>La machine fabrique un <strong>fichier numérique</strong> (la FSE) qui contient toute la course : qui, quand, combien, où.</p>
+  <p style="margin-bottom:0;">C'est un peu comme un <strong>mail recommandé</strong> que le chauffeur va envoyer à la Sécu pour réclamer son argent.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">5</span>ENVOI à la CPAM — La "télétransmission"</div>
+  <p>Le chauffeur appuie sur "Envoyer". La FSE part par <strong>internet 4G</strong> vers les ordinateurs de la CPAM.</p>
+  <p style="margin-bottom:0;">Ce voyage du fichier s'appelle la <span class="pill">télétransmission</span>. C'est sécurisé (comme ton mot de passe à l'école : personne ne peut le lire en route).</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">6</span>VÉRIFICATION par la CPAM (1 à 5 jours)</div>
+  <p>La CPAM vérifie tout : le bon de transport est-il valide ? Le patient a-t-il bien droit ? Le tarif est-il bon ? Si <strong>tout est OK</strong>, elle dit "ACCEPTÉ".</p>
+  <p style="margin-bottom:0;">Si <strong>une seule virgule cloche</strong> → REJET. Le chauffeur doit recommencer. C'est le <strong>cauchemar n°1</strong> du métier.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">7</span>PAIEMENT — La CPAM vire l'argent (5 à 15 jours)</div>
+  <p>Une fois acceptée, la CPAM <strong>vire l'argent sur le compte bancaire</strong> du chauffeur. Pour la part de la mutuelle (10-30 % du tarif), c'est encore une autre démarche, parfois plus longue.</p>
+  <p style="margin-bottom:0;">Au total, entre la course et l'argent en banque : <strong>5 à 30 jours</strong>.</p>
+</div>
+
+<h2>3. Les outils que le chauffeur utilise AUJOURD'HUI</h2>
+
+<div class="tool-grid">
+  <div class="tool-card">
+    <div class="tool-card-title">Le lecteur bi-fente PC/SC</div>
+    <div class="tool-card-price">100 à 300 € (achat unique)</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">La "calculatrice à deux fentes" pour lire la carte Vitale + la carte CPS.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">Le logiciel SESAM-Vitale</div>
+    <div class="tool-card-price">30 à 80 €/mois (abonnement)</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Synapse, Resocom, Maiia, Almerys, Olaqin… Le programme qui fabrique la FSE.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">La carte CPS</div>
+    <div class="tool-card-price">Gratuite (mais à demander à l'ANS)</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">La carte d'identité numérique du chauffeur conventionné.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">Internet 4G</div>
+    <div class="tool-card-price">20 à 40 €/mois</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Pour envoyer la FSE depuis le taxi.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">App du patron / centrale</div>
+    <div class="tool-card-price">10 à 100 €/mois</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Pour recevoir les courses (G7, Saphir, Taxitel…).</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">GPS Waze ou Google Maps</div>
+    <div class="tool-card-price">Gratuit</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Pour la route et calculer les km.</p>
+  </div>
+</div>
+
+<p style="margin-top:14px;"><strong>Total dépensé par chauffeur</strong> : <span class="big-number" style="font-size:18pt;">~120 €/mois</span> juste en outils, hors carburant et assurance.</p>
+
+<div class="page-break"></div>
+
+<h2>4. Les vrais problèmes du chauffeur sur le terrain</h2>
+
+<div class="problem">
+  <div class="problem-title">Problème n°1 — Trop d'outils différents</div>
+  <p style="margin:4px 0 0 0;">Il jongle entre <strong>4 ou 5 applis</strong> : l'app du patron pour la course, Waze pour la route, le SESAM-Vitale pour la facturation, sa banque pour vérifier les virements, Excel pour suivre les rejets. <strong>Perte de temps énorme.</strong></p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">Problème n°2 — Saisie manuelle = erreurs = rejets</div>
+  <p style="margin:4px 0 0 0;">Il tape les km, le tarif, le numéro de prescription… <strong>à la main</strong>, sur un petit écran, à 22h après 12h de boulot. Résultat : <strong>10 à 20 % de FSE rejetées</strong> au premier envoi. Chaque rejet = 30 min pour comprendre + recommencer = pas payé tout de suite.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">Problème n°3 — Trésorerie tendue</div>
+  <p style="margin:4px 0 0 0;">Il avance la course (le carburant, le temps), il attend <strong>2 à 4 semaines</strong> d'être payé. Si beaucoup de rejets : il peut attendre <strong>3 mois</strong>. Beaucoup de chauffeurs se mettent en découvert.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">Problème n°4 — Aucune visibilité</div>
+  <p style="margin:4px 0 0 0;">Une fois la FSE envoyée, c'est le <strong>silence radio</strong>. Il ne sait pas si elle est acceptée, en cours, rejetée. Il découvre les rejets quand il consulte son compte CPAM (en moyenne 1 fois par semaine).</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">Problème n°5 — Coût élevé du SESAM-Vitale</div>
+  <p style="margin:4px 0 0 0;">30 à 80 €/mois juste pour télétransmettre, avec des logiciels souvent moches, lents, et conçus en 2005.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">Problème n°6 — Pas d'aide pour les bons de transport</div>
+  <p style="margin:4px 0 0 0;">Si le bon de transport est mal rempli par le médecin (date floue, motif manquant) → rejet automatique. Le chauffeur doit relancer le médecin. Galère.</p>
+</div>
+
+<h2>5. Ce que TaxiLink peut apporter</h2>
+
+<div class="solution">
+  <div class="solution-title">Solution n°1 — TOUT dans UNE seule app</div>
+  <p style="margin:4px 0 0 0;">Course reçue + GPS + tarif CPAM auto + signature patient + export FSE = <strong>une seule app TaxiLink</strong>. Plus besoin de jongler entre 5 outils.</p>
+</div>
+
+<div class="solution">
+  <div class="solution-title">Solution n°2 — Préremplissage automatique (zéro saisie)</div>
+  <p style="margin:4px 0 0 0;">TaxiLink connaît déjà : km exacts via GPS, tarif CPAM préfectoral du jour, infos patient (nom, NIR), heure départ/arrivée. <strong>Tout est rempli pour le chauffeur.</strong> Il appuie sur "Envoyer". Fini les erreurs de frappe.</p>
+</div>
+
+<div class="solution">
+  <div class="solution-title">Solution n°3 — Export vers le SESAM-Vitale du chauffeur (GRATUIT)</div>
+  <p style="margin:4px 0 0 0;">Le chauffeur garde son logiciel SESAM actuel (Synapse, etc.). TaxiLink lui envoie la course pré-remplie en 1 clic. <strong>Coût pour TaxiLink : 0 €.</strong> C'est notre offre de départ.</p>
+</div>
+
+<div class="solution">
+  <div class="solution-title">Solution n°4 — Télétransmission directe via API tiers (PREMIUM)</div>
+  <p style="margin:4px 0 0 0;">Plus tard, on intègre une API comme <strong>Olaqin</strong>. TaxiLink envoie la FSE directement à la CPAM. Le chauffeur n'a même plus besoin de SESAM-Vitale. <strong>Coût pour nous : ~0,15 €/FSE. On revend 0,50 €/FSE → marge ~0,35 €.</strong></p>
+</div>
+
+<div class="solution">
+  <div class="solution-title">Solution n°5 — Suivi en temps réel</div>
+  <p style="margin:4px 0 0 0;">Sur son écran, le chauffeur voit pour chaque course : <span class="check">✓ Envoyée</span> → <span class="check">✓ Acceptée CPAM</span> → <span class="check">✓ Payée le 12/05</span>. Plus de silence radio.</p>
+</div>
+
+<div class="solution">
+  <div class="solution-title">Solution n°6 — Avance de trésorerie (ULTRA PREMIUM)</div>
+  <p style="margin:4px 0 0 0;">TaxiLink avance les sous au chauffeur en <strong>24h</strong> au lieu d'attendre la CPAM 3 semaines. On se rembourse quand la CPAM paie. Frais : <strong>1 à 2 % par course</strong>. Ça change la vie d'un chauffeur.</p>
+</div>
+
+<div class="solution">
+  <div class="solution-title">Solution n°7 — Vérification automatique du bon de transport</div>
+  <p style="margin:4px 0 0 0;">Avant la course, le chauffeur scanne le bon de transport avec son téléphone. TaxiLink vérifie qu'il est bien rempli (date, motif, signature) et alerte si quelque chose manque. <strong>Plus de rejets stupides.</strong></p>
+</div>
+
+<h2>6. Résumé — Avant / Après TaxiLink</h2>
+
+<table>
+  <tr>
+    <th style="width:40%;">Étape</th>
+    <th>Aujourd'hui (sans TaxiLink)</th>
+    <th>Avec TaxiLink</th>
+  </tr>
+  <tr>
+    <td>Recevoir la course</td>
+    <td>App du patron</td>
+    <td>TaxiLink</td>
+  </tr>
+  <tr>
+    <td>GPS et calcul km</td>
+    <td>Waze + saisie manuelle</td>
+    <td>Auto dans TaxiLink</td>
+  </tr>
+  <tr>
+    <td>Calcul du tarif CPAM</td>
+    <td>Manuel ou logiciel</td>
+    <td>Auto (préfectoral)</td>
+  </tr>
+  <tr>
+    <td>Saisie de la FSE</td>
+    <td>10-15 min sur lecteur</td>
+    <td>10 secondes (1 clic)</td>
+  </tr>
+  <tr>
+    <td>Envoi à la CPAM</td>
+    <td>SESAM-Vitale (30-80 €/mois)</td>
+    <td>Export gratuit ou API (0,50 €/FSE)</td>
+  </tr>
+  <tr>
+    <td>Suivi du paiement</td>
+    <td>Aucun</td>
+    <td>Temps réel</td>
+  </tr>
+  <tr>
+    <td>Délai de paiement</td>
+    <td>15 à 30 jours</td>
+    <td>24h (avec avance) ou 5-15 jours</td>
+  </tr>
+  <tr>
+    <td>Taux de rejet</td>
+    <td>10-20 %</td>
+    <td>&lt; 3 % (visé)</td>
+  </tr>
+</table>
+
+<div class="summary-card">
+  <h3>La promesse TaxiLink en 1 phrase</h3>
+  <p style="margin:0; font-size:13pt;">"Tu fais tes courses comme d'habitude, et TaxiLink se charge de la paperasse CPAM à ta place — plus vite, sans erreur, et moins cher que ton SESAM-Vitale actuel."</p>
+</div>
+
+<h2>7. Plan de bataille (3 phases)</h2>
+
+<table>
+  <tr>
+    <th>Phase</th>
+    <th>Quand</th>
+    <th>Ce qu'on livre</th>
+    <th>Coût pour TaxiLink</th>
+  </tr>
+  <tr>
+    <td><strong>Phase 1</strong> — MVP</td>
+    <td>Maintenant → 6 mois</td>
+    <td>Préremplissage + export CSV/PDF vers SESAM existant du chauffeur</td>
+    <td><strong>0 €</strong></td>
+  </tr>
+  <tr>
+    <td><strong>Phase 2</strong> — Premium</td>
+    <td>6 → 18 mois</td>
+    <td>Télétransmission directe via API Olaqin + suivi temps réel</td>
+    <td>~15 k€ setup + 0,15 €/FSE</td>
+  </tr>
+  <tr>
+    <td><strong>Phase 3</strong> — Ultra</td>
+    <td>18 → 36 mois</td>
+    <td>Avance de trésorerie 24h + agrément CNDA propre</td>
+    <td>~50-100 k€ (avec partenaire factor)</td>
+  </tr>
+</table>
+
+<div class="footer">
+  <p><strong>TaxiLink</strong> — Document pédagogique CPAM — Mai 2026<br>
+  Pour Mohamed — Lancement Marseille</p>
+</div>
+
+</body>
+</html>

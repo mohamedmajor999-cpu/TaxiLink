@@ -93,6 +93,14 @@ export const groupService = {
     if (error) throw error
   },
 
+  /** Retirer un membre d'un groupe (admin uniquement, RLS DB attendue). */
+  async removeMember(groupId: string, driverId: string): Promise<void> {
+    const supabase = getSupabaseClient()
+    const { error } = await supabase
+      .from('group_members').delete().eq('group_id', groupId).eq('driver_id', driverId)
+    if (error) throw error
+  },
+
   /** Supprimer un groupe (admin uniquement) */
   async deleteGroup(groupId: string): Promise<void> {
     const supabase = getSupabaseClient()

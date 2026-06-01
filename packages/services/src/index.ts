@@ -35,14 +35,22 @@ export {
 export { authService } from './authService'
 export { profileService } from './profileService'
 export { driverService } from './driverService'
+export { driverStatsService } from './driverStatsService'
 export { userPrefsService, type MissionDefaults } from './userPrefsService'
+export { pushTokenService, type PushPlatform, type PushTokenUpsert } from './pushTokenService'
 export { driverBlockService, type BlockedDriver } from './driverBlockService'
 export { documentService } from './documentService'
 export { groupService } from './groupService'
+export {
+  groupStatsService,
+  type GroupActivitySummary,
+  type GroupDailyActivity,
+} from './groupStatsService'
 
 // Services — missions
 export { missionQueries } from './missionQueries'
 export { missionMutations } from './missionMutations'
+export { untakenMissionService } from './untakenMissionService'
 export { missionProgressMutations } from './missionProgressMutations'
 export { missionCorrectionService, type CorrectionPatch } from './missionCorrectionService'
 export { missionManualService, type ManualMissionInput } from './missionManualService'
@@ -95,3 +103,17 @@ export {
   setGoogleMapsKey as setPlaceDetailsGoogleMapsKey,
   type PlaceDetails,
 } from './googlePlaceDetailsService'
+export {
+  findKnownPlaceMarseille,
+  KNOWN_PLACES_MARSEILLE,
+  type KnownPlace,
+} from './knownPlacesMarseille'
+
+// Proxy serveur pour les appels Google : si branché (mobile → Edge Function
+// `google-cache`), tous les appels Places/Routes passent par lui au lieu de
+// fetch direct vers Google. Cache partagé entre tous les drivers.
+export {
+  setGoogleProxyClient,
+  type GoogleProxyClient,
+  type GoogleProxyKind,
+} from './lib/googleProxy'

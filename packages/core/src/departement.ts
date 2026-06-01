@@ -20,6 +20,7 @@ export function extractDepartement(address: string | null | undefined): string |
   const match = address.match(POSTAL_CODE_RE)
   if (!match) return null
   const code = match[1]
+  if (!code) return null
 
   if (code.startsWith('97')) {
     const dom = code.slice(0, 3)

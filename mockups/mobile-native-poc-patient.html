@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink Patient/Famille — POC mobile minimaliste</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+<style>
+  :root {
+    --primary: #FFD23F;
+    --ink: #0A0A0A;
+    --ink-2: #1A1A1A;
+    --muted: #6B6B6B;
+    --line: #E8E6E1;
+    --paper: #FFFFFF;
+    --warm-50: #FAF8F4;
+    --warm-100: #F4F1EB;
+    --warm-200: #E8E6E1;
+    --danger: #DC2626;
+    --green: #16A34A;
+    --blue: #2563EB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { font-family: 'Inter', system-ui, sans-serif; color: var(--ink); background: #F2EEE5; }
+  body {
+    min-height: 100vh;
+    padding: 48px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .header {
+    text-align: center;
+    max-width: 760px;
+  }
+  .header .eyebrow {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .header p { color: var(--muted); font-size: 15px; line-height: 1.5; }
+  .header code { background: var(--warm-100); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+
+  .stage {
+    display: flex;
+    gap: 56px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* iPhone frame */
+  .phone {
+    width: 380px;
+    height: 820px;
+    background: #0A0A0A;
+    border-radius: 56px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 2px #2A2A2A inset,
+      0 50px 80px -20px rgba(0,0,0,0.35),
+      0 20px 40px -20px rgba(0,0,0,0.25);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 22px; left: 50%;
+    transform: translateX(-50%);
+    width: 110px; height: 32px;
+    background: #0A0A0A;
+    border-radius: 999px;
+    z-index: 50;
+  }
+  .screen {
+    width: 100%; height: 100%;
+    background: var(--paper);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+  }
+  .status-bar {
+    height: 54px;
+    padding: 18px 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    position: relative;
+    z-index: 40;
+  }
+  .status-bar.dark { color: var(--paper); }
+  .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+  .status-bar .icons .material-symbols-rounded { font-size: 16px; }
+  .home-indicator {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    background: var(--ink);
+    border-radius: 999px;
+    z-index: 100;
+  }
+  .home-indicator.light { background: var(--paper); }
+
+  .label {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .label strong { color: var(--ink); display: block; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+
+  /* === SCREEN 1: Suivi temps réel === */
+  .map-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 60%;
+    background:
+      radial-gradient(circle at 30% 40%, #FFF7E0 0%, transparent 40%),
+      radial-gradient(circle at 70% 60%, #E8F0FF 0%, transparent 50%),
+      linear-gradient(135deg, #F4F1EB 0%, #EAE6DD 100%);
+    z-index: 1;
+  }
+  .map-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.6;
+  }
+  .road { position: absolute; background: rgba(255,255,255,0.85); z-index: 2; }
+  .road.h1 { top: 25%; left: -10%; right: -10%; height: 14px; transform: rotate(-3deg); border-radius: 8px; }
+  .road.h2 { top: 45%; left: -10%; right: -10%; height: 10px; transform: rotate(2deg); border-radius: 8px; }
+  .road.v1 { top: -10%; bottom: 40%; left: 38%; width: 12px; transform: rotate(8deg); border-radius: 8px; }
+
+  .home-pin {
+    position: absolute;
+    top: 38%; left: 24%;
+    transform: translate(-50%, -100%);
+    z-index: 6;
+  }
+  .home-pin .badge {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    color: var(--ink);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .home-pin .badge .material-symbols-rounded { font-size: 14px; color: var(--blue); }
+  .home-pin .badge::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid var(--ink);
+  }
+
+  .route-svg {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 60%;
+    width: 100%;
+    z-index: 3;
+  }
+
+  .taxi-marker {
+    position: absolute;
+    top: 30%; left: 56%;
+    transform: translate(-50%, -50%);
+    z-index: 7;
+  }
+  .taxi-marker .car {
+    width: 56px; height: 56px;
+    background: var(--primary);
+    border: 3px solid var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    position: relative;
+  }
+  .taxi-marker .car::after {
+    content: '';
+    position: absolute; inset: -6px;
+    border: 2px solid var(--primary);
+    border-radius: 50%;
+    animation: ping 2s ease-out infinite;
+  }
+  @keyframes ping {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  .taxi-marker .car .material-symbols-rounded {
+    font-size: 28px; color: var(--ink);
+    font-variation-settings: 'FILL' 1;
+  }
+
+  /* Bottom info card */
+  .info-card {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: var(--paper);
+    border-radius: 32px 32px 0 0;
+    padding: 22px 22px calc(20px + env(safe-area-inset-bottom));
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .eta-block {
+    text-align: center;
+  }
+  .eta-block .pre {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .eta-block .eta {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .eta-block .eta .yellow-bg {
+    background: var(--primary);
+    padding: 0 10px;
+    border-radius: 8px;
+  }
+
+  /* Driver row */
+  .driver-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: var(--warm-50);
+    border-radius: 20px;
+    border: 1px solid var(--line);
+  }
+  .driver-photo {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #FFD23F 0%, #FFA500 100%);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--ink);
+    flex-shrink: 0;
+    border: 3px solid var(--paper);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .driver-info { flex: 1; min-width: 0; }
+  .driver-info .name { font-size: 16px; font-weight: 700; line-height: 1.1; }
+  .driver-info .meta {
+    font-size: 12px; color: var(--muted);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .driver-info .meta .plate {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    font-family: 'Inter', monospace;
+    font-size: 11px;
+  }
+  .call-btn {
+    width: 56px; height: 56px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--paper);
+    box-shadow: 0 6px 16px rgba(22,163,74,0.4);
+    flex-shrink: 0;
+  }
+  .call-btn .material-symbols-rounded { font-size: 26px; }
+
+  /* Trip details */
+  .trip-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--warm-50);
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .trip-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .trip-row:last-child { border-bottom: none; }
+  .trip-row .ico {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .trip-row .ico.from { background: rgba(37,99,235,0.12); color: var(--blue); }
+  .trip-row .ico.to { background: rgba(220,38,38,0.12); color: var(--danger); }
+  .trip-row .ico .material-symbols-rounded { font-size: 18px; font-variation-settings: 'FILL' 1; }
+  .trip-row .text-block { flex: 1; min-width: 0; }
+  .trip-row .lbl { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .trip-row .val {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-top: 2px;
+  }
+
+  /* === SCREEN 2: Mes courses (historique) === */
+  .screen-light {
+    background: var(--warm-50);
+  }
+  .scr2-header {
+    padding: 56px 22px 18px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .scr2-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .scr2-header .sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    overflow-x: auto;
+  }
+  .filter-chip {
+    padding: 8px 14px;
+    background: var(--warm-100);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: var(--ink);
+  }
+  .filter-chip.active { background: var(--ink); color: var(--paper); }
+
+  /* Year header */
+  .year-header {
+    padding: 18px 22px 8px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: flex; justify-content: space-between;
+  }
+  .year-header .total { color: var(--ink); }
+
+  .course-list {
+    padding: 0 16px 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .course-item {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .course-item.upcoming {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .course-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .course-date {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .course-status {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .course-status.done { background: rgba(22,163,74,0.12); color: var(--green); }
+  .course-status.upcoming-pill { background: var(--primary); color: var(--ink); }
+  .course-status.cancelled { background: rgba(220,38,38,0.12); color: var(--danger); }
+
+  .course-route {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .course-route .from-c { color: var(--muted); font-weight: 500; font-size: 12px; }
+  .course-item.upcoming .course-route .from-c { color: rgba(255,255,255,0.6); }
+
+  .course-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .course-item.upcoming .course-foot { border-top-color: rgba(255,255,255,0.12); }
+
+  .course-driver {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .course-driver .av-mini {
+    width: 24px; height: 24px;
+    background: var(--primary);
+    color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .course-actions {
+    display: flex; gap: 8px;
+  }
+  .invoice-btn {
+    background: var(--warm-100);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .course-item.upcoming .invoice-btn {
+    background: rgba(255,255,255,0.12);
+    color: var(--paper);
+  }
+  .invoice-btn .material-symbols-rounded { font-size: 14px; }
+  .price-tag {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  /* Tab bar */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+    display: flex;
+    z-index: 50;
+    padding: 8px 0 24px;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: #9A9A9A;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .tab.active { color: var(--ink); }
+  .tab .material-symbols-rounded { font-size: 24px; }
+  .tab.active .material-symbols-rounded {
+    background: var(--primary);
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-variation-settings: 'FILL' 1;
+  }
+
+  /* Annotations */
+  .annotations {
+    margin-top: 24px;
+    max-width: 900px;
+    background: var(--paper);
+    border-radius: 24px;
+    padding: 28px 32px;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+    border: 1px solid var(--line);
+  }
+  .annotations h3 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .annotations .sub-h {
+    font-size: 13px; color: var(--muted); margin-bottom: 18px;
+  }
+  .ann-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 32px;
+  }
+  .ann {
+    display: flex; gap: 10px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .ann .num {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    background: var(--primary);
+    color: var(--ink);
+    border-radius: 6px;
+    font-weight: 800; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ann strong { font-weight: 700; }
+  .ann .sub { color: var(--muted); display: block; margin-top: 2px; }
+
+  .a11y-box {
+    background: var(--warm-50);
+    border: 1px dashed var(--warm-200);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-top: 18px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .a11y-box strong { color: var(--ink); }
+  .a11y-box ul { margin: 8px 0 0 18px; }
+  .a11y-box li { margin-bottom: 4px; }
+
+  /* Recap table */
+  .recap {
+    margin-top: 28px;
+    max-width: 900px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 24px;
+    padding: 32px;
+  }
+  .recap h3 {
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .recap .recap-title {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  .recap-grid {
+    display: grid;
+    grid-template-columns: 100px repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  .recap-cell {
+    padding: 14px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    font-size: 13px;
+  }
+  .recap-cell.head {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+  .recap-cell.app { font-weight: 800; }
+  .recap-cell.feat-yes { color: var(--primary); font-weight: 700; }
+  .recap-cell.feat-no { color: rgba(255,255,255,0.4); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="eyebrow">POC · TaxiLink Patient/Famille · Mobile minimaliste</span>
+  <h1>Patient/Famille : 2 actions, gros caractères, zéro friction</h1>
+  <p>
+    L'app la plus minimaliste des trois. Cible : patient âgé qui suit son taxi vers la dialyse, ou enfant qui surveille le retour de sa mère de l'hôpital. Design <strong>accessible-first</strong> — typo plus large, gros boutons, contraste fort, une seule action principale par écran. Mêmes tokens (<code>#FFD23F</code>, Inter, rounded) que web et chauffeur.
+  </p>
+</div>
+
+<div class="stage">
+
+  <!-- ============== SCREEN 1: Suivi taxi temps réel ============== -->
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span class="icons">
+            <span class="material-symbols-rounded">signal_cellular_alt</span>
+            <span class="material-symbols-rounded">wifi</span>
+            <span class="material-symbols-rounded">battery_full</span>
+          </span>
+        </div>
+
+        <div class="map-bg">
+          <div class="road h1"></div>
+          <div class="road h2"></div>
+          <div class="road v1"></div>
+        </div>
+
+        <!-- route -->
+        <svg class="route-svg" viewBox="0 0 380 490" preserveAspectRatio="none">
+          <path d="M 220 145 Q 160 200, 110 205" stroke="#FFD23F" stroke-width="10" fill="none" stroke-linecap="round" />
+          <path d="M 220 145 Q 160 200, 110 205" stroke="#0A0A0A" stroke-width="3" fill="none" stroke-linecap="round" />
+        </svg>
+
+        <!-- pins -->
+        <div class="home-pin">
+          <div class="badge"><span class="material-symbols-rounded">home</span> Vous</div>
+        </div>
+
+        <div class="taxi-marker">
+          <div class="car"><span class="material-symbols-rounded">local_taxi</span></div>
+        </div>
+
+        <!-- info card bottom -->
+        <div class="info-card">
+          <div class="eta-block">
+            <div class="pre">Votre taxi arrive dans</div>
+            <div class="eta"><span class="yellow-bg">6 min</span></div>
+          </div>
+
+          <div class="driver-row">
+            <div class="driver-photo">KH</div>
+            <div class="driver-info">
+              <div class="name">Karim H.</div>
+              <div class="meta">
+                Mercedes Classe E · <span class="plate">AB-123-CD</span>
+              </div>
+            </div>
+            <div class="call-btn">
+              <span class="material-symbols-rounded">call</span>
+            </div>
+          </div>
+
+          <div class="trip-details">
+            <div class="trip-row">
+              <div class="ico from"><span class="material-symbols-rounded">radio_button_checked</span></div>
+              <div class="text-block">
+                <div class="lbl">Départ</div>
+                <div class="val">12 rue Paradis, Marseille</div>
+              </div>
+            </div>
+            <div class="trip-row">
+              <div class="ico to"><span class="material-symbols-rounded">place</span></div>
+              <div class="text-block">
+                <div class="lbl">Destination</div>
+                <div class="val">Hôpital de la Timone · Dialyse</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+    <div class="label"><strong>Écran 1 — Suivi temps réel</strong>"6 min" en gros · 1 photo · 1 bouton appel</div>
+  </div>
+
+
+  <!-- ============== SCREEN 2: Mes courses (historique + factures) ============== -->
+  <div>
+    <div class="phone">
+      <div class="screen screen-light">
+        <div class="scr2-header">
+          <h1>Mes courses</h1>
+          <div class="sub">8 trajets ce mois · 312 € remboursés</div>
+          <div class="filter-row">
+            <div class="filter-chip active">Toutes</div>
+            <div class="filter-chip">À venir</div>
+            <div class="filter-chip">Terminées</div>
+            <div class="filter-chip">Factures</div>
+          </div>
+        </div>
+
+        <div class="year-header">
+          <span>Mai 2026</span>
+          <span class="total">312 €</span>
+        </div>
+
+        <div class="course-list">
+          <div class="course-item upcoming">
+            <div class="course-head">
+              <div class="course-date">Demain · Mar. 12 mai · 10:30</div>
+              <div class="course-status upcoming-pill">À venir</div>
+            </div>
+            <div class="course-route">
+              <span class="from-c">12 rue Paradis</span>
+              <span class="to-c" style="color:var(--primary);">→ Hôpital Timone · Dialyse</span>
+            </div>
+            <div class="course-foot">
+              <div class="course-driver">
+                <div class="av-mini">KH</div>
+                Karim H.
+              </div>
+              <div class="price-tag" style="color:var(--primary);">42 €</div>
+            </div>
+          </div>
+
+          <div class="course-item">
+            <div class="course-head">
+              <div class="course-date">Aujourd'hui · 9:45</div>
+              <div class="course-status done">Terminée</div>
+            </div>
+            <div class="course-route">
+              <span class="from-c">Hôpital Timone</span>
+              <span class="to-c">→ 12 rue Paradis</span>
+            </div>
+            <div class="course-foot">
+              <div class="course-driver">
+                <div class="av-mini">YA</div>
+                Yanis M.
+              </div>
+              <div class="course-actions">
+                <div class="invoice-btn">
+                  <span class="material-symbols-rounded">receipt_long</span>
+                  Facture
+                </div>
+                <div class="price-tag">42 €</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-item">
+            <div class="course-head">
+              <div class="course-date">Ven. 8 mai · 14:00</div>
+              <div class="course-status done">Terminée</div>
+            </div>
+            <div class="course-route">
+              <span class="from-c">12 rue Paradis</span>
+              <span class="to-c">→ Hôpital Timone · Dialyse</span>
+            </div>
+            <div class="course-foot">
+              <div class="course-driver">
+                <div class="av-mini">KH</div>
+                Karim H.
+              </div>
+              <div class="course-actions">
+                <div class="invoice-btn">
+                  <span class="material-symbols-rounded">receipt_long</span>
+                  Facture
+                </div>
+                <div class="price-tag">42 €</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-item">
+            <div class="course-head">
+              <div class="course-date">Mer. 6 mai · 10:30</div>
+              <div class="course-status done">Terminée</div>
+            </div>
+            <div class="course-route">
+              <span class="from-c">Hôpital Timone</span>
+              <span class="to-c">→ 12 rue Paradis</span>
+            </div>
+            <div class="course-foot">
+              <div class="course-driver">
+                <div class="av-mini">SL</div>
+                Sofiane L.
+              </div>
+              <div class="course-actions">
+                <div class="invoice-btn">
+                  <span class="material-symbols-rounded">receipt_long</span>
+                  Facture
+                </div>
+                <div class="price-tag">42 €</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- tab bar -->
+        <div class="tab-bar">
+          <div class="tab">
+            <span class="material-symbols-rounded">my_location</span>
+            <span>Suivi</span>
+          </div>
+          <div class="tab active">
+            <span class="material-symbols-rounded">receipt_long</span>
+            <span>Mes courses</span>
+          </div>
+          <div class="tab">
+            <span class="material-symbols-rounded">person</span>
+            <span>Profil</span>
+          </div>
+        </div>
+
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+    <div class="label"><strong>Écran 2 — Mes courses</strong>Liste + facture 1 tap · zéro feature inutile</div>
+  </div>
+
+</div>
+
+<div class="annotations">
+  <h3>Pourquoi cette app est radicalement plus simple</h3>
+  <div class="sub-h">Cible (patient âgé, famille en stress) → minimum cognitif, maximum lisibilité.</div>
+  <div class="ann-grid">
+    <div class="ann">
+      <div class="num">1</div>
+      <div><strong>"6 min" en 38px</strong><span class="sub">L'unique info qui compte. Pas de "ETA", pas de "estimated arrival" — juste le chiffre, surligné jaune. Lisible à bout de bras pour mal-voyant.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">2</div>
+      <div><strong>1 seul bouton primaire : "Appeler"</strong><span class="sub">Vert 56px, ronde, séparée. Pas de SMS, pas de chat. En cas de stress (patient confus, famille inquiète), on appelle le chauffeur, point.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">3</div>
+      <div><strong>Plaque d'immatriculation visible</strong><span class="sub">Le patient identifie le taxi à l'arrivée — c'est la friction n°1 du transport médical. AB-123-CD en mono noir/blanc, gros et net.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">4</div>
+      <div><strong>3 onglets seulement</strong><span class="sub">Suivi / Mes courses / Profil. Pas de "Découvrir", pas de "Promotions", pas de "Notifications" — l'app n'est pas un produit d'engagement, c'est un outil.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">5</div>
+      <div><strong>Bouton "Facture" 1 tap</strong><span class="sub">Pour CPAM/mutuelle. Pas de menu, pas de "exporter en PDF" — un tap → PDF prêt à envoyer. Cas d'usage central pour transport médical.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">6</div>
+      <div><strong>Course "à venir" en card noire</strong><span class="sub">Inversion de couleur pour la course du lendemain — lisible d'un coup d'œil dans la liste, rappelle de se préparer.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">7</div>
+      <div><strong>Aucune carte sur l'écran liste</strong><span class="sub">Le patient ne consulte pas l'historique sur une carte. Liste verticale, dates en clair, total mensuel pour le suivi remboursement.</span></div>
+    </div>
+    <div class="ann">
+      <div class="num">8</div>
+      <div><strong>Photo chauffeur avec initiales</strong><span class="sub">À terme = vraie photo (rassurant pour personne âgée), POC = avatar gradient jaune. Élément de réassurance critique côté patient.</span></div>
+    </div>
+  </div>
+
+  <div class="a11y-box">
+    <strong>Accessibilité par défaut</strong> (le web TaxiLink ne le fait pas systématiquement)
+    <ul>
+      <li><strong>Typo de base à 14px</strong> sur ce mockup, mais l'app respectera Dynamic Type iOS / Font scale Android jusqu'à 1.5×.</li>
+      <li><strong>Contraste AAA</strong> sur tous les textes critiques (ETA, plaque, route).</li>
+      <li><strong>VoiceOver/TalkBack</strong> : labels custom sur taxi-marker ("Karim, arrive dans 6 minutes"), pas juste "image".</li>
+      <li><strong>Tap targets ≥ 56 px</strong> (bouton appel), bien au-delà des 44 px Apple HIG.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Récap des 3 apps -->
+<div class="recap">
+  <h3>Récap · Les 3 apps mobiles</h3>
+  <div class="recap-title">Même DNA, 3 philosophies produit</div>
+  <div class="recap-grid">
+    <div class="recap-cell head">App</div>
+    <div class="recap-cell head">Cible</div>
+    <div class="recap-cell head">Mode dominant</div>
+    <div class="recap-cell head">Carte plein écran ?</div>
+
+    <div class="recap-cell app">Chauffeur</div>
+    <div class="recap-cell">Pro qui roule</div>
+    <div class="recap-cell">Action / accept</div>
+    <div class="recap-cell feat-yes">Oui, 100%</div>
+
+    <div class="recap-cell app">Patron</div>
+    <div class="recap-cell">Gérant en déplacement</div>
+    <div class="recap-cell">Monitoring / alerte</div>
+    <div class="recap-cell feat-no">Non, mini cartouche</div>
+
+    <div class="recap-cell app">Patient/Famille</div>
+    <div class="recap-cell">Patient âgé / proche</div>
+    <div class="recap-cell">Suivi / réassurance</div>
+    <div class="recap-cell feat-yes">Oui, écran suivi seulement</div>
+  </div>
+</div>
+
+</body>
+</html>

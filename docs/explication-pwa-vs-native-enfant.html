@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>TaxiLink expliqué pour un enfant de 10 ans</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+    color: #1f2937;
+    line-height: 1.55;
+    font-size: 13.5pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 30pt;
+    color: #FFD23F;
+    text-shadow: 2px 2px 0 #1f2937;
+    text-align: center;
+    margin: 0 0 4pt;
+    letter-spacing: 1px;
+  }
+  .sub {
+    text-align: center;
+    color: #6b7280;
+    margin: 0 0 18pt;
+    font-size: 12pt;
+  }
+  h2 {
+    font-size: 20pt;
+    color: white;
+    background: #1f2937;
+    padding: 6pt 12pt;
+    border-radius: 8pt;
+    margin-top: 22pt;
+    margin-bottom: 10pt;
+  }
+  h2.web { background: #2563eb; }
+  h2.native { background: #16a34a; }
+  h2.names { background: #c026d3; }
+  h2.recap { background: #ea580c; }
+
+  .card {
+    border: 3px solid #1f2937;
+    border-radius: 12pt;
+    padding: 12pt 16pt;
+    margin: 10pt 0;
+    background: #fffbeb;
+  }
+  .card.blue { background: #eff6ff; border-color: #2563eb; }
+  .card.green { background: #ecfdf5; border-color: #16a34a; }
+  .card.purple { background: #fdf4ff; border-color: #c026d3; }
+  .card.orange { background: #fff7ed; border-color: #ea580c; }
+
+  .big {
+    font-size: 16pt;
+    font-weight: bold;
+    color: #1f2937;
+  }
+  .label {
+    display: inline-block;
+    background: #FFD23F;
+    color: #1f2937;
+    padding: 2pt 8pt;
+    border-radius: 6pt;
+    font-weight: bold;
+    font-size: 11pt;
+    margin-right: 6pt;
+  }
+  code, .folder {
+    font-family: "Consolas", "Courier New", monospace;
+    background: #1f2937;
+    color: #FFD23F;
+    padding: 2pt 8pt;
+    border-radius: 5pt;
+    font-size: 12pt;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8pt;
+  }
+  th, td {
+    border: 2px solid #1f2937;
+    padding: 8pt 10pt;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #1f2937;
+    color: #FFD23F;
+  }
+  tr:nth-child(even) td { background: #f9fafb; }
+  td.ext {
+    font-family: "Consolas", monospace;
+    font-weight: bold;
+    color: #c026d3;
+    font-size: 14pt;
+    text-align: center;
+    width: 70pt;
+  }
+
+  ul { padding-left: 18pt; }
+  li { margin-bottom: 6pt; }
+
+  .vs {
+    display: flex;
+    gap: 12pt;
+    margin: 10pt 0;
+  }
+  .vs > div {
+    flex: 1;
+    border: 3px dashed #1f2937;
+    border-radius: 10pt;
+    padding: 10pt 12pt;
+  }
+  .vs .left { background: #eff6ff; border-color: #2563eb; }
+  .vs .right { background: #ecfdf5; border-color: #16a34a; }
+  .vs h3 { margin-top: 0; }
+
+  .quote {
+    font-style: italic;
+    background: #FFD23F;
+    padding: 8pt 12pt;
+    border-left: 6pt solid #1f2937;
+    border-radius: 0 8pt 8pt 0;
+    margin: 10pt 0;
+  }
+  .pagebreak { page-break-before: always; }
+
+  footer {
+    margin-top: 22pt;
+    text-align: center;
+    color: #6b7280;
+    font-size: 10pt;
+    border-top: 2px dashed #d1d5db;
+    padding-top: 8pt;
+  }
+</style>
+</head>
+<body>
+
+<h1>TaxiLink, c'est quoi au juste&nbsp;?</h1>
+<p class="sub">Une explication super simple, comme si tu avais 10 ans.</p>
+
+<div class="card">
+  <p class="big">Imagine que tu veux construire une cabane.</p>
+  <p>Tu peux la faire de <strong>deux manières différentes</strong>&nbsp;:</p>
+  <ul>
+    <li>Soit une cabane <strong>dessinée sur une feuille</strong> que tu regardes à travers une fenêtre.</li>
+    <li>Soit une vraie cabane <strong>en bois</strong> dans laquelle tu peux entrer pour de vrai.</li>
+  </ul>
+  <p>Eh bien dans TaxiLink, c'est <strong>pareil</strong>&nbsp;: il y a deux versions de l'app.</p>
+</div>
+
+<h2 class="web">1) La PWA : la cabane derrière la fenêtre</h2>
+
+<div class="card blue">
+  <p><span class="label">PWA</span> ça veut dire <strong>Progressive Web App</strong> (en français&nbsp;: «&nbsp;application web qui fait genre c'est une vraie app&nbsp;»).</p>
+
+  <p>C'est en fait <strong>un site internet</strong>, comme YouTube ou Wikipédia, mais qui a appris à se déguiser en application.</p>
+
+  <p class="big">Comment ça marche&nbsp;?</p>
+  <ul>
+    <li>Tu ouvres ton navigateur (Chrome, Safari...) et tu vas sur l'adresse du site.</li>
+    <li>Tu peux ajouter un raccourci sur l'écran d'accueil de ton téléphone.</li>
+    <li>Hop, ça ressemble à une vraie app... mais derrière, c'est un site web.</li>
+  </ul>
+
+  <div class="quote">
+    Dans le projet TaxiLink, la PWA est rangée dans le dossier&nbsp;: <span class="folder">apps/web</span>
+  </div>
+
+  <p><strong>Avantages&nbsp;:</strong> pas besoin d'installer, ça marche partout (téléphone, ordi, tablette).</p>
+  <p><strong>Inconvénients&nbsp;:</strong> ça doit passer par le navigateur, c'est moins puissant pour utiliser le GPS, l'appareil photo, ou marcher quand tu n'as pas Internet.</p>
+</div>
+
+<h2 class="native">2) L'app Expo (l'app native) : la vraie cabane en bois</h2>
+
+<div class="card green">
+  <p><span class="label">Native</span> ça veut dire <strong>«&nbsp;vraie application installée sur le téléphone&nbsp;»</strong>, comme Snapchat ou TikTok.</p>
+
+  <p>C'est une <strong>vraie app</strong> avec son icône sur l'écran d'accueil. Elle fonctionne même quand tu n'as pas Internet, elle peut utiliser le GPS, vibrer, envoyer des notifications, etc.</p>
+
+  <p class="big">Et Expo dans tout ça&nbsp;?</p>
+  <p>Expo, c'est une <strong>boîte à outils magique</strong> qui permet aux développeurs d'écrire <strong>une seule fois</strong> le code de l'app, et ensuite Expo fabrique tout seul la version Android et la version iPhone.</p>
+  <p>Sans Expo, il faudrait tout écrire deux fois (une fois pour Android, une fois pour iPhone) avec deux langages de programmation différents. Imagine devoir réécrire le même livre en français et en anglais en même temps&nbsp;: long et compliqué&nbsp;!</p>
+
+  <div class="quote">
+    Dans le projet TaxiLink, l'app Expo est rangée dans le dossier&nbsp;: <span class="folder">apps/mobile-driver-v2</span>
+    <br><br>
+    Il existe aussi un ancien dossier <span class="folder">apps/mobile-driver</span> qui sert juste de <strong>référence</strong> (un brouillon qu'on garde pour s'en inspirer, comme un vieux dessin qu'on regarde pour faire le suivant).
+  </div>
+</div>
+
+<div class="pagebreak"></div>
+
+<h2 class="web">PWA contre App native : la grande bagarre</h2>
+
+<div class="vs">
+  <div class="left">
+    <h3>PWA (le site déguisé)</h3>
+    <ul>
+      <li>Marche dans le navigateur</li>
+      <li>Pas besoin d'installer</li>
+      <li>Marche sur tous les appareils</li>
+      <li>Mais : pas top quand on n'a pas Internet</li>
+      <li>Mais : moins rapide</li>
+    </ul>
+  </div>
+  <div class="right">
+    <h3>App native (la vraie app)</h3>
+    <ul>
+      <li>Installée comme un jeu</li>
+      <li>Icône sur l'écran d'accueil</li>
+      <li>Marche sans Internet</li>
+      <li>Peut utiliser GPS, appareil photo, notifications</li>
+      <li>Mais : il faut l'installer depuis un store</li>
+    </ul>
+  </div>
+</div>
+
+<h2 class="names">3) Comment s'appellent les fichiers d'app&nbsp;?</h2>
+
+<div class="card purple">
+  <p>Quand on fabrique une app native, ça donne un <strong>fichier</strong>. Et selon le téléphone, ce fichier n'a pas le même nom de famille.</p>
+
+  <p class="big">Petite métaphore&nbsp;:</p>
+  <p>Imagine que tu veux offrir un jouet à un copain. Tu vas l'emballer dans une boîte. Eh ben le nom du fichier d'app, c'est juste <strong>le type de boîte qu'on a utilisé pour emballer le jouet</strong>.</p>
+
+  <table>
+    <thead>
+      <tr><th>Extension</th><th>Nom complet</th><th>C'est quoi&nbsp;?</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="ext">.apk</td>
+        <td><strong>Android Package</strong></td>
+        <td>La «&nbsp;boîte&nbsp;» pour Android. On peut l'installer direct sur un téléphone Android sans passer par le Play Store. Utile pour <strong>tester</strong> l'app entre potes.</td>
+      </tr>
+      <tr>
+        <td class="ext">.aab</td>
+        <td><strong>Android App Bundle</strong></td>
+        <td>La «&nbsp;super boîte&nbsp;» qu'on envoie à <strong>Google Play</strong>. Google ouvre la boîte et fabrique tout seul la bonne version pour chaque téléphone Android (qui n'ont pas tous la même taille d'écran, le même processeur, etc.).</td>
+      </tr>
+      <tr>
+        <td class="ext">.ipa</td>
+        <td><strong>iOS App Store Package</strong></td>
+        <td>La «&nbsp;boîte&nbsp;» pour iPhone et iPad. C'est ce qu'on envoie à Apple pour publier sur l'App Store.</td>
+      </tr>
+      <tr>
+        <td class="ext">.app</td>
+        <td><strong>Application Bundle</strong></td>
+        <td>La version pour le <strong>simulateur</strong> iPhone sur un ordi Mac. C'est juste pour tester pendant qu'on développe.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:14pt;">Tous ces fichiers, on les appelle ensemble des <strong>«&nbsp;binaires natifs&nbsp;»</strong> ou des <strong>«&nbsp;builds natifs&nbsp;»</strong>. Pas besoin de retenir, c'est juste le mot fancy qu'utilisent les grands.</p>
+</div>
+
+<h2 class="recap">Pour résumer (le TL;DR de papa)</h2>
+
+<div class="card orange">
+  <ul>
+    <li><strong>PWA</strong> = un site web qui se fait passer pour une app, rangée dans <span class="folder">apps/web</span></li>
+    <li><strong>App Expo</strong> = la vraie app native (Android + iPhone), rangée dans <span class="folder">apps/mobile-driver-v2</span></li>
+    <li><strong>.apk</strong> = boîte Android pour tester / installer à la main</li>
+    <li><strong>.aab</strong> = boîte Android pour Google Play</li>
+    <li><strong>.ipa</strong> = boîte iPhone pour App Store</li>
+    <li><strong>.app</strong> = boîte iPhone pour les tests sur ordi</li>
+  </ul>
+  <p class="big" style="text-align:center; margin-top:14pt;">Voilà, maintenant tu peux frimer dans la cour de récré.</p>
+</div>
+
+<footer>
+  TaxiLink — explication pour les humains de 10 ans (et plus si affinités)
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>TaxiLink — Plan de bataille Marseille</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a2e;
+    line-height: 1.5;
+    font-size: 10.5pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 24pt;
+    color: #1a1a2e;
+    background: linear-gradient(90deg, #FBBF24 0%, #FDE68A 100%);
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin: 0 0 6px 0;
+    line-height: 1.15;
+  }
+  h2 {
+    font-size: 16pt;
+    color: #fff;
+    background: #1a1a2e;
+    padding: 9px 14px;
+    border-radius: 9px;
+    margin: 22px 0 10px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 12.5pt;
+    color: #1a1a2e;
+    margin: 14px 0 6px 0;
+    border-left: 5px solid #FBBF24;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 11.5pt;
+    color: #1a1a2e;
+    margin: 10px 0 4px 0;
+    page-break-after: avoid;
+  }
+  .subtitle {
+    font-size: 12pt;
+    color: #555;
+    margin: 0 0 6px 4px;
+    font-style: italic;
+  }
+  .meta {
+    font-size: 9.5pt;
+    color: #6B7280;
+    margin: 0 0 18px 4px;
+  }
+  .toc {
+    background: #FEF3C7;
+    border: 2px dashed #FBBF24;
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin: 16px 0 20px 0;
+  }
+  .toc ol { margin: 4px 0 0 18px; padding: 0; }
+  .toc li { margin: 3px 0; }
+  .intro-box {
+    background: #FEF3C7;
+    border-left: 6px solid #FBBF24;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 14px 0;
+  }
+  .callout-good {
+    background: #DCFCE7;
+    border-left: 6px solid #16A34A;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .callout-warn {
+    background: #FEE2E2;
+    border-left: 6px solid #DC2626;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .callout-info {
+    background: #DBEAFE;
+    border-left: 6px solid #2563EB;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #E5E7EB;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #FAFAFA; }
+  .pill { display: inline-block; background: #FBBF24; color: #1a1a2e; padding: 2px 9px; border-radius: 999px; font-weight: 700; font-size: 9pt; }
+  .pill-dark { display: inline-block; background: #1a1a2e; color: #FBBF24; padding: 2px 9px; border-radius: 999px; font-weight: 700; font-size: 9pt; }
+  .check { color: #16A34A; font-weight: 700; }
+  .cross { color: #DC2626; font-weight: 700; }
+  .warn { color: #D97706; font-weight: 700; }
+  .footer {
+    margin-top: 24px;
+    padding-top: 10px;
+    border-top: 2px solid #FBBF24;
+    color: #6B7280;
+    font-size: 8.5pt;
+    text-align: center;
+  }
+  ul, ol { padding-left: 20px; margin: 6px 0; }
+  li { margin: 2px 0; }
+  .page-break { page-break-before: always; }
+  .summary-card { background: #1a1a2e; color: #fff; border-radius: 12px; padding: 14px 18px; margin: 14px 0; }
+  .summary-card h3 { color: #FBBF24; border: none; padding: 0; margin: 0 0 6px 0; font-size: 12pt; }
+  .col-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .rank { display: inline-block; background: #FBBF24; color: #1a1a2e; width: 26px; height: 26px; border-radius: 50%; text-align: center; line-height: 26px; font-weight: 800; margin-right: 8px; }
+  .script {
+    background: #F3F4F6;
+    border-left: 4px solid #1a1a2e;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: 'Georgia', serif;
+    font-size: 10pt;
+    line-height: 1.55;
+    margin: 8px 0;
+    font-style: italic;
+  }
+  .objection {
+    background: #FFFBEB;
+    border: 1px solid #FBBF24;
+    border-radius: 8px;
+    padding: 9px 12px;
+    margin: 8px 0;
+    page-break-inside: avoid;
+  }
+  .objection-q { font-weight: 700; color: #92400E; margin-bottom: 4px; }
+  .objection-a { font-size: 10pt; }
+  .landing {
+    background: #FFFBEB;
+    border: 2px dashed #FBBF24;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 14px 0;
+  }
+  .landing h4 { font-size: 18pt; margin: 0; color: #1a1a2e; }
+  .landing-sub { font-size: 12pt; color: #6B7280; margin: 6px 0 12px 0; }
+  .cta-btn {
+    display: inline-block;
+    background: #1a1a2e;
+    color: #FBBF24;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11pt;
+    margin: 8px 4px 0 0;
+  }
+  .calculator {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 12px 0;
+  }
+  .calculator td { color: #fff; border-color: #374151; }
+  .calculator tr:nth-child(even) td { background: transparent; }
+  .calculator .total { font-weight: 800; color: #FBBF24; font-size: 14pt; }
+</style>
+</head>
+<body>
+
+<h1>Plan de bataille Marseille — TaxiLink</h1>
+<p class="subtitle">Concurrence · Prospection terrain · Pitch migration 6 mois</p>
+<p class="meta">Document interne — Mai 2026 — Pour Mohamed Major</p>
+
+<div class="toc">
+  <strong>Sommaire</strong>
+  <ol>
+    <li>Synthèse exécutive (1 page)</li>
+    <li>Partie I — Analyse compétitive Caree &amp; Soraya (chiffres confirmés INPI)</li>
+    <li>Partie II — Plan de prospection terrain Marseille (50+ points)</li>
+    <li>Partie III — Pitch MIGRATION 6 mois (landing + script + objections)</li>
+    <li>Partie IV — Calendrier 90 jours d'exécution</li>
+  </ol>
+</div>
+
+<h2>1. Synthèse exécutive</h2>
+
+<div class="intro-box">
+  <p style="margin:0;"><strong>Le marché est petit, sous-équipé et accessible.</strong> Caree (Lyon, ~600-900 k€ ARR) et Soraya (Avoine, 596 k€ CA confirmé) cumulent ~4 000 chauffeurs sur 32 000 conventionnés en France. <strong>87 % du marché reste à conquérir.</strong> Aucun n'a de présence terrain à Marseille. Avec une stratégie de prospection ciblée sur les 12 stations, 8 hôpitaux et 6 centres dialyse de la métropole, plus un pitch MIGRATION 6 mois agressif, TaxiLink peut capter 200 chauffeurs en an 1 (17 % du marché Marseille conventionné).</p>
+</div>
+
+<h3>Les 3 vérités à retenir</h3>
+<ul>
+  <li><strong>Caree n'est pas un mastodonte</strong> — 6-9 employés, capital 1 112 €, comptes confidentiels. Bootstrappés, ils ne peuvent pas se permettre une guerre des prix régionale.</li>
+  <li><strong>Soraya est complaisant</strong> — 28 ans, dirigeant 53 ans, +25 % CA en 2023 mais marge nette de seulement 4,4 %. Vulnérable à un challenger qui vient sur leur terrain.</li>
+  <li><strong>Marseille n'a pas de leader local</strong> — les concurrents vendent à distance. Toi, tu peux toquer aux portes des stations en 30 min de scooter.</li>
+</ul>
+
+<div class="summary-card">
+  <h3>Objectif 90 jours</h3>
+  <p style="margin:0;">Signer <strong>50 chauffeurs payants à Marseille</strong> via : 12 visites de stations, 8 partenariats hôpitaux/centres dialyse, lancement landing MIGRATION6MOIS, et 1 RDV ADTM 13. Coût estimé : 8-12 k€ marketing + 1 commercial à mi-temps.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>2. Partie I — Analyse compétitive (chiffres réels)</h2>
+
+<h3>2.1 Données financières confirmées (sources INPI / société.com / pappers)</h3>
+
+<table>
+  <tr><th>Critère</th><th>Caree (SAS)</th><th>Soraya (SARL)</th></tr>
+  <tr><td>SIREN</td><td>852 075 621</td><td>411 559 719</td></tr>
+  <tr><td>Création</td><td>24 juin 2019 (6 ans)</td><td>7 avril 1997 (28 ans)</td></tr>
+  <tr><td>Siège</td><td>24 av. Joannes Masset, Lyon 9 (69009)</td><td>ZI Le Clos Dupuy, Avoine (37420)</td></tr>
+  <tr><td>Dirigeants</td><td>Rayane Hadjeres (CEO 30 ans) + Alan Chène (Président, ex-chauffeur conventionné)</td><td>Alexis-Franck Gandubert (1971, en place depuis 2004)</td></tr>
+  <tr><td>Capital social</td><td><strong>1 112 €</strong> (très pré-seed)</td><td>15 245 €</td></tr>
+  <tr><td>Effectif salariés (2023)</td><td>6-9</td><td>~10-20 (estimation)</td></tr>
+  <tr><td>CA 2023</td><td><strong>Confidentiel</strong> (déclaration légale TPE)</td><td><strong>596 300 €</strong> (+25 % vs 2022)</td></tr>
+  <tr><td>Résultat net 2023</td><td>Confidentiel</td><td><strong>26 198 €</strong> (+179 %)</td></tr>
+  <tr><td>Résultat d'exploitation</td><td>Confidentiel</td><td>49 700 € (+446 %)</td></tr>
+  <tr><td>Levée de fonds publique</td><td>Aucune connue</td><td>Aucune (bootstrap)</td></tr>
+  <tr><td>Note client publique</td><td>iOS 4,8★ / Android 4,5★</td><td>Google 4,5★ (87 avis)</td></tr>
+  <tr><td>Traction estimée</td><td>~1 500-3 000 chauffeurs</td><td>~1 500-2 000 chauffeurs</td></tr>
+  <tr><td>ARR estimé</td><td>~600-900 k€</td><td>~600 k€ (confirmé)</td></tr>
+  <tr><td>Valorisation estimée</td><td>2-4,5 M€ (3-5x ARR croissance)</td><td>0,4-1 M€ (4-7x EBITDA)</td></tr>
+</table>
+
+<h3>2.2 Forces / Faiblesses par concurrent</h3>
+
+<div class="col-2">
+  <div>
+    <h4>Caree — Forces</h4>
+    <ul>
+      <li>UX moderne (notation iOS 4,8★)</li>
+      <li>Co-fondateur ex-chauffeur conventionné = légitimité métier</li>
+      <li>App native iOS + Android</li>
+      <li>Échange courses entre chauffeurs ("Groupes")</li>
+      <li>Distancier intégré + PEC+ + scan documents</li>
+      <li>Croissance rapide (400 chauffeurs en 2 mois lancement)</li>
+    </ul>
+  </div>
+  <div>
+    <h4>Caree — Faiblesses</h4>
+    <ul>
+      <li>Capital 1 112 € → trésorerie tendue</li>
+      <li>Basés à Lyon, aucune présence terrain Marseille</li>
+      <li>Pas de service de facturation externalisée</li>
+      <li>Pas d'avance de trésorerie</li>
+      <li>Site marketing en WordPress = stack hétérogène</li>
+      <li>Comptes confidentiels = doute sur rentabilité réelle</li>
+    </ul>
+  </div>
+</div>
+
+<div class="col-2">
+  <div>
+    <h4>Soraya — Forces</h4>
+    <ul>
+      <li>28 ans d'existence = confiance, track record</li>
+      <li>Norm B2 Taxi 2025 certifiée</li>
+      <li>SMARTVITALE (lecteur Vitale branded)</li>
+      <li>Easy Taxi (facturation externalisée humaine)</li>
+      <li>Télétransmission 240+ mutuelles (DRE direct)</li>
+      <li>HDS hosting</li>
+      <li>Support tel direct Lun-Ven heures bureau</li>
+    </ul>
+  </div>
+  <div>
+    <h4>Soraya — Faiblesses</h4>
+    <ul>
+      <li>UX datée 2018 (verdict utilisateurs)</li>
+      <li>Dirigeant 53 ans, pas de relève visible</li>
+      <li>Croissance modeste (+25 % en 2023, marge 4,4 %)</li>
+      <li>Pas d'app mobile native (FULLweb)</li>
+      <li>Basés en Indre-et-Loire, aucun terrain Marseille</li>
+      <li>R&D ralentie (32 ans = système vieillissant)</li>
+    </ul>
+  </div>
+</div>
+
+<h3>2.3 La fenêtre d'attaque TaxiLink</h3>
+
+<table>
+  <tr><th>Levier</th><th>Caree</th><th>Soraya</th><th>TaxiLink</th></tr>
+  <tr><td>Présence Marseille</td><td><span class="cross">Aucune</span></td><td><span class="cross">Aucune</span></td><td><span class="check">Local</span></td></tr>
+  <tr><td>Avance trésorerie 24h</td><td><span class="cross">Non</span></td><td><span class="cross">Non</span></td><td><span class="check">Oui (Premium)</span></td></tr>
+  <tr><td>Marketplace cross-org native</td><td><span class="warn">Limité</span></td><td><span class="cross">Non</span></td><td><span class="check">Oui</span></td></tr>
+  <tr><td>GPS auto-progression</td><td><span class="cross">Non</span></td><td><span class="cross">Non</span></td><td><span class="check">Oui</span></td></tr>
+  <tr><td>Saisie vocale Web Speech</td><td><span class="cross">Non</span></td><td><span class="cross">Non</span></td><td><span class="check">Oui</span></td></tr>
+  <tr><td>UX 2026 (Inter, jaune, rounded)</td><td><span class="warn">2023</span></td><td><span class="warn">2018</span></td><td><span class="check">2026</span></td></tr>
+  <tr><td>Stack moderne (Next.js + Supabase)</td><td>Native + WordPress</td><td>Legacy</td><td><span class="check">2026</span></td></tr>
+  <tr><td>Pricing migration agressif</td><td>14 j d'essai</td><td>3 mois gratuits nouveaux conv.</td><td><span class="check">6 mois gratuits migration</span></td></tr>
+</table>
+
+<div class="callout-good">
+  <p style="margin:0;"><strong>5 angles d'attaque prioritaires</strong> : (1) Présence terrain Marseille, (2) Avance trésorerie 24h en exclusivité, (3) UX mobile-first 2026, (4) Marketplace cross-organisations, (5) Pitch MIGRATION 6 mois pour faire défecter les utilisateurs Caree/Soraya.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>3. Partie II — Plan de prospection terrain Marseille</h2>
+
+<h3>3.1 Cartographie des 50+ points de prospection</h3>
+
+<p>Marseille intra-muros : 1 800 taxis dont 1 200 conventionnés. Voici les points où ils se concentrent et où prescripteurs/patients génèrent le flux.</p>
+
+<h4>A. Stations de taxi prioritaires (12)</h4>
+
+<table>
+  <tr><th>#</th><th>Station</th><th>Arrondissement</th><th>Capacité</th><th>Stratégie</th></tr>
+  <tr><td>1</td><td><strong>Gare Saint-Charles</strong> (Place Strasbourg)</td><td>13001</td><td>~30 taxis</td><td>Tractage 6h-9h, station n°1 de la ville</td></tr>
+  <tr><td>2</td><td><strong>Castellane</strong> (Place Castellane)</td><td>13006</td><td>11 taxis</td><td>Stand café 7h-10h, prescripteurs nombreux autour</td></tr>
+  <tr><td>3</td><td><strong>Vieux-Port</strong> (Quai de la Fraternité)</td><td>13002</td><td>~15 taxis</td><td>Forte rotation, mais plus touristique que conventionné</td></tr>
+  <tr><td>4</td><td>Rue Colbert (entre St-Charles et Vieux-Port)</td><td>13002</td><td>~10</td><td>Stop secondaire</td></tr>
+  <tr><td>5</td><td>Joliette / Les Terrasses du Port</td><td>13002</td><td>~10</td><td>Bureaux + ferry</td></tr>
+  <tr><td>6</td><td>MUCEM / Esplanade J4</td><td>13002</td><td>~8</td><td>Touristique principalement</td></tr>
+  <tr><td>7</td><td>Méry / Centre Bourse</td><td>13002</td><td>~8</td><td>Commercial</td></tr>
+  <tr><td>8</td><td>Préfecture (Place Félix Baret)</td><td>13006</td><td>~10</td><td>Administratif, RDV CPAM possibles</td></tr>
+  <tr><td>9</td><td>Estrangin (M° Estrangin Préfecture)</td><td>13006</td><td>~6</td><td>Cabinet médicaux nombreux</td></tr>
+  <tr><td>10</td><td>Notre-Dame du Mont</td><td>13006</td><td>~6</td><td>Quartier médical</td></tr>
+  <tr><td>11</td><td><strong>Aéroport Marseille-Provence</strong> (Marignane)</td><td>Marignane</td><td>30+ taxis</td><td>Flux fort mais hors CPAM principalement — option B</td></tr>
+  <tr><td>12</td><td>Gare TGV Aix-en-Provence</td><td>Aix</td><td>~20</td><td>Phase 2 extension</td></tr>
+</table>
+
+<h4>B. Hôpitaux APHM (4 majeurs — gros volume CPAM)</h4>
+
+<table>
+  <tr><th>#</th><th>Établissement</th><th>Adresse</th><th>Volume estimé</th><th>Action</th></tr>
+  <tr><td>13</td><td><strong>Hôpital de la Timone</strong> (APHM)</td><td>264 rue Saint-Pierre, 13005</td><td>★★★★★</td><td>Service transport sanitaire + prescripteurs cardio/onco</td></tr>
+  <tr><td>14</td><td><strong>Hôpital Nord</strong> (APHM)</td><td>Chemin des Bourrely, 13015</td><td>★★★★★</td><td>Pôle dialyse + onco + radio</td></tr>
+  <tr><td>15</td><td><strong>Hôpital de la Conception</strong> (APHM)</td><td>147 boulevard Baille, 13005</td><td>★★★★</td><td>Centre-ville, accès facile</td></tr>
+  <tr><td>16</td><td><strong>Hôpital Sainte-Marguerite</strong> (APHM)</td><td>270 boulevard Sainte-Marguerite, 13009</td><td>★★★</td><td>Sud, dialyse + gériatrie</td></tr>
+</table>
+
+<h4>C. Cliniques privées et centres anti-cancer (4)</h4>
+
+<table>
+  <tr><th>#</th><th>Établissement</th><th>Adresse</th><th>Spécialité</th><th>Action</th></tr>
+  <tr><td>17</td><td><strong>Hôpital Européen Marseille</strong></td><td>6 rue Désirée Clary, 13003</td><td>CARE oncologie + cardio</td><td>Accord cadre transport patients</td></tr>
+  <tr><td>18</td><td><strong>Institut Paoli-Calmettes</strong></td><td>232 boulevard Sainte-Marguerite, 13009</td><td>Cancer (top mondial)</td><td>Convention transport chimio/radio</td></tr>
+  <tr><td>19</td><td>Hôpital Saint-Joseph</td><td>26 boulevard de Louvain, 13008</td><td>Polyvalent</td><td>Démarchage prescripteurs</td></tr>
+  <tr><td>20</td><td>Hôpital Privé Clairval (Ramsay)</td><td>317 boulevard Redon, 13009</td><td>Polyvalent</td><td>Pôle Sud, complète Sainte-Marguerite</td></tr>
+</table>
+
+<h4>D. Centres de dialyse (gros pourvoyeurs de courses récurrentes 3×/sem)</h4>
+
+<table>
+  <tr><th>#</th><th>Centre</th><th>Adresse / Zone</th><th>Pourquoi prioritaire</th></tr>
+  <tr><td>21</td><td><strong>ATUP-C Marseille</strong></td><td>Multi-sites Marseille</td><td>Patients dialyse 3×/semaine = courses CPAM régulières garanties</td></tr>
+  <tr><td>22</td><td>VITALIS CARE (11e)</td><td>Marseille 13011</td><td>Dialyse à domicile + chimio</td></tr>
+  <tr><td>23</td><td>Centre AURA Provence</td><td>Marseille</td><td>Dialyse spécialisée</td></tr>
+  <tr><td>24</td><td>Centre Néphrocare (Fresenius)</td><td>Marseille</td><td>Réseau national</td></tr>
+  <tr><td>25</td><td>Hôpital Européen — Service néphro</td><td>13003</td><td>Couplé Hôpital Européen</td></tr>
+  <tr><td>26</td><td>APHM Conception — Néphro</td><td>13005</td><td>Couplé Conception</td></tr>
+</table>
+
+<h4>E. Centres radiothérapie / oncologie</h4>
+
+<table>
+  <tr><th>#</th><th>Centre</th><th>Adresse</th><th>Volume</th></tr>
+  <tr><td>27</td><td>AP-HM Radiothérapie Timone</td><td>13005</td><td>★★★★</td></tr>
+  <tr><td>28</td><td>AP-HM Radiothérapie Nord</td><td>13015</td><td>★★★★</td></tr>
+  <tr><td>29</td><td>Institut Paoli-Calmettes Radiothérapie</td><td>13009</td><td>★★★★</td></tr>
+  <tr><td>30</td><td>Hôpital Européen CARE Cancérologie</td><td>13003</td><td>★★★</td></tr>
+</table>
+
+<h4>F. Réseau / associations / syndicats taxi (5)</h4>
+
+<table>
+  <tr><th>#</th><th>Acteur</th><th>Pourquoi</th></tr>
+  <tr><td>31</td><td><strong>Taxis Conventionnés Groupement Marseille</strong></td><td>Association culturelle dédiée → accès direct au cœur de cible</td></tr>
+  <tr><td>32</td><td>FNDT (Fédération Nationale du Taxi)</td><td>Antenne régionale, lobbying et événements</td></tr>
+  <tr><td>33</td><td>UNT (Union Nationale des Taxis)</td><td>Concurrence FNDT, autre voie d'entrée</td></tr>
+  <tr><td>34</td><td>Centrale Taxi 13 (06 64 33 80 93)</td><td>Centrale d'appel, demander partenariat</td></tr>
+  <tr><td>35</td><td>Taxis Tupp (04 91 05 80 80, 300 véhicules)</td><td>Plus grosse flotte locale, démarcher patron en B2B</td></tr>
+</table>
+
+<h4>G. Acteurs digitaux et formation (5)</h4>
+
+<table>
+  <tr><th>#</th><th>Acteur</th><th>Action</th></tr>
+  <tr><td>36</td><td>CFA conducteur taxi Bouches-du-Rhône</td><td>Partenariat tarif étudiant 9,90 €/mois (capter dès la sortie d'école)</td></tr>
+  <tr><td>37</td><td>Pôle Emploi Marseille</td><td>Devenir partenaire formation reconversion conducteur taxi</td></tr>
+  <tr><td>38</td><td>CCI Marseille</td><td>Accompagnement créateur d'entreprise — réseau patron flotte</td></tr>
+  <tr><td>39</td><td>Forums chauffeurs (100% News Taxis, Taxis-de-France)</td><td>Communication / publicité ciblée + témoignages</td></tr>
+  <tr><td>40</td><td>Groupes Facebook chauffeurs Marseille</td><td>Veille + animation présence + posts utiles</td></tr>
+</table>
+
+<h4>H. Sites de presse et leads (10)</h4>
+
+<table>
+  <tr><th>#</th><th>Action</th><th>Coût estimé</th></tr>
+  <tr><td>41</td><td>Article La Provence "TaxiLink, la Marseillaise pour les taxis conventionnés"</td><td>0 € (RP) ou 800 € (publi-rédactionnel)</td></tr>
+  <tr><td>42</td><td>Spot radio Maritima/Vinci PACA</td><td>1 200 € pour 2 semaines</td></tr>
+  <tr><td>43</td><td>Affichage 4×3 stations métro Castellane / Saint-Charles</td><td>2 500 € pour 1 mois</td></tr>
+  <tr><td>44</td><td>Stickers/flyers stations taxi (avec QR vers landing)</td><td>200 € (1 000 unités)</td></tr>
+  <tr><td>45</td><td>Goodies (mug + tour de cou + lingette écran)</td><td>500 € (200 kits)</td></tr>
+  <tr><td>46</td><td>Google Ads géolocalisé Marseille "logiciel taxi conventionné"</td><td>800 €/mois</td></tr>
+  <tr><td>47</td><td>Facebook/Instagram Ads ciblage taxi 13</td><td>500 €/mois</td></tr>
+  <tr><td>48</td><td>SEO local (page "TaxiLink Marseille") + avis Google</td><td>Interne</td></tr>
+  <tr><td>49</td><td>Programme parrainage chauffeur (1 mois offert × 2)</td><td>Variable</td></tr>
+  <tr><td>50</td><td>Webinaire mensuel "Comment optimiser sa facturation CPAM"</td><td>0 € (lead gen)</td></tr>
+</table>
+
+<h3>3.2 Plan de tournée hebdomadaire (4 semaines)</h3>
+
+<table>
+  <tr><th>Semaine</th><th>Lundi</th><th>Mardi</th><th>Mercredi</th><th>Jeudi</th><th>Vendredi</th></tr>
+  <tr><td>S1</td><td>Gare St-Charles 6h30-9h30</td><td>Castellane 7h-10h</td><td>Hôpital Timone 11h-14h (cantine)</td><td>Hôpital Nord 11h-14h</td><td>Vieux-Port + Joliette 7h-10h</td></tr>
+  <tr><td>S2</td><td>Conception + Estrangin 9h-12h</td><td>Sainte-Marguerite + Paoli-Calmettes</td><td>RDV ADTM 13 + groupement Marseille</td><td>3 centres dialyse</td><td>Bilan + relances tel</td></tr>
+  <tr><td>S3</td><td>Hôpital Européen + St-Joseph</td><td>Clairval + cliniques 9e</td><td>RDV Centrale Taxi 13 + Tupp (pacha B2B)</td><td>CFA conducteur taxi</td><td>Stickers / Flyers en gare</td></tr>
+  <tr><td>S4</td><td>Tournée stations restantes (Aéroport + secondaires)</td><td>Pôle Emploi + CCI</td><td>Webinaire en ligne</td><td>Demos individuelles dans les stations</td><td>Bilan mois + ajustement</td></tr>
+</table>
+
+<div class="callout-info">
+  <p style="margin:0;"><strong>Hack de prospection station</strong> : arrive à 6h30 avec 5 cafés. Offre-en aux chauffeurs en attente. Tu auras 5 demos en 30 min. Coût : 15 €. Conversion attendue : 2-3 essais sur 5. Sur 12 stations = 24-36 essais en 1 mois.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>4. Partie III — Pitch MIGRATION 6 mois</h2>
+
+<h3>4.1 Landing page dédiée — texte prêt à intégrer</h3>
+
+<div class="landing">
+  <span class="pill-dark">CODE MIGRATION</span>
+  <h4 style="margin-top:8px;">Tu paies déjà Caree, Soraya ou GESTAV&nbsp;?</h4>
+  <p class="landing-sub"><strong>Migre sur TaxiLink. 6 mois gratuits. On rapatrie tes données pour toi.</strong></p>
+  <ul style="font-size:10.5pt;">
+    <li>Envoie-nous ta dernière facture (Caree, Soraya, GESTAV, Lomaco, MK WEB, AKOS, Calcul-Taxi…) → 6 mois offerts</li>
+    <li>On migre tes patients, prescripteurs et historique de courses en 48h</li>
+    <li>Pas d'engagement. Si tu repars, tu repars — tes données sont à toi</li>
+    <li>Bonus : tes 100 premières télétransmissions sur TaxiLink offertes</li>
+  </ul>
+  <span class="cta-btn">→ Je migre maintenant</span>
+  <span class="cta-btn" style="background:#fff; color:#1a1a2e; border:2px solid #1a1a2e;">Réserver une démo (15 min)</span>
+  <p class="landing-sub" style="margin-top:14px; font-size:9.5pt;">Garantie : si TaxiLink ne te plaît pas après 30 jours, on te rembourse + on t'aide à revenir sur ton ancien outil. Zéro risque.</p>
+</div>
+
+<h3>4.2 Calculateur "Tu économises X €"</h3>
+
+<div class="calculator">
+  <h3 style="color:#FBBF24; border:none; padding:0; margin:0 0 8px 0; font-size:12pt;">Si tu paies Caree à 30 €/mois aujourd'hui&nbsp;:</h3>
+  <table>
+    <tr><td>Économie 6 mois gratuits TaxiLink</td><td class="total">+ 180 €</td></tr>
+    <tr><td>Économie sur lecteur bi-fente (location 9 € vs achat 199 € chez concurrent)</td><td class="total">+ 100 €</td></tr>
+    <tr><td>Avance trésorerie 24h gagnée vs attente CPAM 30j (≈ 0,2 % par jour × moyenne)</td><td class="total">+ ~150 €/an</td></tr>
+    <tr><td>Réduction rejets CPAM (−40 % vs −10 % chez concurrent)</td><td class="total">+ ~300 €/an</td></tr>
+    <tr><td><strong>Total an 1 estimé</strong></td><td class="total"><strong>~730 €</strong></td></tr>
+  </table>
+  <p style="margin:8px 0 0 0; font-size:9pt;">À afficher sur la landing avec un slider "tarif actuel" pour personnaliser le calcul.</p>
+</div>
+
+<h3>4.3 Script de prospection en station (30 secondes)</h3>
+
+<div class="script">
+"Salut, je suis Mohamed de TaxiLink. Je vois que tu as ton lecteur bi-fente sur le siège passager — t'es conventionné, c'est bien ça&nbsp;? Tu utilises quoi pour ta facturation, Caree ou Soraya&nbsp;?<br><br>
+[Réponse]<br><br>
+OK, on a une appli toute neuve, faite à Marseille pour les chauffeurs marseillais. Si tu nous montres ta facture Caree, on t'offre 6 mois gratuits sur TaxiLink. Et on migre ton fichier patients en 48h, tu t'occupes de rien. Si ça te plaît pas après 30 jours, tu repars sans frais, on garantit.<br><br>
+T'as 5 minutes pour que je te montre&nbsp;? J'ai un café pour toi en plus."
+</div>
+
+<h3>4.4 Email de relance après essai (J+7)</h3>
+
+<div class="script">
+<strong>Objet</strong> : Salut [Prénom], 23 courses en 7 jours sur TaxiLink<br><br>
+Salut [Prénom],<br><br>
+Tu viens de finir ta première semaine sur TaxiLink. Tu as fait <strong>23 courses</strong> dont <strong>17 conventionnées</strong>, et zéro rejet pour l'instant — c'est top.<br><br>
+J'ai vu que tu utilisais surtout la fonction "scan ordo par photo". On vient de sortir une nouvelle option : la <strong>saisie vocale</strong> du destinataire. Tu dis "Hôpital Timone service cardio" et c'est rempli. Tu veux que je te la montre en 2 min&nbsp;?<br><br>
+Sinon, ton offre MIGRATION6MOIS est encore active jusqu'au [date]. Une fois passé, c'est 29,90 €/mois (ou 22,90 € si tu prends à l'année).<br><br>
+Une question, un blocage&nbsp;? Tu m'appelles direct au 06 XX XX XX XX.<br><br>
+Mohamed — TaxiLink Marseille
+</div>
+
+<h3>4.5 Matrice d'objections / réponses</h3>
+
+<div class="objection">
+  <div class="objection-q">"J'ai déjà Caree et ça marche bien, pourquoi changer&nbsp;?"</div>
+  <div class="objection-a">Caree marche bien, c'est vrai. Mais Caree est à Lyon. Toi tu es à Marseille, et quand tu as un souci à 22h un dimanche pour un retour de chimio, tu appelles qui&nbsp;? Nous on est à Marseille, on connaît tes prescripteurs, on a un support 7j/7. Et on a l'avance de trésorerie 24h que Caree n'a pas. <strong>Test 6 mois gratuits, si ça te plaît pas, tu repars.</strong></div>
+</div>
+
+<div class="objection">
+  <div class="objection-q">"6 mois gratuits, c'est louche. Vous allez me bloquer après ?"</div>
+  <div class="objection-a">Aucun engagement. Tu peux partir à n'importe quel moment, on t'exporte tes données en 1 clic au format CSV. Notre intérêt c'est que tu sois content : un chauffeur qui reste 3 ans nous rapporte 1 000 €. Un chauffeur qui part au bout de 7 mois nous coûte ~50 €. On n'a pas intérêt à te piéger.</div>
+</div>
+
+<div class="objection">
+  <div class="objection-q">"Je suis trop vieux pour changer d'appli"</div>
+  <div class="objection-a">Justement, on a fait l'appli pour que tu n'aies rien à apprendre. Tu signes le patient avec ton doigt, tu prends ta course en photo, et c'est fait. On vient chez toi 1h, on installe, on te montre 3 fonctions. Tu testes 1 semaine. Si tu galères, on rembourse + on t'aide à revenir sur Caree. <strong>Zéro risque.</strong></div>
+</div>
+
+<div class="objection">
+  <div class="objection-q">"Vous êtes nouveaux, vous allez fermer dans 6 mois"</div>
+  <div class="objection-a">C'est une bonne question. Caree est née en 2019 avec 1 112 € de capital, ils sont toujours là 6 ans après. Soraya existe depuis 1997 et fait 600 k€ de CA. Le marché est sain. Nous, on est en train de signer un partenariat avec Orisha (le groupe qui fait Sephira, 26 000 pros équipés). Si TaxiLink disparaît, ton compte SESAM-Vitale chez Orisha continue. <strong>Tes données sont protégées HDS, elles ne disparaissent jamais.</strong></div>
+</div>
+
+<div class="objection">
+  <div class="objection-q">"Le prix après les 6 mois, c'est combien&nbsp;?"</div>
+  <div class="objection-a">29,90 €/mois sur le plan Pro (avec télétransmission CPAM incluse jusqu'à 250 FSE/mois). Ou 22,90 € si tu prends à l'année. Soit le même prix que Caree (30 €) — sans engagement. Si tu prends Premium (avance trésorerie 24h en plus), c'est 49 €/mois.</div>
+</div>
+
+<div class="objection">
+  <div class="objection-q">"Et si je dépasse les 250 télétransmissions par mois&nbsp;?"</div>
+  <div class="objection-a">0,20 € par FSE supplémentaire. À titre d'info, la moyenne d'un chauffeur conventionné c'est 150-200 FSE/mois. Si tu fais beaucoup plus, on te bascule sur le plan Premium qui est en illimité.</div>
+</div>
+
+<div class="objection">
+  <div class="objection-q">"Vous télétransmettez vraiment à la CPAM ?"</div>
+  <div class="objection-a">Oui, via notre partenariat avec Orisha (Sephira). C'est exactement le même moteur que celui qui équipe 26 000 pros de santé en France. Notre numéro CNDA est [XXX]. Tu peux le vérifier sur cnda.ameli.fr.</div>
+</div>
+
+<h3>4.6 Programme parrainage MARSEILLE2026</h3>
+
+<table>
+  <tr><th>Mécanique</th><th>Bénéfice parrain</th><th>Bénéfice filleul</th></tr>
+  <tr><td>1 filleul actif &gt; 1 mois</td><td>1 mois offert</td><td>1 mois offert (en plus du MIGRATION6MOIS)</td></tr>
+  <tr><td>3 filleuls actifs</td><td>3 mois offerts</td><td>—</td></tr>
+  <tr><td>5 filleuls actifs</td><td>1 an offert</td><td>—</td></tr>
+  <tr><td>10 filleuls actifs</td><td>1 an offert + tarif "ambassadeur" à vie (-50 %)</td><td>—</td></tr>
+</table>
+
+<div class="callout-good">
+  <p style="margin:0;"><strong>Math du parrainage</strong> : un parrain qui ramène 5 filleuls te coûte 12 mois × 30 € = 360 € en gratuités. Mais 5 filleuls × 36 mois moyens × 30 € = <strong>5 400 € de revenus</strong>. ROI&nbsp;: ~14×. C'est le canal d'acquisition le plus rentable du marché.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>5. Partie IV — Calendrier 90 jours d'exécution</h2>
+
+<h3>5.1 J0 → J30 (mois 1) — Préparation et premiers contacts</h3>
+
+<table>
+  <tr><th>Sem</th><th>Action</th><th>Livrable</th></tr>
+  <tr><td>S1</td><td>Envoi devis Orisha + Olaqin · Création landing MIGRATION6MOIS · Rédac scripts</td><td>2 devis en cours, landing en ligne</td></tr>
+  <tr><td>S2</td><td>Tournée stations Saint-Charles, Castellane, Vieux-Port (5h/jour matin)</td><td>30 contacts pris, 8 essais activés</td></tr>
+  <tr><td>S3</td><td>RDV Hôpital Timone (transport sanitaire) + Hôpital Nord</td><td>2 conventions cadre signées</td></tr>
+  <tr><td>S4</td><td>RDV ADTM 13 / Groupement Taxis Conventionnés Marseille · Sortie article La Provence</td><td>50 chauffeurs en essai actif</td></tr>
+</table>
+
+<h3>5.2 J30 → J60 (mois 2) — Conversion et amplification</h3>
+
+<table>
+  <tr><th>Sem</th><th>Action</th><th>Livrable</th></tr>
+  <tr><td>S5</td><td>Démos personnalisées 1-1 chez les 50 essais</td><td>20 conversions payantes</td></tr>
+  <tr><td>S6</td><td>Tournée hôpitaux Conception, Sainte-Marguerite, Hôpital Européen, Paoli-Calmettes</td><td>4 partenariats centres prescripteurs</td></tr>
+  <tr><td>S7</td><td>Centres dialyse (ATUP-C, AURA, Néphrocare) — 6 RDV</td><td>3 partenariats récurrents</td></tr>
+  <tr><td>S8</td><td>Webinaire "Optimiser sa facturation CPAM" — promotion radio + Facebook Ads</td><td>+30 essais via webinaire</td></tr>
+</table>
+
+<h3>5.3 J60 → J90 (mois 3) — Scale et premier bilan</h3>
+
+<table>
+  <tr><th>Sem</th><th>Action</th><th>Livrable</th></tr>
+  <tr><td>S9</td><td>Démos webinaire + relances + onboarding accéléré</td><td>+15 conversions</td></tr>
+  <tr><td>S10</td><td>Programme parrainage activé · Goodies envoyés aux 50 premiers payants</td><td>NPS &gt; 50 visé</td></tr>
+  <tr><td>S11</td><td>Démarchage flottes (Tupp, Centrale Taxi 13, groupements 5+)</td><td>2 contrats flottes (= 20+ chauffeurs)</td></tr>
+  <tr><td>S12</td><td>Bilan, ajustement pricing, planification mois 4-6</td><td>50+ chauffeurs payants confirmés</td></tr>
+</table>
+
+<h3>5.4 KPIs à suivre chaque semaine</h3>
+
+<table>
+  <tr><th>KPI</th><th>Objectif S4</th><th>Objectif S8</th><th>Objectif S12</th></tr>
+  <tr><td>Essais actifs</td><td>30</td><td>80</td><td>150</td></tr>
+  <tr><td>Conversions payantes</td><td>10</td><td>30</td><td>50</td></tr>
+  <tr><td>MRR</td><td>~250 €</td><td>~750 €</td><td>~1 500 €</td></tr>
+  <tr><td>Taux conversion essai → payant</td><td>33 %</td><td>38 %</td><td>40 %+</td></tr>
+  <tr><td>NPS chauffeurs</td><td>—</td><td>30+</td><td>50+</td></tr>
+  <tr><td>Taux rejet CPAM (vs benchmark concurrent)</td><td>&lt; 8 %</td><td>&lt; 5 %</td><td>&lt; 3 %</td></tr>
+  <tr><td>Coût d'acquisition (CAC)</td><td>~150 €</td><td>~120 €</td><td>~80 €</td></tr>
+</table>
+
+<h3>5.5 Budget 90 jours</h3>
+
+<table>
+  <tr><th>Poste</th><th>Coût</th></tr>
+  <tr><td>Setup partenaire télétransmission (Orisha)</td><td>~15 000 €</td></tr>
+  <tr><td>Marketing local Marseille (radio + affichage + flyers + Ads)</td><td>~6 000 €</td></tr>
+  <tr><td>Goodies + cafés station + matériel démo</td><td>~1 200 €</td></tr>
+  <tr><td>Migration data tooling (script CSV import)</td><td>~500 € (interne)</td></tr>
+  <tr><td>1 commercial mi-temps / consultant 3 mois</td><td>~9 000 €</td></tr>
+  <tr><td>Reserve aléas</td><td>~2 000 €</td></tr>
+  <tr><td><strong>Total 90 jours</strong></td><td><strong>~33 700 €</strong></td></tr>
+</table>
+
+<div class="summary-card">
+  <h3>Action immédiate cette semaine</h3>
+  <p style="margin:0 0 6px 0;"><strong>Lundi</strong> : envoyer les 2 emails de devis (Orisha + Olaqin)</p>
+  <p style="margin:0 0 6px 0;"><strong>Mardi</strong> : créer la landing MIGRATION6MOIS sur taxilink.fr/migration</p>
+  <p style="margin:0 0 6px 0;"><strong>Mercredi</strong> : imprimer 200 flyers + commander 5 cafés + 5 croissants</p>
+  <p style="margin:0;"><strong>Jeudi 6h30</strong> : Gare Saint-Charles. Premier sprint de prospection terrain.</p>
+</div>
+
+<div class="footer">
+  <p><strong>TaxiLink — Plan de bataille Marseille</strong> · Mai 2026 · Document interne pour Mohamed Major<br>
+  Sources financières : pappers.fr · societe.com · myfrenchstartup.com · INPI · LinkedIn<br>
+  Sources prospection : pagesjaunes.fr · garesetconnexions.sncf · ap-hm.fr · taxi-marseille-provence.com</p>
+</div>
+
+</body>
+</html>

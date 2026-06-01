@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mes courses V3 · Uber Driver</title>
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --ink-soft: #6b6b6b;
+      --ink-muted: #9a9a9a;
+      --bg: #ffffff;
+      --line: #ececec;
+      --accent: #1a1a1a;
+      --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px;
+      margin: 40px auto;
+      background: var(--bg);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink);
+      z-index: 20;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    .scroll { position: absolute; inset: 50px 0 0 0; overflow: hidden; }
+
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 20px 0;
+    }
+    .iconbtn {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .iconbtn svg { width: 22px; height: 22px; }
+
+    /* Gros amount style Uber Driver */
+    .earnings {
+      padding: 20px 24px 12px;
+    }
+    .earnings .label {
+      font-size: 13px; font-weight: 600; color: var(--ink-soft);
+      margin-bottom: 4px;
+    }
+    .earnings .row {
+      display: flex; align-items: baseline; gap: 10px;
+    }
+    .earnings .amount {
+      font-size: 56px; font-weight: 900; letter-spacing: -3px;
+      line-height: 1;
+    }
+    .earnings .currency { font-size: 24px; font-weight: 800; color: var(--ink-soft); margin-left: 2px; }
+    .earnings .delta {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; font-weight: 800;
+      color: #14532d;
+      background: #dcfce7;
+      padding: 3px 8px; border-radius: 6px;
+      margin-top: 10px;
+    }
+    .earnings .sub {
+      font-size: 12.5px; color: var(--ink-soft);
+      margin-top: 6px;
+    }
+
+    /* Segmented control */
+    .segmented {
+      margin: 16px 20px 8px;
+      background: #f3f3f3;
+      border-radius: 12px;
+      padding: 3px;
+      display: flex;
+    }
+    .seg {
+      flex: 1;
+      height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+      color: var(--ink-soft);
+    }
+    .seg.active {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+    }
+
+    /* List */
+    .list {
+      padding: 8px 0 100px;
+    }
+    .day-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 18px 20px 6px;
+    }
+    .day-header .dt {
+      font-size: 11px; font-weight: 800;
+      color: var(--ink-soft);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+    .day-header .sum {
+      font-size: 13px; font-weight: 800;
+      color: var(--ink);
+    }
+    .row {
+      display: flex; gap: 16px; align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #f4f4f4;
+      position: relative;
+    }
+    .row.live {
+      background: #fafafa;
+    }
+    .row.live::before {
+      content: ""; position: absolute; left: 0; top: 16px; bottom: 16px;
+      width: 3px; background: var(--success); border-radius: 2px;
+    }
+    .row-time {
+      width: 48px;
+      text-align: left;
+    }
+    .row-time .h {
+      font-size: 16px; font-weight: 900; letter-spacing: -0.5px;
+    }
+    .row-time .m {
+      font-size: 10.5px; font-weight: 800;
+      color: var(--ink-muted);
+      letter-spacing: 0.4px;
+      margin-top: 1px;
+    }
+    .row.live .row-time .m { color: var(--success); }
+    .row-body {
+      flex: 1; min-width: 0;
+    }
+    .row-route {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+    .row-route .arr {
+      font-size: 11px; color: var(--ink-muted); font-weight: 800;
+    }
+    .row-sub {
+      font-size: 12px; color: var(--ink-soft);
+      margin-top: 2px;
+    }
+    .row-fare {
+      font-size: 16px; font-weight: 900; letter-spacing: -0.4px;
+      text-align: right;
+    }
+    .row-fare .sm {
+      font-size: 11px; font-weight: 700; color: var(--ink-muted);
+      margin-top: 1px;
+      letter-spacing: 0.3px;
+    }
+    .row-fare .sm.cpam { color: #1e40af; }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 80px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-around; align-items: center;
+      padding-bottom: 20px;
+      z-index: 10;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; color: var(--ink-muted);
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item svg { width: 24px; height: 24px; }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="scroll">
+      <div class="header">
+        <div class="iconbtn">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </div>
+        <div class="iconbtn">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><path d="M21 21l-4-4"/><circle cx="11" cy="11" r="7"/></svg>
+        </div>
+      </div>
+
+      <div class="earnings">
+        <div class="label">GAINS DU JOUR</div>
+        <div class="row">
+          <div class="amount">184<span class="currency"> €</span></div>
+        </div>
+        <div class="sub">
+          6 courses · 4h32 en service
+        </div>
+        <span class="delta">↑ +24 € vs. la moyenne</span>
+      </div>
+
+      <div class="segmented">
+        <div class="seg active">Aujourd'hui</div>
+        <div class="seg">Semaine</div>
+        <div class="seg">Mois</div>
+      </div>
+
+      <div class="list">
+        <div class="day-header">
+          <div class="dt">EN COURS</div>
+          <div class="sum"></div>
+        </div>
+        <div class="row live">
+          <div class="row-time">
+            <div class="h">14:30</div>
+            <div class="m">EN COURS</div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Hôpital Nord <span class="arr">→</span> Aubagne</div>
+            <div class="row-sub">Mme M. · arrivée 14h41 · 14 km</div>
+          </div>
+          <div class="row-fare">
+            61 €
+            <div class="sm cpam">CPAM</div>
+          </div>
+        </div>
+
+        <div class="day-header">
+          <div class="dt">À VENIR · 2</div>
+          <div class="sum">70 €</div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">15:30</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Castellane <span class="arr">→</span> Timone</div>
+            <div class="row-sub">M. Bertrand · 6,1 km</div>
+          </div>
+          <div class="row-fare">
+            28 €
+            <div class="sm cpam">CPAM</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">17:15</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">La Joliette <span class="arr">→</span> Aéroport</div>
+            <div class="row-sub">M. & Mme Dubois · 8,3 km</div>
+          </div>
+          <div class="row-fare">
+            42 €
+            <div class="sm">PRIVÉ</div>
+          </div>
+        </div>
+
+        <div class="day-header">
+          <div class="dt">RÉALISÉES · 3</div>
+          <div class="sum">114 €</div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">10:15</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Saint-Charles <span class="arr">→</span> Aubagne</div>
+            <div class="row-sub">M. Léon · 12 km · 28 min</div>
+          </div>
+          <div class="row-fare">
+            38 €
+            <div class="sm cpam">CPAM</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">09:00</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Timone <span class="arr">→</span> Saint-Charles</div>
+            <div class="row-sub">M. Léon · 6 km · 18 min</div>
+          </div>
+          <div class="row-fare">
+            22 €
+            <div class="sm cpam">CPAM</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">08:30</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Castellane <span class="arr">→</span> Timone</div>
+            <div class="row-sub">Mme Roux · 3,8 km</div>
+          </div>
+          <div class="row-fare">
+            54 €
+            <div class="sm">PRIVÉ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+        Carte
+      </div>
+      <div class="nav-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Courses
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+        Profil
+      </div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

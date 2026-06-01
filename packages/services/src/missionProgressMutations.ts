@@ -81,6 +81,11 @@ export const missionProgressMutations = {
    * Patient absent au RDV. Course cloturee mais flaguee `no_show=true` pour
    * exclusion du CA et facturation CPAM differente. Le motif est trace dans
    * `notes` pour l'historique.
+   *
+   * Filtre status : ACCEPTED ou IN_PROGRESS. Le chauffeur peut arriver sur
+   * place sans avoir tape "Je pars chercher le patient" et constater l'absence
+   * → action accessible depuis l'agenda (ACCEPTED) ET la carte active
+   * (IN_PROGRESS). Bloque DONE/AVAILABLE pour eviter de cloturer 2 fois.
    */
   async markNoShow(missionId: string, reason: string): Promise<void> {
     const supabase = getSupabaseClient()
@@ -92,7 +97,7 @@ export const missionProgressMutations = {
     const existingNotes = current?.notes ?? ''
     const marker = `[No-show ${new Date().toISOString()}: ${reason}]`
     const merged = existingNotes ? `${marker}\n${existingNotes}` : marker
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('missions')
       .update({
         status: 'DONE',
@@ -101,7 +106,11 @@ export const missionProgressMutations = {
         notes: merged,
       })
       .eq('id', missionId)
-      .eq('status', 'IN_PROGRESS')
+      .in('status', ['ACCEPTED', 'IN_PROGRESS'])
+      .select('id')
     if (error) throw new Error(error.message)
+    if (!data || data.length === 0) {
+      throw new Error('Action impossible : la course n\'est pas en cours.')
+    }
   },
 }

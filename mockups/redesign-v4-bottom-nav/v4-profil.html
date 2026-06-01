@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V4 · Profil</title>
+  <style>
+    :root {
+      --ink: #0a0a0a; --ink-soft: #6b6b6b; --ink-muted: #9a9a9a;
+      --bg: #ffffff; --line: #ececec;
+      --brand: #ffd23f; --accent: #1a1a1a; --success: #16a34a;
+      --danger: #dc2626;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px; margin: 40px auto;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink); z-index: 30;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    .scroll { position: absolute; inset: 50px 0 90px 0; overflow: hidden; }
+
+    /* Hero profil — avatar + nom + statut */
+    .hero {
+      padding: 18px 20px 14px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .avatar-big {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .avatar-big .status-dot {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--success); border: 3px solid #fff;
+    }
+    .hero-body { flex: 1; min-width: 0; }
+    .hero-name { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
+    .hero-meta { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+    .hero-edit {
+      width: 38px; height: 38px; border-radius: 12px;
+      background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Stats tiles */
+    .stats-row {
+      display: flex; gap: 10px;
+      padding: 8px 20px 22px;
+    }
+    .stat-tile {
+      flex: 1;
+      padding: 14px 14px;
+      background: #f9f9f9;
+      border-radius: 14px;
+    }
+    .stat-tile .v { font-size: 20px; font-weight: 900; letter-spacing: -0.6px; line-height: 1; }
+    .stat-tile .k {
+      font-size: 10.5px; font-weight: 700; color: var(--ink-soft);
+      letter-spacing: 0.4px; margin-top: 6px; text-transform: uppercase;
+    }
+
+    /* Section */
+    .section-title {
+      padding: 4px 24px 8px;
+      font-size: 11px; font-weight: 800;
+      color: var(--ink-soft); letter-spacing: 1.2px; text-transform: uppercase;
+    }
+    .menu-list {
+      margin: 0 20px 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .menu-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .menu-row:last-child { border-bottom: 0; }
+    .menu-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: #f3f3f3;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .menu-icon svg { width: 17px; height: 17px; }
+    .menu-icon.warn { background: #fef3c7; }
+    .menu-icon.warn svg { stroke: #92400e; }
+    .menu-icon.ok { background: #dcfce7; }
+    .menu-icon.ok svg { stroke: #14532d; }
+    .menu-body { flex: 1; min-width: 0; }
+    .menu-label { font-size: 14.5px; font-weight: 700; }
+    .menu-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+    .menu-right {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--ink-muted);
+    }
+    .menu-right .badge-warn {
+      background: #fef2f2; color: var(--danger);
+      font-size: 10px; font-weight: 800; letter-spacing: 0.3px;
+      padding: 3px 7px; border-radius: 6px;
+    }
+    .menu-right .badge-ok {
+      background: #dcfce7; color: #14532d;
+      font-size: 10px; font-weight: 800; letter-spacing: 0.3px;
+      padding: 3px 7px; border-radius: 6px;
+    }
+
+    /* Switch row */
+    .switch {
+      width: 38px; height: 22px;
+      border-radius: 999px;
+      background: var(--accent);
+      position: relative;
+    }
+    .switch.off { background: #ddd; }
+    .switch::after {
+      content: ""; position: absolute; top: 2px; right: 2px;
+      width: 18px; height: 18px; border-radius: 50%; background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .switch.off::after { right: auto; left: 2px; }
+
+    /* Logout */
+    .logout-card {
+      margin: 12px 20px 24px;
+      padding: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logout-card .text { font-size: 14.5px; font-weight: 800; color: var(--danger); }
+    .logout-card .sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+
+    /* Footer */
+    .footer {
+      padding: 4px 20px 16px;
+      font-size: 11px; color: var(--ink-muted);
+      text-align: center;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 90px; background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-around; align-items: center;
+      padding-bottom: 22px; z-index: 10;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 10.5px; font-weight: 700; color: var(--ink-muted); flex: 1;
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item.active svg { stroke: var(--ink); }
+    .nav-item svg { width: 22px; height: 22px; stroke: var(--ink-muted); }
+    .nav-fab-slot { width: 64px; }
+    .fab-poster {
+      position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 60px; border-radius: 20px;
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 24px rgba(255,210,63,0.5), 0 0 0 4px #fff;
+      z-index: 12;
+    }
+    .fab-poster svg { width: 28px; height: 28px; }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000; z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="scroll">
+      <div class="hero">
+        <div class="avatar-big">
+          YL
+          <div class="status-dot"></div>
+        </div>
+        <div class="hero-body">
+          <div class="hero-name">Yanni Lavezzi</div>
+          <div class="hero-meta">CPAM 13 · membre depuis mars 2025</div>
+        </div>
+        <div class="hero-edit">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M12 20h9M16.5 3.5a2 2 0 113 3L7 19l-4 1 1-4z"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-tile">
+          <div class="v">184 €</div>
+          <div class="k">Aujourd'hui</div>
+        </div>
+        <div class="stat-tile">
+          <div class="v">1 247 €</div>
+          <div class="k">Cette semaine</div>
+        </div>
+        <div class="stat-tile">
+          <div class="v">4,9 ★</div>
+          <div class="k">Note</div>
+        </div>
+      </div>
+
+      <div class="section-title">COMPTE</div>
+      <div class="menu-list">
+        <div class="menu-row">
+          <div class="menu-icon">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M20 14V8a2 2 0 00-2-2H6a2 2 0 00-2 2v6"/><path d="M4 14h16M9 18h6"/></svg>
+          </div>
+          <div class="menu-body">
+            <div class="menu-label">Informations personnelles</div>
+          </div>
+          <div class="menu-right">
+            <svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon warn">
+            <svg fill="none" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          </div>
+          <div class="menu-body">
+            <div class="menu-label">Documents</div>
+            <div class="menu-sub">Carte pro · Assurance · CNI</div>
+          </div>
+          <div class="menu-right">
+            <span class="badge-warn">1 EXPIRE</span>
+            <svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon ok">
+            <svg fill="none" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5 8 12 8 12s8-7 8-12a8 8 0 00-8-8z"/></svg>
+          </div>
+          <div class="menu-body">
+            <div class="menu-label">Départements actifs</div>
+            <div class="menu-sub">Bouches-du-Rhône (13)</div>
+          </div>
+          <div class="menu-right">
+            <svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">APP</div>
+      <div class="menu-list">
+        <div class="menu-row">
+          <div class="menu-icon">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+          </div>
+          <div class="menu-body">
+            <div class="menu-label">Mode sombre</div>
+            <div class="menu-sub">Suivre le système</div>
+          </div>
+          <div class="switch off"></div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>
+          </div>
+          <div class="menu-body">
+            <div class="menu-label">Notifications</div>
+          </div>
+          <div class="switch"></div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-icon">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9h.01M15 9h.01M9 14s1 2 3 2 3-2 3-2"/></svg>
+          </div>
+          <div class="menu-body">
+            <div class="menu-label">Aide & support</div>
+          </div>
+          <div class="menu-right">
+            <svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="logout-card">
+        <div>
+          <div class="text">Se déconnecter</div>
+          <div class="sub">Vous repasserez hors-ligne automatiquement</div>
+        </div>
+        <svg fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24" width="20" height="20">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+      </div>
+
+      <div class="footer">TaxiLink v2.4.1 · © 2026</div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+        Carte
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Courses
+      </div>
+      <div class="nav-fab-slot"></div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><circle cx="17" cy="9" r="3"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6M14 21c0-2.5 2-4.5 5-4.5s5 2 5 4.5"/></svg>
+        Groupes
+      </div>
+      <div class="nav-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+        Profil
+      </div>
+    </div>
+
+    <div class="fab-poster">
+      <svg fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Courses — Redesign mobile-driver-v3</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#0A0A0A',
+          paper: '#FFFFFF',
+          brand: { DEFAULT: '#FFD23F', soft: '#FFF6CC' },
+          warm: {
+            50:  '#FAFAFA',
+            100: '#F4F4F5',
+            200: '#E4E4E7',
+            300: '#D4D4D8',
+            400: '#A1A1AA',
+            500: '#71717A',
+            600: '#52525B',
+            700: '#3F3F46',
+            800: '#27272A',
+          },
+          danger: { DEFAULT: '#DC2626', soft: '#FEE2E2' },
+          cpam:   { DEFAULT: '#991B1B', soft: '#FEE2E2' },
+          prive:  { DEFAULT: '#3F3F46', soft: '#F4F4F5' },
+        },
+        fontFamily: { sans: ['Inter','system-ui','sans-serif'] },
+        boxShadow: {
+          phone:'0 30px 60px -20px rgba(0,0,0,.35), 0 18px 36px -18px rgba(0,0,0,.2)',
+          card:'0 1px 2px rgba(0,0,0,.03), 0 2px 8px rgba(0,0,0,.04)',
+          fab:'0 8px 20px -4px rgba(255,210,63,.5), 0 4px 10px rgba(0,0,0,.1)',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .phone {
+    width: 390px; height: 844px;
+    border-radius: 44px; border: 10px solid #111;
+    overflow: hidden; position: relative;
+    background: #FFFFFF;
+  }
+  .phone .notch {
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:140px; height:28px; background:#111;
+    border-bottom-left-radius:18px; border-bottom-right-radius:18px;
+    z-index:50;
+  }
+  .scroll { overflow-y:auto; height:100%; }
+  .scroll::-webkit-scrollbar{ width:0; height:0 }
+  .timeline-dot   { width:10px; height:10px; border-radius:50%; background:#0A0A0A }
+  .timeline-line  { width:2px; height:14px; background:#E4E4E7; margin:2px 0 }
+  .timeline-ring  { width:12px; height:12px; border-radius:50%; background:#FFD23F; border:2px solid #0A0A0A }
+  .tab-active { background:#0A0A0A; color:#fff; }
+  .tab-inactive { color:#71717A }
+  .chip { display:inline-flex; align-items:center; gap:4px; padding:7px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+  .chip-on  { background:#0A0A0A; color:#fff }
+  .chip-off { background:#fff; color:#3F3F46; border:1px solid #E4E4E7 }
+  .badge-cpam { background:#FEE2E2; color:#991B1B }
+  .badge-prive { background:#F4F4F5; color:#3F3F46 }
+  .label-section { letter-spacing:.08em; font-weight:800; font-size:11px; color:#A1A1AA; text-transform:uppercase }
+
+  /* DateStrip cells — style capture (grandes cellules carrées) */
+  .day-cell {
+    width:64px; height:80px; flex-shrink:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-radius:20px; background:#fff; border:1px solid #E4E4E7;
+    gap:4px;
+  }
+  .day-cell.today { background:#0A0A0A; border-color:#0A0A0A; color:#fff }
+  .day-cell .lab { font-size:11px; font-weight:700; letter-spacing:.05em; color:#A1A1AA; text-transform:uppercase }
+  .day-cell.today .lab { color:#A1A1AA }
+  .day-cell .num { font-size:22px; font-weight:900; letter-spacing:-.02em; color:#0A0A0A }
+  .day-cell.today .num { color:#fff }
+
+  /* progression 4 étapes */
+  .prog-step { flex:1; height:4px; border-radius:2px; background:#E4E4E7 }
+  .prog-step.done { background:#FFD23F }
+  .prog-label { flex:1; text-align:center; font-size:10.5px; font-weight:800; letter-spacing:.04em; color:#A1A1AA; text-transform:uppercase }
+  .prog-label.active { color:#0A0A0A }
+</style>
+</head>
+
+<body class="bg-white text-ink">
+
+<header class="px-8 pt-10 pb-6 text-center">
+  <h1 class="text-3xl font-black tracking-tight">Page <span class="text-warm-500">Courses</span> — redesign mobile-driver-v3</h1>
+  <p class="mt-2 text-warm-500 text-sm">3 onglets · fond blanc · carte Prochaine course avec progression · BottomNav + FAB</p>
+</header>
+
+<main class="flex flex-wrap gap-10 justify-center pb-20 px-6">
+
+  <!-- ====================================================== -->
+  <!-- ÉCRAN 1 — DISPONIBLES                                  -->
+  <!-- ====================================================== -->
+  <section>
+    <h2 class="text-center mb-4 font-extrabold text-lg">1 · Disponibles <span class="text-warm-500">(marketplace)</span></h2>
+    <div class="phone shadow-phone">
+      <div class="notch"></div>
+      <div class="scroll bg-white">
+
+        <!-- status bar simulée -->
+        <div class="pt-9 px-6 pb-2 flex justify-between text-[12px] font-semibold text-ink">
+          <span>15:42</span><span>● ● ●</span>
+        </div>
+
+        <!-- header -->
+        <div class="px-5 pt-2 pb-1 flex items-start justify-between">
+          <div>
+            <h1 class="text-[32px] font-black tracking-tight leading-tight">Disponibles</h1>
+            <p class="text-[14px] text-warm-500 font-medium mt-0.5">Marketplace · Marseille</p>
+          </div>
+          <button class="relative w-12 h-12 rounded-2xl bg-white border border-warm-200 flex items-center justify-center shadow-card">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/></svg>
+            <span class="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-extrabold flex items-center justify-center rounded-full">2</span>
+          </button>
+        </div>
+
+        <!-- segmented tabs -->
+        <div class="px-5 mt-4">
+          <div class="bg-warm-100 p-1 rounded-2xl flex gap-1">
+            <button class="flex-1 py-2.5 rounded-xl text-[13px] font-bold tab-active flex items-center justify-center gap-1.5">
+              Dispo <span class="bg-white/20 px-1.5 rounded-full text-[11px]">12</span>
+            </button>
+            <button class="flex-1 py-2.5 rounded-xl text-[13px] font-bold tab-inactive">Mes <span class="opacity-60">7</span></button>
+            <button class="flex-1 py-2.5 rounded-xl text-[13px] font-bold tab-inactive">Annonces <span class="opacity-60">5</span></button>
+          </div>
+        </div>
+
+        <!-- chips filtres -->
+        <div class="px-5 mt-4 flex flex-wrap gap-1.5">
+          <button class="chip chip-on">Tous · 24</button>
+          <button class="chip chip-off">CPAM · 8</button>
+          <button class="chip chip-off">Privé · 4</button>
+          <button class="chip chip-off">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3"><path d="M13 2L3 14h7v8l10-12h-7V2z"/></svg>
+            Urgent
+          </button>
+          <button class="chip chip-off">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3 h-3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            &lt; 5 km
+          </button>
+          <button class="chip chip-off">Aujourd'hui ▾</button>
+        </div>
+
+        <!-- ratio + tri -->
+        <div class="px-5 mt-3 flex items-center justify-between border-b border-warm-200 pb-2">
+          <span class="text-[12px] text-warm-500 font-semibold tabular-nums"><span class="text-ink font-extrabold">12</span> / 24 résultats</span>
+          <button class="text-[12px] text-ink font-bold flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+            Trier
+          </button>
+        </div>
+
+        <!-- cartes -->
+        <div class="px-4 pt-3 space-y-2.5">
+          <article class="bg-white rounded-2xl p-3.5 border border-warm-200 shadow-card">
+            <div class="flex gap-2.5">
+              <div class="flex-1 min-w-0">
+                <div class="grid gap-x-3 items-center" style="grid-template-columns:14px 1fr">
+                  <span class="timeline-dot justify-self-center"></span>
+                  <p class="text-[14px] font-semibold leading-tight truncate">Marseille, Bd de la Libération</p>
+                  <span class="timeline-line justify-self-center"></span>
+                  <span></span>
+                  <span class="timeline-ring justify-self-center"></span>
+                  <p class="text-[14px] font-medium text-warm-500 leading-tight truncate">Aix-en-Provence, Gare</p>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 pl-[26px]">
+                  <span class="badge-cpam shrink-0 px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider">CPAM</span>
+                  <span class="text-[11px] font-bold text-warm-500">· Dans 1 h 12 · A/R</span>
+                </div>
+              </div>
+              <div class="text-right shrink-0 flex flex-col items-end gap-0.5">
+                <div class="text-[17px] font-black tabular-nums leading-tight">14,50 €</div>
+                <div class="inline-flex items-center gap-1 text-[11px] text-warm-500 font-semibold tabular-nums">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-3 h-3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  2.3 km
+                </div>
+                <div class="inline-flex items-center gap-1 text-[11px] text-ink font-semibold tabular-nums">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-3 h-3"><path d="M9 19l-6-6 6-6m6 0l6 6-6 6"/></svg>
+                  38 km
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-2xl p-3.5 border border-warm-200 shadow-card">
+            <div class="flex gap-2.5">
+              <div class="flex-1 min-w-0">
+                <div class="grid gap-x-3 items-center" style="grid-template-columns:14px 1fr">
+                  <span class="timeline-dot justify-self-center"></span>
+                  <p class="text-[14px] font-semibold leading-tight truncate">La Ciotat, Plage</p>
+                  <span class="timeline-line justify-self-center"></span>
+                  <span></span>
+                  <span class="timeline-ring justify-self-center"></span>
+                  <p class="text-[14px] font-medium text-warm-500 leading-tight truncate">Hôpital Nord</p>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 pl-[26px]">
+                  <span class="badge-prive shrink-0 px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider">PRIVÉ</span>
+                  <span class="text-[11px] font-bold text-danger">· Dans 8 min</span>
+                  <span class="inline-flex items-center gap-0.5 text-[10.5px] font-extrabold text-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="w-3 h-3"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    URGENT
+                  </span>
+                </div>
+              </div>
+              <div class="text-right shrink-0 flex flex-col items-end gap-0.5">
+                <div class="text-[17px] font-black tabular-nums leading-tight">42,00 €</div>
+                <div class="inline-flex items-center gap-1 text-[11px] text-warm-500 font-semibold tabular-nums">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-3 h-3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  1.1 km
+                </div>
+                <div class="inline-flex items-center gap-1 text-[11px] text-ink font-semibold tabular-nums">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-3 h-3"><path d="M9 19l-6-6 6-6m6 0l6 6-6 6"/></svg>
+                  22 km
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-2xl p-3.5 border border-warm-200 shadow-card">
+            <div class="flex gap-2.5">
+              <div class="flex-1 min-w-0">
+                <div class="grid gap-x-3 items-center" style="grid-template-columns:14px 1fr">
+                  <span class="timeline-dot justify-self-center"></span>
+                  <p class="text-[14px] font-semibold leading-tight truncate">Aubagne, Centre-ville</p>
+                  <span class="timeline-line justify-self-center"></span>
+                  <span></span>
+                  <span class="timeline-ring justify-self-center"></span>
+                  <p class="text-[14px] font-medium text-warm-500 leading-tight truncate">CHU Timone</p>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 pl-[26px]">
+                  <span class="badge-cpam shrink-0 px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider">CPAM</span>
+                  <span class="text-[11px] font-bold text-warm-500">· Maintenant</span>
+                </div>
+              </div>
+              <div class="text-right shrink-0 flex flex-col items-end gap-0.5">
+                <div class="text-[17px] font-black tabular-nums leading-tight">65,00 €</div>
+                <div class="inline-flex items-center gap-1 text-[11px] text-ink font-semibold tabular-nums">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-3 h-3"><path d="M9 19l-6-6 6-6m6 0l6 6-6 6"/></svg>
+                  18 km
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-2xl p-3.5 border border-warm-200 shadow-card">
+            <div class="flex gap-2.5">
+              <div class="flex-1 min-w-0">
+                <div class="grid gap-x-3 items-center" style="grid-template-columns:14px 1fr">
+                  <span class="timeline-dot justify-self-center"></span>
+                  <p class="text-[14px] font-semibold leading-tight truncate">Marseille 8e, Av. du Prado</p>
+                  <span class="timeline-line justify-self-center"></span>
+                  <span></span>
+                  <span class="timeline-ring justify-self-center"></span>
+                  <p class="text-[14px] font-medium text-warm-500 leading-tight truncate">Aéroport Marseille-Provence</p>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 pl-[26px]">
+                  <span class="badge-prive shrink-0 px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider">PRIVÉ</span>
+                  <span class="text-[11px] font-bold text-warm-500">· Demain 06:15</span>
+                </div>
+              </div>
+              <div class="text-right shrink-0 flex flex-col items-end gap-0.5">
+                <div class="text-[17px] font-black tabular-nums leading-tight">52,00 €</div>
+                <div class="inline-flex items-center gap-1 text-[11px] text-ink font-semibold tabular-nums">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-3 h-3"><path d="M9 19l-6-6 6-6m6 0l6 6-6 6"/></svg>
+                  28 km
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="h-32"></div>
+        </div>
+
+        <!-- BottomNav style capture -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-warm-200 px-6 pt-3 pb-5">
+          <div class="flex items-end justify-between">
+            <button class="flex flex-col items-center gap-1 text-warm-500 w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+              <span class="text-[11px] font-semibold">Carte</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-ink w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FFD23F" stroke-width="2.5" class="w-6 h-6"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <span class="text-[11px] font-extrabold">Courses</span>
+            </button>
+            <button class="bg-brand w-14 h-14 rounded-2xl flex items-center justify-center shadow-fab -translate-y-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round" class="w-7 h-7"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-warm-500 w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+              <span class="text-[11px] font-semibold">Groupes</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-warm-500 w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="text-[11px] font-semibold">Profil</span>
+            </button>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================== -->
+  <!-- ÉCRAN 2 — MES COURSES (style capture)                  -->
+  <!-- ====================================================== -->
+  <section>
+    <h2 class="text-center mb-4 font-extrabold text-lg">2 · Mes courses <span class="text-warm-500">(carte Prochaine course)</span></h2>
+    <div class="phone shadow-phone">
+      <div class="notch"></div>
+      <div class="scroll bg-white">
+
+        <div class="pt-9 px-6 pb-2 flex justify-between text-[12px] font-semibold text-ink">
+          <span>15:42</span><span>● ● ●</span>
+        </div>
+
+        <!-- header style capture -->
+        <div class="px-5 pt-2 pb-1 flex items-start justify-between">
+          <div>
+            <h1 class="text-[32px] font-black tracking-tight leading-tight">Mes courses</h1>
+            <p class="text-[14px] text-warm-500 font-medium mt-0.5">Dimanche 24 mai</p>
+          </div>
+          <button class="relative w-12 h-12 rounded-2xl bg-white border border-warm-200 flex items-center justify-center shadow-card">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/></svg>
+            <span class="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-extrabold flex items-center justify-center rounded-full">2</span>
+          </button>
+        </div>
+
+        <!-- segmented tabs -->
+        <div class="px-5 mt-4">
+          <div class="bg-warm-100 p-1 rounded-2xl flex gap-1">
+            <button class="flex-1 py-2.5 rounded-xl text-[13px] font-bold tab-inactive">Dispo <span class="opacity-60">12</span></button>
+            <button class="flex-1 py-2.5 rounded-xl text-[13px] font-bold tab-active flex items-center justify-center gap-1.5">
+              Mes <span class="bg-white/20 px-1.5 rounded-full text-[11px]">7</span>
+            </button>
+            <button class="flex-1 py-2.5 rounded-xl text-[13px] font-bold tab-inactive">Annonces <span class="opacity-60">5</span></button>
+          </div>
+        </div>
+
+        <!-- EN COURS label -->
+        <div class="px-5 mt-5">
+          <span class="label-section">En cours</span>
+        </div>
+
+        <!-- Carte Prochaine course (style capture) -->
+        <div class="px-4 mt-2">
+          <article class="bg-white rounded-2xl border border-warm-200 shadow-card p-5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-brand rounded-full"></span>
+                <span class="text-[14px] font-bold text-ink">Prochaine course</span>
+              </div>
+              <span class="badge-prive px-2.5 py-1 rounded-full text-[11px] font-extrabold tracking-wider">PRIVÉ</span>
+            </div>
+
+            <div class="mt-4 flex items-end justify-between">
+              <div>
+                <span class="text-[22px] font-black tracking-tight">Dans 3j 18h</span>
+                <span class="text-[18px] font-bold text-warm-400"> · 10:00</span>
+              </div>
+              <div class="text-[22px] font-black tabular-nums">16 €</div>
+            </div>
+
+            <p class="mt-2 text-[15px] font-bold leading-snug">
+              Collège Alexandre DUMAS
+              <span class="text-warm-400 font-normal mx-1">→</span>
+              Stade Vélodrome
+            </p>
+            <p class="text-[12.5px] text-warm-500 font-medium mt-0.5">· 11.5 km · 16 min</p>
+
+            <!-- progression bar -->
+            <div class="mt-5">
+              <div class="flex gap-1.5">
+                <div class="prog-step done"></div>
+                <div class="prog-step"></div>
+                <div class="prog-step"></div>
+                <div class="prog-step"></div>
+              </div>
+              <div class="flex mt-2 gap-1.5">
+                <div class="prog-label active">Acceptée</div>
+                <div class="prog-label">En route</div>
+                <div class="prog-label">À bord</div>
+                <div class="prog-label">Déposé</div>
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="mt-5 flex gap-2">
+              <button class="flex-1 bg-ink text-white rounded-2xl py-3.5 text-[14px] font-extrabold flex items-center justify-center gap-2">
+                Je pars chercher le patient
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="w-4 h-4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </button>
+              <button class="w-12 h-12 self-center rounded-2xl border border-warm-200 flex items-center justify-center bg-white">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0A0A0A" class="w-5 h-5"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <!-- CHANGER DE JOUR -->
+        <div class="px-5 mt-6">
+          <span class="label-section">Changer de jour</span>
+        </div>
+        <div class="pl-4 mt-2 flex gap-2 overflow-x-auto pb-1 pr-4">
+          <div class="day-cell"><span class="lab">Ven</span><span class="num">22</span></div>
+          <div class="day-cell"><span class="lab">Sam</span><span class="num">23</span></div>
+          <div class="day-cell today"><span class="lab">Dim</span><span class="num">24</span></div>
+          <div class="day-cell"><span class="lab">Lun</span><span class="num">25</span></div>
+          <div class="day-cell"><span class="lab">Mar</span><span class="num">26</span></div>
+          <div class="day-cell"><span class="lab">Mer</span><span class="num">27</span></div>
+          <div class="day-cell"><span class="lab">Jeu</span><span class="num">28</span></div>
+        </div>
+
+        <!-- Liste courses du jour -->
+        <div class="px-5 mt-5 flex items-center justify-between">
+          <span class="label-section">Dimanche · 3 courses</span>
+          <span class="text-[13px] font-extrabold tabular-nums">145 €</span>
+        </div>
+        <div class="px-4 mt-2 mb-32">
+          <div class="bg-white rounded-2xl border border-warm-200 shadow-card divide-y divide-warm-100">
+            <div class="p-3.5 flex gap-3 items-center">
+              <div class="text-[13px] font-extrabold tabular-nums text-ink w-12">10:00</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-semibold truncate">Collège A. Dumas → Vélodrome</p>
+                <p class="text-[11.5px] text-warm-500 font-medium">M. Sebti · 11.5 km</p>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="text-[15px] font-black tabular-nums">16 €</div>
+                <span class="badge-prive px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider mt-0.5 inline-block">PRIVÉ</span>
+              </div>
+            </div>
+            <div class="p-3.5 flex gap-3 items-center">
+              <div class="text-[13px] font-extrabold tabular-nums text-ink w-12">14:30</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-semibold truncate">Aubagne → Cabinet Dr K.</p>
+                <p class="text-[11.5px] text-warm-500 font-medium">Mme Petit · 12 km</p>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="text-[15px] font-black tabular-nums">42 €</div>
+                <span class="badge-cpam px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider mt-0.5 inline-block">CPAM</span>
+              </div>
+            </div>
+            <div class="p-3.5 flex gap-3 items-center">
+              <div class="text-[13px] font-extrabold tabular-nums text-ink w-12">17:45</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-semibold truncate">Carry-le-Rouet → Hôp. Nord</p>
+                <p class="text-[11.5px] text-warm-500 font-medium">Mme Léon · 35 km · A/R</p>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="text-[15px] font-black tabular-nums">87 €</div>
+                <span class="badge-cpam px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider mt-0.5 inline-block">CPAM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BottomNav -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-warm-200 px-6 pt-3 pb-5">
+          <div class="flex items-end justify-between">
+            <button class="flex flex-col items-center gap-1 text-warm-500 w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+              <span class="text-[11px] font-semibold">Carte</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-ink w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FFD23F" stroke-width="2.5" class="w-6 h-6"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <span class="text-[11px] font-extrabold">Courses</span>
+            </button>
+            <button class="bg-brand w-14 h-14 rounded-2xl flex items-center justify-center shadow-fab -translate-y-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round" class="w-7 h-7"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-warm-500 w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+              <span class="text-[11px] font-semibold">Groupes</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-warm-500 w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="text-[11px] font-semibold">Profil</span>
+            </button>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================== -->
+  <!-- ÉCRAN 3 — ANNONCES                                     -->
+  <!-- ====================================================== -->
+  <section>
+    <h2 class="text-center mb-4 font-extrabold text-lg">3 · Annonces <span class="text-warm-500">(Actives / Transf. / Exp.)</span></h2>
+    <div class="phone shadow-phone">
+      <div class="notch"></div>
+      <div class="scroll bg-white">
+
+        <div class="pt-9 px-6 pb-2 flex justify-between text-[12px] font-semibold text-ink">
+          <span>15:42</span><span>● ● ●</span>
+        </div>
+
+        <div class="px-5 pt-2 pb-1 flex items-start justify-between">
+          <div>
+            <h1 class="text-[32px] font-black tracking-tight leading-tight">Annonces</h1>
+            <p class="text-[14px] text-warm-500 font-medium mt-0.5">Mes annonces postées</p>
+          </div>
+          <button class="relative w-12 h-12 rounded-2xl bg-white border border-warm-200 flex items-center justify-center shadow-card">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/></svg>
+            <span class="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-extrabold flex items-center justify-center rounded-full">2</span>
+          </button>
+        </div>
+
+        <div class="px-5 mt-4">
+          <div class="bg-warm-100 p-1 rounded-2xl flex gap-1">
+            <button class="flex-1 py-2.5 rounded-xl text-[13px] font-bold tab-inactive">Dispo <span class="opacity-60">12</span></button>
+            <button class="flex-1 py-2.5 rounded-xl text-[13px] font-bold tab-inactive">Mes <span class="opacity-60">7</span></button>
+            <button class="flex-1 py-2.5 rounded-xl text-[13px] font-bold tab-active flex items-center justify-center gap-1.5">
+              Annonces <span class="bg-white/20 px-1.5 rounded-full text-[11px]">5</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- sous-onglets -->
+        <div class="px-5 mt-4 flex gap-2 text-[13px] font-bold overflow-x-auto pb-1">
+          <button class="px-3 py-1.5 rounded-full bg-ink text-white shrink-0">Actives (3)</button>
+          <button class="px-3 py-1.5 rounded-full bg-white border border-warm-200 text-warm-500 shrink-0">Transférées (1)</button>
+          <button class="px-3 py-1.5 rounded-full bg-white border border-warm-200 text-warm-500 shrink-0">Expirées (1)</button>
+        </div>
+
+        <!-- banner stuck -->
+        <div class="px-5 mt-3">
+          <div class="bg-danger-soft border border-danger/20 rounded-xl p-3 flex gap-2.5 items-start">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#991B1B" stroke-width="2.4" class="w-5 h-5 mt-0.5 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+              <p class="text-[12.5px] font-extrabold text-cpam">2 annonces sans preneur depuis &gt; 2 h</p>
+              <p class="text-[11.5px] text-cpam/80 leading-snug mt-0.5">Augmente le tarif ou élargis le partage de groupe.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- filtre jour -->
+        <div class="px-5 mt-3 flex gap-1.5 overflow-x-auto pb-1">
+          <button class="chip chip-on shrink-0">Tous</button>
+          <button class="chip chip-off shrink-0">Dim 24</button>
+          <button class="chip chip-off shrink-0">Lun 25</button>
+          <button class="chip chip-off shrink-0">Mar 26</button>
+        </div>
+
+        <!-- cartes annonces -->
+        <div class="px-4 pt-3 space-y-2.5 mb-32">
+
+          <article class="bg-white rounded-2xl border border-warm-200 shadow-card overflow-hidden">
+            <div class="px-3.5 pt-3 pb-2 flex items-center gap-2">
+              <span class="badge-cpam px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider">CPAM</span>
+              <span class="text-[11px] text-warm-500 font-semibold">postée il y a 35 min</span>
+            </div>
+            <div class="px-3.5 pb-2">
+              <div class="grid gap-x-3 items-center" style="grid-template-columns:14px 1fr">
+                <span class="timeline-dot justify-self-center"></span>
+                <p class="text-[14px] font-semibold truncate">Marseille, Bd Libération</p>
+                <span class="timeline-line justify-self-center"></span>
+                <span></span>
+                <span class="timeline-ring justify-self-center"></span>
+                <p class="text-[14px] font-medium text-warm-500 truncate">Aix-en-Provence, Gare</p>
+              </div>
+              <div class="flex items-center gap-2 mt-2 pl-[26px] text-[11.5px] text-warm-500 font-medium">
+                <span>Auj. 16:30</span><span>·</span><span>38 km</span><span>·</span><span class="font-extrabold text-ink">65 €</span>
+              </div>
+            </div>
+            <div class="px-3.5 py-2 border-t border-warm-100 flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="w-3 h-3"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                EN ATTENTE
+              </span>
+              <div class="flex gap-1.5">
+                <button class="px-3 py-1.5 rounded-lg border border-warm-200 text-[12px] font-bold">Modifier</button>
+                <button class="px-3 py-1.5 rounded-lg bg-danger-soft text-cpam text-[12px] font-bold">Annuler</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-2xl border border-warm-200 shadow-card overflow-hidden">
+            <div class="px-3.5 pt-3 pb-2 flex items-center gap-2">
+              <span class="badge-prive px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider">PRIVÉ</span>
+              <span class="inline-flex items-center gap-0.5 text-[10px] font-extrabold text-danger uppercase">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3"><path d="M13 2L3 14h7v8l10-12h-7V2z"/></svg>
+                Urgent
+              </span>
+              <span class="text-[11px] text-warm-500 font-semibold ml-auto">postée 6 min</span>
+            </div>
+            <div class="px-3.5 pb-2">
+              <div class="grid gap-x-3 items-center" style="grid-template-columns:14px 1fr">
+                <span class="timeline-dot justify-self-center"></span>
+                <p class="text-[14px] font-semibold truncate">La Ciotat, Plage</p>
+                <span class="timeline-line justify-self-center"></span>
+                <span></span>
+                <span class="timeline-ring justify-self-center"></span>
+                <p class="text-[14px] font-medium text-warm-500 truncate">CHU Nord</p>
+              </div>
+              <div class="flex items-center gap-2 mt-2 pl-[26px] text-[11.5px] text-warm-500 font-medium">
+                <span>Auj. 14:45</span><span>·</span><span>22 km</span><span>·</span><span class="font-extrabold text-ink">42 €</span>
+              </div>
+            </div>
+            <div class="px-3.5 py-2 border-t border-warm-100 flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-danger">
+                <span class="w-2 h-2 bg-danger rounded-full"></span>
+                AUCUN PRENEUR · 2h 30
+              </span>
+              <div class="flex gap-1.5">
+                <button class="px-3 py-1.5 rounded-lg border border-warm-200 text-[12px] font-bold">Modifier</button>
+                <button class="px-3 py-1.5 rounded-lg bg-danger-soft text-cpam text-[12px] font-bold">Annuler</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-2xl border border-warm-200 shadow-card overflow-hidden">
+            <div class="px-3.5 pt-3 pb-2 flex items-center gap-2">
+              <span class="badge-cpam px-1.5 py-[2px] rounded text-[10px] font-extrabold tracking-wider">CPAM</span>
+              <span class="text-[11px] text-warm-500 font-semibold">postée hier</span>
+            </div>
+            <div class="px-3.5 pb-2">
+              <div class="grid gap-x-3 items-center" style="grid-template-columns:14px 1fr">
+                <span class="timeline-dot justify-self-center"></span>
+                <p class="text-[14px] font-semibold truncate">Aubagne, Centre</p>
+                <span class="timeline-line justify-self-center"></span>
+                <span></span>
+                <span class="timeline-ring justify-self-center"></span>
+                <p class="text-[14px] font-medium text-warm-500 truncate">Hôpital Nord</p>
+              </div>
+              <div class="flex items-center gap-2 mt-2 pl-[26px] text-[11.5px] text-warm-500 font-medium">
+                <span>Demain 09:00</span><span>·</span><span>18 km</span><span>·</span><span class="font-extrabold text-ink">48 €</span>
+              </div>
+            </div>
+            <div class="px-3.5 py-2 border-t border-warm-100 flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="w-3 h-3"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                EN ATTENTE
+              </span>
+              <div class="flex gap-1.5">
+                <button class="px-3 py-1.5 rounded-lg border border-warm-200 text-[12px] font-bold">Modifier</button>
+                <button class="px-3 py-1.5 rounded-lg bg-danger-soft text-cpam text-[12px] font-bold">Annuler</button>
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-warm-200 px-6 pt-3 pb-5">
+          <div class="flex items-end justify-between">
+            <button class="flex flex-col items-center gap-1 text-warm-500 w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+              <span class="text-[11px] font-semibold">Carte</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-ink w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FFD23F" stroke-width="2.5" class="w-6 h-6"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <span class="text-[11px] font-extrabold">Courses</span>
+            </button>
+            <button class="bg-brand w-14 h-14 rounded-2xl flex items-center justify-center shadow-fab -translate-y-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round" class="w-7 h-7"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-warm-500 w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+              <span class="text-[11px] font-semibold">Groupes</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-warm-500 w-14">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="text-[11px] font-semibold">Profil</span>
+            </button>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="text-center pb-10 text-warm-500 text-xs">
+  Maquette statique — fond blanc · police Inter · 3 onglets segmentés · BottomNav 4 + FAB jaune.<br/>
+  Carte « Prochaine course » sur l'onglet 2 avec progression Acceptée → En route → À bord → Déposé.
+</footer>
+
+</body>
+</html>

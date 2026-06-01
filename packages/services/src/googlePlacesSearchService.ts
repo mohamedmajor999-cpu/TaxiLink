@@ -2,6 +2,7 @@
 
 import { createPersistedLru } from './lib/persistedLru'
 import { detectCityProximity } from '@taxilink/core'
+import { getGoogleProxyClient } from './lib/googleProxy'
 
 const ENDPOINT = 'https://places.googleapis.com/v1/places:autocomplete'
 const TTL_MS = 30 * 24 * 60 * 60 * 1000
@@ -86,55 +87,70 @@ export async function searchGoogle(
 ): Promise<AddressSuggestion[]> {
   const trimmed = query.trim()
   if (trimmed.length < 3) return []
+  // On accepte soit une clé locale (web), soit un proxy serveur branché (mobile).
   const key = getKey()
-  if (!key) return []
+  const proxy = getGoogleProxyClient()
+  if (!key && !proxy) return []
 
   const bias = proximity ?? detectCityProximity(trimmed)
   const cKey = cacheKey(trimmed, bias)
   const cached = cache.get(cKey)
   if (cached) return cached
 
-  const body: Record<string, unknown> = {
-    input: trimmed,
-    languageCode: 'fr',
-    regionCode: 'fr',
-  }
-  if (bias) {
-    body.locationBias = {
-      circle: { center: { latitude: bias.lat, longitude: bias.lng }, radius: 50000 },
+  // Si un proxy est branché (mobile via Edge Function `google-cache`), on
+  // route via lui — le proxy se charge du cache partagé serveur + appel Google
+  // avec la clé secrète. Sinon fallback fetch direct (web ou tests).
+  let json: { suggestions?: RawSuggestion[] }
+  if (proxy) {
+    try {
+      json = (await proxy('places_autocomplete', { query: trimmed, bias }, signal)) as { suggestions?: RawSuggestion[] }
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') throw err
+      throw new Error(`Erreur proxy Google (${(err as Error).message})`)
     }
-  }
-  if (sessionToken) body.sessionToken = sessionToken
+  } else {
+    if (!key) return []
+    const body: Record<string, unknown> = {
+      input: trimmed,
+      languageCode: 'fr',
+      regionCode: 'fr',
+    }
+    if (bias) {
+      body.locationBias = {
+        circle: { center: { latitude: bias.lat, longitude: bias.lng }, radius: 50000 },
+      }
+    }
+    if (sessionToken) body.sessionToken = sessionToken
 
-  let res: Response
-  try {
-    res = await fetch(ENDPOINT, {
-      method: 'POST',
-      signal,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': key,
-        'X-Goog-FieldMask':
-          'suggestions.placePrediction.placeId,suggestions.placePrediction.text,suggestions.placePrediction.structuredFormat',
-      },
-      body: JSON.stringify(body),
-    })
-  } catch (err) {
-    if ((err as Error).name === 'AbortError') throw err
-    return []
+    let res: Response
+    try {
+      res = await fetch(ENDPOINT, {
+        method: 'POST',
+        signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': key,
+          'X-Goog-FieldMask':
+            'suggestions.placePrediction.placeId,suggestions.placePrediction.text,suggestions.placePrediction.structuredFormat',
+        },
+        body: JSON.stringify(body),
+      })
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') throw err
+      return []
+    }
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '')
+      console.warn(`[searchGoogle] ${res.status} ${res.statusText}`, errBody.slice(0, 500))
+      const msg = res.status === 403
+        ? 'Clé Google refusée (domaine ou API non autorisés).'
+        : res.status === 429
+          ? 'Quota Google dépassé.'
+          : `Erreur Google (${res.status}).`
+      throw new Error(msg)
+    }
+    json = (await res.json()) as { suggestions?: RawSuggestion[] }
   }
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => '')
-    console.warn(`[searchGoogle] ${res.status} ${res.statusText}`, errBody.slice(0, 500))
-    const msg = res.status === 403
-      ? 'Clé Google refusée (domaine ou API non autorisés).'
-      : res.status === 429
-        ? 'Quota Google dépassé.'
-        : `Erreur Google (${res.status}).`
-    throw new Error(msg)
-  }
-
-  const json = (await res.json()) as { suggestions?: RawSuggestion[] }
   const items = json.suggestions ?? []
   const total = items.length
   const out: AddressSuggestion[] = []

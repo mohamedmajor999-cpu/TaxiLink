@@ -5,6 +5,7 @@ import { rateLimit } from '@/lib/rateLimiter'
 import { replaceMissionGroups } from '@/services/missionGroupsService'
 import { extractDepartement } from '@/lib/departement'
 import { triggerDispatchMission } from '@/lib/dispatchTrigger'
+import { triggerPushNotifyNewMission } from '@/lib/pushNotifyTrigger'
 import { createLogger } from '@/lib/logger'
 
 const log = createLogger('POST /api/missions')
@@ -68,6 +69,12 @@ export async function POST(req: NextRequest) {
       notes: body.notes?.trim() || null,
       scheduled_at: body.scheduled_at ?? new Date().toISOString(),
       visibility,
+      // V7 partage cible : non-null = annonce restreinte a ces user_ids.
+      // Tableau vide → null pour rester coherent avec "annonce ouverte".
+      target_user_ids:
+        body.target_user_ids && body.target_user_ids.length > 0
+          ? body.target_user_ids
+          : null,
     }).select().single()
 
     if (insertError || !data) {
@@ -87,6 +94,10 @@ export async function POST(req: NextRequest) {
     // Cascade dispatch (Phase 2) : fire-and-forget, ne bloque pas la r\u00e9ponse.
     // L'Edge Function tourne ensuite c\u00f4t\u00e9 Supabase pendant ~100s max.
     triggerDispatchMission(data.id, data.scheduled_at)
+
+    // Push notif "nouvelle course" \u00e0 tous les chauffeurs du d\u00e9partement
+    // (Expo -> FCM Android / APNs iOS). Marche m\u00eame app ferm\u00e9e. Fire-and-forget.
+    triggerPushNotifyNewMission(data.id)
 
     return NextResponse.json({ mission: { ...data, group_ids: groupIds } }, { status: 201 })
 

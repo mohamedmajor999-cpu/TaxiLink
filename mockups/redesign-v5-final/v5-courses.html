@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V5 · Mes courses</title>
+  <style>
+    :root {
+      --ink: #0a0a0a; --ink-soft: #6b6b6b; --ink-muted: #9a9a9a;
+      --bg: #ffffff; --line: #ececec;
+      --brand: #ffd23f; --accent: #1a1a1a; --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px; margin: 40px auto;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink); z-index: 30;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    .scroll { position: absolute; inset: 50px 0 90px 0; overflow: hidden; }
+
+    /* Header : titre + icône annonces (avec badge) */
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px 4px;
+    }
+    .topbar h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.8px; }
+    .ic-ads {
+      position: relative;
+      width: 42px; height: 42px; border-radius: 12px;
+      background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ic-ads .badge {
+      position: absolute; top: -4px; right: -4px;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      border-radius: 9px; background: #dc2626;
+      color: #fff; font-size: 10px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    .sub-date {
+      padding: 0 20px 14px;
+      font-size: 13px; color: var(--ink-soft);
+    }
+
+    /* Hero "EN COURS" */
+    .hero-section {
+      padding: 0 16px 16px;
+    }
+    .section-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 10.5px; font-weight: 800; color: var(--ink-soft);
+      letter-spacing: 1.2px;
+      margin: 0 4px 8px;
+    }
+    .section-label .live {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--success);
+    }
+    .section-label .live .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--success);
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.18);
+    }
+    .hero-card {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 22px;
+      padding: 18px;
+      position: relative; overflow: hidden;
+    }
+    .hero-card::after {
+      content: ""; position: absolute;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: rgba(255,210,63,0.08);
+      right: -50px; top: -50px;
+    }
+    .hero-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,210,63,0.15); color: var(--brand);
+      font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+      padding: 3px 8px; border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .hero-trip {
+      display: flex; gap: 12px; align-items: flex-start;
+      margin-bottom: 14px; position: relative; z-index: 1;
+    }
+    .trip-dots { display: flex; flex-direction: column; align-items: center; padding-top: 6px; }
+    .trip-dots .a, .trip-dots .b { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); }
+    .trip-dots .b { background: var(--accent); border: 2.5px solid var(--brand); }
+    .trip-dots .line { width: 2px; flex: 1; min-height: 22px; background: rgba(255,210,63,0.35); margin: 3px 0; }
+    .trip-text .l1 { font-size: 15px; font-weight: 800; letter-spacing: -0.2px; }
+    .trip-text .l2 { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+    .trip-text .row1 { margin-bottom: 16px; }
+    .hero-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      position: relative; z-index: 1;
+    }
+    .hero-meta { display: flex; gap: 18px; }
+    .hero-meta .v { font-size: 14px; font-weight: 800; }
+    .hero-meta .k { font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 700; letter-spacing: 0.3px; margin-top: 2px; }
+    .hero-cta {
+      background: var(--brand); color: var(--ink);
+      border: 0; padding: 11px 18px; border-radius: 999px;
+      font-size: 13px; font-weight: 800; letter-spacing: -0.2px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Date strip swipeable */
+    .day-strip-wrap {
+      padding: 14px 0 4px;
+      background: var(--bg);
+    }
+    .day-strip-label {
+      padding: 0 20px 8px;
+      font-size: 10.5px; font-weight: 800;
+      color: var(--ink-soft); letter-spacing: 1.2px;
+    }
+    .day-strip {
+      display: flex; gap: 6px;
+      padding: 0 20px 14px;
+      overflow-x: auto;
+    }
+    .day-strip::-webkit-scrollbar { display: none; }
+    .day-chip {
+      flex: 0 0 54px;
+      height: 66px;
+      border-radius: 14px;
+      background: #f5f5f5;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; position: relative;
+    }
+    .day-chip .dow {
+      font-size: 10px; font-weight: 800; color: var(--ink-soft); letter-spacing: 0.4px;
+    }
+    .day-chip .d { font-size: 18px; font-weight: 900; letter-spacing: -0.3px; }
+    .day-chip .dot {
+      position: absolute; bottom: 8px;
+      width: 4px; height: 4px; border-radius: 50%; background: var(--ink-muted);
+    }
+    .day-chip.active { background: var(--accent); color: #fff; }
+    .day-chip.active .dow, .day-chip.active .d { color: #fff; }
+    .day-chip.active .dot { background: var(--brand); }
+
+    /* Liste Uber Driver style */
+    .list { padding: 4px 0; }
+    .day-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 8px 20px 4px;
+    }
+    .day-header .dt {
+      font-size: 10.5px; font-weight: 800;
+      color: var(--ink-soft); letter-spacing: 1.2px; text-transform: uppercase;
+    }
+    .day-header .sum { font-size: 13px; font-weight: 800; color: var(--ink); }
+    .row {
+      display: flex; gap: 14px; align-items: center;
+      padding: 14px 20px;
+      border-bottom: 1px solid #f4f4f4;
+    }
+    .row-time { width: 46px; }
+    .row-time .h { font-size: 15px; font-weight: 900; letter-spacing: -0.4px; }
+    .row-time .m {
+      font-size: 10px; font-weight: 800; color: var(--ink-muted);
+      letter-spacing: 0.4px; margin-top: 1px;
+    }
+    .row-body { flex: 1; min-width: 0; }
+    .row-route { font-size: 13.5px; font-weight: 700; letter-spacing: -0.2px; }
+    .row-route .arr { font-size: 11px; color: var(--ink-muted); font-weight: 800; }
+    .row-sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+    .row-fare {
+      font-size: 15px; font-weight: 900; letter-spacing: -0.4px; text-align: right;
+    }
+    .row-fare .sm {
+      font-size: 10px; font-weight: 700; color: var(--ink-muted);
+      margin-top: 1px; letter-spacing: 0.3px;
+    }
+    .row-fare .sm.cpam { color: #1e40af; }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 90px; background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-around; align-items: center;
+      padding-bottom: 22px; z-index: 10;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 10.5px; font-weight: 700; color: var(--ink-muted); flex: 1;
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item.active svg { stroke: var(--ink); }
+    .nav-item svg { width: 22px; height: 22px; stroke: var(--ink-muted); }
+    .nav-fab-slot { width: 64px; }
+    .fab-poster {
+      position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 60px; border-radius: 20px;
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 24px rgba(255,210,63,0.5), 0 0 0 4px #fff;
+      z-index: 12;
+    }
+    .fab-poster svg { width: 28px; height: 28px; }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000; z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="scroll">
+      <!-- Header titre + icône annonces (avec badge "2 nouvelles") -->
+      <div class="topbar">
+        <h1>Mes courses</h1>
+        <div class="ic-ads">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.3" stroke-linecap="round" viewBox="0 0 24 24" width="20" height="20">
+            <path d="M3 11l18-7v16L3 13v-2z"/>
+            <path d="M11 19l2-2"/>
+          </svg>
+          <span class="badge">2</span>
+        </div>
+      </div>
+      <div class="sub-date">Lundi 18 mai · 6 courses · 184 € gagné</div>
+
+      <!-- Hero EN COURS -->
+      <div class="hero-section">
+        <div class="section-label">
+          <span>EN COURS</span>
+          <span class="live"><span class="dot"></span> PATIENT À BORD</span>
+        </div>
+
+        <div class="hero-card">
+          <span class="hero-status">CPAM · ARRIVÉE 14:41</span>
+          <div class="hero-trip">
+            <div class="trip-dots">
+              <div class="a"></div>
+              <div class="line"></div>
+              <div class="b"></div>
+            </div>
+            <div class="trip-text">
+              <div class="row1">
+                <div class="l1">Hôpital Nord</div>
+                <div class="l2">Pris en charge 14:12</div>
+              </div>
+              <div>
+                <div class="l1">Aubagne centre</div>
+                <div class="l2">14 km · 22 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="hero-bottom">
+            <div class="hero-meta">
+              <div>
+                <div class="v">61 €</div>
+                <div class="k">COURSE</div>
+              </div>
+              <div>
+                <div class="v">Mme M.</div>
+                <div class="k">PATIENT</div>
+              </div>
+            </div>
+            <button class="hero-cta">
+              Naviguer
+              <svg fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" viewBox="0 0 24 24" width="14" height="14"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date strip swipeable -->
+      <div class="day-strip-wrap">
+        <div class="day-strip-label">CHANGER DE JOUR</div>
+        <div class="day-strip">
+          <div class="day-chip">
+            <div class="dow">SAM</div>
+            <div class="d">16</div>
+            <div class="dot"></div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">DIM</div>
+            <div class="d">17</div>
+          </div>
+          <div class="day-chip active">
+            <div class="dow">LUN</div>
+            <div class="d">18</div>
+            <div class="dot"></div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">MAR</div>
+            <div class="d">19</div>
+            <div class="dot"></div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">MER</div>
+            <div class="d">20</div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">JEU</div>
+            <div class="d">21</div>
+            <div class="dot"></div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">VEN</div>
+            <div class="d">22</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liste Uber Driver -->
+      <div class="list">
+        <div class="day-header">
+          <div class="dt">À VENIR · 2</div>
+          <div class="sum">70 €</div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">15:30</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Castellane <span class="arr">→</span> Timone</div>
+            <div class="row-sub">M. Bertrand · 6,1 km</div>
+          </div>
+          <div class="row-fare">
+            28 €
+            <div class="sm cpam">CPAM</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">17:15</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">La Joliette <span class="arr">→</span> Aéroport</div>
+            <div class="row-sub">M. & Mme Dubois · 8,3 km</div>
+          </div>
+          <div class="row-fare">
+            42 €
+            <div class="sm">PRIVÉ</div>
+          </div>
+        </div>
+
+        <div class="day-header">
+          <div class="dt">RÉALISÉES · 3</div>
+          <div class="sum">114 €</div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">10:15</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Saint-Charles <span class="arr">→</span> Aubagne</div>
+            <div class="row-sub">M. Léon · 12 km · 28 min</div>
+          </div>
+          <div class="row-fare">
+            38 €
+            <div class="sm cpam">CPAM</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">09:00</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Timone <span class="arr">→</span> Saint-Charles</div>
+            <div class="row-sub">M. Léon · 6 km · 18 min</div>
+          </div>
+          <div class="row-fare">
+            22 €
+            <div class="sm cpam">CPAM</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">08:30</div>
+            <div class="m"></div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Castellane <span class="arr">→</span> Timone</div>
+            <div class="row-sub">Mme Roux · 3,8 km</div>
+          </div>
+          <div class="row-fare">
+            54 €
+            <div class="sm">PRIVÉ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+        Carte
+      </div>
+      <div class="nav-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Courses
+      </div>
+      <div class="nav-fab-slot"></div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><circle cx="17" cy="9" r="3"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6M14 21c0-2.5 2-4.5 5-4.5s5 2 5 4.5"/></svg>
+        Groupes
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+        Profil
+      </div>
+    </div>
+
+    <div class="fab-poster">
+      <svg fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

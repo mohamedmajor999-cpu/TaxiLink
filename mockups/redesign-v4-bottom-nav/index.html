@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TaxiLink · V4 Bottom Nav (refonte finale)</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --ink: #ffffff;
+      --ink-soft: #9a9a9a;
+      --line: #1f1f1f;
+      --brand: #ffd23f;
+      --accent: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 80px; }
+    header h1 { font-size: 32px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.8px; }
+    header p { color: var(--ink-soft); margin: 0 0 32px; font-size: 15px; line-height: 1.55; max-width: 720px; }
+    .lead {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 16px; padding: 20px 22px; margin-bottom: 28px;
+    }
+    .lead h2 { margin: 0 0 10px; font-size: 16px; font-weight: 700; }
+    .lead ul { margin: 0; padding-left: 20px; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+    .lead li b { color: var(--ink); font-weight: 600; }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .navpill {
+      background: rgba(255,210,63,0.1);
+      color: var(--brand);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(255,210,63,0.25);
+    }
+    .grid {
+      display: grid; gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 20px; overflow: hidden; text-decoration: none; color: inherit;
+      display: flex; flex-direction: column;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: #2a2a2a; }
+    .thumb {
+      aspect-ratio: 9/16;
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .thumb iframe { width: 100%; height: 100%; border: 0; pointer-events: none; transform: scale(0.95); transform-origin: top center; }
+    .meta { padding: 16px 18px 18px; }
+    .meta h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+    .meta p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.4; }
+    .num {
+      display: inline-block;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #000;
+      font-size: 13px; font-weight: 900;
+      text-align: center; line-height: 26px;
+      margin-bottom: 10px;
+    }
+    .compare {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin-top: 32px;
+    }
+    .compare > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 12px; padding: 16px;
+    }
+    .compare h4 { margin: 0 0 8px; font-size: 13px; font-weight: 700; }
+    .compare ul { margin: 0; padding-left: 18px; color: var(--ink-soft); font-size: 12.5px; line-height: 1.7; }
+    .compare .old h4 { color: #f87171; }
+    .compare .new h4 { color: #34d186; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>V4 · Refonte complète avec bottom nav</h1>
+      <p>5 écrans cohérents qui remplacent le hamburger drawer par une barre de navigation en bas (style Uber/Bolt). 4 onglets + un FAB central pour poster une course.</p>
+    </header>
+
+    <div class="lead">
+      <h2>Système de navigation V4</h2>
+      <div class="pill-row">
+        <span class="navpill">Carte</span>
+        <span class="navpill">Courses</span>
+        <span class="navpill">+ Poster (FAB)</span>
+        <span class="navpill">Groupes</span>
+        <span class="navpill">Profil</span>
+      </div>
+      <ul>
+        <li><b>Bottom nav fixe</b> sur les 4 écrans principaux — switch en 1 tap, plus de hamburger.</li>
+        <li><b>FAB central « + »</b> pour poster une course — geste rapide depuis n'importe quel écran, action principale du chauffeur.</li>
+        <li><b>Header minimaliste</b> par écran : juste titre + 1 action contextuelle à droite (recherche, filtres ou avatar selon écran).</li>
+        <li><b>Déconnexion + sous-pages</b> (documents, départements...) restent accessibles depuis Profil.</li>
+      </ul>
+    </div>
+
+    <div class="grid">
+      <a class="card" href="v4-carte.html" target="_blank">
+        <div class="thumb"><iframe src="v4-carte.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="num">1</span>
+          <h3>Carte</h3>
+          <p>Plein écran, 1 mission focus en sheet, chevrons pour naviguer entre les 6 dispo</p>
+        </div>
+      </a>
+      <a class="card" href="v4-courses.html" target="_blank">
+        <div class="thumb"><iframe src="v4-courses.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="num">2</span>
+          <h3>Mes courses</h3>
+          <p>Montant XL en haut, segmented today/semaine/mois, liste blanche minimale</p>
+        </div>
+      </a>
+      <a class="card" href="v4-poster.html" target="_blank">
+        <div class="thumb"><iframe src="v4-poster.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="num">3</span>
+          <h3>Poster une annonce</h3>
+          <p>Modal full-screen, micro vocal central, formulaire étape par étape</p>
+        </div>
+      </a>
+      <a class="card" href="v4-groupes.html" target="_blank">
+        <div class="thumb"><iframe src="v4-groupes.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="num">4</span>
+          <h3>Mes groupes</h3>
+          <p>Liste cards groupes + groupe principal en hero, stats du jour par groupe</p>
+        </div>
+      </a>
+      <a class="card" href="v4-profil.html" target="_blank">
+        <div class="thumb"><iframe src="v4-profil.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="num">5</span>
+          <h3>Profil</h3>
+          <p>Avatar + nom + stats, sections groupées, déconnexion en bas</p>
+        </div>
+      </a>
+    </div>
+
+    <div class="compare">
+      <div class="old">
+        <h4>AVANT (actuel)</h4>
+        <ul>
+          <li>Hamburger en haut-gauche sur chaque écran</li>
+          <li>Drawer slide-in qui cache la moitié de l'écran</li>
+          <li>2 taps pour changer d'écran (ouvrir + choisir)</li>
+          <li>FAB "Poster" présent uniquement sur la carte</li>
+          <li>Header chargé : logo TL + titre + date + chip earnings</li>
+        </ul>
+      </div>
+      <div class="new">
+        <h4>APRÈS (V4)</h4>
+        <ul>
+          <li>Bottom nav fixe avec 4 onglets toujours visibles</li>
+          <li>FAB central « + » pour poster — accès permanent</li>
+          <li>1 tap pour switcher d'écran</li>
+          <li>Header minimaliste : titre + 1 action à droite</li>
+          <li>Cohérence visuelle entre les 5 écrans</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

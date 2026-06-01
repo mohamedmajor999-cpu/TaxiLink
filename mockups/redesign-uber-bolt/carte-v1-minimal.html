@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Carte V1 · Minimal Uber</title>
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --ink-soft: #6b6b6b;
+      --ink-muted: #9a9a9a;
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --line: #ececec;
+      --brand: #ffd23f;
+      --accent: #1a1a1a;
+      --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px;
+      margin: 40px auto;
+      background: var(--bg);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    /* MAP placeholder */
+    .map {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 30% 30%, #f5f3ee 0%, #ece8df 40%, #d8d2c2 100%);
+    }
+    .map::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(45deg, rgba(180,170,150,0.25) 1px, transparent 1px),
+        linear-gradient(-45deg, rgba(180,170,150,0.25) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    /* Routes simulees */
+    .road {
+      position: absolute; background: #fff;
+      box-shadow: 0 0 0 1px #d4cdba;
+    }
+    .road.h1 { top: 220px; left: -20px; right: -20px; height: 14px; transform: rotate(-3deg); }
+    .road.h2 { top: 480px; left: -20px; right: -20px; height: 10px; transform: rotate(2deg); }
+    .road.v1 { left: 120px; top: -20px; bottom: -20px; width: 12px; transform: rotate(8deg); }
+    .road.v2 { right: 80px; top: -20px; bottom: -20px; width: 10px; transform: rotate(-4deg); }
+
+    /* PINS */
+    .pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
+    .pin::after {
+      content: "";
+      position: absolute; bottom: -5px; left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 10px; height: 10px;
+      background: var(--ink);
+    }
+    .pin.brand { background: var(--brand); color: #1a1a1a; }
+    .pin.brand::after { background: var(--brand); }
+    .pin.dot {
+      padding: 0; width: 14px; height: 14px;
+      border-radius: 50%; background: var(--accent);
+      border: 3px solid #fff;
+    }
+    .pin.dot::after { display: none; }
+    .pin.me {
+      padding: 0; width: 22px; height: 22px;
+      border-radius: 50%; background: #2563eb;
+      border: 4px solid #fff;
+      box-shadow: 0 0 0 8px rgba(37,99,235,0.18), 0 4px 12px rgba(37,99,235,0.4);
+    }
+    .pin.me::after { display: none; }
+
+    /* TOP BAR */
+    .topbar {
+      position: absolute; top: 50px; left: 20px; right: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 10;
+    }
+    .iconbtn {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+    }
+    .iconbtn svg { width: 22px; height: 22px; }
+
+    /* ONLINE TOGGLE */
+    .online-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff;
+      padding: 10px 16px 10px 12px;
+      border-radius: 999px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+      font-size: 14px; font-weight: 700;
+    }
+    .online-pill .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 4px rgba(22,163,74,0.18);
+    }
+
+    /* FILTER FAB - only ONE button visible */
+    .filter-fab {
+      position: absolute; right: 20px; top: 130px;
+      width: 48px; height: 48px; border-radius: 14px;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+      z-index: 10;
+    }
+    .filter-fab .badge {
+      position: absolute; top: -4px; right: -4px;
+      min-width: 18px; height: 18px;
+      border-radius: 9px;
+      background: var(--brand);
+      color: #000; font-size: 10px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 5px;
+      border: 2px solid #fff;
+    }
+
+    /* BOTTOM SHEET - super minimal */
+    .sheet {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      background: #fff;
+      border-radius: 28px 28px 0 0;
+      padding: 12px 20px 36px;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.08);
+      z-index: 5;
+    }
+    .grab {
+      width: 38px; height: 4px; border-radius: 2px;
+      background: #e0e0e0;
+      margin: 0 auto 14px;
+    }
+    .sheet-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .sheet-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .sheet-sub { color: var(--ink-soft); font-size: 13px; }
+    .sheet-hint { color: var(--ink-muted); font-size: 12px; margin-top: 12px; text-align: center; }
+    .sheet-arrow {
+      display: inline-block;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: #f3f3f3;
+      vertical-align: middle;
+      margin-left: 4px;
+      position: relative;
+    }
+    .sheet-arrow::after {
+      content: "";
+      position: absolute; top: 50%; left: 50%;
+      width: 8px; height: 8px;
+      border-left: 2px solid var(--ink);
+      border-top: 2px solid var(--ink);
+      transform: translate(-50%, -25%) rotate(45deg);
+    }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000;
+      z-index: 20;
+    }
+
+    /* Status bar mock */
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700;
+      color: var(--ink);
+      z-index: 20;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <!-- Status bar -->
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right">
+        <span>5G</span>
+        <span>100%</span>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div class="map">
+      <div class="road h1"></div>
+      <div class="road h2"></div>
+      <div class="road v1"></div>
+      <div class="road v2"></div>
+
+      <!-- Pins missions -->
+      <div class="pin brand" style="left: 30%; top: 280px;">42 €</div>
+      <div class="pin" style="left: 65%; top: 240px;">28 €</div>
+      <div class="pin brand" style="left: 50%; top: 380px;">61 €</div>
+      <div class="pin" style="left: 25%; top: 440px;">19 €</div>
+      <div class="pin dot" style="left: 80%; top: 350px;"></div>
+      <div class="pin dot" style="left: 15%; top: 380px;"></div>
+
+      <!-- Me -->
+      <div class="pin me" style="left: 50%; top: 460px;"></div>
+    </div>
+
+    <!-- TOP BAR : juste menu + online toggle -->
+    <div class="topbar">
+      <div class="iconbtn">
+        <svg fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </div>
+      <div class="online-pill">
+        <span class="dot"></span>
+        En ligne
+      </div>
+    </div>
+
+    <!-- Bouton filtres unique -->
+    <div class="filter-fab">
+      <svg fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24" width="22" height="22">
+        <path d="M6 12h12M3 6h18M9 18h6"/>
+      </svg>
+      <span class="badge">4</span>
+    </div>
+
+    <!-- BOTTOM SHEET ultra minimal : juste un compte + swipe up -->
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="sheet-head">
+        <div>
+          <div class="sheet-title">6 courses dispo</div>
+          <div class="sheet-sub">2 urgentes · dans un rayon de 8 km</div>
+        </div>
+        <div class="sheet-arrow"></div>
+      </div>
+      <div class="sheet-hint">Glissez vers le haut pour voir la liste</div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

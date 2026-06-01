@@ -31,10 +31,14 @@ export interface GroupCounters {
 }
 
 export interface OnlineDriver {
-  userId:    string
-  name:      string
-  phone:     string | null
-  lat:       number
-  lng:       number
-  updatedAt: string
+  userId:     string
+  name:       string
+  phone:      string | null
+  // lat/lng null = chauffeur online sans fix GPS frais (premiere connexion,
+  // GPS indoor, ou batterie OEM qui retarde le push position). Listing
+  // cote admin l'affiche quand meme, juste sans marker sur la carte.
+  lat:        number | null
+  lng:        number | null
+  updatedAt:  string | null
+  lastSeenAt: string | null
 }

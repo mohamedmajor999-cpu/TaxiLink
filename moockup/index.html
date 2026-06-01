@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Notifications course · TaxiLink mobile-driver-v3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#06070A;color:#fff;font-feature-settings:'ss01','cv11'}
+
+    .hero{padding:56px 32px 24px;max-width:1300px;margin:0 auto;text-align:center}
+    .hero .eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;color:#FFD500;text-transform:uppercase;margin-bottom:14px;display:inline-flex;align-items:center;gap:8px}
+    .hero .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:#FFD500;box-shadow:0 0 12px rgba(255,213,0,.7)}
+    .hero h1{font-size:42px;font-weight:800;margin:0;letter-spacing:-1.2px;line-height:1.05}
+    .hero h1 .accent{background:linear-gradient(180deg,#FFE145,#F2BC00);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero p{color:#8E8E94;margin:16px auto 0;font-size:16px;font-weight:500;max-width:600px;line-height:1.55;letter-spacing:-.2px}
+    .hero .specs{margin-top:22px;display:inline-flex;gap:10px;flex-wrap:wrap;justify-content:center}
+    .spec{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:7px 14px;border-radius:999px;font-size:12.5px;color:#C8C8CC;font-weight:600;letter-spacing:-.1px;display:inline-flex;align-items:center;gap:7px}
+    .spec strong{color:#FFD500}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:32px;padding:40px 32px 60px;max-width:1500px;margin:0 auto}
+    .card{
+      background:linear-gradient(180deg,#15151A,#0D0D11);
+      border:1px solid rgba(255,255,255,.05);border-radius:32px;overflow:hidden;
+      display:flex;flex-direction:column;
+      box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 30px 60px -10px rgba(0,0,0,.5);
+    }
+    .card header{padding:26px 28px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+    .card .num{font-size:13px;font-weight:800;letter-spacing:2.4px;color:#FFD500;text-transform:uppercase}
+    .card .num .total{color:#5C5C62;font-weight:600;letter-spacing:1.2px}
+    .card h2{font-size:22px;font-weight:800;margin:6px 0 6px;letter-spacing:-.5px;line-height:1.1}
+    .card p{margin:0;font-size:13.5px;color:#A0A0A6;line-height:1.55;font-weight:500;letter-spacing:-.15px}
+    .card .open{
+      font-size:12.5px;font-weight:700;color:#0A0A0B;text-decoration:none;padding:9px 14px;border-radius:10px;
+      background:linear-gradient(180deg,#FFE145,#F2BC00);box-shadow:0 6px 16px rgba(242,188,0,.4);
+      display:inline-flex;align-items:center;gap:6px;flex-shrink:0;letter-spacing:-.1px;
+    }
+    .card .open:hover{transform:translateY(-1px)}
+
+    .frame-wrap{
+      background:radial-gradient(ellipse at top,#1F1F25,#0a0a0c);
+      display:flex;align-items:center;justify-content:center;padding:24px 0 32px;
+      border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);
+    }
+    iframe{
+      width:380px;height:820px;border:none;border-radius:54px;background:#000;
+      box-shadow:0 0 0 11px #0b0b0b, 0 30px 60px rgba(0,0,0,.5);
+    }
+
+    .tags{padding:18px 28px 24px;display:flex;flex-wrap:wrap;gap:8px}
+    .tag{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);padding:5px 11px;border-radius:8px;font-size:11.5px;color:#B0B0B6;font-weight:600;letter-spacing:-.1px;display:inline-flex;align-items:center;gap:5px}
+    .tag.green{color:#34D399;background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.15)}
+    .tag.yellow{color:#FFD500;background:rgba(255,213,0,.07);border-color:rgba(255,213,0,.2)}
+
+    .compare{max-width:1500px;margin:0 auto;padding:0 32px 80px}
+    .compare h2{font-size:24px;font-weight:800;margin:0 0 18px;letter-spacing:-.5px}
+    .compare p{color:#8E8E94;margin:0 0 24px;font-size:14px;line-height:1.55;max-width:680px}
+    table{
+      width:100%;border-collapse:separate;border-spacing:0;
+      background:linear-gradient(180deg,#15151A,#0D0D11);border:1px solid rgba(255,255,255,.05);
+      border-radius:20px;overflow:hidden;font-size:13.5px;
+    }
+    th,td{padding:14px 18px;text-align:left;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+    th{background:rgba(255,255,255,.025);font-weight:700;color:#FFD500;font-size:11px;text-transform:uppercase;letter-spacing:1.4px}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.02)}
+    td.opt{font-weight:700;color:#fff;white-space:nowrap;letter-spacing:-.2px}
+    td.pro{color:#34D399}
+    td.con{color:#F97316}
+    td.neutral{color:#A0A0A6}
+
+    footer{text-align:center;padding:30px 32px 60px;color:#5C5C62;font-size:12.5px;letter-spacing:-.1px}
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="eyebrow">TaxiLink · mobile-driver-v3</div>
+    <h1>Notification nouvelle course<br><span class="accent">3 directions premium</span></h1>
+    <p>Refonte du popup d'acceptation de course. Maquettes interactives au format iPhone 15 Pro avec carte SVG style Apple Maps, animations de pression et données réelles du chauffeur.</p>
+    <div class="specs">
+      <div class="spec"><strong>iPhone 15 Pro</strong> 390 × 844</div>
+      <div class="spec">Marque <strong>#FFD500</strong></div>
+      <div class="spec">Police <strong>Inter</strong></div>
+      <div class="spec">Icônes <strong>Lucide SVG</strong></div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Maquette 1 -->
+    <div class="card">
+      <header>
+        <div>
+          <div class="num">Maquette 01 <span class="total">/ 03</span></div>
+          <h2>Modern Pro · Swipe</h2>
+          <p>Light mode façon Uber Driver 2024. Hero amount, timer linéaire, mini-map intégrée à la route, glisser-pour-accepter avec animation.</p>
+        </div>
+        <a class="open" href="maquette-1-uber.html" target="_blank">Ouvrir ↗</a>
+      </header>
+      <div class="frame-wrap"><iframe src="maquette-1-uber.html" title="Maquette Modern Pro"></iframe></div>
+      <div class="tags">
+        <span class="tag yellow">Swipe-to-accept</span>
+        <span class="tag">Mini-map snippet</span>
+        <span class="tag">Bonus badge</span>
+        <span class="tag green">Premium feel</span>
+      </div>
+    </div>
+
+    <!-- Maquette 2 -->
+    <div class="card">
+      <header>
+        <div>
+          <div class="num">Maquette 02 <span class="total">/ 03</span></div>
+          <h2>Editorial · Map hero</h2>
+          <p>Bottom-sheet plein écran avec hero map preview en tête de card. Badges timer/direct intégrés à la carte, tuiles stats, double CTA (refuser + je prends).</p>
+        </div>
+        <a class="open" href="maquette-2-bolt.html" target="_blank">Ouvrir ↗</a>
+      </header>
+      <div class="frame-wrap"><iframe src="maquette-2-bolt.html" title="Maquette Editorial"></iframe></div>
+      <div class="tags">
+        <span class="tag">Hero map preview</span>
+        <span class="tag yellow">Double CTA</span>
+        <span class="tag">Tuiles stats</span>
+        <span class="tag green">Lisibilité max</span>
+      </div>
+    </div>
+
+    <!-- Maquette 3 -->
+    <div class="card">
+      <header>
+        <div>
+          <div class="num">Maquette 03 <span class="total">/ 03</span></div>
+          <h2>Premium Dark · Glass</h2>
+          <p>Carte Apple Maps dark, glass blur 40px, prix en jaune néon avec glow, route gradient. Cohérent avec le night-mode Tesla déjà en place sur v3.</p>
+        </div>
+        <a class="open" href="maquette-3-premium-dark.html" target="_blank">Ouvrir ↗</a>
+      </header>
+      <div class="frame-wrap"><iframe src="maquette-3-premium-dark.html" title="Maquette Premium Dark"></iframe></div>
+      <div class="tags">
+        <span class="tag yellow">Glass morphism</span>
+        <span class="tag">Apple Maps dark</span>
+        <span class="tag">Glow néon</span>
+        <span class="tag green">Économie OLED</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="compare">
+    <h2>Comparatif</h2>
+    <p>Choix structurants pour l'implémentation dans <code>apps/mobile-driver-v3</code>.</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:25%">Critère</th>
+          <th>01 · Modern Pro</th>
+          <th>02 · Editorial</th>
+          <th>03 · Premium Dark</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="opt">Effort impl.</td>            <td class="con">Élevé (Reanimated)</td><td class="pro">Faible</td><td class="neutral">Moyen (glass blur)</td></tr>
+        <tr><td class="opt">Risque tap accidentel</td>   <td class="pro">Très faible</td>      <td class="neutral">Moyen</td><td class="neutral">Moyen</td></tr>
+        <tr><td class="opt">Lisibilité 1 seconde</td>    <td class="pro">Très bonne</td>      <td class="pro">Excellente</td><td class="pro">Très bonne</td></tr>
+        <tr><td class="opt">Effet « premium »</td>       <td>★★★★</td>                       <td>★★★</td><td class="pro">★★★★★</td></tr>
+        <tr><td class="opt">Cohérence night-mode v3</td> <td class="con">À adapter</td>      <td class="con">À adapter</td><td class="pro">Native</td></tr>
+        <tr><td class="opt">Mise en avant prix</td>      <td class="pro">Forte</td>          <td class="pro">Très forte</td><td class="pro">Forte (glow)</td></tr>
+        <tr><td class="opt">Visualisation route</td>     <td class="pro">Mini-map snippet</td><td class="pro">Hero map</td><td class="neutral">Texte uniquement</td></tr>
+        <tr><td class="opt">Use case recommandé</td>     <td>Course standard premium</td>    <td>Course longue avec détail</td><td class="pro">Mode nuit / conducteur pro</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    c:\Dev\taxilink\moockup · Refresh la page pour relancer les animations
+  </footer>
+</body>
+</html>

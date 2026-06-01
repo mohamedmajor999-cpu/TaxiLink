@@ -2,6 +2,7 @@ import type { Group } from '@taxilink/core'
 
 const MIC_ERRORS: Record<string, string> = {
   'no-speech': 'Aucune voix détectée. Parlez plus fort ou rapprochez-vous du micro.',
+  'silence': 'Aucune voix détectée. Maintenez le micro et parlez clairement.',
   'audio-capture': 'Micro indisponible. Vérifiez qu\'il est branché et autorisé.',
   'not-allowed': 'Accès micro refusé. Autorisez-le dans les paramètres du navigateur.',
   'service-not-allowed': 'Accès micro refusé. Autorisez-le dans les paramètres du navigateur.',

@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V7 - Poster &middot; &eacute;tape partage</title>
+  <style>
+    :root {
+      --ink: #0a0a0a; --ink-soft: #6b6b6b; --ink-muted: #9a9a9a;
+      --bg: #ffffff; --line: #ececec;
+      --brand: #ffd23f; --accent: #1a1a1a; --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px; margin: 40px auto;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink); z-index: 30;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    .scroll {
+      position: absolute; inset: 50px 0 100px 0;
+      overflow-y: auto;
+    }
+
+    /* Header modal */
+    .head-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px 8px;
+    }
+    .back-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #f3f3f3;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-pill {
+      font-size: 11px; font-weight: 800;
+      letter-spacing: 0.5px; color: var(--ink-soft);
+    }
+    .step-pill b { color: var(--ink); }
+
+    /* Progress bar etape */
+    .progress {
+      display: flex; gap: 4px;
+      padding: 8px 20px 16px;
+    }
+    .progress .seg {
+      flex: 1; height: 3px;
+      background: #ececec;
+      border-radius: 2px;
+    }
+    .progress .seg.done { background: var(--accent); }
+
+    /* Title */
+    .title-wrap { padding: 6px 24px 18px; }
+    .title-wrap h1 {
+      margin: 0; font-size: 24px; font-weight: 800;
+      letter-spacing: -0.6px; line-height: 1.2;
+    }
+    .title-wrap p {
+      margin: 8px 0 0; font-size: 13.5px;
+      color: var(--ink-soft); line-height: 1.5;
+    }
+
+    /* Mode toggle - "Tous le groupe" / "Personnes choisies" */
+    .mode-tabs {
+      display: flex; gap: 8px;
+      padding: 0 16px 16px;
+    }
+    .mode-tab {
+      flex: 1;
+      padding: 14px 12px;
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .mode-tab.on {
+      border-color: var(--accent);
+      background: #fafafa;
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.04);
+    }
+    .mode-tab .ico {
+      width: 36px; height: 36px;
+      margin: 0 auto 6px;
+      border-radius: 50%;
+      background: #f3f3f3;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mode-tab.on .ico { background: var(--accent); }
+    .mode-tab.on .ico svg { stroke: #fff; }
+    .mode-tab .lbl { font-size: 12.5px; font-weight: 800; }
+    .mode-tab .sub { font-size: 10.5px; color: var(--ink-soft); margin-top: 3px; }
+
+    /* Group section */
+    .group-section { padding: 0 16px; }
+    .group-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1.5px solid var(--accent);
+      border-radius: 16px;
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.04);
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .group-card.unselected {
+      border-color: var(--line);
+      box-shadow: none;
+    }
+    .group-avatar {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 900;
+      flex-shrink: 0;
+    }
+    .group-avatar.a { background: #fef3c7; color: #92400e; }
+    .group-avatar.b { background: #dbeafe; color: #1e40af; }
+    .group-avatar.c { background: #dcfce7; color: #14532d; }
+    .group-body { flex: 1; min-width: 0; }
+    .group-name { font-size: 15px; font-weight: 800; letter-spacing: -0.2px; }
+    .group-meta {
+      font-size: 12px; color: var(--ink-soft); margin-top: 2px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .group-meta .dot-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-muted); }
+    .check-circle {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .check-circle.empty {
+      background: #fff; border: 2px solid #d4d4d4;
+    }
+
+    /* Section title */
+    .section-title {
+      padding: 16px 24px 8px;
+      font-size: 10.5px; font-weight: 800;
+      color: var(--ink-soft); letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    /* Personnes search */
+    .search-bar {
+      margin: 0 16px 8px;
+      padding: 12px 14px;
+      background: #f5f5f5;
+      border-radius: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .search-bar input {
+      background: transparent; border: 0; outline: 0;
+      flex: 1; font-size: 14px; color: var(--ink);
+      font-family: inherit;
+    }
+    .search-bar input::placeholder { color: var(--ink-soft); }
+
+    /* Contact row */
+    .contact {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px;
+    }
+    .contact .ava {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--brand); color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .contact .ava .status {
+      position: absolute; bottom: 0; right: 0;
+      width: 11px; height: 11px;
+      border-radius: 50%; background: var(--success);
+      border: 2px solid #fff;
+    }
+    .contact .ava .status.off { background: #d4d4d4; }
+    .contact .info { flex: 1; min-width: 0; }
+    .contact .nm { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
+    .contact .meta { font-size: 11.5px; color: var(--ink-soft); margin-top: 1px; }
+    .contact .meta .star { color: #f59e0b; font-weight: 800; }
+    .contact .ck {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid #d4d4d4;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .contact.on .ck {
+      background: var(--accent); border-color: var(--accent);
+    }
+    .contact.on .ck svg { display: block; }
+    .contact .ck svg { display: none; }
+    .contact.on { background: #fafafa; }
+
+    /* Counter */
+    .counter-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 24px;
+      background: #fafafa;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      margin-top: 8px;
+    }
+    .counter-bar .lbl {
+      font-size: 12px; font-weight: 700; color: var(--ink-soft);
+    }
+    .counter-bar .lbl b { color: var(--ink); font-size: 14px; font-weight: 900; }
+    .counter-bar .clear {
+      font-size: 12px; font-weight: 800;
+      color: var(--ink-soft);
+    }
+
+    /* CTA bottom */
+    .cta-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      padding: 12px 16px 28px;
+      z-index: 20;
+    }
+    .cta {
+      width: 100%; height: 56px;
+      background: var(--accent); color: #fff;
+      border: 0; border-radius: 16px;
+      font-size: 16px; font-weight: 800;
+      letter-spacing: -0.2px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px;
+    }
+    .cta .badge-count {
+      background: var(--brand); color: var(--ink);
+      padding: 3px 9px; border-radius: 999px;
+      font-size: 12px; font-weight: 900;
+    }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000; z-index: 30;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="scroll">
+      <div class="head-bar">
+        <div class="back-btn">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <span class="step-pill"><b>3</b> / 3 &middot; Partage</span>
+        <div style="width: 40px;"></div>
+      </div>
+
+      <div class="progress">
+        <div class="seg done"></div>
+        <div class="seg done"></div>
+        <div class="seg done"></div>
+      </div>
+
+      <div class="title-wrap">
+        <h1>&Agrave; qui envoyer<br/>cette course&nbsp;?</h1>
+        <p>Le premier qui accepte prend la course. Tu peux la partager avec un groupe entier ou cibler des personnes pr&eacute;cises.</p>
+      </div>
+
+      <!-- Mode toggle -->
+      <div class="mode-tabs">
+        <div class="mode-tab on">
+          <div class="ico">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24" width="18" height="18">
+              <circle cx="9" cy="8" r="4"/><circle cx="17" cy="9" r="3"/>
+              <path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6M14 21c0-2.5 2-4.5 5-4.5s5 2 5 4.5"/>
+            </svg>
+          </div>
+          <div class="lbl">Un groupe</div>
+          <div class="sub">tous les membres</div>
+        </div>
+        <div class="mode-tab">
+          <div class="ico">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24" width="18" height="18">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>
+              <path d="M19 6l2 2 4-4" stroke-width="2.4"/>
+            </svg>
+          </div>
+          <div class="lbl">Personnes</div>
+          <div class="sub">choix individuels</div>
+        </div>
+      </div>
+
+      <!-- Mode 1 : Groupes (visible quand mode "Un groupe" actif) -->
+      <div class="section-title">CHOISIS LE GROUPE</div>
+      <div class="group-section">
+        <div class="group-card">
+          <div class="group-avatar a">MR</div>
+          <div class="group-body">
+            <div class="group-name">Marseille CPAM 13</div>
+            <div class="group-meta">
+              <span>8 chauffeurs</span>
+              <span class="dot-sep"></span>
+              <span>5 en ligne</span>
+            </div>
+          </div>
+          <div class="check-circle">
+            <svg fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" viewBox="0 0 24 24" width="12" height="12">
+              <path d="M5 12l5 5L20 7"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="group-card unselected">
+          <div class="group-avatar b">AB</div>
+          <div class="group-body">
+            <div class="group-name">Aubagne &amp; banlieue</div>
+            <div class="group-meta">
+              <span>5 chauffeurs</span>
+              <span class="dot-sep"></span>
+              <span>2 en ligne</span>
+            </div>
+          </div>
+          <div class="check-circle empty"></div>
+        </div>
+
+        <div class="group-card unselected">
+          <div class="group-avatar c">PM</div>
+          <div class="group-body">
+            <div class="group-name">Priv&eacute; Marseille</div>
+            <div class="group-meta">
+              <span>3 chauffeurs</span>
+              <span class="dot-sep"></span>
+              <span>1 en ligne</span>
+            </div>
+          </div>
+          <div class="check-circle empty"></div>
+        </div>
+      </div>
+
+      <!-- Mode 2 : Personnes individuelles (alternatif, montre ce qui apparait quand on switch) -->
+      <div class="section-title">OU CIBLE PR&Eacute;CIS&Eacute;MENT</div>
+
+      <div class="search-bar">
+        <svg fill="none" stroke="#9a9a9a" stroke-width="2.3" stroke-linecap="round" viewBox="0 0 24 24" width="16" height="16">
+          <circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>
+        </svg>
+        <input type="text" placeholder="Rechercher un coll&egrave;gue&hellip;" />
+      </div>
+
+      <div class="contact on">
+        <div class="ava">KL<div class="status"></div></div>
+        <div class="info">
+          <div class="nm">Karim Lavezzi</div>
+          <div class="meta">
+            <span class="star">&starf; 4,9</span>
+            &middot; en ligne &middot; CPAM 13
+          </div>
+        </div>
+        <div class="ck">
+          <svg fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" viewBox="0 0 24 24" width="12" height="12">
+            <path d="M5 12l5 5L20 7"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="contact on">
+        <div class="ava" style="background:#dbeafe; color:#1e40af;">MR<div class="status"></div></div>
+        <div class="info">
+          <div class="nm">Mehdi Rocchini</div>
+          <div class="meta">
+            <span class="star">&starf; 4,8</span>
+            &middot; en ligne &middot; Aubagne
+          </div>
+        </div>
+        <div class="ck">
+          <svg fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" viewBox="0 0 24 24" width="12" height="12">
+            <path d="M5 12l5 5L20 7"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="contact">
+        <div class="ava" style="background:#dcfce7; color:#14532d;">PT<div class="status off"></div></div>
+        <div class="info">
+          <div class="nm">Paul Tritard</div>
+          <div class="meta">
+            <span class="star">&starf; 4,7</span>
+            &middot; hors-ligne &middot; CPAM 13
+          </div>
+        </div>
+        <div class="ck"></div>
+      </div>
+
+      <div class="contact">
+        <div class="ava" style="background:#fee2e2; color:#991b1b;">SD<div class="status"></div></div>
+        <div class="info">
+          <div class="nm">Sami Dridi</div>
+          <div class="meta">
+            <span class="star">&starf; 5,0</span>
+            &middot; en ligne &middot; Priv&eacute;
+          </div>
+        </div>
+        <div class="ck"></div>
+      </div>
+
+      <div class="counter-bar">
+        <span class="lbl">S&eacute;lection : <b>1 groupe</b> + <b>2 personnes</b></span>
+        <span class="clear">R&eacute;initialiser</span>
+      </div>
+
+      <div style="height: 16px;"></div>
+    </div>
+
+    <div class="cta-bar">
+      <button class="cta">
+        Publier l'annonce
+        <span class="badge-count">10 destinataires</span>
+      </button>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

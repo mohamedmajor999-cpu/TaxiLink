@@ -7,6 +7,9 @@ vi.mock('@/lib/api', () => ({ api: { postForm: vi.fn() } }))
 const parsed: ParsedMissionFields = {
   type: 'CPAM',
   medical_motif: null,
+  notes: null,
+  pickup_bulletin: null,
+  pickup_bon_transport: null,
   transport_type: null,
   return_trip: false,
   return_time: null,

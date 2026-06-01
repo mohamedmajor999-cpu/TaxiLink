@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mes courses V2 · Timeline</title>
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --ink-soft: #6b6b6b;
+      --ink-muted: #9a9a9a;
+      --bg: #ffffff;
+      --line: #ececec;
+      --brand: #ffd23f;
+      --accent: #1a1a1a;
+      --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px;
+      margin: 40px auto;
+      background: var(--bg);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink);
+      z-index: 20;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    .scroll { position: absolute; inset: 50px 0 0 0; overflow: hidden; }
+
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 20px 4px;
+    }
+    .iconbtn {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .iconbtn svg { width: 22px; height: 22px; }
+
+    /* Title */
+    .title-wrap { padding: 8px 20px 14px; }
+    .title-wrap h1 {
+      margin: 0;
+      font-size: 30px; font-weight: 800; letter-spacing: -1px;
+    }
+    .title-wrap .row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-top: 8px;
+    }
+    .title-wrap .sub { color: var(--ink-soft); font-size: 13px; }
+    .title-wrap .gain {
+      font-size: 14px; font-weight: 900; letter-spacing: -0.3px;
+    }
+    .title-wrap .gain span { color: var(--success); }
+
+    /* Date selector horizontal */
+    .day-strip {
+      display: flex; gap: 6px;
+      padding: 0 20px 16px;
+      overflow-x: auto;
+    }
+    .day-strip::-webkit-scrollbar { display: none; }
+    .day-chip {
+      flex: 0 0 56px;
+      height: 68px;
+      border-radius: 14px;
+      background: #f5f5f5;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px;
+    }
+    .day-chip .dow {
+      font-size: 10px; font-weight: 800; color: var(--ink-soft); letter-spacing: 0.4px;
+    }
+    .day-chip .d {
+      font-size: 18px; font-weight: 900; letter-spacing: -0.3px;
+    }
+    .day-chip .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink-muted); }
+    .day-chip.active {
+      background: var(--accent); color: #fff;
+    }
+    .day-chip.active .dow, .day-chip.active .d { color: #fff; }
+    .day-chip.active .dot { background: var(--brand); }
+
+    /* Timeline */
+    .timeline {
+      padding: 4px 20px 100px;
+      position: relative;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute; left: 56px; top: 12px; bottom: 100px;
+      width: 2px; background: var(--line);
+    }
+    .tl-row {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 18px 0;
+      position: relative;
+    }
+    .tl-time {
+      width: 44px; padding-top: 4px;
+    }
+    .tl-time .h {
+      font-size: 14px; font-weight: 800; letter-spacing: -0.3px;
+    }
+    .tl-time .m {
+      font-size: 11px; font-weight: 700; color: var(--ink-muted);
+    }
+    .tl-dot {
+      position: relative;
+      width: 16px; padding-top: 8px;
+      display: flex; justify-content: center;
+    }
+    .tl-dot .pt {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #fff; border: 2.5px solid var(--ink-muted);
+      z-index: 2;
+    }
+    .tl-row.active .tl-dot .pt {
+      width: 18px; height: 18px;
+      background: var(--accent); border-color: var(--accent);
+      box-shadow: 0 0 0 5px rgba(0,0,0,0.06);
+    }
+    .tl-row.done .tl-dot .pt {
+      background: var(--success); border-color: var(--success);
+    }
+    .tl-card {
+      flex: 1; min-width: 0;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: #fafafa;
+      border: 1px solid var(--line);
+    }
+    .tl-row.active .tl-card {
+      background: #fff;
+      border-color: transparent;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03);
+      padding: 16px;
+    }
+    .tl-row.done .tl-card {
+      background: transparent;
+      border-color: transparent;
+      padding: 4px 12px;
+      opacity: 0.55;
+    }
+    .tl-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px;
+    }
+    .tl-tags { display: flex; gap: 5px; align-items: center; }
+    .tag {
+      font-size: 9.5px; font-weight: 800; letter-spacing: 0.4px;
+      padding: 3px 7px; border-radius: 5px;
+      background: #efefef; color: var(--ink-soft);
+    }
+    .tag.cpam { background: #dbeafe; color: #1e40af; }
+    .tag.live { background: #dcfce7; color: #14532d; }
+    .tl-price { font-size: 15px; font-weight: 900; letter-spacing: -0.3px; }
+    .tl-row.done .tl-price { font-size: 13px; }
+    .tl-route { font-size: 13.5px; font-weight: 700; letter-spacing: -0.2px; }
+    .tl-row.done .tl-route { font-size: 12px; }
+    .tl-row.active .tl-route { font-size: 15px; }
+    .tl-sub {
+      font-size: 11.5px; color: var(--ink-soft);
+      margin-top: 3px;
+    }
+    .tl-cta {
+      margin-top: 12px;
+      height: 44px;
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: 0;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 80px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-around; align-items: center;
+      padding-bottom: 20px;
+      z-index: 10;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; color: var(--ink-muted);
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item svg { width: 24px; height: 24px; }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="scroll">
+      <div class="header">
+        <div class="iconbtn">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </div>
+        <div class="iconbtn">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+        </div>
+      </div>
+
+      <div class="title-wrap">
+        <h1>Mes courses</h1>
+        <div class="row">
+          <span class="sub">Lundi 18 mai · 6 courses</span>
+          <span class="gain">184 € <span>· +24 €</span></span>
+        </div>
+      </div>
+
+      <div class="day-strip">
+        <div class="day-chip">
+          <div class="dow">SAM</div>
+          <div class="d">16</div>
+        </div>
+        <div class="day-chip">
+          <div class="dow">DIM</div>
+          <div class="d">17</div>
+          <div class="dot"></div>
+        </div>
+        <div class="day-chip active">
+          <div class="dow">LUN</div>
+          <div class="d">18</div>
+          <div class="dot"></div>
+        </div>
+        <div class="day-chip">
+          <div class="dow">MAR</div>
+          <div class="d">19</div>
+          <div class="dot"></div>
+        </div>
+        <div class="day-chip">
+          <div class="dow">MER</div>
+          <div class="d">20</div>
+        </div>
+        <div class="day-chip">
+          <div class="dow">JEU</div>
+          <div class="d">21</div>
+          <div class="dot"></div>
+        </div>
+        <div class="day-chip">
+          <div class="dow">VEN</div>
+          <div class="d">22</div>
+        </div>
+      </div>
+
+      <div class="timeline">
+
+        <!-- Done -->
+        <div class="tl-row done">
+          <div class="tl-time">
+            <div class="h">08:30</div>
+            <div class="m">Réalisée</div>
+          </div>
+          <div class="tl-dot"><div class="pt"></div></div>
+          <div class="tl-card">
+            <div class="tl-route">Castellane → Timone</div>
+            <div class="tl-price">22 €</div>
+          </div>
+        </div>
+
+        <div class="tl-row done">
+          <div class="tl-time">
+            <div class="h">10:15</div>
+            <div class="m">Réalisée</div>
+          </div>
+          <div class="tl-dot"><div class="pt"></div></div>
+          <div class="tl-card">
+            <div class="tl-route">Saint-Charles → Aubagne</div>
+            <div class="tl-price">38 €</div>
+          </div>
+        </div>
+
+        <!-- Active -->
+        <div class="tl-row active">
+          <div class="tl-time">
+            <div class="h">14:30</div>
+            <div class="m">En cours</div>
+          </div>
+          <div class="tl-dot"><div class="pt"></div></div>
+          <div class="tl-card">
+            <div class="tl-head">
+              <div class="tl-tags">
+                <span class="tag cpam">CPAM</span>
+                <span class="tag live">PATIENT À BORD</span>
+              </div>
+              <div class="tl-price">61 €</div>
+            </div>
+            <div class="tl-route">Hôpital Nord → Aubagne centre</div>
+            <div class="tl-sub">Mme M. · arrivée 14h41 · 14 km</div>
+            <button class="tl-cta">Naviguer vers Aubagne</button>
+          </div>
+        </div>
+
+        <!-- Upcoming -->
+        <div class="tl-row">
+          <div class="tl-time">
+            <div class="h">15:30</div>
+            <div class="m">À venir</div>
+          </div>
+          <div class="tl-dot"><div class="pt"></div></div>
+          <div class="tl-card">
+            <div class="tl-head">
+              <div class="tl-tags">
+                <span class="tag cpam">CPAM</span>
+              </div>
+              <div class="tl-price">28 €</div>
+            </div>
+            <div class="tl-route">Castellane → Timone</div>
+            <div class="tl-sub">M. Bertrand · 6,1 km</div>
+          </div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">
+            <div class="h">17:15</div>
+            <div class="m">À venir</div>
+          </div>
+          <div class="tl-dot"><div class="pt"></div></div>
+          <div class="tl-card">
+            <div class="tl-head">
+              <div class="tl-tags">
+                <span class="tag">PRIVÉ</span>
+              </div>
+              <div class="tl-price">42 €</div>
+            </div>
+            <div class="tl-route">La Joliette → Aéroport</div>
+            <div class="tl-sub">M. & Mme Dubois · 8,3 km</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+        Carte
+      </div>
+      <div class="nav-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Courses
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+        Profil
+      </div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

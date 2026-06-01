@@ -24,7 +24,8 @@ Schéma attendu :
   "visibility": "PUBLIC" | "GROUP" | null,
   "group_names": string[],
   "extra_bagages": number | null,
-  "extra_encombrants": number | null
+  "extra_encombrants": number | null,
+  "notes": string | null
 }
 
 Règles :
@@ -56,7 +57,8 @@ Règles :
 - "time" au format "HH:MM" 24h (ex: "14:30"). Si le chauffeur dit "quatorze heures trente" → "14:30".
 - "price_eur" en nombre (38, 42.50). Extraire seulement le montant en euros si un PRIX UNIQUE est dicté.
 - "price_min_eur" et "price_max_eur" : UNIQUEMENT pour les courses privées quand le chauffeur dicte une FOURCHETTE (ex: "entre 45 et 75 euros", "de 50 à 80 euros", "45 à 75"). Dans ce cas, "price_eur" reste null. Laisser null si prix unique ou non mentionné.
-- "departure" et "destination" = adresse brute lisible (ex: "12 rue de la République Marseille"). Ne pas inventer une rue ou un numéro.
+- TRANSCRIPT VIDE OU INCOMPLET : si le transcript est tres court (< 5 mots utiles), incomprehensible, ou ne contient AUCUNE information de course (pas d'adresse, pas de motif, pas d'heure), retourne TOUS les champs a null, false, ou [] selon le type. NE devine RIEN. Exemples qui doivent donner tout null : "Merci", "Bonjour", "Au revoir", "Oui d'accord", "..." Un seul indice clair suffit pour remplir le champ correspondant, mais ne propage jamais a d'autres champs.
+- "departure" et "destination" = adresse brute lisible (ex: "12 rue de la République Marseille"). Ne pas inventer une rue ou un numéro. Si le chauffeur ne dit AUCUN nom de lieu, laisse null - ne mets jamais une ville par defaut comme "Marseille" seule.
 - DÉSAMBIGUÏSATION : si le chauffeur cite un lieu célèbre sans préciser la ville (stade, monument, gare, aéroport, hôpital connu, etc.), ajoute la ville la plus probable au format "Nom du lieu, Ville". Exemples : "stade vélodrome" → "Stade Vélodrome, Marseille" ; "tour eiffel" → "Tour Eiffel, Paris" ; "gare saint-charles" → "Gare Saint-Charles, Marseille" ; "aéroport orly" → "Aéroport d'Orly, Paris". Si plusieurs villes sont plausibles et qu'aucune ne domine clairement, laisse tel quel.
 - "patient_name" uniquement si mentionné explicitement.
 - "phone" = numéro de téléphone du client s'il est dicté. Format brut lisible au format français (ex: "06 12 34 56 78"). Supprime les mots parasites ("zéro six" → "06"). Si non mentionné, null.
@@ -65,4 +67,5 @@ Règles :
   * "GROUP" si le chauffeur mentionne un ou plusieurs groupes ("pour le groupe X", "avec les groupes X et Y", "partager avec X, Y", "dans X").
   * null si aucune indication claire.
 - "group_names" = tableau des noms de groupes cités par le chauffeur si visibility = "GROUP". Laisse la casse/orthographe telle que dictée (ex: ["Taxi13", "Marseille centre"]). Vide sinon.
+- "notes" = remarques / commentaires / informations complementaires que le chauffeur ajoute pour le preneur de la course. Exemples : "le client a un chien", "appeler en arrivant", "code immeuble 1234", "patient sourd", "prevenir 5 min avant", "client tres age, prevoir aide", "rdv au 3e etage porte droite". Tout ce qui n'est PAS deja capture par un champ structure (adresse, telephone, prix, motif, type...) mais qui aide le preneur a executer la course doit aller dans "notes". Concatene plusieurs remarques avec ". " si plusieurs. null si rien de tel n'est dit.
 - Si une info n'est pas mentionnée, mettre null (ou false/[] selon le type). Ne pas inventer.`

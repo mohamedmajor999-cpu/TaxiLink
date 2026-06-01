@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V4 · Carte</title>
+  <style>
+    :root {
+      --ink: #0a0a0a; --ink-soft: #6b6b6b; --ink-muted: #9a9a9a;
+      --bg: #ffffff; --line: #ececec;
+      --brand: #ffd23f; --accent: #1a1a1a; --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px;
+      margin: 40px auto;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink); z-index: 30;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    /* MAP */
+    .map {
+      position: absolute; top: 0; left: 0; right: 0; height: 540px;
+      background: linear-gradient(180deg, #e8eef4 0%, #c8d4dc 100%);
+    }
+    .map::before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(0deg, rgba(120,140,160,0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,140,160,0.18) 1px, transparent 1px);
+      background-size: 55px 55px;
+    }
+    .road { position: absolute; background: #fff; box-shadow: 0 0 0 1px #b8c3cc; }
+    .road.h1 { top: 220px; left: -20px; right: -20px; height: 12px; transform: rotate(-2deg); }
+    .road.h2 { top: 380px; left: -20px; right: -20px; height: 10px; transform: rotate(3deg); }
+    .road.v1 { left: 140px; top: -20px; bottom: -20px; width: 12px; }
+    .road.v2 { right: 100px; top: -20px; bottom: -20px; width: 10px; transform: rotate(-5deg); }
+
+    .route-path {
+      position: absolute; top: 220px; left: 50%;
+      width: 220px; height: 4px; background: #0a0a0a;
+      transform: rotate(-22deg); border-radius: 2px;
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.08);
+    }
+    .pin {
+      position: absolute; transform: translate(-50%, -100%);
+      font-weight: 800; font-size: 12px;
+      padding: 5px 9px; border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      letter-spacing: -0.3px; white-space: nowrap;
+    }
+    .pin.dark { background: #0a0a0a; color: #fff; }
+    .pin.brand {
+      background: var(--brand); color: #1a1a1a;
+      transform: translate(-50%, -100%) scale(1.15);
+      box-shadow: 0 6px 18px rgba(255,210,63,0.5), 0 0 0 4px rgba(255,210,63,0.25);
+    }
+    .pin.dot {
+      padding: 0; width: 10px; height: 10px;
+      border-radius: 50%; background: #888; border: 2px solid #fff;
+    }
+    .pin.me {
+      padding: 0; width: 20px; height: 20px;
+      border-radius: 50%; background: #2563eb; border: 4px solid #fff;
+      box-shadow: 0 0 0 8px rgba(37,99,235,0.18), 0 4px 12px rgba(37,99,235,0.4);
+    }
+    .pin-label {
+      position: absolute; transform: translate(-50%, -100%);
+      background: #0a0a0a; color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 5px 9px; border-radius: 8px;
+    }
+    .pin-label.alt { background: #fff; color: #0a0a0a; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
+
+    /* Topbar — pas de hamburger, juste avatar + stats + filtre */
+    .topbar {
+      position: absolute; top: 56px; left: 16px; right: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 10px; z-index: 10;
+    }
+    .avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+      font-size: 14px; font-weight: 800; color: var(--ink);
+      position: relative;
+    }
+    .avatar .status-dot {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--success); border: 2px solid #fff;
+    }
+    .pill-cluster { display: flex; gap: 8px; align-items: center; }
+    .online-pill, .filter-pill {
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+    }
+    .online-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 14px 10px 12px; border-radius: 999px;
+      font-size: 13px; font-weight: 800;
+    }
+    .online-pill .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--success);
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.18);
+    }
+    .filter-pill {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .filter-pill .badge {
+      position: absolute; top: -2px; right: -2px;
+      min-width: 18px; height: 18px;
+      border-radius: 9px; background: var(--brand);
+      color: #000; font-size: 10px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 5px; border: 2px solid #fff;
+    }
+
+    /* Sheet bas — 1 mission focus */
+    .sheet {
+      position: absolute; left: 0; right: 90px; bottom: 100px;
+      background: #fff; border-radius: 24px;
+      padding: 14px 18px 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04);
+      margin-left: 16px;
+      z-index: 5;
+    }
+    .counter-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .num-counter { font-size: 11px; font-weight: 800; color: var(--ink-soft); letter-spacing: 0.5px; }
+    .arrows { display: flex; gap: 6px; }
+    .arrow-btn {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: #f3f3f3;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .arrow-btn svg { width: 12px; height: 12px; }
+
+    .ride-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .tags { display: flex; gap: 4px; margin-bottom: 4px; }
+    .tag {
+      font-size: 9.5px; font-weight: 800; letter-spacing: 0.4px;
+      padding: 3px 6px; border-radius: 5px;
+      background: #f4f4f4; color: var(--ink-soft);
+    }
+    .tag.cpam { background: #dbeafe; color: #1e40af; }
+    .tag.urgent { background: #fef2f2; color: #dc2626; }
+    .time-label { font-size: 12px; font-weight: 700; color: var(--ink); }
+    .price { font-size: 26px; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+    .trip { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+    .trip-dots { display: flex; flex-direction: column; align-items: center; padding-top: 4px; }
+    .trip-dots .a, .trip-dots .b { width: 8px; height: 8px; border-radius: 50%; background: #0a0a0a; }
+    .trip-dots .b { background: #fff; border: 2px solid #0a0a0a; }
+    .trip-dots .line { width: 2px; flex: 1; min-height: 14px; background: #d4d4d4; margin: 2px 0; }
+    .trip-text .l1 { font-size: 13.5px; font-weight: 700; }
+    .trip-text .l2 { font-size: 11.5px; color: var(--ink-soft); margin-top: 1px; }
+    .trip-text .row1 { margin-bottom: 12px; }
+
+    /* CTA Accept bar séparé (bouton plein écran) */
+    .accept-row {
+      position: absolute; left: 16px; right: 16px; bottom: 100px;
+      display: flex; gap: 10px;
+      z-index: 6;
+    }
+    .accept-row .accept-btn {
+      flex: 1;
+      height: 56px;
+      background: var(--accent); color: #fff;
+      border: 0; border-radius: 16px;
+      font-size: 16px; font-weight: 800; letter-spacing: -0.2px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .accept-row .accept-btn .price-inline {
+      font-size: 14px; font-weight: 900;
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 999px;
+    }
+
+    /* Bottom nav avec FAB central */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 90px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-around; align-items: center;
+      padding-bottom: 22px;
+      z-index: 10;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 10.5px; font-weight: 700; color: var(--ink-muted);
+      flex: 1;
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item.active svg { stroke: var(--ink); }
+    .nav-item svg { width: 22px; height: 22px; stroke: var(--ink-muted); }
+    .nav-fab-slot { width: 64px; }
+    .fab-poster {
+      position: absolute;
+      bottom: 26px;
+      left: 50%; transform: translateX(-50%);
+      width: 60px; height: 60px;
+      border-radius: 20px;
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 24px rgba(255,210,63,0.5), 0 0 0 4px #fff;
+      z-index: 12;
+    }
+    .fab-poster svg { width: 28px; height: 28px; }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000; z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="map">
+      <div class="road h1"></div>
+      <div class="road h2"></div>
+      <div class="road v1"></div>
+      <div class="road v2"></div>
+      <div class="route-path"></div>
+
+      <div class="pin dot" style="left: 22%; top: 200px;"></div>
+      <div class="pin dot" style="left: 78%; top: 270px;"></div>
+      <div class="pin dot" style="left: 30%; top: 360px;"></div>
+
+      <div class="pin-label" style="left: 45%; top: 220px;">Hôpital Nord</div>
+      <div class="pin-label alt" style="left: 70%; top: 340px;">Aubagne</div>
+      <div class="pin me" style="left: 38%; top: 420px;"></div>
+    </div>
+
+    <!-- Topbar : avatar (= profil) + online + filtres -->
+    <div class="topbar">
+      <div class="avatar">
+        YL
+        <div class="status-dot"></div>
+      </div>
+      <div class="pill-cluster">
+        <div class="online-pill">
+          <span class="dot"></span>
+          En ligne
+        </div>
+        <div class="filter-pill">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24" width="20" height="20">
+            <path d="M6 12h12M3 6h18M9 18h6"/>
+          </svg>
+          <span class="badge">3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sheet mission focus (compact, à gauche, laisse de la place à droite) -->
+    <div class="sheet">
+      <div class="counter-row">
+        <span class="num-counter">COURSE 1 / 6</span>
+        <div class="arrows">
+          <div class="arrow-btn">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <div class="arrow-btn">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="ride-head">
+        <div>
+          <div class="tags">
+            <span class="tag cpam">CPAM</span>
+            <span class="tag urgent">URGENT</span>
+          </div>
+          <div class="time-label">14h30 · dans 8 min</div>
+        </div>
+        <div class="price">61 €</div>
+      </div>
+      <div class="trip">
+        <div class="trip-dots">
+          <div class="a"></div>
+          <div class="line"></div>
+          <div class="b"></div>
+        </div>
+        <div class="trip-text">
+          <div class="row1">
+            <div class="l1">Hôpital Nord</div>
+            <div class="l2">à 3,2 km</div>
+          </div>
+          <div>
+            <div class="l1">Aubagne centre</div>
+            <div class="l2">14 km · 22 min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accept bar plein écran en bas -->
+    <div class="accept-row">
+      <button class="accept-btn">
+        <span class="price-inline">61 €</span>
+        Accepter
+      </button>
+    </div>
+
+    <!-- Bottom nav avec FAB central -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+        Carte
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Courses
+      </div>
+      <div class="nav-fab-slot"></div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><circle cx="17" cy="9" r="3"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6M14 21c0-2.5 2-4.5 5-4.5s5 2 5 4.5"/></svg>
+        Groupes
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+        Profil
+      </div>
+    </div>
+
+    <!-- FAB central Poster -->
+    <div class="fab-poster">
+      <svg fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

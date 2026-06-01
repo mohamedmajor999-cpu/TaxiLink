@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { sharedStorage } from './_storage'
 
 // 'auto' est conserve dans le type pour ne pas casser la deserialisation des
 // valeurs persistees avant l'abandon du switch horaire ; il est traite comme
@@ -22,7 +23,10 @@ export const useNightModeStore = create<NightModeState>()(
         set({ pref: cur === 'on' ? 'off' : 'on' })
       },
     }),
-    { name: 'taxilink-night-mode' },
+    {
+      name: 'taxilink-night-mode',
+      storage: createJSONStorage(() => sharedStorage),
+    },
   ),
 )
 

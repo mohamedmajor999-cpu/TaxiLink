@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Carte V3 · Focus mission</title>
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --ink-soft: #6b6b6b;
+      --ink-muted: #9a9a9a;
+      --bg: #ffffff;
+      --line: #ececec;
+      --brand: #ffd23f;
+      --accent: #1a1a1a;
+      --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px;
+      margin: 40px auto;
+      background: var(--bg);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink);
+      z-index: 20;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    .map {
+      position: absolute; top: 0; left: 0; right: 0; height: 480px;
+      background: linear-gradient(180deg, #e8eef4 0%, #c8d4dc 100%);
+    }
+    .map::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(0deg, rgba(120,140,160,0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,140,160,0.18) 1px, transparent 1px);
+      background-size: 55px 55px;
+    }
+    .road {
+      position: absolute; background: #fff;
+      box-shadow: 0 0 0 1px #b8c3cc;
+    }
+    .road.h1 { top: 200px; left: -20px; right: -20px; height: 12px; transform: rotate(-2deg); }
+    .road.v1 { left: 140px; top: -20px; bottom: -20px; width: 12px; }
+
+    /* Route en surbrillance (Uber active route) */
+    .route-path {
+      position: absolute;
+      top: 200px; left: 60%;
+      width: 200px; height: 4px;
+      background: #0a0a0a;
+      transform: rotate(-25deg);
+      border-radius: 2px;
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.08);
+    }
+    .pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      font-weight: 800;
+      font-size: 12px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
+    .pin.dark { background: #0a0a0a; color: #fff; }
+    .pin.brand {
+      background: var(--brand); color: #1a1a1a;
+      transform: translate(-50%, -100%) scale(1.15);
+      box-shadow: 0 6px 18px rgba(255,210,63,0.5), 0 0 0 4px rgba(255,210,63,0.25);
+    }
+    .pin.dot {
+      padding: 0; width: 10px; height: 10px;
+      border-radius: 50%; background: #888;
+      border: 2px solid #fff;
+    }
+    .pin.me {
+      padding: 0; width: 20px; height: 20px;
+      border-radius: 50%; background: #2563eb;
+      border: 4px solid #fff;
+      box-shadow: 0 0 0 8px rgba(37,99,235,0.18), 0 4px 12px rgba(37,99,235,0.4);
+    }
+    .pin-label-pickup, .pin-label-dropoff {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      background: #0a0a0a;
+      color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 8px;
+      letter-spacing: -0.2px;
+    }
+    .pin-label-pickup::after, .pin-label-dropoff::after {
+      content: "";
+      position: absolute; bottom: -4px; left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 8px; height: 8px;
+      background: #0a0a0a;
+    }
+    .pin-label-dropoff { background: #fff; color: #0a0a0a; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
+    .pin-label-dropoff::after { background: #fff; }
+
+    /* Topbar */
+    .topbar {
+      position: absolute; top: 56px; left: 16px; right: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 10;
+    }
+    .iconbtn {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+    }
+    .stats-pill {
+      background: #fff;
+      padding: 8px 14px 8px 12px;
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .stats-pill .euro {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--success); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 900;
+    }
+
+    /* Sheet bas - focus 1 mission */
+    .sheet {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      background: #fff;
+      border-radius: 28px 28px 0 0;
+      padding: 14px 0 32px;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+      z-index: 5;
+    }
+    .grab {
+      width: 38px; height: 4px; border-radius: 2px;
+      background: #e0e0e0;
+      margin: 0 auto 12px;
+    }
+    .counter-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 20px 8px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 14px;
+    }
+    .counter-row .left {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .counter-row .num {
+      font-size: 12px; font-weight: 800; color: var(--ink-soft);
+      letter-spacing: 0.4px;
+    }
+    .counter-row .arrows {
+      display: flex; gap: 6px;
+    }
+    .arrow-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #f3f3f3;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .arrow-btn svg { width: 14px; height: 14px; }
+
+    .ride-focus {
+      padding: 0 20px;
+    }
+    .ride-head {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .ride-tags { display: flex; gap: 6px; margin-bottom: 6px; }
+    .tag {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+      padding: 4px 8px; border-radius: 6px;
+      background: #f4f4f4; color: var(--ink-soft);
+    }
+    .tag.cpam { background: #dbeafe; color: #1e40af; }
+    .tag.urgent { background: #fef2f2; color: #dc2626; }
+    .ride-time {
+      font-size: 13px; font-weight: 700; color: var(--ink);
+    }
+    .ride-price {
+      font-size: 30px; font-weight: 900; letter-spacing: -1px;
+    }
+    .trip {
+      display: flex; gap: 12px; align-items: flex-start;
+      margin-bottom: 18px;
+    }
+    .trip-dots {
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 6px;
+    }
+    .trip-dots .a, .trip-dots .b {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #0a0a0a;
+    }
+    .trip-dots .b { background: #fff; border: 2px solid #0a0a0a; }
+    .trip-dots .line {
+      width: 2px; flex: 1; min-height: 22px;
+      background: #d4d4d4;
+      margin: 4px 0;
+    }
+    .trip-text .l1 { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .trip-text .l2 { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+    .trip-text .row1 { margin-bottom: 18px; }
+
+    .meta-row {
+      display: flex; gap: 16px;
+      font-size: 12px; color: var(--ink-soft);
+      margin-bottom: 16px;
+    }
+    .meta-row b { color: var(--ink); font-weight: 800; }
+
+    /* CTA principal */
+    .cta {
+      display: block;
+      width: 100%;
+      height: 56px;
+      background: var(--accent);
+      color: #fff;
+      border: 0;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+    .secondary {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      font-size: 13px; font-weight: 700;
+      color: var(--ink-soft);
+    }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="map">
+      <div class="road h1"></div>
+      <div class="road v1"></div>
+      <div class="route-path"></div>
+
+      <!-- Pins en arrière plan (autres missions, discrètes) -->
+      <div class="pin dot" style="left: 20%; top: 180px;"></div>
+      <div class="pin dot" style="left: 78%; top: 250px;"></div>
+      <div class="pin dot" style="left: 30%; top: 350px;"></div>
+
+      <!-- Mission focus = pickup + dropoff -->
+      <div class="pin-label-pickup" style="left: 45%; top: 200px;">Hôpital Nord</div>
+      <div class="pin-label-dropoff" style="left: 70%; top: 320px;">Aubagne</div>
+
+      <!-- Me -->
+      <div class="pin me" style="left: 40%; top: 400px;"></div>
+    </div>
+
+    <div class="topbar">
+      <div class="iconbtn">
+        <svg fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24" width="22" height="22">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </div>
+      <div class="stats-pill">
+        <span class="euro">€</span>
+        <span>184 €</span>
+        <span style="color: var(--ink-muted); font-weight: 600; font-size: 12px;">aujourd'hui</span>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <div class="grab"></div>
+
+      <!-- Compteur + nav -->
+      <div class="counter-row">
+        <div class="left">
+          <span class="num">COURSE 1 / 6</span>
+        </div>
+        <div class="arrows">
+          <div class="arrow-btn">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <div class="arrow-btn">
+            <svg fill="none" stroke="#0a0a0a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mission en focus -->
+      <div class="ride-focus">
+        <div class="ride-head">
+          <div>
+            <div class="ride-tags">
+              <span class="tag cpam">CPAM</span>
+              <span class="tag urgent">URGENT 8 MIN</span>
+            </div>
+            <div class="ride-time">Aujourd'hui · 14h30</div>
+          </div>
+          <div class="ride-price">61 €</div>
+        </div>
+
+        <div class="trip">
+          <div class="trip-dots">
+            <div class="a"></div>
+            <div class="line"></div>
+            <div class="b"></div>
+          </div>
+          <div class="trip-text">
+            <div class="row1">
+              <div class="l1">Hôpital Nord</div>
+              <div class="l2">Chemin des Bourrely · à 3,2 km</div>
+            </div>
+            <div>
+              <div class="l1">Aubagne centre</div>
+              <div class="l2">14 km · 22 min de trajet</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="cta">Accepter la course</button>
+        <a href="#" class="secondary">Voir les détails</a>
+      </div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

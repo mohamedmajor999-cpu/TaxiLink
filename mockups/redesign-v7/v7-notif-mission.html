@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V7 - Notif nouvelle mission &eacute;pur&eacute;e</title>
+  <style>
+    :root {
+      --ink: #0a0a0a; --ink-soft: #6b6b6b; --ink-muted: #9a9a9a;
+      --bg: #ffffff; --line: #ececec;
+      --brand: #ffd23f; --accent: #1a1a1a;
+      --success: #16a34a; --danger: #dc2626;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px; margin: 40px auto;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink); z-index: 50;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    /* Backdrop tres leger : on garde le contexte visuel mais on focus la card */
+    .map-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 30%, #eef3ee 0%, #d8e4d6 100%);
+      filter: blur(4px);
+    }
+    .map-bg::after {
+      content: ""; position: absolute; inset: 0;
+      background: rgba(255,255,255,0.5);
+    }
+
+    /* Card centrale, blanche et nette */
+    .notif-card {
+      position: absolute;
+      left: 14px; right: 14px; top: 80px;
+      background: #fff;
+      border-radius: 24px;
+      padding: 22px 20px 20px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.04);
+      z-index: 30;
+      animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Header simple : label + close + countdown */
+    .notif-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 18px;
+    }
+    .new-label {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11.5px; font-weight: 800;
+      letter-spacing: 0.6px;
+      color: var(--ink);
+    }
+    .new-label .ring {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.18);
+      animation: ringPulse 1.6s infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(22,163,74,0.18); }
+      50% { box-shadow: 0 0 0 7px rgba(22,163,74,0); }
+    }
+    .close-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #f3f3f3;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Bloc prix + distance : sobre */
+    .price-row {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 16px;
+    }
+    .price-block .price {
+      font-size: 44px; font-weight: 900;
+      letter-spacing: -2px; line-height: 1;
+      color: var(--ink);
+    }
+    .price-block .price-sub {
+      font-size: 12px; color: var(--ink-soft);
+      margin-top: 4px; font-weight: 600;
+    }
+    .dist-block {
+      text-align: right;
+    }
+    .dist-block .km {
+      font-size: 18px; font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .dist-block .km-sub {
+      font-size: 11.5px; color: var(--ink-soft);
+      margin-top: 2px; font-weight: 600;
+    }
+
+    /* Tags discrets */
+    .tags-row { display: flex; gap: 6px; margin-bottom: 16px; }
+    .tag {
+      font-size: 10.5px; font-weight: 800;
+      padding: 4px 8px; border-radius: 6px;
+      letter-spacing: 0.4px;
+    }
+    .tag.cpam { background: #dbeafe; color: #1e40af; }
+    .tag.urgent { background: #fef2f2; color: #dc2626; }
+    .tag.time { background: #f3f3f3; color: var(--ink-soft); }
+
+    /* Trip simplifie : 2 lignes */
+    .trip {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 16px;
+    }
+    .trip-dots {
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 5px;
+    }
+    .trip-dots .a, .trip-dots .b { width: 9px; height: 9px; border-radius: 50%; background: #0a0a0a; }
+    .trip-dots .b { background: #fff; border: 2px solid #0a0a0a; }
+    .trip-dots .line { width: 2px; flex: 1; min-height: 20px; background: #d4d4d4; margin: 3px 0; }
+    .trip-text .l1 { font-size: 14.5px; font-weight: 800; letter-spacing: -0.2px; }
+    .trip-text .l2 { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+    .trip-text .row1 { margin-bottom: 14px; }
+
+    /* Patient row mini */
+    .patient {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 18px;
+    }
+    .patient-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: #dbeafe; color: #1e40af;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 900;
+    }
+    .patient-text { flex: 1; min-width: 0; }
+    .patient-name { font-size: 13.5px; font-weight: 800; letter-spacing: -0.1px; }
+    .patient-sub {
+      font-size: 11.5px; color: var(--ink-soft); margin-top: 1px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .patient-sub .star { color: #f59e0b; font-weight: 800; }
+    .patient-sub .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-muted); }
+
+    /* Actions : ligne Refuser/Details + bouton Accepter */
+    .actions-top {
+      display: flex; gap: 8px; margin-bottom: 10px;
+    }
+    .btn-secondary {
+      flex: 1; height: 46px;
+      background: #f3f3f3; color: var(--ink);
+      border: 0; border-radius: 14px;
+      font-size: 14px; font-weight: 800;
+      letter-spacing: -0.1px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 5px;
+    }
+    .btn-secondary svg { width: 16px; height: 16px; }
+    .btn-primary {
+      width: 100%; height: 56px;
+      background: var(--accent); color: #fff;
+      border: 0; border-radius: 16px;
+      font-size: 17px; font-weight: 800;
+      letter-spacing: -0.2px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-primary .countdown {
+      background: rgba(255,255,255,0.18);
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 12.5px; font-weight: 800;
+      min-width: 32px; text-align: center;
+    }
+
+    /* Barre countdown fine sous le bouton */
+    .countdown-bar {
+      height: 3px;
+      background: #f3f3f3;
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .countdown-bar .fill {
+      height: 100%; width: 70%;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000; z-index: 40;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="map-bg"></div>
+
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="notif-card">
+      <div class="notif-head">
+        <span class="new-label">
+          <span class="ring"></span>
+          NOUVELLE MISSION
+        </span>
+        <div class="close-btn">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24" width="14" height="14">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="price-row">
+        <div class="price-block">
+          <div class="price">61 &euro;</div>
+          <div class="price-sub">course CPAM</div>
+        </div>
+        <div class="dist-block">
+          <div class="km">3,2 km</div>
+          <div class="km-sub">8 min pickup</div>
+        </div>
+      </div>
+
+      <div class="tags-row">
+        <span class="tag cpam">CPAM</span>
+        <span class="tag urgent">URGENT</span>
+        <span class="tag time">D&Eacute;PART 14:30</span>
+      </div>
+
+      <div class="trip">
+        <div class="trip-dots">
+          <div class="a"></div>
+          <div class="line"></div>
+          <div class="b"></div>
+        </div>
+        <div class="trip-text">
+          <div class="row1">
+            <div class="l1">H&ocirc;pital Nord</div>
+            <div class="l2">Chemin des Bourrely &middot; Marseille 15</div>
+          </div>
+          <div>
+            <div class="l1">Aubagne centre</div>
+            <div class="l2">14 km &middot; 22 min de trajet</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="patient">
+        <div class="patient-avatar">MM</div>
+        <div class="patient-text">
+          <div class="patient-name">Mme Martin</div>
+          <div class="patient-sub">
+            <span class="star">&starf; 4,8</span>
+            <span class="dot"></span>
+            <span>67 ans</span>
+            <span class="dot"></span>
+            <span>fauteuil pliant</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions-top">
+        <button class="btn-secondary">
+          <svg fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+          Refuser
+        </button>
+        <button class="btn-secondary">
+          <svg fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          D&eacute;tails
+        </button>
+      </div>
+
+      <button class="btn-primary">
+        Accepter la course
+        <span class="countdown">12s</span>
+      </button>
+
+      <div class="countdown-bar">
+        <div class="fill"></div>
+      </div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

@@ -94,6 +94,27 @@ export const missionMutations = {
     await api.delete<{ ok: true }>(`/api/missions/${id}`)
   },
 
+  /**
+   * Variante directe du DELETE via Supabase client (sans API route Next.js).
+   * Indispensable cote mobile : `remove` passe par /api/missions/:id qui exige
+   * un cookie SSR Next.js, absent en RN. Ici on s'appuie directement sur la
+   * policy RLS "Suppression mission auteur" (status = AVAILABLE AND
+   * (client_id = auth.uid() OR shared_by = auth.uid())).
+   */
+  async removeOwn(id: string): Promise<void> {
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase
+      .from('missions')
+      .delete()
+      .eq('id', id)
+      .eq('status', 'AVAILABLE')
+      .select('id')
+    if (error) throw new Error(error.message)
+    if (!data || data.length === 0) {
+      throw new Error('Suppression refusee (mission deja prise ou inexistante).')
+    }
+  },
+
   /** Booster le prix d'une mission AVAILABLE postee par soi-meme (RLS verifie shared_by). */
   async boostPrice(id: string, deltaEur: number): Promise<Mission> {
     const supabase = getSupabaseClient()

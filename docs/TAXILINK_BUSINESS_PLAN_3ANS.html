@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>TaxiLink — Business Plan 3 ans</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a2e;
+    line-height: 1.5;
+    font-size: 10.5pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 24pt;
+    color: #1a1a2e;
+    background: linear-gradient(90deg, #FBBF24 0%, #FDE68A 100%);
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin: 0 0 6px 0;
+    line-height: 1.15;
+  }
+  h2 {
+    font-size: 16pt;
+    color: #fff;
+    background: #1a1a2e;
+    padding: 9px 14px;
+    border-radius: 9px;
+    margin: 22px 0 10px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 12.5pt;
+    color: #1a1a2e;
+    margin: 14px 0 6px 0;
+    border-left: 5px solid #FBBF24;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 11.5pt;
+    color: #1a1a2e;
+    margin: 10px 0 4px 0;
+    page-break-after: avoid;
+  }
+  .subtitle { font-size: 12pt; color: #555; margin: 0 0 6px 4px; font-style: italic; }
+  .meta { font-size: 9.5pt; color: #6B7280; margin: 0 0 18px 4px; }
+  .toc { background: #FEF3C7; border: 2px dashed #FBBF24; border-radius: 12px; padding: 14px 20px; margin: 16px 0 20px 0; }
+  .toc ol { margin: 4px 0 0 18px; padding: 0; }
+  .toc li { margin: 3px 0; }
+  .intro-box { background: #FEF3C7; border-left: 6px solid #FBBF24; border-radius: 10px; padding: 12px 18px; margin: 14px 0; }
+  .callout-good { background: #DCFCE7; border-left: 6px solid #16A34A; border-radius: 10px; padding: 10px 14px; margin: 10px 0; page-break-inside: avoid; }
+  .callout-warn { background: #FEE2E2; border-left: 6px solid #DC2626; border-radius: 10px; padding: 10px 14px; margin: 10px 0; page-break-inside: avoid; }
+  .callout-info { background: #DBEAFE; border-left: 6px solid #2563EB; border-radius: 10px; padding: 10px 14px; margin: 10px 0; page-break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.5pt; page-break-inside: avoid; }
+  th { background: #1a1a2e; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+  td { padding: 7px 10px; border-bottom: 1px solid #E5E7EB; vertical-align: top; }
+  tr:nth-child(even) td { background: #FAFAFA; }
+  .pill { display: inline-block; background: #FBBF24; color: #1a1a2e; padding: 2px 9px; border-radius: 999px; font-weight: 700; font-size: 9pt; }
+  .pill-dark { display: inline-block; background: #1a1a2e; color: #FBBF24; padding: 2px 9px; border-radius: 999px; font-weight: 700; font-size: 9pt; }
+  .check { color: #16A34A; font-weight: 700; }
+  .cross { color: #DC2626; font-weight: 700; }
+  .warn { color: #D97706; font-weight: 700; }
+  .footer { margin-top: 24px; padding-top: 10px; border-top: 2px solid #FBBF24; color: #6B7280; font-size: 8.5pt; text-align: center; }
+  ul, ol { padding-left: 20px; margin: 6px 0; }
+  li { margin: 2px 0; }
+  .page-break { page-break-before: always; }
+  .summary-card { background: #1a1a2e; color: #fff; border-radius: 12px; padding: 14px 18px; margin: 14px 0; }
+  .summary-card h3 { color: #FBBF24; border: none; padding: 0; margin: 0 0 6px 0; font-size: 12pt; }
+  .col-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .col-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .feature-card { background: #F9FAFB; border-radius: 10px; padding: 10px 12px; border: 1px solid #E5E7EB; page-break-inside: avoid; }
+  .feature-card h4 { margin: 0 0 4px 0; font-size: 10.5pt; }
+  .feature-card .status { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 8pt; font-weight: 700; }
+  .status-live { background: #DCFCE7; color: #14532D; }
+  .status-soon { background: #FEF3C7; color: #92400E; }
+  .status-future { background: #DBEAFE; color: #1E3A8A; }
+  .addon-card { background: #FFFBEB; border: 2px solid #FBBF24; border-radius: 10px; padding: 12px 14px; margin: 10px 0; page-break-inside: avoid; }
+  .addon-name { font-weight: 800; color: #1a1a2e; font-size: 11pt; }
+  .addon-price { float: right; background: #1a1a2e; color: #FBBF24; padding: 2px 9px; border-radius: 999px; font-weight: 700; font-size: 10pt; }
+  .addon-meta { font-size: 9pt; color: #6B7280; margin: 6px 0 0 0; }
+  .timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+  .timeline-cell { background: #F9FAFB; border-radius: 10px; padding: 10px 12px; border: 1px solid #E5E7EB; }
+  .timeline-year { font-size: 9pt; color: #6B7280; font-weight: 700; text-transform: uppercase; }
+  .timeline-title { font-size: 11pt; font-weight: 700; margin: 4px 0 6px 0; }
+  .num { font-size: 18pt; font-weight: 800; color: #FBBF24; }
+  .ring { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: #FBBF24; color: #1a1a2e; text-align: center; line-height: 22px; font-weight: 800; font-size: 10pt; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<h1>TaxiLink — Business Plan 3 ans</h1>
+<p class="subtitle">Produit · Pricing · Modèle économique · Statut juridique · Recrutement · Valorisation</p>
+<p class="meta">Document interne — Mai 2026 — Pour Mohamed Major — Confidentiel</p>
+
+<div class="toc">
+  <strong>Sommaire</strong>
+  <ol>
+    <li>Synthèse exécutive (1 page)</li>
+    <li>Partie I — Le produit TaxiLink (fonctionnalités, état des lieux, position concurrence, axes d'amélioration)</li>
+    <li>Partie II — Roadmap fonctionnelle 4 phases (Light → Pro → Premium → Marketplace courses privées)</li>
+    <li>Partie III — Pricing détaillé : 4 plans + 11 add-ons (chaque add-on expliqué)</li>
+    <li>Partie IV — Expansion géographique 3 ans (Marseille → Métropole → PACA → National)</li>
+    <li>Partie V — Modèle économique 3 ans (P&amp;L, TVA, IS, cash flow)</li>
+    <li>Partie VI — Statut juridique : Micro → SAS solo → SAS équipe</li>
+    <li>Partie VII — Plan recrutement : 5 profils, 4 paliers, indispensable vs nice-to-have</li>
+    <li>Partie VIII — Valorisation au fil du temps (an 1, 2, 3, 5)</li>
+    <li>Partie IX — Risques et plan de contingence</li>
+  </ol>
+</div>
+
+<h2>1. Synthèse exécutive</h2>
+
+<div class="intro-box">
+  <p style="margin:0;"><strong>Le pari TaxiLink en 1 page.</strong> Lancer en mode "Light" (sans télétransmission, sans HDS) à 19,90 € TTC pour valider le marché Marseille à coût quasi nul. Atteindre 200 chauffeurs en M12, 500 en M24 (Métropole Aix-Marseille), 1 000 en M36 (PACA + premiers hubs). Activer la télétransmission via Orisha en Phase 2 (M12-18) seulement quand la traction est prouvée. Évoluer du statut Micro-entreprise (M0-6) vers SAS solo (M6-18) puis SAS avec équipe (M18+). Atteindre <strong>~240 k€ ARR à M36, valorisation 1,4-1,9 M€</strong>, équipe de 5, et option Phase 4 (marketplace courses privées) ouverte.</p>
+</div>
+
+<h3>Les 5 chiffres à mémoriser</h3>
+<table>
+  <tr><th>Indicateur</th><th>An 1 (Marseille)</th><th>An 2 (Métropole)</th><th>An 3 (PACA)</th></tr>
+  <tr><td>Chauffeurs payants fin de période</td><td>200</td><td>500</td><td>1 000</td></tr>
+  <tr><td>ARR (HT)</td><td>~44 k€</td><td>~110 k€</td><td>~240 k€</td></tr>
+  <tr><td>Résultat net estimé</td><td>≈ 0 (break-even)</td><td>≈ 0 (break-even)</td><td>+15 à +25 k€</td></tr>
+  <tr><td>Effectif total (avec toi)</td><td>1</td><td>2-3</td><td>4-5</td></tr>
+  <tr><td>Valorisation estimée</td><td>175-265 k€</td><td>550-770 k€</td><td>1,4-1,9 M€</td></tr>
+</table>
+
+<h3>Décisions de cadrage prises dans ce document</h3>
+<ul>
+  <li><strong>Modèle Light en Phase 1</strong> — pas d'HDS, pas d'agrément CNDA, pas de partenaire CPAM. Économie 15-30 k€ et 6 mois.</li>
+  <li><strong>Pricing à 19,90 € TTC</strong> (et non 9,90 €) — démontré rentable dès 100 chauffeurs.</li>
+  <li><strong>Statut Micro-entreprise puis SAS</strong> — bascule prévue au M6 quand on approche les 36 800 € HT.</li>
+  <li><strong>Marketplace courses privées en Phase 4</strong> — pas avant M30 pour ne pas se disperser.</li>
+  <li><strong>Recrutement progressif</strong> — 1 commercial mi-temps M12, dev junior M18, autre profils M24-36.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2>2. Partie I — Le produit TaxiLink aujourd'hui</h2>
+
+<h3>2.1 Fonctionnalités déjà livrées (état au 5 mai 2026)</h3>
+
+<div class="col-2">
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Création de course (PartagerMissionModal)</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">Adresse via Base Adresse Nationale (BAN, gouvernement, gratuit), distance via OSRM open source, saisie vocale Web Speech API, encart RGPD patient.</p>
+  </div>
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Suivi GPS auto-progression</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">Hook useAutoMissionProgress, 2 colonnes BD pour le tracking, pas d'intervention manuelle du chauffeur.</p>
+  </div>
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Calcul tarif CPAM préfectoral</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">Tarif officiel auto-chargé selon la zone (préfectorale BdR), pas de saisie manuelle.</p>
+  </div>
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Dashboard chauffeur</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">Inter sans-serif, hiérarchie par poids, mobile-first, jaune #FBBF24 + rounded.</p>
+  </div>
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Dashboard patron Phase 1</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">Multi-tenancy, 3 onglets (Vue / Courses / Agenda), pensé PC en priorité, livré 2026-05-03.</p>
+  </div>
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Marketplace cross-organisations</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">Échange de courses entre flottes différentes — différenciateur fort vs Caree (limité aux Groupes intra).</p>
+  </div>
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Persistance session "Instagram-style"</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">Cookies 1 an + refresh sur visibilitychange, déconnexion uniquement manuelle.</p>
+  </div>
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Templates email Supabase brandés</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">4 templates (signup / reset / magic link / change email), Brevo en attente domaine.</p>
+  </div>
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Dashboard admin coûts API</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">Suivi coûts OpenAI / Vercel / Supabase, accès via mohamed.major@outlook.fr.</p>
+  </div>
+  <div class="feature-card">
+    <span class="status status-live">LIVRÉ</span>
+    <h4>Logo wordmark</h4>
+    <p style="margin:4px 0 0 0; font-size:9.5pt;">Plus Jakarta Sans 800 + i-stems custom + points jaunes #FBBF24, deux versions light/dark.</p>
+  </div>
+</div>
+
+<h3>2.2 Position vs concurrence (matrice détaillée)</h3>
+
+<table>
+  <tr>
+    <th>Fonction</th>
+    <th>Caree (Lyon, 30 €)</th>
+    <th>Soraya (Avoine, 30-40 €)</th>
+    <th>GESTAV / autres (~25 €)</th>
+    <th>TaxiLink Light (19,90 €)</th>
+  </tr>
+  <tr><td>Adresses BAN open source</td><td><span class="cross">✗ propriétaire</span></td><td><span class="warn">Michelin</span></td><td><span class="cross">✗</span></td><td><span class="check">✓ gratuit</span></td></tr>
+  <tr><td>Routage OSRM open source</td><td><span class="cross">✗</span></td><td><span class="warn">Michelin payant</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>Saisie vocale (Web Speech API)</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓ unique sur le marché</span></td></tr>
+  <tr><td>GPS auto-progression de course</td><td><span class="cross">✗ manuel</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>Marketplace cross-organisations</td><td><span class="warn">Groupes intra-flottes</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>Dashboard patron multi-tenant</td><td><span class="warn">Limité</span></td><td><span class="warn">Bricolé</span></td><td><span class="warn">Variable</span></td><td><span class="check">✓ natif</span></td></tr>
+  <tr><td>Persistance session 1 an</td><td>Standard</td><td>Standard</td><td>Standard</td><td><span class="check">✓ "Instagram-style"</span></td></tr>
+  <tr><td>UX 2026 (jaune, rounded, Inter)</td><td><span class="warn">UX 2023</span></td><td><span class="cross">UX 2018</span></td><td><span class="cross">UX 2010</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>Stack moderne (Next.js + Supabase)</td><td>Native + WordPress</td><td>Legacy</td><td>Legacy</td><td><span class="check">✓</span></td></tr>
+  <tr><td>Télétransmission CPAM directe</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗ Phase 2</span></td></tr>
+  <tr><td>Tiers-payant complémentaire</td><td><span class="warn">Partiel</span></td><td><span class="check">240+ mutuelles</span></td><td><span class="warn">Variable</span></td><td><span class="cross">✗ Phase 2</span></td></tr>
+  <tr><td>Avance trésorerie 24h</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗ Phase 3</span></td></tr>
+</table>
+
+<h3>2.3 Axes d'amélioration prioritaires (à coder dans les 6 mois)</h3>
+
+<table>
+  <tr><th>Priorité</th><th>Sujet</th><th>Effort estimé</th><th>Pourquoi</th></tr>
+  <tr><td><span class="pill">P0</span></td><td>App mobile native iOS/Android (Capacitor ou React Native)</td><td>3-4 semaines</td><td>Caree a iOS 4,8★. Tu dois être à parité minimum.</td></tr>
+  <tr><td><span class="pill">P0</span></td><td>Page pricing publique + landing /migration</td><td>1 semaine</td><td>Sans landing, pas de conversion. Indispensable.</td></tr>
+  <tr><td><span class="pill">P1</span></td><td>Onboarding guidé (3 écrans + tour produit)</td><td>1 semaine</td><td>Réduit le churn early-stage de 30 à 50 %.</td></tr>
+  <tr><td><span class="pill">P1</span></td><td>Export PDF "feuille de soins préremplie"</td><td>1 semaine</td><td>Brique clé du modèle Light : permet au chauffeur d'imprimer/copier dans son SESAM-Vitale.</td></tr>
+  <tr><td><span class="pill">P1</span></td><td>Annuaire patient simple (sans données médicales)</td><td>1 semaine</td><td>Récurrents 1 clic — gros gain de temps perçu.</td></tr>
+  <tr><td><span class="pill">P2</span></td><td>Module "courses privées" (sans marketplace publique)</td><td>2 semaines</td><td>Premier pas vers Phase 4. Le chauffeur peut gérer toutes ses courses dans une seule app.</td></tr>
+  <tr><td><span class="pill">P2</span></td><td>Stats / dashboard analytics chauffeur</td><td>1 semaine</td><td>Justifie le passage du plan Essentiel au Pro.</td></tr>
+  <tr><td><span class="pill">P2</span></td><td>Export comptable Sage / EBP / Cegid</td><td>1 semaine</td><td>Fonction "anti-churn", très demandée par les patrons de flotte.</td></tr>
+  <tr><td><span class="pill">P3</span></td><td>SMS automatiques patient (intégration Brevo)</td><td>3 jours</td><td>Add-on payant à 5,90 € — marge 70 %.</td></tr>
+  <tr><td><span class="pill">P3</span></td><td>Module signature électronique avancée</td><td>1 semaine</td><td>Sécurité juridique du tarif facturé au patient.</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2>3. Partie II — Roadmap fonctionnelle 4 phases</h2>
+
+<div class="timeline">
+  <div class="timeline-cell">
+    <div class="timeline-year">PHASE 1 — M0 → M12</div>
+    <div class="timeline-title">TaxiLink Light</div>
+    <p style="margin:6px 0; font-size:9.5pt;">Sans télétransmission, sans HDS, sans partenaire CPAM. Le chauffeur garde son lecteur SESAM-Vitale, TaxiLink fait tout le reste.</p>
+    <p style="margin:6px 0 0 0; font-size:9pt; color:#6B7280;">Objectif : 200 chauffeurs payants Marseille</p>
+  </div>
+  <div class="timeline-cell">
+    <div class="timeline-year">PHASE 2 — M12 → M24</div>
+    <div class="timeline-title">TaxiLink Pro (télétransmission)</div>
+    <p style="margin:6px 0; font-size:9.5pt;">Intégration Orisha Intellio Éditeurs via API REST. Plan Pro à 29,90 € avec FSE, ADRi, PEC+. Tiers-payant complémentaire en option (Almerys).</p>
+    <p style="margin:6px 0 0 0; font-size:9pt; color:#6B7280;">Objectif : 500 chauffeurs métropole Aix-Marseille</p>
+  </div>
+  <div class="timeline-cell">
+    <div class="timeline-year">PHASE 3 — M24 → M36</div>
+    <div class="timeline-title">TaxiLink Premium</div>
+    <p style="margin:6px 0; font-size:9.5pt;">Avance trésorerie 24h via partenaire factor (Defacto / Factris / Rivero). Analytics avancés. Concierge support 7j/7.</p>
+    <p style="margin:6px 0 0 0; font-size:9pt; color:#6B7280;">Objectif : 1 000 chauffeurs PACA + premiers hubs</p>
+  </div>
+</div>
+
+<h3>3.1 Phase 4 (M30+) — Extension marketplace courses privées</h3>
+
+<div class="callout-info">
+  <p style="margin:0;"><strong>L'idée</strong> : un chauffeur conventionné fait en moyenne 30 % de courses non-CPAM (gare, hôtel, particuliers). Aujourd'hui ces courses sont éparses (Uber, Heetch, Bolt, hèle, station). TaxiLink peut devenir l'app de réservation pour les particuliers qui veulent un taxi non-Uber. <strong>Mais c'est un gros morceau, à ne pas lancer avant M30.</strong></p>
+</div>
+
+<h4>Ce que ça veut dire concrètement</h4>
+<ul>
+  <li>Une <strong>app patient/passager</strong> distincte (TaxiLink Customer)</li>
+  <li>Réservation immédiate ou planifiée auprès d'un chauffeur TaxiLink</li>
+  <li>Commission TaxiLink <strong>10 %</strong> par course (vs 25 % chez Uber)</li>
+  <li>Argument chauffeur : "Tu gardes 90 % au lieu de 75 %"</li>
+  <li>Argument patient : "Tu soutiens un chauffeur indépendant marseillais, pas une multinationale"</li>
+</ul>
+
+<h4>Ce que ça nécessite</h4>
+<table>
+  <tr><th>Brique</th><th>Effort</th><th>Coût estimé</th></tr>
+  <tr><td>App patient (iOS + Android)</td><td>4 mois</td><td>40-60 k€ (dev + design)</td></tr>
+  <tr><td>Système de matching temps réel (chauffeur dispo)</td><td>2 mois</td><td>Inclus dans dev</td></tr>
+  <tr><td>Paiement intégré Stripe Connect</td><td>3 semaines</td><td>0 € (Stripe gratuit)</td></tr>
+  <tr><td>Customer support (1 personne)</td><td>—</td><td>30-40 k€/an</td></tr>
+  <tr><td>Marketing patient (pub Facebook, Insta, Google Ads)</td><td>—</td><td>30-50 k€/an</td></tr>
+  <tr><td><strong>Investissement total Phase 4</strong></td><td><strong>6-9 mois</strong></td><td><strong>~120-180 k€ an 1</strong></td></tr>
+</table>
+
+<div class="callout-warn">
+  <p style="margin:0;"><strong>Attention</strong> : Phase 4 est risquée car tu te battrais contre G7, Heetch, Bolt qui ont des poches profondes. Ne lance pas Phase 4 si tu n'as pas levé au moins 200-300 k€ ou si tu n'as pas 1 000+ chauffeurs solidement acquis.</p>
+</div>
+
+<h2>4. Partie III — Pricing détaillé : 4 plans + 11 add-ons</h2>
+
+<h3>4.1 Les 4 plans principaux</h3>
+
+<table>
+  <tr><th>Plan</th><th>Prix TTC mensuel</th><th>Prix TTC annuel (-25 %)</th><th>Cible</th></tr>
+  <tr><td><strong>GRATUIT</strong></td><td>0 €</td><td>—</td><td>Acquisition. 5 courses/mois max, pas d'export, pas de SMS.</td></tr>
+  <tr><td><strong>ESSENTIEL</strong> (Light)</td><td><strong>19,90 €</strong></td><td>178 €/an (≈ 14,90 €/mois)</td><td>Chauffeur indépendant, sans télétransmission. Le cœur de cible Phase 1.</td></tr>
+  <tr><td><strong>PRO</strong> (avec télétransmission)</td><td><strong>29,90 €</strong> (Phase 2)</td><td>269 €/an (≈ 22,40 €/mois)</td><td>Chauffeur conventionné qui veut tout-en-un.</td></tr>
+  <tr><td><strong>PREMIUM</strong></td><td><strong>49 €</strong> (Phase 3)</td><td>441 €/an (≈ 36,75 €/mois)</td><td>Chauffeur qui veut avance trésorerie + analytics + multi-véhicules.</td></tr>
+  <tr><td><strong>FLOTTE</strong> (à partir de 3)</td><td><strong>14,90 €/chauffeur</strong></td><td>134 €/chauffeur/an</td><td>Patron de flotte, dégressif au volume.</td></tr>
+</table>
+
+<h3>4.2 Les 11 add-ons (chacun expliqué)</h3>
+
+<div class="addon-card">
+  <span class="addon-price">4,90 €/mois</span>
+  <span class="addon-name"><span class="ring">1</span>Pack IA — Assistant vocal &amp; automatisation</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Le chauffeur dit : <em>"Ajoute Mr Dupont, course de 14h, départ Avenue du Prado, arrivée Hôpital Timone service cardio."</em> L'IA structure tout, prérempli la course, prêt à valider en 5 secondes.</p>
+  <p class="addon-meta">Tech : Whisper (transcription) + GPT-4o-mini (structuration) · Coût TaxiLink : ~1,80 €/chauffeur/mois usage modéré · <strong>Marge 63 %</strong> · Cible : chauffeurs débordés ou peu à l'aise avec la saisie clavier</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">6,90 €/mois</span>
+  <span class="addon-name"><span class="ring">2</span>Pack Scan ordonnance / bon de transport</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Le chauffeur prend en photo le bon de transport. L'OCR extrait automatiquement : nom du patient, médecin prescripteur, motif (anonymisé), date, n° de prescription. Plus de saisie manuelle.</p>
+  <p class="addon-meta">Tech : GPT-4o Vision · Coût : 0,01 €/scan ($0,003) · 50 scans/mois inclus · Coût TaxiLink ~0,50 €/mois · <strong>Marge 92 %</strong> · Cible : chauffeurs avec patients variés (vs récurrents dialyse)</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">5,90 €/mois</span>
+  <span class="addon-name"><span class="ring">3</span>Pack SMS illimités patient</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">SMS automatiques : "Le taxi arrive dans 5 min", "Je suis devant chez vous", confirmations RDV J-1. 10 SMS inclus dans Essentiel, 100 dans Pro, illimités avec ce pack.</p>
+  <p class="addon-meta">Tech : Brevo / Twilio · Coût TaxiLink : ~1,50-3 €/chauffeur (selon usage) · <strong>Marge 50-75 %</strong> · Cible : chauffeurs avec beaucoup de patients âgés / familles inquiètes</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">9,90 €/mois</span>
+  <span class="addon-name"><span class="ring">4</span>Lecteur Vitale en location (Phase 2+)</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Lecteur bi-fente Olaqin neuf en location, remplacement gratuit en cas de panne. Évite l'avance de 199-249 € à l'achat. Le chauffeur peut résilier à tout moment et le restituer.</p>
+  <p class="addon-meta">Tech : revente Olaqin · Coût TaxiLink : ~150 € amorti sur 36 mois = 4,17 € · <strong>Marge 58 %</strong> · Cible : nouveaux conventionnés, chauffeurs sans capex</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">1,5 % par course</span>
+  <span class="addon-name"><span class="ring">5</span>Avance trésorerie 24h (Phase 3 — Premium uniquement)</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Au lieu d'attendre 15-30 jours la CPAM, le chauffeur reçoit le montant de la course en 24h. TaxiLink avance via un partenaire factor (Defacto, Factris, Rivero) et se rembourse quand la CPAM paie.</p>
+  <p class="addon-meta">Coût TaxiLink : 0,5-0,8 % via factor · <strong>Marge 47-67 %</strong> · Sur une course CPAM moyenne 35 € : revenu TaxiLink ~0,52 €, coût ~0,28 € · Cible : chauffeurs avec trésorerie tendue, patrons fragilisés</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">5,90 €/mois</span>
+  <span class="addon-name"><span class="ring">6</span>Tiers-payant complémentaire — 240 mutuelles (Phase 2)</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Télétransmission directe vers les mutuelles via API Almerys / Viamedis. Le chauffeur n'avance plus la part complémentaire (10-30 % du tarif).</p>
+  <p class="addon-meta">Tech : API Almerys · Coût TaxiLink : ~1,50 € · <strong>Marge 75 %</strong> · Cible : chauffeurs Pro avec patientèle CMU-C / mutuelles</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">49 € one-shot</span>
+  <span class="addon-name"><span class="ring">7</span>Onboarding personnalisé 1h visio</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Un Customer Success de TaxiLink fait une visio 1h avec le nouveau chauffeur : configuration compte, import patients, première course test, démo des fonctions clés.</p>
+  <p class="addon-meta">Coût TaxiLink : ~25 € (1h CSM chargé) · <strong>Marge 49 %</strong> · Cible : chauffeurs 50+, peu à l'aise avec le numérique · Réduit le churn de ~20 %</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">79 € one-shot</span>
+  <span class="addon-name"><span class="ring">8</span>Migration assistée depuis concurrent</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Tu fournis ta facture Caree/Soraya/GESTAV + un export de tes patients. TaxiLink importe tout en 48h, te configure le compte, te forme. Migration sans douleur.</p>
+  <p class="addon-meta">Coût TaxiLink : ~30 € (1h CSM + import script) · <strong>Marge 62 %</strong> · Cible : chauffeurs équipés concurrent · Argument migration MIGRATION6MOIS combiné</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">9 €/véhicule supp</span>
+  <span class="addon-name"><span class="ring">9</span>Multi-véhicules (au-delà du forfait inclus)</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Le plan Pro inclut 1 véhicule. Le plan Premium inclut 2. Au-delà : 9 €/véhicule supplémentaire. Pour les chauffeurs avec une voiture de remplacement.</p>
+  <p class="addon-meta">Coût TaxiLink : ~1 € infra · <strong>Marge 89 %</strong> · Cible : indépendants à 2-3 voitures</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">14,90 €/mois</span>
+  <span class="addon-name"><span class="ring">10</span>Dashboard patron premium (Phase 2)</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Reporting avancé multi-flottes : KPIs par chauffeur, rentabilité par ligne (dialyse / radio / chimio), exports comptables auto, alertes anomalies.</p>
+  <p class="addon-meta">Coût TaxiLink : ~1 € (analytics infra) · <strong>Marge 93 %</strong> · Cible : patrons de 5+ chauffeurs · Vendu en plus du forfait FLOTTE</p>
+</div>
+
+<div class="addon-card">
+  <span class="addon-price">4,90 €/mois</span>
+  <span class="addon-name"><span class="ring">11</span>Module courses privées (Phase 1.5 — pré-Phase 4)</span>
+  <p style="margin:6px 0 0 0; font-size:10pt;">Le chauffeur gère aussi ses courses non-CPAM (gare, hôtel, particuliers) dans la même app. Facturation simple PDF. <strong>C'est le pré-requis du futur module marketplace.</strong></p>
+  <p class="addon-meta">Coût TaxiLink : ~0,50 € · <strong>Marge 89 %</strong> · Cible : tous les chauffeurs (90 % font des courses privées)</p>
+</div>
+
+<h3>4.3 Synthèse marges add-ons</h3>
+
+<table>
+  <tr><th>Add-on</th><th>Prix TTC</th><th>Coût HT</th><th>Marge brute estimée</th></tr>
+  <tr><td>1. Pack IA</td><td>4,90 €</td><td>1,80 €</td><td>~63 %</td></tr>
+  <tr><td>2. Pack Scan</td><td>6,90 €</td><td>0,50 €</td><td>~92 %</td></tr>
+  <tr><td>3. Pack SMS</td><td>5,90 €</td><td>1,50 €</td><td>~70 %</td></tr>
+  <tr><td>4. Lecteur en location</td><td>9,90 €</td><td>4,17 €</td><td>~58 %</td></tr>
+  <tr><td>5. Avance tréso</td><td>1,5 %/course</td><td>0,5 %</td><td>~67 %</td></tr>
+  <tr><td>6. Tiers-payant complémentaire</td><td>5,90 €</td><td>1,50 €</td><td>~75 %</td></tr>
+  <tr><td>7. Onboarding 1h</td><td>49 € one-shot</td><td>25 €</td><td>~49 %</td></tr>
+  <tr><td>8. Migration assistée</td><td>79 € one-shot</td><td>30 €</td><td>~62 %</td></tr>
+  <tr><td>9. Multi-véhicules</td><td>9 €</td><td>1 €</td><td>~89 %</td></tr>
+  <tr><td>10. Dashboard patron premium</td><td>14,90 €</td><td>1 €</td><td>~93 %</td></tr>
+  <tr><td>11. Courses privées</td><td>4,90 €</td><td>0,50 €</td><td>~89 %</td></tr>
+  <tr><td><strong>Moyenne pondérée</strong></td><td>—</td><td>—</td><td><strong>~70-75 %</strong></td></tr>
+</table>
+
+<div class="callout-good">
+  <p style="margin:0;"><strong>Insight stratégique</strong> : les add-ons à 70-90 % de marge sont le vrai moteur de rentabilité. Si l'ARPU base est de 19,90 € et l'ARPU add-ons +5 €, tu passes d'une marge brute de 63 % à 75 %. Pousse les add-ons dès le mois 2 d'usage.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>5. Partie IV — Expansion géographique 3 ans</h2>
+
+<h3>5.1 Marché total adressable (TAM)</h3>
+
+<table>
+  <tr><th>Zone</th><th>Taxis total</th><th>Conventionnés</th><th>% conventionnés</th><th>Période cible</th></tr>
+  <tr><td>Marseille intra-muros (13)</td><td>1 800</td><td>1 200</td><td>67 %</td><td>An 1 (M0-M12)</td></tr>
+  <tr><td>Métropole Aix-Marseille-Provence</td><td>3 000</td><td>1 800</td><td>60 %</td><td>An 2 (M12-M24)</td></tr>
+  <tr><td>PACA (+ Toulon, Nice, Avignon)</td><td>6 000</td><td>3 800</td><td>63 %</td><td>An 3 (M24-M36)</td></tr>
+  <tr><td>Lyon métropole</td><td>4 000</td><td>2 200</td><td>55 %</td><td>An 3 (M30+, hub)</td></tr>
+  <tr><td>Bordeaux + Toulouse</td><td>3 500</td><td>1 900</td><td>54 %</td><td>An 3 (M30+, hub)</td></tr>
+  <tr><td>Paris IDF</td><td>20 000</td><td>11 000</td><td>55 %</td><td>An 4-5 (gros morceau)</td></tr>
+  <tr><td><strong>France totale</strong></td><td><strong>54 000</strong></td><td><strong>32 000</strong></td><td><strong>59 %</strong></td><td>—</td></tr>
+</table>
+
+<h3>5.2 Détail expansion an par an</h3>
+
+<h4>Année 1 — Marseille intra-muros (M0-M12)</h4>
+<ul>
+  <li><strong>Cible</strong> : 200 chauffeurs payants = 17 % du marché conventionné de la ville</li>
+  <li><strong>Stratégie</strong> : terrain agressif (12 stations, 8 hôpitaux, 6 centres dialyse), promo MIGRATION6MOIS, Marseille2026</li>
+  <li><strong>Effectif</strong> : toi seul + freelance ponctuel</li>
+  <li><strong>Budget marketing</strong> : 12 k€</li>
+  <li><strong>Repère mensuel</strong> : 10 chauffeurs/mois en M1, 30 en M12 (croissance progressive)</li>
+</ul>
+
+<h4>Année 2 — Métropole Aix-Marseille-Provence (M12-M24)</h4>
+<ul>
+  <li><strong>Cible</strong> : 500 chauffeurs cumulés (+300 nouveaux) = 28 % du marché métropolitain conventionné</li>
+  <li><strong>Stratégie</strong> : recrutement 1 commercial mi-temps Aix-Aubagne-Vitrolles-La Ciotat, Phase 2 télétransmission via Orisha lancée</li>
+  <li><strong>Effectif</strong> : toi + 1 commercial mi-temps + 1 dev junior (recruté en M18)</li>
+  <li><strong>Budget marketing</strong> : 25 k€</li>
+  <li><strong>Repère mensuel</strong> : 25 nouveaux/mois</li>
+</ul>
+
+<h4>Année 3 — PACA + premiers hubs nationaux (M24-M36)</h4>
+<ul>
+  <li><strong>Cible</strong> : 1 000 chauffeurs cumulés (+500 nouveaux)</li>
+  <li><strong>Stratégie</strong> : extension Toulon, Nice, Avignon (1 commercial PACA dédié) + tests Lyon, Bordeaux, Toulouse</li>
+  <li><strong>Effectif</strong> : 4-5 personnes au total</li>
+  <li><strong>Budget marketing</strong> : 40 k€</li>
+  <li><strong>Repère mensuel</strong> : 40-50 nouveaux/mois</li>
+</ul>
+
+<h2>6. Partie V — Modèle économique 3 ans</h2>
+
+<h3>6.1 Hypothèses de modélisation</h3>
+
+<table>
+  <tr><th>Hypothèse</th><th>Valeur</th><th>Source</th></tr>
+  <tr><td>ARPU moyen TTC (mix plans)</td><td>22 € en An 1, 24 € en An 2, 26 € en An 3 (montée en gamme)</td><td>Mix 50 % Essentiel / 30 % Pro / 5 % Premium / 15 % Flotte</td></tr>
+  <tr><td>ARPU add-ons</td><td>+3 € en An 1, +5 € en An 2, +7 € en An 3</td><td>Adoption progressive</td></tr>
+  <tr><td>ARPU global TTC</td><td>25 € → 29 € → 33 €</td><td>—</td></tr>
+  <tr><td>Coût variable / chauffeur HT</td><td>4 € en An 1, 3 € en An 2, 2,50 € en An 3</td><td>Économies d'échelle, OSRM auto-hébergé, IA optimisée</td></tr>
+  <tr><td>TVA collectée</td><td>20 % du CA TTC</td><td>Régime normal</td></tr>
+  <tr><td>Churn mensuel</td><td>3 % An 1, 2 % An 2, 1,5 % An 3</td><td>Standard SaaS B2B</td></tr>
+  <tr><td>CAC (coût acquisition client)</td><td>80 € An 1, 70 € An 2, 60 € An 3</td><td>Bouche à oreille progressif</td></tr>
+  <tr><td>LTV (lifetime value)</td><td>~600 € An 1, ~900 € An 2, ~1 300 € An 3</td><td>ARPU × 24-36 mois moyenne</td></tr>
+</table>
+
+<h3>6.2 Compte de résultat prévisionnel an par an</h3>
+
+<table>
+  <tr><th>Poste (en k€)</th><th>An 1 (Marseille)</th><th>An 2 (Métropole)</th><th>An 3 (PACA)</th></tr>
+  <tr><td>Chauffeurs payants fin de période</td><td>200</td><td>500</td><td>1 000</td></tr>
+  <tr><td>Chauffeurs moyens sur l'année</td><td>~100</td><td>~350</td><td>~750</td></tr>
+  <tr><td>ARPU TTC mensuel moyen</td><td>25 €</td><td>29 €</td><td>33 €</td></tr>
+  <tr><td><strong>CA TTC annuel</strong></td><td><strong>30 k€</strong></td><td><strong>121 k€</strong></td><td><strong>297 k€</strong></td></tr>
+  <tr><td>TVA reversée (20 %)</td><td>5 k€</td><td>20 k€</td><td>50 k€</td></tr>
+  <tr><td><strong>CA HT</strong></td><td><strong>25 k€</strong></td><td><strong>101 k€</strong></td><td><strong>247 k€</strong></td></tr>
+  <tr><td>− Coûts variables (Vercel, Supabase, GPT, Stripe, SMS)</td><td>-5 k€</td><td>-13 k€</td><td>-23 k€</td></tr>
+  <tr><td>= Marge brute</td><td>20 k€ (80 %)</td><td>88 k€ (87 %)</td><td>224 k€ (91 %)</td></tr>
+  <tr><td>− Coûts fixes structurels (compta, assurance, outils)</td><td>-3,6 k€</td><td>-6 k€</td><td>-9,6 k€</td></tr>
+  <tr><td>− Setup partenaires (Orisha) + matériel</td><td>0 (Light)</td><td>-15 k€ (Phase 2)</td><td>-5 k€ (extension)</td></tr>
+  <tr><td>− Salaires (chargés)</td><td>0 (toi non rémunéré)</td><td>-25 k€ (1 commercial mi-temps + 1 dev junior 6 mois)</td><td>-110 k€ (toi 36 k€ + 1 dev 50 k€ + 1 commercial 24 k€)</td></tr>
+  <tr><td>− Marketing &amp; acquisition</td><td>-12 k€</td><td>-25 k€</td><td>-40 k€</td></tr>
+  <tr><td>= EBE (Excédent Brut d'Exploitation)</td><td><strong>+4,4 k€</strong></td><td><strong>+17 k€</strong></td><td><strong>+59,4 k€</strong></td></tr>
+  <tr><td>− Amortissements et dépréciations</td><td>-1 k€</td><td>-3 k€</td><td>-8 k€</td></tr>
+  <tr><td>= Résultat avant IS</td><td>+3,4 k€</td><td>+14 k€</td><td>+51 k€</td></tr>
+  <tr><td>− IS (15 % jusqu'à 42,5 k€ bénéfice)</td><td>-0,5 k€</td><td>-2,1 k€</td><td>-6,4 k€ (15 %) + 2,1 k€ (25 % au-delà) = -8,5 k€</td></tr>
+  <tr><td><strong>Résultat NET</strong></td><td><strong>+2,9 k€</strong></td><td><strong>+11,9 k€</strong></td><td><strong>+42,5 k€</strong></td></tr>
+</table>
+
+<h3>6.3 Cash flow et besoin en fonds de roulement</h3>
+
+<table>
+  <tr><th>Poste (en k€)</th><th>An 1</th><th>An 2</th><th>An 3</th></tr>
+  <tr><td>Cash début de période</td><td>20 (apport perso)</td><td>22 (cumul)</td><td>34 (cumul)</td></tr>
+  <tr><td>Encaissement TTC</td><td>+30</td><td>+121</td><td>+297</td></tr>
+  <tr><td>Reversement TVA (différé +1 mois)</td><td>-5</td><td>-20</td><td>-50</td></tr>
+  <tr><td>Décaissement coûts (variables + fixes + setup + salaires + marketing)</td><td>-20</td><td>-87</td><td>-205</td></tr>
+  <tr><td>Paiement IS (différé +6 mois)</td><td>0</td><td>-0,5</td><td>-2,1</td></tr>
+  <tr><td>Cash fin de période</td><td><strong>25 k€</strong></td><td><strong>35,5 k€</strong></td><td><strong>74 k€</strong></td></tr>
+  <tr><td>Apport personnel cumulé nécessaire</td><td>20 k€ (capital initial)</td><td>0 (auto-financé)</td><td>0</td></tr>
+</table>
+
+<div class="callout-info">
+  <p style="margin:0;"><strong>Lecture cash</strong> : si tu démarres avec 20 k€ d'apport personnel (ARCE Pôle Emploi + épargne), tu n'as pas besoin de lever de fonds. Le modèle est auto-finançable. À M36, tu as 74 k€ en banque, suffisant pour Phase 4 marketplace courses privées si tu le veux.</p>
+</div>
+
+<h2>7. Partie VI — Statut juridique : Micro → SAS solo → SAS équipe</h2>
+
+<h3>7.1 Phase 0-6 mois — Micro-entreprise (auto-entrepreneur)</h3>
+
+<table>
+  <tr><th>Critère</th><th>Détail</th></tr>
+  <tr><td>Plafond CA HT</td><td>36 800 € (services)</td></tr>
+  <tr><td>TVA</td><td>Franchise en base (pas de TVA collectée jusqu'à 36 800 €)</td></tr>
+  <tr><td>Cotisations URSSAF</td><td>~22 % du CA encaissé (pas du bénéfice)</td></tr>
+  <tr><td>Impôt</td><td>Versement libératoire 1,7 % ou IR classique</td></tr>
+  <tr><td>Compta</td><td>Aucune obligation comptable lourde, juste livre des recettes</td></tr>
+  <tr><td>Création</td><td>Gratuit, en ligne sur autoentrepreneur.urssaf.fr en 30 min</td></tr>
+  <tr><td><strong>Capacité absorption</strong></td><td><strong>~150 chauffeurs payants à 19,90 € TTC</strong></td></tr>
+</table>
+
+<div class="callout-good">
+  <p style="margin:0;"><strong>Avantage micro</strong> : tu testes le marché 6 mois sans frais, sans TVA, sans compta. Si TaxiLink ne décolle pas, tu fermes en 1 clic, zéro perte. Si ça décolle, tu bascules en SAS.</p>
+</div>
+
+<h3>7.2 Phase 6-18 mois — SAS solo (président unique)</h3>
+
+<table>
+  <tr><th>Critère</th><th>Détail</th></tr>
+  <tr><td>Capital social</td><td>Symbolique 1 € à 1 000 €. Recommandé : 1 000 € pour la crédibilité bancaire.</td></tr>
+  <tr><td>Création</td><td>~250 € (statuts + Greffe + JAL)</td></tr>
+  <tr><td>TVA</td><td>20 % à collecter et reverser trimestriellement</td></tr>
+  <tr><td>Statut social du président</td><td>Assimilé salarié — charges ~80 % du net (versement RSI/SSI auto)</td></tr>
+  <tr><td>Si tu te paies 0 € de salaire</td><td>Pas de cotisation sociale, mais aucune protection (ni chômage ni retraite)</td></tr>
+  <tr><td>Si tu te paies 1 500 € net/mois</td><td>Coût total chargé : ~2 700 €/mois soit 32 400 €/an</td></tr>
+  <tr><td>Compta obligatoire</td><td>Cabinet 1 500-2 500 €/an</td></tr>
+  <tr><td>Impôt sur les sociétés (IS)</td><td>15 % jusqu'à 42 500 € de bénéfice, 25 % au-delà</td></tr>
+</table>
+
+<h3>7.3 Phase 18-36+ mois — SAS avec équipe</h3>
+
+<table>
+  <tr><th>Critère</th><th>Détail</th></tr>
+  <tr><td>Effectif visé</td><td>2 → 5 personnes en 18 mois</td></tr>
+  <tr><td>Comptable obligatoire</td><td>Cabinet 3 000-5 000 €/an</td></tr>
+  <tr><td>Mutuelle entreprise</td><td>~50 €/mois/salarié obligatoire</td></tr>
+  <tr><td>RC professionnelle</td><td>Augmente avec l'effectif (~80-200 €/mois)</td></tr>
+  <tr><td>DPO externe</td><td>~150-300 €/mois (RGPD oblige)</td></tr>
+  <tr><td>Levée de fonds éventuelle</td><td>Si Phase 4 courses privées (200-500 k€ seed)</td></tr>
+</table>
+
+<h3>7.4 Récap fiscalité et contributions sur 3 ans</h3>
+
+<table>
+  <tr><th>Année</th><th>Statut</th><th>TVA reversée</th><th>URSSAF / charges sociales</th><th>IS / IR</th></tr>
+  <tr><td>An 1 (M0-6)</td><td>Micro-entreprise</td><td>0 € (franchise)</td><td>~3 k€ (22 % de 12 k€ CA semestre)</td><td>~250 € (versement libératoire 1,7 %)</td></tr>
+  <tr><td>An 1 (M6-12)</td><td>SAS solo, salaire 0</td><td>~5 k€</td><td>0 € (pas de salaire pris)</td><td>500 € (IS sur 3,4 k€)</td></tr>
+  <tr><td>An 2</td><td>SAS, salaire 1 200 € net/mois pour toi</td><td>~20 k€</td><td>~22 k€ (charges sur ton salaire + 1 commercial)</td><td>2,1 k€</td></tr>
+  <tr><td>An 3</td><td>SAS, équipe 4-5</td><td>~50 k€</td><td>~80 k€ (équipe complète)</td><td>~8,5 k€</td></tr>
+  <tr><td><strong>Cumul 3 ans</strong></td><td>—</td><td><strong>~75 k€</strong></td><td><strong>~105 k€</strong></td><td><strong>~11 k€</strong></td></tr>
+</table>
+
+<div class="callout-warn">
+  <p style="margin:0;"><strong>Attention TVA</strong> : tu collectes la TVA mais tu dois la reverser à l'État chaque trimestre. Garde toujours 20 % du CA TTC sur un compte séparé pour ne pas être pris à la gorge.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>8. Partie VII — Plan recrutement</h2>
+
+<h3>8.1 Tableau global des recrutements</h3>
+
+<table>
+  <tr><th>Mois</th><th>Profil</th><th>Statut</th><th>Coût annuel chargé</th><th>Indispensable ?</th></tr>
+  <tr><td>M0-12</td><td>Toi (fondateur, dev + commercial + support)</td><td>Auto-entrepreneur puis SAS solo</td><td>0 € (rémunération différée)</td><td>—</td></tr>
+  <tr><td>M9-12</td><td>Stagiaire dev (3 mois) ou freelance design ponctuel</td><td>Stage / freelance</td><td>5-10 k€</td><td><span class="warn">Optionnel</span></td></tr>
+  <tr><td>M12-18</td><td>1 commercial terrain mi-temps (Marseille → Métropole)</td><td>CDD ou freelance</td><td>22 k€</td><td><span class="check">OUI</span> — sans lui pas de croissance externe Marseille</td></tr>
+  <tr><td>M18-24</td><td>1 dev junior CDI (full-stack Next.js + React Native)</td><td>CDI</td><td>45-50 k€</td><td><span class="check">OUI</span> — sinon tu ne peux pas livrer Phase 2</td></tr>
+  <tr><td>M24-30</td><td>1 customer success / support chauffeurs</td><td>CDI</td><td>32-38 k€</td><td><span class="check">OUI</span> — au-delà de 500 chauffeurs, tu ne peux plus tout gérer seul</td></tr>
+  <tr><td>M30-36</td><td>1 commercial PACA dédié (Toulon / Nice / Avignon)</td><td>CDI</td><td>40-45 k€</td><td><span class="check">OUI</span> — pour l'expansion régionale</td></tr>
+  <tr><td>M30-36</td><td>1 dev senior (lead tech)</td><td>CDI</td><td>60-70 k€</td><td><span class="warn">Recommandé</span> — pour scaler la stack et libérer toi du dev</td></tr>
+</table>
+
+<h3>8.2 Effectif total au fil du temps</h3>
+
+<table>
+  <tr><th>Période</th><th>Effectif</th><th>Composition</th></tr>
+  <tr><td>M0-12</td><td>1</td><td>Toi seul</td></tr>
+  <tr><td>M12-18</td><td>1,5</td><td>Toi + commercial mi-temps</td></tr>
+  <tr><td>M18-24</td><td>2,5</td><td>Toi + commercial mi-temps + dev junior</td></tr>
+  <tr><td>M24-30</td><td>3,5-4</td><td>Toi + commercial mi-temps (passé temps plein) + dev junior + CSM</td></tr>
+  <tr><td>M30-36</td><td>4-5</td><td>Toi + 2 commerciaux + dev junior + CSM + dev senior (optionnel)</td></tr>
+</table>
+
+<h3>8.3 Profils précis et pourquoi</h3>
+
+<h4>Commercial terrain mi-temps (M12)</h4>
+<ul>
+  <li><strong>Profil</strong> : ex-chauffeur de taxi reconverti, ou commercial B2B avec expérience santé/transport, basé Marseille / Aix.</li>
+  <li><strong>Mission</strong> : tournée stations, RDV hôpitaux, démos chauffeurs, animation événements.</li>
+  <li><strong>Rémunération</strong> : 1 200 € net/mois (mi-temps) + commission 50 € par chauffeur signé après 3 mois.</li>
+  <li><strong>Coût total chargé</strong> : ~22 k€/an</li>
+</ul>
+
+<h4>Dev junior full-stack (M18)</h4>
+<ul>
+  <li><strong>Profil</strong> : 1-3 ans d'expérience, Next.js + React Native + TypeScript, sortant école 42 / EPITECH / autodidacte.</li>
+  <li><strong>Mission</strong> : maintenance + nouvelles features + intégration Orisha.</li>
+  <li><strong>Rémunération</strong> : 35-40 k€ brut/an + BSPCE (parts)</li>
+  <li><strong>Coût total chargé</strong> : ~50 k€/an</li>
+</ul>
+
+<h4>Customer Success Manager (M24)</h4>
+<ul>
+  <li><strong>Profil</strong> : 2-5 ans en SaaS B2B, expérience support tel, idéalement basé Marseille.</li>
+  <li><strong>Mission</strong> : onboarding chauffeurs, support quotidien, retention, upsell.</li>
+  <li><strong>Rémunération</strong> : 25-28 k€ brut/an</li>
+  <li><strong>Coût total chargé</strong> : ~36 k€/an</li>
+</ul>
+
+<h2>9. Partie VIII — Valorisation au fil du temps</h2>
+
+<h3>9.1 Méthodes de valorisation appliquées</h3>
+
+<table>
+  <tr><th>Méthode</th><th>Quand l'appliquer</th><th>Multiple typique</th></tr>
+  <tr><td>Multiple ARR (Annual Recurring Revenue)</td><td>SaaS en croissance</td><td>3-8x ARR selon croissance</td></tr>
+  <tr><td>Multiple EBITDA</td><td>SaaS rentable et stable</td><td>4-8x EBITDA</td></tr>
+  <tr><td>Multiple GMV (Gross Merchandise Value)</td><td>Marketplace — Phase 4</td><td>0,5-2x GMV</td></tr>
+</table>
+
+<h3>9.2 Projection de valorisation TaxiLink</h3>
+
+<table>
+  <tr><th>Période</th><th>ARR HT</th><th>Croissance</th><th>Multiple appliqué</th><th>Valorisation estimée</th></tr>
+  <tr><td>Fin An 1 (M12)</td><td>~44 k€</td><td>+200 chauffeurs/an</td><td>4-6x ARR</td><td><strong>175-265 k€</strong></td></tr>
+  <tr><td>Fin An 2 (M24)</td><td>~110 k€</td><td>+150 % YoY</td><td>5-7x ARR</td><td><strong>550-770 k€</strong></td></tr>
+  <tr><td>Fin An 3 (M36)</td><td>~240 k€</td><td>+118 % YoY</td><td>6-8x ARR</td><td><strong>1,4-1,9 M€</strong></td></tr>
+  <tr><td>Fin An 5 (M60, projection)</td><td>~700 k€</td><td>+50-70 %/an</td><td>5-7x ARR</td><td><strong>3,5-4,9 M€</strong></td></tr>
+</table>
+
+<div class="callout-good">
+  <p style="margin:0;"><strong>Comparaison concurrents</strong> : Caree (~600-900 k€ ARR estimés) probablement valorisée 2-4,5 M€ aujourd'hui. Soraya (596 k€ CA confirmé) probablement 0,4-1 M€ (pas de croissance). À M36, TaxiLink atteint le territoire de Soraya. À M48-60, tu rivalises avec Caree.</p>
+</div>
+
+<h3>9.3 Scénarios de sortie possibles</h3>
+
+<table>
+  <tr><th>Scénario</th><th>Quand</th><th>Valorisation</th></tr>
+  <tr><td>Bootstrap, profitable, pas de sortie</td><td>An 5+</td><td>3,5-5 M€ (capitalisable, génère 200-400 k€/an dividendes)</td></tr>
+  <tr><td>Levée seed (200-500 k€)</td><td>M18-24 (pour Phase 4)</td><td>Pre-money 1-2 M€, post-money 1,5-2,5 M€</td></tr>
+  <tr><td>Acquisition par Cegedim, Olaqin, Doctolib</td><td>An 3-5</td><td>2-5 M€ selon traction</td></tr>
+  <tr><td>Acquisition par concurrent (Caree, Soraya)</td><td>An 3-4</td><td>1-3 M€ (consolidation marché)</td></tr>
+  <tr><td>Pivot en plateforme (avec Phase 4 marketplace)</td><td>An 4-5</td><td>5-15 M€ (effets réseau)</td></tr>
+</table>
+
+<h2>10. Partie IX — Risques et plan de contingence</h2>
+
+<table>
+  <tr><th>Risque</th><th>Probabilité</th><th>Impact</th><th>Plan de contingence</th></tr>
+  <tr><td>Caree baisse ses prix à 19,90 €</td><td>Moyenne</td><td>Élevé</td><td>Différencier sur l'avance trésorerie + UX + terrain. Ne pas suivre la baisse.</td></tr>
+  <tr><td>Tu manques de cash avant break-even</td><td>Moyenne</td><td>Critique</td><td>Démarche ARCE Pôle Emploi (15 mois d'allocation versés en capital), réserve 20 k€</td></tr>
+  <tr><td>Churn &gt; 5 %/mois</td><td>Faible-Moyenne</td><td>Élevé</td><td>Onboarding visio obligatoire, garantie 30 j remboursé, NPS hebdo</td></tr>
+  <tr><td>Orisha refuse partenariat ou tarif prohibitif</td><td>Moyenne</td><td>Moyen</td><td>Plan B Olaqin, plan C SEFi GIE direct, plan D rester en Light</td></tr>
+  <tr><td>Bug majeur en production</td><td>Moyenne</td><td>Moyen</td><td>Tests E2E + Sentry + dispo support 7j/7</td></tr>
+  <tr><td>Réglementation SESAM-Vitale change</td><td>Faible</td><td>Moyen</td><td>Veille active GIE SESAM-Vitale, anticipation 6 mois</td></tr>
+  <tr><td>Concurrent international entre (Doctolib, Heetch médical)</td><td>Faible</td><td>Élevé</td><td>Vitesse d'exécution, ancrage local Marseille</td></tr>
+  <tr><td>Tu burn-out (solo founder)</td><td>Moyenne</td><td>Critique</td><td>Recruter dev junior à M18 NON négociable, déléguer dès que possible</td></tr>
+</table>
+
+<h2>11. Conclusion — Les 3 jalons à valider</h2>
+
+<div class="summary-card">
+  <h3>Jalon 1 — M6 : Validation produit (50 chauffeurs payants)</h3>
+  <p style="margin:0;">Si tu n'as pas 50 payants à M6, tu réajustes (pricing, ciblage, features). Si tu as 50+, tu fonces.</p>
+</div>
+
+<div class="summary-card">
+  <h3>Jalon 2 — M12 : Bascule SAS et Phase 2 télétransmission</h3>
+  <p style="margin:0;">200 chauffeurs et 44 k€ ARR : tu bascules en SAS, tu signes Orisha, tu recrutes 1 commercial mi-temps.</p>
+</div>
+
+<div class="summary-card">
+  <h3>Jalon 3 — M36 : Valorisation 1,5 M€</h3>
+  <p style="margin:0;">1 000 chauffeurs PACA, équipe de 5, rentable à +42 k€ net. Tu peux choisir : continuer bootstrap, lever seed pour Phase 4, ou vendre.</p>
+</div>
+
+<div class="footer">
+  <p><strong>TaxiLink — Business Plan 3 ans</strong> · Mai 2026 · Document interne pour Mohamed Major · Confidentiel<br>
+  Hypothèses chiffrées sont des estimations à valider en exécution. ARR / valorisation dépendent de la traction réelle, du churn, du mix plans et de la qualité d'exécution commerciale.</p>
+</div>
+
+</body>
+</html>

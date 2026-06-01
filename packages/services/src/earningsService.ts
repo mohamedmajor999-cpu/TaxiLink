@@ -1,3 +1,4 @@
+import { computeDisplayFare } from '@taxilink/core'
 import { getSupabaseClient } from './lib/client'
 
 export interface EarningsDay {
@@ -35,9 +36,14 @@ export const earningsService = {
     const sevenDaysAgo = new Date(todayStart)
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
 
+    // GAINS-02 : on lit aussi les champs necessaires a computeDisplayFare. Le
+    // champ brut price_eur est NULL pour ~83% des courses DONE (jamais fige a la
+    // cloture) → sommer price_eur seul affichait des totaux faux (souvent ~0€).
+    // computeDisplayFare prend le prix stocke s'il existe, sinon l'estime (meme
+    // logique que les cartes de course).
     const { data, error } = await supabase
       .from('missions')
-      .select('completed_at, price_eur')
+      .select('completed_at, price_eur, type, medical_motif, distance_km, duration_min, static_duration_min, scheduled_at, departure, destination, passengers, transport_type, return_trip')
       .eq('driver_id', driverId)
       .eq('status', 'DONE')
       .gte('completed_at', sevenDaysAgo.toISOString())
@@ -59,7 +65,7 @@ export const earningsService = {
     for (const row of data ?? []) {
       if (!row.completed_at) continue
       const completed = new Date(row.completed_at)
-      const price = row.price_eur != null ? Number(row.price_eur) : 0
+      const price = computeDisplayFare(row).value
       const key = localDayKey(completed)
       const bucket = buckets.get(key)
       if (bucket) {

@@ -2,6 +2,8 @@
 
 export {
   PHONE_REGEX,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_RULE_LABEL,
   isValidPhone,
   isValidEmail,
   isValidPassword,

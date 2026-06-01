@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>TaxiLink — Plan mobile complet : enfant 10 ans + technique pédagogique</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a2e;
+    line-height: 1.55;
+    font-size: 12pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 26pt;
+    color: #1a1a2e;
+    background: linear-gradient(90deg, #FBBF24 0%, #FDE68A 100%);
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: 18pt;
+    color: #fff;
+    background: #1a1a2e;
+    padding: 10px 16px;
+    border-radius: 10px;
+    margin: 28px 0 14px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 14pt;
+    color: #1a1a2e;
+    margin: 18px 0 8px 0;
+    border-left: 5px solid #FBBF24;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #555;
+    margin: 0 0 24px 4px;
+    font-style: italic;
+  }
+  .intro-box {
+    background: #FEF3C7;
+    border: 2px dashed #FBBF24;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .step {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-left: 6px solid #FBBF24;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+  .step-title {
+    font-weight: 700;
+    font-size: 13pt;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+  }
+  .step-num {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    font-weight: 800;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    margin-right: 10px;
+  }
+  .problem {
+    background: #FEE2E2;
+    border-left: 6px solid #DC2626;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .problem-title { font-weight: 700; color: #991B1B; }
+  .solution {
+    background: #DCFCE7;
+    border-left: 6px solid #16A34A;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .solution-title { font-weight: 700; color: #14532D; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+  }
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+  tr:nth-child(even) td { background: #FAFAFA; }
+  .analogy {
+    background: #DBEAFE;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-left: 6px solid #2563EB;
+    page-break-inside: avoid;
+  }
+  .analogy-title { font-weight: 700; color: #1E3A8A; }
+  .pill {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 10pt;
+  }
+  .footer {
+    margin-top: 30px;
+    padding-top: 14px;
+    border-top: 2px solid #FBBF24;
+    color: #6B7280;
+    font-size: 9.5pt;
+    text-align: center;
+  }
+  .summary-card {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .summary-card h3 {
+    color: #FBBF24;
+    border: none;
+    padding: 0;
+    margin: 0 0 8px 0;
+    font-size: 14pt;
+  }
+  .check { color: #16A34A; font-weight: 800; }
+  .cross { color: #DC2626; font-weight: 800; }
+  ul { padding-left: 22px; }
+  li { margin: 4px 0; }
+  .page-break { page-break-before: always; }
+  .three-apps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .app-card {
+    background: #fff;
+    border: 2px solid #FBBF24;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+  .app-card-emoji { font-size: 28pt; }
+  .app-card-title { font-weight: 800; color: #1a1a2e; margin-top: 4px; }
+  .app-card-desc { font-size: 10pt; color: #555; margin-top: 4px; }
+  .tech-box {
+    background: #F3F4F6;
+    border-left: 5px solid #2563EB;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .tech-box-title { font-weight: 700; color: #1E3A8A; font-size: 12pt; margin-bottom: 4px; }
+  code {
+    background: #F3F4F6;
+    color: #B91C1C;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 10.5pt;
+  }
+  .legend {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11pt;
+    margin-bottom: 6px;
+  }
+  .week-header {
+    background: linear-gradient(90deg, #2563EB 0%, #60A5FA 100%);
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: 700;
+    font-size: 12pt;
+    margin: 16px 0 8px 0;
+    page-break-after: avoid;
+  }
+</style>
+</head>
+<body>
+
+<h1>TaxiLink — Plan mobile complet</h1>
+<p class="subtitle">D'abord expliqué à un enfant de 10 ans, puis avec le vocabulaire technique (chaque mot expliqué)</p>
+
+<div class="intro-box">
+  <p style="margin:0;"><strong>Aujourd'hui</strong>, TaxiLink est un site web qui marche bien (les patrons et chauffeurs s'en servent déjà). Mais on veut aller plus loin : transformer ce site en <strong>3 vraies applications</strong> qu'on installe sur l'iPhone et l'Android, comme Uber.</p>
+  <p style="margin:8px 0 0 0;">Ce document explique <strong>tout le plan</strong> de cette transformation, en deux niveaux : d'abord avec des images simples (pour comprendre vite), puis avec le vocabulaire des développeurs (pour ceux qui veulent les détails).</p>
+  <p style="margin:8px 0 0 0;"><span class="pill">État au 10 mai 2026</span> &nbsp; Phase 0 (la boîte à outils partagée) <strong>terminée en 1 jour</strong>. Reste 4 phases.</p>
+</div>
+
+<h2>📚 Sommaire</h2>
+
+<table>
+  <thead>
+    <tr><th style="width:8%">#</th><th>Section</th><th style="width:22%">Niveau</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>Les 3 voitures télécommandées</td><td>Enfant 10 ans</td></tr>
+    <tr><td>2</td><td>Phase 0 — La boîte à outils partagée (✅ fait)</td><td>Enfant 10 ans</td></tr>
+    <tr><td>3</td><td>Phase 1 — La voiture du chauffeur (12 étapes)</td><td>Enfant 10 ans</td></tr>
+    <tr><td>4</td><td>Phase 2 — La voiture du patron (5 étapes)</td><td>Enfant 10 ans</td></tr>
+    <tr><td>5</td><td>Phase 3 — La voiture du patient/famille (5 étapes)</td><td>Enfant 10 ans</td></tr>
+    <tr><td>6</td><td>Phase 4 — Mise dans les magasins d'apps (3 étapes)</td><td>Enfant 10 ans</td></tr>
+    <tr><td>7</td><td>La stack technique en 5 minutes</td><td>Technique</td></tr>
+    <tr><td>8</td><td>Phase 0 technique — Refactor monorepo</td><td>Technique</td></tr>
+    <tr><td>9</td><td>Phase 1 technique — App chauffeur (semaine par semaine)</td><td>Technique</td></tr>
+    <tr><td>10</td><td>Phase 2/3/4 technique</td><td>Technique</td></tr>
+    <tr><td>11</td><td>Récap d'avancement</td><td>Mixte</td></tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- ============================================================ -->
+<!-- PARTIE 1 : ENFANT DE 10 ANS                                     -->
+<!-- ============================================================ -->
+
+<h1>Partie 1 — Pour un enfant de 10 ans</h1>
+<p class="subtitle">Imagine, dessine, comprends — sans aucun mot compliqué</p>
+
+<h2>1. Les 3 voitures télécommandées</h2>
+
+<p>Imagine que TaxiLink, c'est comme construire <strong>3 voitures télécommandées</strong>. Chacune est faite pour une personne différente :</p>
+
+<div class="three-apps">
+  <div class="app-card">
+    <div class="app-card-emoji">🚖</div>
+    <div class="app-card-title">App Chauffeur</div>
+    <div class="app-card-desc">Pour ceux qui conduisent. Voient les courses, acceptent, suivent le trajet, parlent au micro.</div>
+  </div>
+  <div class="app-card">
+    <div class="app-card-emoji">👔</div>
+    <div class="app-card-title">App Patron</div>
+    <div class="app-card-desc">Pour les chefs d'entreprise de taxis. Suivent leurs employés, gèrent l'agenda.</div>
+  </div>
+  <div class="app-card">
+    <div class="app-card-emoji">🧓</div>
+    <div class="app-card-title">App Patient/Famille</div>
+    <div class="app-card-desc">Pour les patients âgés et leurs enfants. Voient le taxi arriver, l'historique, les factures.</div>
+  </div>
+</div>
+
+<div class="analogy">
+  <div class="analogy-title">L'image facile à comprendre</div>
+  <p style="margin:6px 0 0 0;">On a déjà construit une <strong>maquette en carton</strong> (le site web qui marche déjà). Maintenant, on construit les <strong>vraies voitures avec moteur</strong> — celles qu'on peut installer sur ton téléphone.</p>
+</div>
+
+<h2>2. Phase 0 — La boîte à outils partagée ✅</h2>
+
+<div class="solution">
+  <div class="solution-title">✅ Ce qu'on a fait aujourd'hui (10 mai 2026)</div>
+  <p style="margin:6px 0 0 0;">On a fabriqué une <strong>grande boîte à outils</strong>. Dedans, il y a <strong>tous les boulons, vis et roues</strong> qui serviront aux 3 voitures. Avant, ces outils étaient cachés dans le carton du site web. Maintenant, ils sont rangés dans une boîte à part que tout le monde peut prendre.</p>
+  <p style="margin:8px 0 0 0;">C'est très important : sans cette boîte, on devrait <strong>refabriquer chaque boulon trois fois</strong>. Avec la boîte, on les fabrique une seule fois.</p>
+</div>
+
+<h2>3. Phase 1 — La voiture du chauffeur (12 étapes) 🚖</h2>
+
+<p>C'est la voiture la plus importante, alors on commence par elle. Voici les <strong>12 étapes</strong> :</p>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">1</span>On allume la voiture pour la première fois</div>
+  <p style="margin:0;">On crée une appli vide qui dit juste « Bonjour TaxiLink ». On la met sur ton téléphone Android pour vérifier qu'elle s'allume bien. C'est comme tourner la clé dans le contact pour voir si le moteur démarre.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">2</span>Le chauffeur peut entrer dans la voiture</div>
+  <p style="margin:0;">On ajoute la <strong>page de connexion</strong> : email + mot de passe, ou Google. Une fois connecté, l'appli se souvient de lui pour toujours, comme Instagram.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">3</span>Le chauffeur voit la liste des courses disponibles</div>
+  <p style="margin:0;">Comme Uber côté chauffeur : une <strong>liste de courses</strong> qu'il peut prendre. Si quelqu'un poste une nouvelle course, elle apparaît tout de suite, sans qu'il ait besoin de rafraîchir. C'est de la <em>magie en direct</em>.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">4</span>Le chauffeur peut accepter une course</div>
+  <p style="margin:0;">Il appuie sur une course, il voit une <strong>carte</strong> avec le point de départ et d'arrivée, le trajet en bleu. Il appuie sur « Accepter ». Pouf, c'est à lui.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">5</span>La voiture sait où elle est</div>
+  <p style="margin:0;">On allume le <strong>GPS</strong> : tant que l'appli est ouverte, le téléphone envoie sa position au serveur toutes les 5 secondes. Comme ça, le patron voit où sont ses chauffeurs sur sa carte.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">6</span>Le GPS marche même téléphone éteint 😬 (la plus dure)</div>
+  <p style="margin:0;">C'est l'étape compliquée. Normalement, quand tu fermes une appli sur ton tel, elle dort. Mais nous, on veut que le GPS continue d'envoyer la position <strong>même quand le chauffeur a mis son tel dans sa poche écran éteint</strong>, sinon on perd la trace pendant la course. Apple est très strict là-dessus, il faut bien expliquer pourquoi on en a besoin (c'est pour la facturation CPAM et pour rassurer le patient).</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">7</span>Les notifications « ding ! » sur le téléphone</div>
+  <p style="margin:0;">Quand un patron poste une nouvelle course, <strong>tous les chauffeurs en ligne du département</strong> reçoivent un « ding ! » sur leur tel, comme un SMS. Ils tapent dessus, ça ouvre directement la course. Pas besoin que l'appli soit ouverte.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">8</span>Mode course active 🏁</div>
+  <p style="margin:0;">Le chauffeur a accepté une course. L'appli passe en <strong>mode plein écran</strong> avec : la carte qui montre où il est, le temps restant pour arriver, l'écran qui reste allumé tout du long. Quand il arrive au point d'arrivée, l'appli <strong>détecte automatiquement</strong> qu'il est arrivé et passe à l'étape suivante. Magique.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">9</span>La voix : « Salut, course de Marseille à Aubagne » 🎤</div>
+  <p style="margin:0;">Le chauffeur appuie sur le <strong>bouton volume du téléphone</strong> et parle. L'ordinateur écoute, comprend ce qu'il dit, et crée la course toute seule. Pas besoin de toucher l'écran. Très utile quand il conduit.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">10</span>Le profil et les papiers</div>
+  <p style="margin:0;">Le chauffeur peut prendre en photo sa <strong>carte pro</strong>, son <strong>assurance</strong>, ses <strong>conditions générales</strong>, et les envoyer dans l'appli. Il peut aussi choisir ses départements préférés et bloquer des collègues qu'il ne veut pas voir.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">11</span>On rend l'appli jolie ✨</div>
+  <p style="margin:0;">Animations qui glissent, transitions douces, mode sombre, <strong>icône de l'appli</strong>, <strong>écran de démarrage</strong> avec le logo TaxiLink en jaune. C'est l'étape « maquillage » : tout marche déjà, mais on la rend belle.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">12</span>On la donne à 10 vrais chauffeurs pour tester 🧪</div>
+  <p style="margin:0;">On envoie l'appli à 10 chauffeurs amis. Ils l'utilisent pendant <strong>1 semaine</strong> en vrai sur la route. On regarde s'il y a des bugs, des trucs qu'ils n'aiment pas. On corrige.</p>
+</div>
+
+<div class="summary-card">
+  <h3>🏁 Fin de Phase 1</h3>
+  <p style="margin:0;">La voiture du chauffeur est prête. C'est l'app la plus importante, et celle qui prend le plus de temps. Apr&egrave;s elle, les autres iront plus vite.</p>
+</div>
+
+<h2>4. Phase 2 — La voiture du patron (5 étapes) 👔</h2>
+
+<p>Le patron travaille surtout sur son ordinateur, donc son appli mobile fait juste les <strong>trucs urgents</strong> :</p>
+
+<div class="step"><div class="step-title"><span class="step-num">1</span>Démarrage</div><p style="margin:0;">On crée l'appli, on branche la connexion (comme étapes 1+2 du chauffeur).</p></div>
+<div class="step"><div class="step-title"><span class="step-num">2</span>Page d'accueil</div><p style="margin:0;">Il voit tout de suite combien de courses du jour, alertes du genre « un chauffeur a refusé une course ».</p></div>
+<div class="step"><div class="step-title"><span class="step-num">3</span>Liste des courses</div><p style="margin:0;">Il peut voir, filtrer, et <strong>republier</strong> une course dans un autre groupe.</p></div>
+<div class="step"><div class="step-title"><span class="step-num">4</span>Agenda</div><p style="margin:0;">Il voit le planning de ses chauffeurs (lecture seule, pour modifier il prend son ordi).</p></div>
+<div class="step"><div class="step-title"><span class="step-num">5</span>Notifications urgentes</div><p style="margin:0;">« Ding ! » quand une course n'est pas prise depuis 5 minutes, ou qu'un chauffeur s'est déconnecté pendant une course.</p></div>
+
+<h2>5. Phase 3 — La voiture du patient/famille (5 étapes) 🧓</h2>
+
+<p>Pour les personnes âgées qui prennent le taxi médical (et leur famille). Très simple, très gros boutons :</p>
+
+<div class="step"><div class="step-title"><span class="step-num">1</span>Connexion par SMS</div><p style="margin:0;">Pas de mot de passe, on tape son numéro, on reçoit un code par SMS. Plus simple pour les seniors.</p></div>
+<div class="step"><div class="step-title"><span class="step-num">2</span>Liste des courses passées et à venir</div><p style="margin:0;">« Votre prochain rendez-vous, jeudi 14h, hôpital de la Timone ».</p></div>
+<div class="step"><div class="step-title"><span class="step-num">3</span>Suivre le chauffeur en direct 🗺️</div><p style="margin:0;">La mamie voit sur la carte la voiture du chauffeur qui approche, avec sa <strong>photo, son nom et sa plaque</strong>. Comme Uber.</p></div>
+<div class="step"><div class="step-title"><span class="step-num">4</span>Historique et factures</div><p style="margin:0;">Elle peut télécharger ses factures en PDF.</p></div>
+<div class="step"><div class="step-title"><span class="step-num">5</span>Notifications</div><p style="margin:0;">« Votre chauffeur est en route », « il est arrivé devant chez vous », « course terminée ».</p></div>
+
+<h2>6. Phase 4 — Mise dans les magasins d'apps (3 étapes) 🏪</h2>
+
+<p>Maintenant que les 3 voitures roulent, on les met dans les <strong>2 grands magasins d'apps</strong> : App Store (Apple) et Play Store (Google).</p>
+
+<div class="step"><div class="step-title"><span class="step-num">1</span>Préparer les photos et la pub</div><p style="margin:0;">On prend des belles captures d'écran de chaque appli, on écrit la description, on fait peut-être une mini-vidéo.</p></div>
+<div class="step"><div class="step-title"><span class="step-num">2</span>Politique de confidentialité + envoi aux magasins</div><p style="margin:0;">On remplit des papiers obligatoires (RGPD, ce qu'on collecte comme infos), on appuie sur « Soumettre ».</p></div>
+<div class="step"><div class="step-title"><span class="step-num">3</span>Apple et Google vérifient</div><p style="margin:0;">Ils regardent l'appli pendant quelques jours, parfois ils disent « non, refais ça », on corrige, on renvoie. Quand c'est validé, <strong>les apps sont disponibles publiquement</strong> sur les téléphones du monde entier 🎉.</p></div>
+
+<div class="page-break"></div>
+
+<!-- ============================================================ -->
+<!-- PARTIE 2 : TECHNIQUE PEDAGOGIQUE                                 -->
+<!-- ============================================================ -->
+
+<h1>Partie 2 — Explication technique pédagogique</h1>
+<p class="subtitle">Mêmes étapes, mais avec le vocabulaire des développeurs (chaque terme expliqué)</p>
+
+<h2>7. La stack technique en 5 minutes</h2>
+
+<p><strong>« Stack technique »</strong> signifie l'ensemble des technologies qu'on utilise pour construire l'appli. Voici la stack TaxiLink en quelques mots, chaque outil expliqué :</p>
+
+<div class="tech-box">
+  <div class="tech-box-title">⚛️ React Native + Expo</div>
+  <p style="margin:6px 0 0 0;"><strong>React Native</strong> est un framework qui permet d'écrire une appli mobile (iOS + Android) avec du code JavaScript / TypeScript. Le code est ensuite compilé en composants natifs (vrais boutons iOS, vrais boutons Android), <em>pas en webview</em>. <strong>Expo</strong> est une surcouche qui simplifie React Native : elle fournit des modules prêts à l'emploi (GPS, notifications, caméra…) et un service cloud appelé <strong>EAS Build</strong> qui compile l'appli sans avoir besoin d'un Mac pour iOS.</p>
+</div>
+
+<div class="tech-box">
+  <div class="tech-box-title">🌐 Next.js (apps/web)</div>
+  <p style="margin:6px 0 0 0;">Le site web actuel est en <strong>Next.js 14</strong> avec <strong>App Router</strong>. C'est un framework React qui ajoute le rendu côté serveur (SSR), le routing par fichiers, et l'optimisation automatique. Il continue à tourner en parallèle des apps mobiles, sans régression.</p>
+</div>
+
+<div class="tech-box">
+  <div class="tech-box-title">📦 Monorepo (npm workspaces + Turbo)</div>
+  <p style="margin:6px 0 0 0;">Un <strong>monorepo</strong> est un seul dépôt Git qui contient plusieurs applications et plusieurs librairies internes. <strong>npm workspaces</strong> gère les dépendances communes ; <strong>Turbo</strong> orchestre les builds et les caches. Notre arborescence : <code>apps/web</code> (le site), <code>apps/mobile-driver</code> (à venir), <code>packages/*</code> (les librairies partagées).</p>
+</div>
+
+<div class="tech-box">
+  <div class="tech-box-title">🗄️ Supabase</div>
+  <p style="margin:6px 0 0 0;"><strong>Supabase</strong> est notre backend : base de données <strong>PostgreSQL</strong>, authentification, stockage de fichiers, et <strong>realtime</strong> (notifications de changements en direct). Tout le code TaxiLink (web et mobile) parle au même Supabase.</p>
+</div>
+
+<div class="tech-box">
+  <div class="tech-box-title">🎨 NativeWind v4</div>
+  <p style="margin:6px 0 0 0;"><strong>NativeWind</strong> est l'équivalent de Tailwind CSS pour React Native. On écrit des classes type <code>bg-primary p-4 rounded-3xl</code> directement dans le JSX, et elles sont compilées en styles natifs. Cohérence parfaite avec le web qui utilise déjà Tailwind.</p>
+</div>
+
+<div class="tech-box">
+  <div class="tech-box-title">🐛 Sentry</div>
+  <p style="margin:6px 0 0 0;"><strong>Sentry</strong> capture les erreurs et crashes en production. Le web utilise <code>@sentry/nextjs</code> ; le mobile utilisera <code>@sentry/react-native</code>. Même DSN, même dashboard, source maps automatiques.</p>
+</div>
+
+<h2>8. Phase 0 technique — Refactor monorepo (substantielle done)</h2>
+
+<p>Avant de bootstrapper l'appli mobile chauffeur, on a extrait du code de <code>apps/web</code> vers des <strong>packages partagés cross-platform</strong>. Objectif : éviter que mobile-driver ne duplique 60-70&nbsp;% du code déjà écrit côté web.</p>
+
+<h3>5 packages créés ou étendus</h3>
+
+<table>
+  <thead>
+    <tr><th>Package</th><th>Contenu</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>@taxilink/design-tokens</code></td><td>couleurs, ombres, rayons, polices, animations. Importé par <code>tailwind.config.ts</code> (web) et le NativeWind preset (mobile).</td></tr>
+    <tr><td><code>@taxilink/supabase-types</code></td><td>types TypeScript générés depuis le schéma Supabase (Database, Mission, Driver…). Source unique web + mobile.</td></tr>
+    <tr><td><code>@taxilink/core</code></td><td>types métier (Mission, Driver, Group), mocks pour tests, validators (auth/missions), utilitaires (départements, polyline, géolocalisation).</td></tr>
+    <tr><td><code>@taxilink/services</code></td><td><strong>22 services</strong> cross-platform : authService, missionService, paymentService, voiceParseService, etc. Tous consomment Supabase via injection de dépendance (DI).</td></tr>
+    <tr><td><code>@taxilink/stores</code></td><td><strong>11 stores Zustand</strong> : driverStore, missionStore, gpsStore, etc. Persistence opt-in via <code>@react-native-async-storage</code> côté mobile, <code>localStorage</code> côté web.</td></tr>
+  </tbody>
+</table>
+
+<h3>Pattern critique : injection de dépendance (DI)</h3>
+
+<p>Le client Supabase n'est plus créé par les services eux-mêmes. À la place, le package expose <code>getSupabaseClient()</code> / <code>setSupabaseClient(client)</code>. Au démarrage de chaque appli :</p>
+<ul>
+  <li><strong>apps/web</strong> appelle <code>setSupabaseClient(createBrowserClient(...))</code></li>
+  <li><strong>apps/mobile-driver</strong> appellera <code>setSupabaseClient(createClient(URL, ANON, { auth: { storage: SecureStore } }))</code></li>
+</ul>
+<p>Résultat : un même service <code>authService.signIn()</code> fonctionne dans les deux environnements, parce qu'il appelle juste <code>getSupabaseClient()</code> pour récupérer le client courant.</p>
+
+<h3>Pattern bridge lazy via Proxy</h3>
+
+<p><code>apps/web/src/services/_bridge.ts</code> expose <code>bridgeService(s)</code> qui retourne un <strong>Proxy</strong>. Au premier accès à une méthode, le Proxy déclenche <code>ensureBridge()</code> qui appelle <code>setSupabaseClient + setApiImpl + setBroadcastImpl + setErrorReporter</code> une seule fois (idempotent). Cela évite les erreurs <strong>TDZ (Temporal Dead Zone)</strong> en tests Vitest, où les <code>vi.mock</code> référencent des constantes déclarées plus bas.</p>
+
+<div class="solution">
+  <div class="solution-title">✅ État final Phase 0</div>
+  <ul style="margin:6px 0 0 0;">
+    <li><strong>1127 / 1127 tests passent</strong></li>
+    <li>Type-check vert sur tous les workspaces</li>
+    <li>Web toujours en production sans régression</li>
+    <li>Mobile-driver peut consommer <code>@taxilink/services</code> et <code>@taxilink/stores</code> tels quels</li>
+    <li><strong>Temps réel : 1 jour</strong> (vs 1 semaine prévu dans <code>MOBILE_STRATEGY.md</code>)</li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<h2>9. Phase 1 technique — App chauffeur, semaine par semaine</h2>
+
+<div class="week-header">Semaine 1 — Bootstrap</div>
+<p><code>npx create-expo-app apps/mobile-driver --template tabs</code> puis conversion en <strong>Expo Router v3</strong> (routing par fichiers, mental model identique à Next.js App Router). Setup TypeScript strict, ESLint, Prettier alignés sur le web. Ajout de <code>@taxilink/design-tokens</code> via NativeWind preset. Branchement <strong>Sentry React Native</strong>. Premier build EAS Development → APK installable sur device Android, IPA via TestFlight pour iOS.</p>
+<p><strong>Critère de sortie</strong> : l'appli boot sur device, affiche « Hello TaxiLink », crash test Sentry visible dans le dashboard.</p>
+
+<div class="week-header">Semaine 2 — Authentification</div>
+<p>Écrans login (email + password), signup, OAuth Google (<code>expo-auth-session</code>), complete-profile, mot de passe oublié. Storage du refresh token Supabase via <strong>expo-secure-store</strong> (Keychain iOS / Keystore Android). <strong>Persistance « type Instagram »</strong> : tokens longue durée, déconnexion uniquement via bouton explicite. Réutilisation directe des services <code>authService</code> et <code>profileService</code> du package.</p>
+
+<div class="week-header">Semaine 3 — Liste missions + realtime</div>
+<p>Écran principal <code>app/(driver)/missions.tsx</code> avec <strong>FlatList virtualisée</strong> pour gérer 100+ missions sans lag. Filtres <code>dept_preferences</code> côté serveur (<code>missionQueries.getAvailable</code>). Realtime via <code>useMissionRealtime</code> — abonnement Supabase real-time sur la table missions. <strong>Patch-diff</strong> (insertion / mise à jour / suppression ciblée), pas de full reload.</p>
+
+<div class="week-header">Semaine 4 — Détail mission + carte + accept/refuse</div>
+<p>Écran <code>app/(driver)/missions/[id].tsx</code> avec <strong>react-native-maps</strong> (Apple Maps iOS / Google Maps Android natives, pas Mapbox). Marqueurs départ/arrivée, polyline OSRM. Bouton accepter → <code>missionService.acceptMission()</code> avec <strong>optimistic update</strong> (UI mise à jour avant la réponse serveur, rollback en cas d'erreur).</p>
+
+<div class="week-header">Semaine 5 — GPS foreground + heartbeat</div>
+<p><code>useDriverPositionPush</code> adapté pour <code>expo-location.watchPositionAsync</code> (precision 10m, interval 5s). Toggle « En ligne / Hors ligne » persistant via Zustand + secure-store. <code>useDriverHeartbeat</code> réutilisé tel quel (timestamp envoyé toutes les 30s pour confirmer que l'appli est vivante).</p>
+
+<div class="week-header">Semaine 6 — GPS background (la phase la plus risquée)</div>
+<p><strong>expo-task-manager</strong> : <code>defineTask('GPS_TASK', …)</code> qui pousse les positions vers Supabase même quand l'appli est en arrière-plan ou écran éteint. <code>expo-location.startLocationUpdatesAsync</code> avec <code>accuracy: BestForNavigation</code>. <strong>Permissions iOS</strong> : <code>NSLocationAlwaysAndWhenInUseUsageDescription</code> dans <code>app.json</code> avec justification claire en français pour la review Apple. <strong>Android</strong> : <code>FOREGROUND_SERVICE_LOCATION</code> + notification persistante. <strong>Battery optimization Android</strong> : whitelist via <code>expo-battery</code> + tutoriel in-app.</p>
+<div class="problem">
+  <div class="problem-title">⚠️ Risque principal Phase 1</div>
+  <p style="margin:6px 0 0 0;">Apple peut rejeter la permission Always-Location si la justification est floue. Mitigation : justification claire + screen-record démo + demo account avec scénario CPAM dans le formulaire de soumission.</p>
+</div>
+
+<div class="week-header">Semaine 7 — Push notifications</div>
+<p><strong>expo-notifications</strong> : token de chaque device stocké dans table <code>device_push_tokens</code>. <strong>Edge Function Supabase</strong> déclenchée sur INSERT mission : filtre chauffeurs en ligne du département, filtre groupes autorisés, filtre blocages, POST batch sur <code>https://exp.host/--/api/v2/push/send</code>. Notifications interactives (actions Voir / Ignorer). <strong>Deep-link</strong> tap → <code>/missions/[id]</code>.</p>
+
+<div class="week-header">Semaine 8 — Mode course actif</div>
+<p><code>useAutoMissionProgress</code> (réutilisable direct, pas de DOM). <code>useCourseGeofence</code> détecte arrivée par calcul de distance Haversine. Écran « course en cours » full-screen carte + ETA temps réel. Bouton SOS. <strong>expo-keep-awake</strong> activé pendant la course (écran reste allumé). Mode nuit : couleurs sombres sur la map, optionnel <code>expo-brightness</code>.</p>
+
+<div class="week-header">Semaine 9 — Voix mains-libres</div>
+<p>Bouton volume hardware via <strong>react-native-volume-manager</strong>. Bouton écran flottant gros (FAB). <strong>expo-audio</strong> enregistre pendant maintien. Upload vers <code>/api/missions/parse-voice</code> (endpoint Whisper existant). Si réponse incomplète → <code>/api/missions/parse-voice-answer</code> (suite). Feedback haptique via <strong>expo-haptics</strong>. Test critique : enregistrement Bluetooth HFP mono 8&nbsp;kHz → Whisper gère bien.</p>
+
+<div class="week-header">Semaine 10 — Profil + documents + admin</div>
+<p>Écrans profil, documents (carte pro, assurance, CG), préférences départements, blocking collègues. Réutilisation directe <code>documentService</code>, <code>driverService</code>, <code>userPrefsService</code>, <code>driverBlockService</code>. Picker via <strong>expo-image-picker</strong> + redimensionnement local. Upload Supabase Storage en streaming via <code>FileSystem.uploadAsync</code>.</p>
+
+<div class="week-header">Semaine 11 — Polish UI/UX</div>
+<p>Animations <strong>Reanimated 3</strong> sur transitions d'écrans, swipe-to-accept missions, pull-to-refresh custom. Splash screen branded (logo wordmark Plus Jakarta Sans 800). Icône appli générée depuis SVG 1024×1024. Dark mode. Empty states / error states soignés. i18n préparée en clés <code>t('…')</code> même si on lance en français only.</p>
+
+<div class="week-header">Semaine 12 — Beta interne et externe</div>
+<p><strong>TestFlight</strong> (Apple, gratuit, jusqu'à 10k testeurs, review légère pour la 1ère soumission ~24-48h). <strong>Play Internal Testing</strong> (Google, groupe email, pas de review). <strong>10 chauffeurs beta</strong> sélectionnés (mix Android/iOS, mix Marseille/Paris). Hotline Slack ou Discord pour bug reports. Sentry actif, dashboard hebdomadaire (crashes, ANR Android, taux de delivery push).</p>
+
+<div class="page-break"></div>
+
+<h2>10. Phase 2/3/4 technique</h2>
+
+<h3>Phase 2 — App patron (5 semaines)</h3>
+
+<p>Le patron travaille majoritairement sur PC, donc l'appli mobile est une vue simplifiée orientée alertes et actions rapides.</p>
+
+<table>
+  <thead><tr><th style="width:18%">Semaine</th><th>Livrable technique</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sem 1</strong></td><td>Bootstrap <code>apps/mobile-patron</code>, partage des packages, écrans auth (réutilise <code>authService</code> + multi-tenancy déjà en place).</td></tr>
+    <tr><td><strong>Sem 2</strong></td><td>Onglet Vue : KPIs jour, courses en cours, alertes (employé refuse course, course non prise depuis 5 min).</td></tr>
+    <tr><td><strong>Sem 3</strong></td><td>Onglet Courses : liste filtrable, détail, action « republier dans autres groupes ».</td></tr>
+    <tr><td><strong>Sem 4</strong></td><td>Onglet Agenda : vue planning lecture seule (création reste sur PC car <code>PartagerMissionModal</code> trop complexe pour mobile : BAN + OSRM + voice + tarif CPAM).</td></tr>
+    <tr><td><strong>Sem 5</strong></td><td>Push notifs critiques + polish.</td></tr>
+  </tbody>
+</table>
+
+<h3>Phase 3 — App patient/famille (5 semaines)</h3>
+
+<p>Patients majoritairement seniors (transport CPAM). UX large polices, contraste fort, peu d'écrans, gros boutons. À tester avec utilisateurs réels seniors avant lancement.</p>
+
+<table>
+  <thead><tr><th style="width:18%">Semaine</th><th>Livrable technique</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sem 1</strong></td><td>Bootstrap <code>apps/mobile-patient</code>, auth simplifiée via <strong>SMS OTP</strong> (Supabase Phone Auth), pas de mot de passe.</td></tr>
+    <tr><td><strong>Sem 2</strong></td><td>Liste courses passées et à venir, filtres simples.</td></tr>
+    <tr><td><strong>Sem 3</strong></td><td>Suivi temps réel : map du chauffeur qui arrive, ETA actualisé, photo + nom + plaque + téléphone.</td></tr>
+    <tr><td><strong>Sem 4</strong></td><td>Historique + factures (PDF) + RGPD self-service.</td></tr>
+    <tr><td><strong>Sem 5</strong></td><td>Push notifs (« Chauffeur en route », « arrivé », « course terminée ») + polish.</td></tr>
+  </tbody>
+</table>
+
+<h3>Phase 4 — EAS Build et soumission stores (3 semaines)</h3>
+
+<p><strong>EAS Build</strong> (Expo Application Services) compile dans le cloud les binaires iOS (<code>.ipa</code>) et Android (<code>.aab</code>) signés, puis <strong>EAS Submit</strong> les pousse automatiquement vers App Store Connect et Google Play Console.</p>
+
+<div class="step">
+  <div class="step-title">Sem 1 — Assets stores</div>
+  <p style="margin:0;">Screenshots iOS (5,5" 6,5" 6,7"), Android (téléphone + tablette), copywriting <strong>ASO</strong> (App Store Optimization) en 3 versions A/B, vidéo preview optionnelle. Politique de confidentialité dédiée mobile (<code>taxilink.fr/legal/privacy-mobile</code>).</p>
+</div>
+
+<div class="step">
+  <div class="step-title">Sem 2 — Soumission</div>
+  <p style="margin:0;">EAS Submit configuré avec credentials <strong>Apple Developer</strong> (99 €/an) et <strong>Google Play Console</strong> (25 € one-shot). Pour Apple : compte individuel recommandé (pas de D-U-N-S, vs 5-14j ouvrés). Pour Google : <strong>20 testeurs internes pendant 14 jours</strong> obligatoires depuis nov. 2023 — à anticiper en démarrant les testeurs dès la beta de la Phase 1.</p>
+</div>
+
+<div class="step">
+  <div class="step-title">Sem 3 — Itérations review</div>
+  <p style="margin:0;">Apple : 24-48h pour la 1ère review en moyenne, 1-3 cycles de retours fréquents (permissions floues, screenshots non conformes, etc.). Google : plus permissif sur la 1ère review. <strong>Publication progressive</strong> (10 % → 50 % → 100 %) pour limiter le blast radius en cas de bug.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>11. Récap d'avancement</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Phase</th>
+      <th style="width:22%">Estimation prudente</th>
+      <th style="width:22%">Réel</th>
+      <th style="width:18%">État</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Phase 0</strong> — Refactor monorepo</td><td>1 semaine</td><td><strong>1 jour (2026-05-10)</strong></td><td><span class="check">✅ Done</span></td></tr>
+    <tr><td><strong>Phase 1</strong> — App chauffeur</td><td>16 semaines</td><td>—</td><td>⏳ À démarrer</td></tr>
+    <tr><td><strong>Phase 2</strong> — App patron</td><td>6 semaines</td><td>—</td><td>⏳ Après Phase 1</td></tr>
+    <tr><td><strong>Phase 3</strong> — App patient/famille</td><td>6 semaines</td><td>—</td><td>⏳ Après Phase 2</td></tr>
+    <tr><td><strong>Phase 4</strong> — Polish + stores</td><td>4 semaines</td><td>—</td><td>⏳ Tout à la fin</td></tr>
+  </tbody>
+</table>
+
+<h3>Avancement global de l'écosystème TaxiLink</h3>
+
+<ul>
+  <li><strong>Web (apps/web)</strong> — en production, ~85-90&nbsp;% du périmètre prévu (dashboard chauffeur, dashboard patron Phase 1, marketplace, GPS auto-progress, voice Whisper, blocages, dispatch ronds élargissants, auth persistante, doc CPAM…)</li>
+  <li><strong>Mobile (3 apps natives)</strong> — ~3&nbsp;% (foundation Phase 0 livrée, mobile-driver peut consommer les packages directement)</li>
+  <li><strong>Avancement combiné estimé pondéré par effort : ~38&nbsp;% du livrable final</strong></li>
+</ul>
+
+<div class="summary-card">
+  <h3>🎯 Prochaine étape immédiate</h3>
+  <p style="margin:0;"><strong>Phase 1 — Semaine 1 : bootstrap <code style="color:#FBBF24;background:#000">apps/mobile-driver</code></strong>. Pure infrastructure, pas de UI à designer encore. Une fois bootté, on discute le design écran par écran (PWA actuelle vs mockups Claude vs autres options) avant d'attaquer Semaine 2.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">⚠️ En parallèle du code, à lancer dès maintenant</div>
+  <ul style="margin:6px 0 0 0;">
+    <li>Création des comptes <strong>Apple Developer</strong> (99 €/an) et <strong>Google Play Console</strong> (25 € one-shot)</li>
+    <li>Recrutement de <strong>20 testeurs internes Play</strong> (compteur de 14 jours obligatoire)</li>
+    <li>Identification des <strong>10 chauffeurs beta</strong> de la Semaine 12</li>
+  </ul>
+</div>
+
+<div class="footer">
+  TaxiLink — Plan de développement mobile complet · Établi le 10 mai 2026<br>
+  Document à deux niveaux : enfant 10 ans (parties 1-6) et technique pédagogique (parties 7-11)
+</div>
+
+</body>
+</html>

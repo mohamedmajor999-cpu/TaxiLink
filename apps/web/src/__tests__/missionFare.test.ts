@@ -31,6 +31,7 @@ function mkMission(overrides: Partial<Mission> = {}): Mission {
     updated_at: '2026-06-10T00:00:00Z',
     shared_by: null,
     visibility: 'PUBLIC',
+    target_user_ids: null,
     return_trip: false,
     return_time: null,
     transport_type: null,

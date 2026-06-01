@@ -68,6 +68,30 @@ export type Database = {
         }
         Relationships: []
       }
+      cache_google: {
+        Row: {
+          expires_at: string
+          fetched_at: string
+          key: string
+          kind: string
+          value: Json
+        }
+        Insert: {
+          expires_at: string
+          fetched_at?: string
+          key: string
+          kind: string
+          value: Json
+        }
+        Update: {
+          expires_at?: string
+          fetched_at?: string
+          key?: string
+          kind?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       driver_blocks: {
         Row: {
           blocked_id: string
@@ -481,6 +505,7 @@ export type Database = {
           shared_by: string | null
           static_duration_min: number | null
           status: string
+          target_user_ids: string[] | null
           transport_type: string | null
           transport_voucher_url: string | null
           type: string
@@ -528,6 +553,7 @@ export type Database = {
           shared_by?: string | null
           static_duration_min?: number | null
           status?: string
+          target_user_ids?: string[] | null
           transport_type?: string | null
           transport_voucher_url?: string | null
           type?: string
@@ -575,6 +601,7 @@ export type Database = {
           shared_by?: string | null
           static_duration_min?: number | null
           status?: string
+          target_user_ids?: string[] | null
           transport_type?: string | null
           transport_voucher_url?: string | null
           type?: string
@@ -818,6 +845,36 @@ export type Database = {
         }
         Relationships: []
       }
+      push_tokens: {
+        Row: {
+          created_at: string
+          device_name: string | null
+          id: string
+          last_seen_at: string
+          platform: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_name?: string | null
+          id?: string
+          last_seen_at?: string
+          platform: string
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_name?: string | null
+          id?: string
+          last_seen_at?: string
+          platform?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -849,11 +906,28 @@ export type Database = {
       }
       expire_pending_offers: { Args: never; Returns: number }
       expire_stale_missions: { Args: never; Returns: undefined }
+      get_drivers_for_dept_push: {
+        Args: { p_dept: string }
+        Returns: {
+          token: string
+          user_id: string
+        }[]
+      }
       get_marketplace_missions: {
         Args: { p_departments?: string[]; p_limit?: number }
         Returns: Json[]
       }
       get_my_group_ids: { Args: never; Returns: string[] }
+      get_poster_token_for_accepted_mission: {
+        Args: { p_caller_user_id: string; p_mission_id: string }
+        Returns: {
+          departure: string
+          destination: string
+          driver_name: string
+          poster_id: string
+          token: string
+        }[]
+      }
       haversine_km: {
         Args: { lat1: number; lat2: number; lng1: number; lng2: number }
         Returns: number

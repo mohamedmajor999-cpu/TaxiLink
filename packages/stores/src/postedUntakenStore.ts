@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Mission } from '@taxilink/supabase-types'
+import { sharedStorage } from './_storage'
 
 interface PostedUntakenState {
   /** Missions stuck non encore dismissees par l'user. Keyed par id pour dedup. */
@@ -66,10 +67,11 @@ export const usePostedUntakenStore = create<PostedUntakenState>()(
     }),
     {
       name: 'taxilink-posted-untaken',
-      storage: createJSONStorage(() => localStorage),
-      // Seul `dismissed` est persiste, en localStorage : survit au refresh ET
-      // a la fermeture du navigateur. Les UUID de missions ne se reutilisent
-      // pas, donc le store ne croit que d'1 entree par mission posteee dismiss.
+      storage: createJSONStorage(() => sharedStorage),
+      // `sharedStorage` = localStorage (web) ou AsyncStorage (mobile inject au boot).
+      // Seul `dismissed` est persiste : survit au refresh ET a la fermeture de l'app.
+      // Les UUID de missions ne se reutilisent pas, donc le store ne croit que d'1
+      // entree par mission posteee dismiss.
       partialize: (s) => ({ dismissed: s.dismissed }),
     },
   ),

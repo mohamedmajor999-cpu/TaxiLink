@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TaxiLink - V7</title>
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #141414;
+      --ink: #ffffff; --ink-soft: #9a9a9a;
+      --line: #1f1f1f; --brand: #ffd23f;
+      --success: #34d186; --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 80px; }
+    header h1 { font-size: 32px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.8px; }
+    header p { color: var(--ink-soft); margin: 0 0 32px; font-size: 15px; line-height: 1.55; max-width: 720px; }
+
+    .lead {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 16px; padding: 22px; margin-bottom: 28px;
+    }
+    .lead h2 { margin: 0 0 12px; font-size: 16px; font-weight: 700; }
+    .lead ul { margin: 0; padding-left: 20px; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+    .lead li b { color: var(--ink); font-weight: 600; }
+    .lead .ok { color: var(--success); }
+    .lead .ko { color: var(--danger); text-decoration: line-through; }
+
+    .section-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--ink-soft); margin: 40px 0 16px; font-weight: 700;
+    }
+
+    .grid {
+      display: grid; gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 20px; overflow: hidden; text-decoration: none; color: inherit;
+      display: flex; flex-direction: column;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: #2a2a2a; }
+    .thumb {
+      aspect-ratio: 9/16;
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+      border-bottom: 1px solid var(--line); overflow: hidden;
+    }
+    .thumb iframe { width: 100%; height: 100%; border: 0; pointer-events: none; transform: scale(0.95); transform-origin: top center; }
+    .meta { padding: 16px 18px 18px; }
+    .meta h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+    .meta p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.4; }
+    .pill {
+      display: inline-block; padding: 3px 8px; border-radius: 6px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .pill.notif { background: rgba(220, 38, 38, 0.18); color: #f87171; }
+    .pill.screen { background: rgba(255, 210, 63, 0.15); color: #ffd23f; }
+    .pill.new { background: rgba(52,209,134,0.18); color: var(--success); }
+
+    .flow {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 16px; padding: 20px; margin-bottom: 28px;
+    }
+    .flow h3 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
+    .flow .steps { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .flow .step {
+      background: #1f1f1f; padding: 10px 14px; border-radius: 10px;
+      font-size: 12px; font-weight: 700;
+      border: 1px solid #2a2a2a;
+    }
+    .flow .arrow { color: var(--ink-soft); font-size: 14px; }
+    .flow .step.brand { background: var(--brand); color: #000; border-color: var(--brand); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>V7 - Corrections m&eacute;tier</h1>
+      <p>Plus de "choisir entre candidats" (premier arriv&eacute; premier servi). Poster avec partage cibl&eacute;. Notif mission &eacute;pur&eacute;e. R&eacute;ponse &agrave; l'acc&egrave;s "&eacute;tape de la course".</p>
+    </header>
+
+    <div class="lead">
+      <h2>Ce qui change par rapport &agrave; V6</h2>
+      <ul>
+        <li><b>Plus de modal "choisir parmi plusieurs offres"</b> <span class="ko">v6-notif-new-offer</span> &rarr; remplac&eacute;e par une notif info "X a pris ta course" <span class="ok">v7-notif-taken</span>.</li>
+        <li>La page <b>Mes annonces</b> n'affiche plus d'offres &agrave; arbitrer &mdash; juste les annonces actives avec <b>Modifier / Annuler</b>.</li>
+        <li>Le flow <b>Poster une annonce</b> a une &eacute;tape suppl&eacute;mentaire : <b>"&Agrave; qui partager"</b> (tout le groupe / personnes choisies).</li>
+        <li>La <b>notif nouvelle mission</b> passe d'un fond noir agressif &agrave; un fond clair &eacute;pur&eacute;, et a un bouton <b>D&eacute;tails</b> pour voir la mission compl&egrave;te avant d'accepter.</li>
+        <li><b>Acc&egrave;s "&eacute;tape de la course"</b> : depuis <i>Mes courses</i>, tap sur le hero "EN COURS" &rarr; bouton <b>Naviguer</b>. La carte affiche aussi un bandeau persistant si une course est active.</li>
+      </ul>
+    </div>
+
+    <div class="flow">
+      <h3>Flow poster une annonce (V7)</h3>
+      <div class="steps">
+        <span class="step">1. D&eacute;part &amp; destination</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step">2. Patient &amp; tarif</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step brand">3. &Agrave; qui partager (nouveau)</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step">Publi&eacute;</span>
+      </div>
+    </div>
+
+    <div class="flow">
+      <h3>Flow apr&egrave;s publication</h3>
+      <div class="steps">
+        <span class="step">Annonce publi&eacute;e</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step">Karim accepte (1er)</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step brand">Notif info "C'est pour Karim"</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step">Course transmise</span>
+      </div>
+    </div>
+
+    <h2 class="section-title">Notifications (refonte)</h2>
+    <div class="grid">
+      <a class="card" href="v7-notif-mission.html" target="_blank">
+        <div class="thumb"><iframe src="v7-notif-mission.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill notif">Notif A</span>
+          <h3>Nouvelle mission &eacute;pur&eacute;e</h3>
+          <p>Fond clair, moins de jaune, bouton D&eacute;tails pour voir la mission compl&egrave;te</p>
+        </div>
+      </a>
+
+      <a class="card" href="v7-notif-mission-details.html" target="_blank">
+        <div class="thumb"><iframe src="v7-notif-mission-details.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill new">Nouveau</span>
+          <h3>D&eacute;tail mission</h3>
+          <p>Ouverte depuis le bouton D&eacute;tails de la notif. Vue compl&egrave;te avant accept.</p>
+        </div>
+      </a>
+
+      <a class="card" href="v7-notif-taken.html" target="_blank">
+        <div class="thumb"><iframe src="v7-notif-taken.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill new">Refonte</span>
+          <h3>Ton annonce est prise</h3>
+          <p>Notif info simple : "Karim L. a pris ta course". Plus de modal de choix.</p>
+        </div>
+      </a>
+    </div>
+
+    <h2 class="section-title">&Eacute;crans modifi&eacute;s</h2>
+    <div class="grid">
+      <a class="card" href="v7-poster-share.html" target="_blank">
+        <div class="thumb"><iframe src="v7-poster-share.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill new">Nouveau</span>
+          <h3>Poster &middot; &eacute;tape partage</h3>
+          <p>Choisir : tout le groupe / 1 groupe sp&eacute;cifique / personnes individuelles</p>
+        </div>
+      </a>
+
+      <a class="card" href="v7-annonces.html" target="_blank">
+        <div class="thumb"><iframe src="v7-annonces.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill screen">Refonte</span>
+          <h3>Mes annonces (sans offres)</h3>
+          <p>Annonces en attente avec Modifier / Annuler. Plus de "choisir parmi candidats".</p>
+        </div>
+      </a>
+
+      <a class="card" href="v7-courses.html" target="_blank">
+        <div class="thumb"><iframe src="v7-courses.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill screen">Affin&eacute;</span>
+          <h3>Mes courses (acc&egrave;s &eacute;tape clair)</h3>
+          <p>Bouton "Naviguer" + bandeau persistant qui rappelle qu'une course est active</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

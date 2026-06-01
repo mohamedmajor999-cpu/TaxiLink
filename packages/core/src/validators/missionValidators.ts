@@ -40,6 +40,10 @@ export interface MissionInput {
   scheduled_at?: string | null
   visibility?: MissionVisibility
   group_ids?: string[]
+  // V7 partage cible : si renseigne, seuls ces user_ids voient l'annonce dans
+  // le feed marketplace (filtre dans get_marketplace_missions RPC). NULL ou
+  // omis = annonce ouverte (visible a tout le groupe via dept_preferences).
+  target_user_ids?: string[] | null
 }
 
 const rangeKo = (v: number | null | undefined, lo: number, hi: number) =>
@@ -92,8 +96,9 @@ export function validateMission(d: MissionInput): ValidationError[] {
   if (rangeKo(d.destination_lng, -180, 180))
     push('destination_lng', 'La longitude doit être comprise entre -180 et 180')
 
-  // Telephone
-  if (d.phone?.trim() && !PHONE_REGEX.test(d.phone.replace(/\s/g, ''))) {
+  // Telephone : on accepte espaces, tirets, points, parenthèses, slash
+  // (formats utilisateur, dictée vocale, copier-coller depuis contacts).
+  if (d.phone?.trim() && !PHONE_REGEX.test(d.phone.replace(/[\s\-.()/]/g, ''))) {
     push('phone', 'Format de téléphone invalide (ex: 0601020304 ou +33601020304)')
   }
 

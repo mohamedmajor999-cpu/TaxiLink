@@ -19,8 +19,11 @@ export const authService = {
     const supabase = getSupabaseClient()
     // emailRedirectTo : web utilise window.location.origin. Mobile devra
     // overrider via une option dediee plus tard (deep link expo://auth/callback).
+    // Note : sur RN, `window` existe en polyfill mais `window.location` est
+    // undefined -> il faut tester les deux pour eviter "Cannot read property
+    // origin of undefined" sur mobile.
     const emailRedirectTo =
-      typeof window !== 'undefined'
+      typeof window !== 'undefined' && window.location
         ? `${window.location.origin}/auth/callback`
         : undefined
     const { data, error } = await supabase.auth.signUp({
@@ -89,8 +92,11 @@ export const authService = {
 
   async resendConfirmation(email: string) {
     const supabase = getSupabaseClient()
+    // Note : sur RN, `window` existe en polyfill mais `window.location` est
+    // undefined -> il faut tester les deux pour eviter "Cannot read property
+    // origin of undefined" sur mobile.
     const emailRedirectTo =
-      typeof window !== 'undefined'
+      typeof window !== 'undefined' && window.location
         ? `${window.location.origin}/auth/callback`
         : undefined
     const { error } = await supabase.auth.resend({

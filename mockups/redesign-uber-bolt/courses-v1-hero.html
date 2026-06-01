@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mes courses V1 · Hero unique</title>
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --ink-soft: #6b6b6b;
+      --ink-muted: #9a9a9a;
+      --bg: #f7f7f7;
+      --surface: #ffffff;
+      --line: #ececec;
+      --brand: #ffd23f;
+      --accent: #1a1a1a;
+      --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px;
+      margin: 40px auto;
+      background: var(--bg);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink);
+      z-index: 20;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    .scroll { position: absolute; inset: 50px 0 0 0; overflow: hidden; }
+    .scroll::-webkit-scrollbar { display: none; }
+
+    /* Header */
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 20px 8px;
+    }
+    .iconbtn {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .iconbtn svg { width: 22px; height: 22px; }
+    .kebab {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .kebab .dot {
+      width: 18px; display:flex; flex-direction:column; gap:3px;
+    }
+    .kebab .dot span { display:block; width: 4px; height: 4px; border-radius: 50%; background: var(--ink); }
+
+    /* Title */
+    .title {
+      padding: 6px 20px 4px;
+    }
+    .title h1 {
+      margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.8px;
+    }
+    .title .date {
+      color: var(--ink-soft); font-size: 13px; margin-top: 2px;
+    }
+
+    /* Earnings band */
+    .earnings {
+      margin: 14px 20px 0;
+      background: var(--accent);
+      border-radius: 20px;
+      padding: 18px 18px 16px;
+      color: #fff;
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .earnings .label {
+      font-size: 12px; opacity: 0.7; font-weight: 600; margin-bottom: 4px;
+    }
+    .earnings .amount {
+      font-size: 36px; font-weight: 900; letter-spacing: -1.5px; line-height: 1;
+    }
+    .earnings .delta {
+      font-size: 12px; font-weight: 700;
+      color: #34d186; margin-top: 6px;
+    }
+    .earnings .bars {
+      display: flex; gap: 4px; align-items: flex-end; height: 44px;
+    }
+    .earnings .bars .b {
+      width: 6px; background: rgba(255,255,255,0.25); border-radius: 2px;
+    }
+    .earnings .bars .b.cur { background: var(--brand); }
+
+    /* Hero "En cours" - LA grosse carte */
+    .hero-section {
+      padding: 24px 20px 8px;
+    }
+    .section-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px; font-weight: 800; color: var(--ink-soft);
+      letter-spacing: 1.2px;
+      margin-bottom: 10px;
+    }
+    .hero-card {
+      background: var(--surface);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
+    }
+    .hero-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #ecfdf5; color: #065f46;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+      padding: 4px 10px; border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .hero-status .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.18);
+    }
+    .hero-trip {
+      display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px;
+    }
+    .trip-dots {
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 6px;
+    }
+    .trip-dots .a, .trip-dots .b {
+      width: 11px; height: 11px; border-radius: 50%;
+      background: #0a0a0a;
+    }
+    .trip-dots .b { background: #fff; border: 2.5px solid #0a0a0a; }
+    .trip-dots .line {
+      width: 2px; flex: 1; min-height: 28px;
+      background: #d4d4d4;
+      margin: 4px 0;
+    }
+    .trip-text { flex: 1; min-width: 0; }
+    .trip-text .l1 { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+    .trip-text .l2 { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+    .trip-text .row1 { margin-bottom: 22px; }
+
+    .hero-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .meta-left { display: flex; gap: 18px; }
+    .meta-cell { }
+    .meta-cell .v { font-size: 14px; font-weight: 800; }
+    .meta-cell .k { font-size: 10.5px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    .cta-primary {
+      width: 100%;
+      height: 54px;
+      background: var(--accent);
+      color: #fff;
+      border: 0;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      margin-top: 16px;
+    }
+
+    /* Liste suivante - compact */
+    .next-list {
+      padding: 24px 20px 100px;
+    }
+    .next-row {
+      display: flex; gap: 14px; align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .next-row:last-child { border-bottom: 0; }
+    .next-time {
+      width: 44px;
+      text-align: center;
+    }
+    .next-time .h { font-size: 15px; font-weight: 900; letter-spacing: -0.4px; }
+    .next-time .t { font-size: 9.5px; font-weight: 800; color: var(--ink-muted); letter-spacing: 0.4px; }
+    .next-route { flex: 1; min-width: 0; }
+    .next-route .l1 { font-size: 13.5px; font-weight: 700; }
+    .next-route .l2 { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+    .next-fare { font-size: 14px; font-weight: 900; letter-spacing: -0.3px; }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 80px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-around; align-items: center;
+      padding-bottom: 20px;
+      z-index: 10;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; color: var(--ink-muted);
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item svg { width: 24px; height: 24px; }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="scroll">
+      <div class="header">
+        <div class="iconbtn">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </div>
+        <div class="kebab">
+          <div class="dot"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+
+      <div class="title">
+        <h1>Mes courses</h1>
+        <div class="date">Lundi 18 mai · 6 courses</div>
+      </div>
+
+      <div class="earnings">
+        <div>
+          <div class="label">Gains aujourd'hui</div>
+          <div class="amount">184 €</div>
+          <div class="delta">+24 € vs. moyenne</div>
+        </div>
+        <div class="bars">
+          <div class="b" style="height: 30%;"></div>
+          <div class="b" style="height: 50%;"></div>
+          <div class="b" style="height: 35%;"></div>
+          <div class="b" style="height: 70%;"></div>
+          <div class="b" style="height: 55%;"></div>
+          <div class="b cur" style="height: 90%;"></div>
+          <div class="b" style="height: 20%; opacity: 0.4;"></div>
+        </div>
+      </div>
+
+      <div class="hero-section">
+        <div class="section-label">
+          <span>EN COURS</span>
+          <span style="color: var(--success); font-weight: 700;">Patient à bord</span>
+        </div>
+
+        <div class="hero-card">
+          <span class="hero-status">
+            <span class="dot"></span>
+            CPAM · TRAJET EN COURS
+          </span>
+          <div class="hero-trip">
+            <div class="trip-dots">
+              <div class="a"></div>
+              <div class="line"></div>
+              <div class="b"></div>
+            </div>
+            <div class="trip-text">
+              <div class="row1">
+                <div class="l1">Hôpital Nord</div>
+                <div class="l2">Pris en charge à 14h12</div>
+              </div>
+              <div>
+                <div class="l1">Aubagne centre</div>
+                <div class="l2">Arrivée prévue 14h41 · 14 km</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-meta">
+            <div class="meta-left">
+              <div class="meta-cell">
+                <div class="v">61 €</div>
+                <div class="k">Course</div>
+              </div>
+              <div class="meta-cell">
+                <div class="v">Mme M.</div>
+                <div class="k">Patient</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="cta-primary">Naviguer · 22 min</button>
+        </div>
+      </div>
+
+      <div class="next-list">
+        <div class="section-label">
+          <span>À VENIR · 2 COURSES</span>
+        </div>
+
+        <div class="next-row">
+          <div class="next-time">
+            <div class="h">15:30</div>
+            <div class="t">CPAM</div>
+          </div>
+          <div class="next-route">
+            <div class="l1">Castellane → Timone</div>
+            <div class="l2">M. Bertrand · 6,1 km</div>
+          </div>
+          <div class="next-fare">28 €</div>
+        </div>
+
+        <div class="next-row">
+          <div class="next-time">
+            <div class="h">17:15</div>
+            <div class="t">PRIVÉ</div>
+          </div>
+          <div class="next-route">
+            <div class="l1">La Joliette → Aéroport</div>
+            <div class="l2">M. & Mme Dubois · 8,3 km</div>
+          </div>
+          <div class="next-fare">42 €</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+        Carte
+      </div>
+      <div class="nav-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Courses
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+        Profil
+      </div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

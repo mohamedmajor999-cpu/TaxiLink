@@ -32,6 +32,7 @@ function makeMission(overrides: Partial<Mission> = {}): Mission {
     updated_at: '2026-04-10T10:00:00Z',
     shared_by: null,
     visibility: 'assigned',
+    target_user_ids: null,
     medical_motif: null,
     return_trip: false,
     return_time: null,

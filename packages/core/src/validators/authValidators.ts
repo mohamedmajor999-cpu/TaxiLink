@@ -11,8 +11,25 @@ export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
+// Politique mot de passe alignée sur la recommandation CNIL (délibération 2022-100)
+// pour une auth par mot de passe SANS vérification anti-fuite côté serveur. On
+// privilégie la LONGUEUR à la complexité par symboles (meilleure protection, moins
+// de friction au clavier mobile) : 14 caractères minimum + au moins une minuscule,
+// une majuscule et un chiffre (pas de symbole imposé).
+// Doit rester synchrone avec le réglage Supabase Auth (Minimum password length = 14
+// + Password requirements = « Lowercase, uppercase letters and digits ») — sinon
+// l'app accepte un mot de passe que le serveur refuse (ou l'inverse). Cf. audit L-01.
+export const PASSWORD_MIN_LENGTH = 14
+export const PASSWORD_RULE_LABEL =
+  '14 caractères minimum, avec au moins une majuscule, une minuscule et un chiffre.'
+
 export function isValidPassword(password: string): boolean {
-  return password.length >= 8
+  return (
+    password.length >= PASSWORD_MIN_LENGTH &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password)
+  )
 }
 
 // Prenom/nom : 2-50 caracteres, lettres latines (avec accents francais/europeens

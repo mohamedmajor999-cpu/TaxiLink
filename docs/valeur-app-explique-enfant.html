@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Combien vaut ton appli ? — Le livret</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm 18mm 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: #1f2937;
+    line-height: 1.55;
+    font-size: 12.5pt;
+    background: #fff;
+  }
+  h1, h2, h3 { color: #111827; line-height: 1.2; margin: 0 0 8mm 0; }
+  h1 { font-size: 28pt; }
+  h2 { font-size: 20pt; margin-top: 0; }
+  h3 { font-size: 14pt; margin-top: 6mm; }
+  p  { margin: 0 0 4mm 0; }
+  .page { page-break-after: always; padding: 4mm 2mm; }
+  .page:last-child { page-break-after: auto; }
+  .accent { color: #b45309; }
+  .yellow-bg {
+    background: #fef3c7;
+    border: 2px solid #fbbf24;
+    border-radius: 8px;
+    padding: 6mm 7mm;
+    margin: 5mm 0;
+  }
+  .blue-bg {
+    background: #dbeafe;
+    border: 2px solid #60a5fa;
+    border-radius: 8px;
+    padding: 6mm 7mm;
+    margin: 5mm 0;
+  }
+  .red-bg {
+    background: #fee2e2;
+    border: 2px solid #f87171;
+    border-radius: 8px;
+    padding: 6mm 7mm;
+    margin: 5mm 0;
+  }
+  .green-bg {
+    background: #d1fae5;
+    border: 2px solid #34d399;
+    border-radius: 8px;
+    padding: 6mm 7mm;
+    margin: 5mm 0;
+  }
+  .gray-bg {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 5mm 7mm;
+    margin: 5mm 0;
+  }
+  .big-number {
+    font-size: 56pt;
+    font-weight: 800;
+    color: #b45309;
+    line-height: 1;
+    margin: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 5mm 0;
+    font-size: 11pt;
+  }
+  th, td {
+    border: 1px solid #d1d5db;
+    padding: 3mm 4mm;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: #fbbf24; color: #1f2937; font-weight: 700; }
+  tr:nth-child(even) td { background: #fffbeb; }
+  .cover {
+    height: 265mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: 12px;
+    padding: 20mm;
+  }
+  .cover h1 {
+    font-size: 36pt;
+    color: #78350f;
+    margin: 0 0 6mm 0;
+  }
+  .cover .subtitle {
+    font-size: 18pt;
+    color: #92400e;
+    margin: 0 0 14mm 0;
+  }
+  .cover .footer {
+    margin-top: 10mm;
+    font-size: 12pt;
+    color: #78350f;
+    font-weight: 600;
+  }
+  .toc-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3mm 0;
+    border-bottom: 1px dashed #d1d5db;
+    font-size: 13pt;
+  }
+  .toc-item span:first-child { font-weight: 600; }
+  .lead {
+    font-size: 14pt;
+    line-height: 1.5;
+    color: #374151;
+    margin: 0 0 6mm 0;
+  }
+  ul.simple {
+    margin: 3mm 0 4mm 0;
+    padding-left: 8mm;
+  }
+  ul.simple li { margin-bottom: 2.5mm; }
+  .quote {
+    font-style: italic;
+    border-left: 4px solid #fbbf24;
+    padding: 2mm 0 2mm 5mm;
+    margin: 5mm 0;
+    color: #4b5563;
+  }
+  .icon-row {
+    display: flex;
+    gap: 4mm;
+    margin: 4mm 0;
+  }
+  .icon-card {
+    flex: 1;
+    text-align: center;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 4mm 3mm;
+  }
+  .icon-card .num {
+    font-size: 20pt;
+    font-weight: 800;
+    color: #b45309;
+  }
+  .icon-card .lab {
+    font-size: 10pt;
+    color: #4b5563;
+  }
+  .price-bar {
+    display: flex;
+    height: 18mm;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 5mm 0;
+    border: 2px solid #1f2937;
+  }
+  .price-bar > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    font-size: 10pt;
+    padding: 0 3mm;
+  }
+  .pgbreak { page-break-before: always; }
+  .small { font-size: 10pt; color: #6b7280; }
+  .step-card {
+    background: #fff;
+    border: 2px solid #fbbf24;
+    border-left: 8px solid #fbbf24;
+    border-radius: 8px;
+    padding: 5mm 7mm;
+    margin: 4mm 0;
+  }
+  .step-card .num {
+    color: #b45309;
+    font-weight: 800;
+    font-size: 14pt;
+  }
+  .footer-num {
+    position: fixed;
+    bottom: 6mm;
+    right: 14mm;
+    font-size: 9pt;
+    color: #9ca3af;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ COUVERTURE ============ -->
+<section class="page">
+  <div class="cover">
+    <div style="font-size: 60pt; font-weight: 900; color: #fbbf24; line-height: 1;">€</div>
+    <h1>Combien vaut ton appli&nbsp;?</h1>
+    <p class="subtitle">Le grand livret expliqué comme à un enfant de 10 ans</p>
+    <div style="font-size: 13pt; color: #92400e; max-width: 130mm;">
+      Tout ce qu'il faut savoir pour vendre TaxiLink&nbsp;: combien ça vaut, pourquoi le prix baisse parfois, et comment faire pour le faire monter très haut.
+    </div>
+    <div class="footer">Édition du 9 mai 2026</div>
+  </div>
+</section>
+
+<!-- ============ POUR QUI ============ -->
+<section class="page">
+  <h2>Pour qui est ce livret&nbsp;?</h2>
+  <p class="lead">
+    Imagine que tu as construit une <b>énorme cabane en LEGO</b> dans ta chambre. Une cabane vraiment cool, avec des portes, des fenêtres, un toit, et même de la lumière qui s'allume.
+  </p>
+  <p class="lead">
+    Un jour, quelqu'un te dit&nbsp;: <i>«&nbsp;Eh, ta cabane est super. Je voudrais te l'acheter. Combien tu veux&nbsp;?&nbsp;»</i>
+  </p>
+  <p class="lead">
+    Là, tu te grattes la tête. <b>Tu ne sais pas combien ça vaut.</b>
+  </p>
+  <div class="yellow-bg">
+    <p style="margin: 0; font-size: 13pt;">
+      <b>Ton appli TaxiLink, c'est exactement pareil.</b><br>
+      C'est une cabane en LEGO… mais en code informatique. Une grande, une belle, qui marche vraiment.
+    </p>
+    <p style="margin: 4mm 0 0 0;">
+      Ce livret va te dire&nbsp;:
+    </p>
+    <ul class="simple" style="margin-bottom: 0;">
+      <li>combien <b>elle coûte à faire</b> aujourd'hui,</li>
+      <li>combien <b>tu peux la vendre</b> tout de suite,</li>
+      <li>pourquoi le prix <b>baisse parfois</b> (et c'est pas juste&nbsp;!),</li>
+      <li>comment faire pour qu'<b>il arrête de baisser</b>,</li>
+      <li>et comment faire pour qu'<b>il monte très haut</b>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ SOMMAIRE ============ -->
+<section class="page">
+  <h2>Le sommaire</h2>
+  <div class="toc-item"><span>1. C'est quoi ton appli, en vrai&nbsp;?</span><span>p. 4</span></div>
+  <div class="toc-item"><span>2. Combien ça coûte de la <b>refaire</b>&nbsp;?</span><span>p. 6</span></div>
+  <div class="toc-item"><span>3. Combien ça vaut si tu la <b>vends aujourd'hui</b>&nbsp;?</span><span>p. 8</span></div>
+  <div class="toc-item"><span>4. La «&nbsp;décote&nbsp;»&nbsp;: pourquoi le prix baisse</span><span>p. 10</span></div>
+  <div class="toc-item"><span>5. Le piège du «&nbsp;tout seul&nbsp;»</span><span>p. 12</span></div>
+  <div class="toc-item"><span>6. Le piège du «&nbsp;terrain loué&nbsp;»&nbsp;: Supabase</span><span>p. 14</span></div>
+  <div class="toc-item"><span>7. Comment <b>éviter</b> que le prix baisse</span><span>p. 16</span></div>
+  <div class="toc-item"><span>8. Comment <b>faire monter</b> le prix très haut</span><span>p. 19</span></div>
+  <div class="toc-item"><span>9. Le grand tableau récap</span><span>p. 22</span></div>
+  <div class="toc-item"><span>10. Ce qu'il faut retenir</span><span>p. 23</span></div>
+</section>
+
+<!-- ============ CHAP 1 ============ -->
+<section class="page">
+  <h2>1. C'est quoi ton appli, en vrai&nbsp;?</h2>
+  <p class="lead">
+    TaxiLink, c'est une appli qui aide les <b>chauffeurs de taxi</b> à transporter des malades à l'hôpital, et leurs <b>patrons</b> à organiser les courses sans se prendre la tête.
+  </p>
+
+  <div class="yellow-bg">
+    <h3 style="margin-top:0;">Ta cabane est faite de quoi&nbsp;?</h3>
+    <div class="icon-row">
+      <div class="icon-card">
+        <div class="num">771</div>
+        <div class="lab">fichiers de code</div>
+      </div>
+      <div class="icon-card">
+        <div class="num">53&nbsp;943</div>
+        <div class="lab">lignes écrites</div>
+      </div>
+      <div class="icon-card">
+        <div class="num">3</div>
+        <div class="lab">grands tableaux<br>(chauffeur, patron, admin)</div>
+      </div>
+      <div class="icon-card">
+        <div class="num">1</div>
+        <div class="lab">site web déjà<br>en ligne</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Et qu'est-ce qu'elle sait faire&nbsp;?</h3>
+  <ul class="simple">
+    <li><b>Elle parle</b>&nbsp;: le chauffeur dit «&nbsp;Madame Martin, 32 rue de Paris, hôpital&nbsp;», l'appli comprend toute seule grâce à <i>Whisper</i> (l'oreille magique d'OpenAI).</li>
+    <li><b>Elle voit la route</b>&nbsp;: avec une carte, des adresses françaises (BAN), et le calcul du chemin le plus court (OSRM).</li>
+    <li><b>Elle suit le taxi tout seul</b>&nbsp;: dès que le chauffeur arrive chez le patient, l'appli passe automatiquement à l'étape suivante. Magique.</li>
+    <li><b>Elle distribue les courses</b>&nbsp;: comme une bouteille qu'on lance à la mer en cercles de plus en plus grands, jusqu'à ce qu'un chauffeur attrape.</li>
+    <li><b>Elle range tout</b>&nbsp;: chaque société de taxi a sa propre boîte (multi-tenancy), personne ne mélange ses courses avec celles du voisin.</li>
+  </ul>
+
+  <div class="blue-bg">
+    <p style="margin: 0;"><b>En résumé&nbsp;:</b> ta cabane LEGO, ce n'est pas une petite cabane de jardin. <b>C'est une vraie maison de 5 pièces avec l'électricité, la plomberie et le wifi.</b></p>
+  </div>
+</section>
+
+<!-- ============ CHAP 2 ============ -->
+<section class="page">
+  <h2>2. Combien ça coûte de la <span class="accent">refaire</span>&nbsp;?</h2>
+  <p class="lead">
+    Imagine qu'on demande à quelqu'un de construire <b>la même cabane que la tienne</b>, sans copier la tienne. Combien il faudrait le payer&nbsp;?
+  </p>
+
+  <h3>D'abord, on compte le temps</h3>
+  <p>Faire une appli comme la tienne, ça prend du temps. Pas une semaine. Plutôt&nbsp;:</p>
+  <div class="gray-bg">
+    <p style="margin: 0; font-size: 14pt;"><b>Entre 145 et 217 jours</b> de travail pour un développeur tout seul.</p>
+    <p class="small" style="margin: 2mm 0 0 0;">(c'est environ 7 à 11 mois de boulot, du lundi au vendredi)</p>
+  </div>
+
+  <h3>Ensuite, on regarde combien coûte un développeur par jour</h3>
+  <p>Tous les développeurs ne coûtent pas pareil. C'est comme les jouets&nbsp;: y'en a en plastique pas cher, et y'en a très solides plus chers.</p>
+
+  <table>
+    <tr><th>Qui le fait&nbsp;?</th><th>Prix par jour</th><th>Prix total</th></tr>
+    <tr><td>Quelqu'un loin (autre pays)</td><td>~280&nbsp;€</td><td><b>40&nbsp;000 à 61&nbsp;000&nbsp;€</b></td></tr>
+    <tr><td>Un développeur français seul</td><td>~600&nbsp;€</td><td><b>87&nbsp;000 à 130&nbsp;000&nbsp;€</b></td></tr>
+    <tr><td>Une vraie agence en France</td><td>~850&nbsp;€</td><td><b>123&nbsp;000 à 184&nbsp;000&nbsp;€</b></td></tr>
+  </table>
+
+  <div class="yellow-bg">
+    <p style="margin: 0;"><b>À retenir&nbsp;:</b> ta cabane, si quelqu'un voulait la refaire <b>de zéro</b>, ça lui coûterait entre <b>40&nbsp;000&nbsp;€ et 184&nbsp;000&nbsp;€</b>.</p>
+    <p style="margin: 3mm 0 0 0;">C'est beaucoup d'argent. Plus qu'une voiture neuve. Parfois plus qu'un appartement dans certaines villes.</p>
+  </div>
+</section>
+
+<!-- ============ CHAP 3 ============ -->
+<section class="page">
+  <h2>3. Combien ça vaut si tu la <span class="accent">vends</span>&nbsp;?</h2>
+  <p class="lead">Mais attention&nbsp;: <b>refaire</b> et <b>vendre</b>, ce n'est pas pareil.</p>
+
+  <div class="red-bg">
+    <h3 style="margin-top:0; color: #991b1b;">Une histoire pour comprendre</h3>
+    <p style="margin: 0;">Imagine que tu as fabriqué un super gâteau au chocolat. Les ingrédients t'ont coûté 15&nbsp;€.</p>
+    <p>Tu vas dans la rue, tu dis&nbsp;: «&nbsp;Qui veut acheter mon gâteau&nbsp;?&nbsp;»</p>
+    <p style="margin-bottom: 0;">Personne ne va te le payer 15&nbsp;€. Parce qu'ils n'ont pas faim, ils ne te connaissent pas, et ils ne savent pas si ton gâteau est bon. Tu vas devoir le vendre <b>moins cher</b>. Peut-être 5&nbsp;€.</p>
+  </div>
+
+  <p>Pour ton appli, c'est <b>exactement la même chose</b>. Personne ne te paye le prix de fabrication, parce que&nbsp;:</p>
+  <ul class="simple">
+    <li>L'acheteur n'a pas <b>besoin</b> tout de suite (pas faim).</li>
+    <li>Il ne sait pas si ça <b>marche vraiment</b> avec de vrais clients (gâteau pas goûté).</li>
+    <li>Il n'y a personne qui s'en sert encore (pas de file d'attente).</li>
+  </ul>
+
+  <h3>Le vrai prix de vente aujourd'hui</h3>
+
+  <div class="price-bar">
+    <div style="background: #ef4444; flex: 1.5;">15-30&nbsp;k€<br><span class="small" style="color:#fff;">vente rapide</span></div>
+    <div style="background: #f59e0b; flex: 3;">30-60&nbsp;k€<br><span class="small" style="color:#fff;">vente bien négociée</span></div>
+    <div style="background: #10b981; flex: 3;">60-90&nbsp;k€<br><span class="small" style="color:#fff;">acheteur pressé</span></div>
+  </div>
+
+  <div class="yellow-bg">
+    <p style="margin: 0;"><b>Donc&nbsp;:</b> ta cabane qui coûte ~150&nbsp;000&nbsp;€ à refaire, tu peux la <b>vendre 25&nbsp;000 à 50&nbsp;000&nbsp;€</b> en moyenne aujourd'hui.</p>
+    <p style="margin: 3mm 0 0 0;">C'est moins de la moitié du prix de fabrication. <b>C'est ça qu'on appelle la décote.</b></p>
+  </div>
+</section>
+
+<!-- ============ CHAP 4 ============ -->
+<section class="page">
+  <h2>4. La «&nbsp;décote&nbsp;»&nbsp;: pourquoi le prix <span class="accent">baisse</span></h2>
+  <p class="lead">
+    «&nbsp;Décote&nbsp;», c'est juste un mot compliqué pour dire <b>«&nbsp;remise&nbsp;»</b>. Comme dans les magasins quand y'a -30%.
+  </p>
+
+  <div class="blue-bg">
+    <p style="margin: 0;"><b>Pourquoi y'a une remise&nbsp;?</b></p>
+    <p style="margin: 3mm 0 0 0;">Parce que l'acheteur a peur. Il prend des <b>risques</b> en achetant ta cabane. Plus il a peur, plus il demande une grosse remise.</p>
+  </div>
+
+  <h3>Les choses qui font peur à l'acheteur</h3>
+
+  <table>
+    <tr><th>Ce qui fait peur</th><th>Pourquoi</th><th>Remise</th></tr>
+    <tr>
+      <td><b>Tu es tout seul à savoir comment ça marche</b></td>
+      <td>Si tu disparais, plus personne ne sait réparer si ça casse.</td>
+      <td>−30 %</td>
+    </tr>
+    <tr>
+      <td><b>L'appli est «&nbsp;collée&nbsp;» à Supabase</b></td>
+      <td>L'acheteur peut être obligé de tout déménager, et ça coûte cher.</td>
+      <td>−15 %</td>
+    </tr>
+    <tr>
+      <td>Pas de mode d'emploi</td>
+      <td>L'acheteur perd 3 mois à comprendre le code.</td>
+      <td>−10 %</td>
+    </tr>
+    <tr>
+      <td>Pas de tests automatiques</td>
+      <td>L'acheteur ne sait pas si quelque chose va casser au prochain changement.</td>
+      <td>−5 %</td>
+    </tr>
+    <tr>
+      <td>Pas en règle avec la loi (RGPD, données patient)</td>
+      <td>L'acheteur risque une grosse amende.</td>
+      <td>−15 %</td>
+    </tr>
+    <tr>
+      <td>Aucun client qui paye</td>
+      <td>Personne ne prouve que c'est utile.</td>
+      <td>Plafonne le prix</td>
+    </tr>
+  </table>
+
+  <div class="red-bg">
+    <p style="margin: 0;"><b>Sans rien faire</b>, toutes les remises s'additionnent. C'est pour ça qu'on tombe à <b>25-50&nbsp;k€</b> au lieu de <b>150&nbsp;k€</b>.</p>
+  </div>
+
+  <p>Dans les deux pages suivantes, on va regarder les <b>deux plus grosses peurs</b> et comprendre <b>pourquoi</b> elles font peur.</p>
+</section>
+
+<!-- ============ CHAP 5 ============ -->
+<section class="page">
+  <h2>5. Le piège du «&nbsp;tout seul&nbsp;»</h2>
+
+  <div class="yellow-bg">
+    <p style="margin: 0; font-size: 13pt;"><b>L'histoire de la cabane secrète</b></p>
+    <p style="margin: 3mm 0 0 0;">
+      Tu as construit ta cabane LEGO tout seul. Tu sais&nbsp;:
+    </p>
+    <ul class="simple">
+      <li>où sont rangées les pièces de rechange,</li>
+      <li>quelle pièce est fragile et qu'il ne faut pas toucher,</li>
+      <li>pourquoi tu as choisi cette couleur de toit,</li>
+      <li>comment ouvrir la porte secrète qui se coince parfois.</li>
+    </ul>
+    <p style="margin: 3mm 0 0 0;"><b>Tout ça est dans ta tête.</b> Pas écrit. Pas dessiné.</p>
+  </div>
+
+  <h3>Le jour où tu vends&hellip;</h3>
+  <p>L'acheteur arrive. Tu lui donnes la cabane et tu pars en vacances. Trois jours après, la porte secrète se coince. Il appelle&nbsp;: «&nbsp;Mais comment on l'ouvre&nbsp;?&nbsp;» Tu ne réponds pas, tu es à la plage.</p>
+  <p>L'acheteur est <b>tout seul avec une cabane qu'il ne comprend pas</b>. Il doit casser des trucs pour deviner.</p>
+
+  <div class="blue-bg">
+    <p style="margin: 0;"><b>Combien ça lui coûte d'apprendre tout ce qui est dans ta tête&nbsp;?</b></p>
+    <p style="margin: 3mm 0 0 0;">Entre <b>2 et 4 mois</b> de travail d'un autre développeur, soit <b>25&nbsp;000 à 50&nbsp;000&nbsp;€</b> qu'il devra payer en plus.</p>
+    <p style="margin: 3mm 0 0 0;">Donc il enlève cet argent du prix qu'il te donne. <b>−30 % automatique.</b></p>
+  </div>
+
+  <h3>Comment éviter cette remise&nbsp;?</h3>
+  <p>Très simple&nbsp;: <b>tu écris le mode d'emploi de ta cabane</b> avant de la vendre.</p>
+  <ul class="simple">
+    <li>Un fichier qui explique <b>pourquoi</b> tu as fait chaque choix,</li>
+    <li>Un dessin de toutes les pièces et comment elles sont reliées,</li>
+    <li>Une liste «&nbsp;si la porte coince, fais ceci&nbsp;»,</li>
+    <li>Quelques vidéos de toi qui montres comment ça marche.</li>
+  </ul>
+  <p>Avec ça, l'acheteur n'a plus peur. <b>La remise tombe de −30&nbsp;% à −15&nbsp;%.</b></p>
+  <p>Tu viens de gagner <b>15&nbsp;000&nbsp;€</b> en écrivant 5-7 jours.</p>
+</section>
+
+<!-- ============ CHAP 6 ============ -->
+<section class="page">
+  <h2>6. Le piège du «&nbsp;terrain loué&nbsp;»&nbsp;: Supabase</h2>
+
+  <div class="yellow-bg">
+    <p style="margin: 0; font-size: 13pt;"><b>L'histoire de la cabane sur un terrain loué</b></p>
+    <p style="margin: 3mm 0 0 0;">
+      Imagine que ta cabane est posée sur le terrain de Monsieur Supabase. Il te loue le terrain pas cher. Génial.
+    </p>
+    <p style="margin: 3mm 0 0 0;">
+      Mais ta cabane utilise <b>l'eau</b> de Monsieur Supabase, <b>l'électricité</b> de Monsieur Supabase, <b>la boîte aux lettres</b> de Monsieur Supabase, et même <b>la sonnette</b> de Monsieur Supabase.
+    </p>
+    <p style="margin: 3mm 0 0 0;"><b>Tout est mélangé avec le terrain.</b></p>
+  </div>
+
+  <h3>Le problème quand tu vends&hellip;</h3>
+  <p>L'acheteur dit&nbsp;: «&nbsp;Moi, j'ai déjà mon propre terrain. Je veux mettre ta cabane chez moi.&nbsp;»</p>
+  <p>Mais <b>impossible de la déménager facilement</b>&nbsp;:</p>
+  <ul class="simple">
+    <li>l'eau ne marche pas pareil,</li>
+    <li>la sonnette est branchée différemment,</li>
+    <li>la boîte aux lettres a un format spécial Supabase,</li>
+    <li>même la porte d'entrée vérifie qui tu es avec un système Supabase.</li>
+  </ul>
+  <p>Il doit donc <b>tout débrancher et tout rebrancher</b>. Ça prend <b>30 à 60 jours de travail</b>.</p>
+
+  <div class="red-bg">
+    <p style="margin: 0;"><b>Pour la santé en France, c'est encore pire&nbsp;:</b></p>
+    <p style="margin: 3mm 0 0 0;">La loi dit que les données des malades doivent être stockées sur des terrains <b>spéciaux et certifiés</b> (qu'on appelle HDS). Supabase n'est pas un terrain HDS. Donc certains acheteurs disent carrément&nbsp;: «&nbsp;Non merci, je ne peux pas acheter.&nbsp;»</p>
+  </div>
+
+  <h3>Comment éviter cette remise&nbsp;?</h3>
+  <p><b>Tu rends ta cabane plus facile à déménager.</b> Comment&nbsp;?</p>
+  <ul class="simple">
+    <li>Tu mets toute la plomberie dans un <b>kit standardisé</b>&nbsp;: l'acheteur peut changer le robinet sans tout casser.</li>
+    <li>Tu écris un <b>plan de déménagement</b>&nbsp;: «&nbsp;voici les 6 trucs à débrancher, voici comment, voici en combien de jours&nbsp;».</li>
+    <li>Tu prouves que ta cabane <b>peut tourner sur ton propre terrain</b> aussi (Supabase qu'on installe chez soi).</li>
+  </ul>
+  <p>Avec ça, la remise passe de <b>−15&nbsp;%</b> à <b>−5&nbsp;%</b>.</p>
+</section>
+
+<!-- ============ CHAP 7 ============ -->
+<section class="page">
+  <h2>7. Comment <span class="accent">éviter</span> que le prix baisse</h2>
+  <p class="lead">Voici la <b>liste de courses</b> à faire <b>avant de vendre</b>. Si tu fais tout, la grosse remise disparaît presque complètement.</p>
+
+  <div class="step-card">
+    <div class="num">Étape 1 — Écrire le mode d'emploi</div>
+    <p style="margin: 2mm 0 0 0;"><b>5 à 7 jours.</b> Un dossier «&nbsp;docs&nbsp;» avec&nbsp;:</p>
+    <ul class="simple" style="margin-top: 1mm;">
+      <li>Un fichier qui explique l'ensemble (ARCHITECTURE.md),</li>
+      <li>Un dessin de la base de données,</li>
+      <li>Un guide «&nbsp;si ça casse, fais ça&nbsp;»,</li>
+      <li>5 à 7 vidéos courtes (10 minutes max) qui montrent chaque grosse partie.</li>
+    </ul>
+  </div>
+
+  <div class="step-card">
+    <div class="num">Étape 2 — Rendre la cabane déménageable</div>
+    <p style="margin: 2mm 0 0 0;"><b>4 à 5 jours.</b> Tu mets une couche entre ton code et Supabase, comme une <b>prise universelle</b>. On peut changer Supabase pour autre chose plus tard sans tout casser. Et tu écris le plan de déménagement.</p>
+  </div>
+
+  <div class="step-card">
+    <div class="num">Étape 3 — Mettre des tests qui vérifient tout seul</div>
+    <p style="margin: 2mm 0 0 0;"><b>5 à 7 jours.</b> Des petits robots qui essayent ton appli automatiquement et te disent si quelque chose casse. L'acheteur adore voir ça&nbsp;: «&nbsp;Ah, 73&nbsp;% du code est testé&nbsp;!&nbsp;».</p>
+  </div>
+
+  <div class="step-card">
+    <div class="num">Étape 4 — Mettre un système d'alerte</div>
+    <p style="margin: 2mm 0 0 0;"><b>3 à 4 jours.</b> Quand un truc plante, ça t'envoie un message tout seul (Sentry). Quand le site est en panne, ça te prévient (UptimeRobot). C'est gratuit et ça rassure énormément.</p>
+  </div>
+
+  <div class="step-card">
+    <div class="num">Étape 5 — Être en règle avec la loi</div>
+    <p style="margin: 2mm 0 0 0;"><b>5 à 8 jours + 1500-3000&nbsp;€ d'avocat.</b> Tu prépares les papiers RGPD, les conditions d'utilisation, la politique des cookies. <b>Sans ça, la moitié des acheteurs sérieux s'en vont.</b></p>
+  </div>
+
+  <div class="step-card">
+    <div class="num">Étape 6 — Protéger la marque «&nbsp;TaxiLink&nbsp;»</div>
+    <p style="margin: 2mm 0 0 0;"><b>1 à 2 jours + 250&nbsp;€.</b> Tu déposes le nom à l'INPI pour que personne ne puisse te le voler.</p>
+  </div>
+
+  <div class="step-card">
+    <div class="num">Étape 7 — Préparer les comptes à transférer</div>
+    <p style="margin: 2mm 0 0 0;"><b>2 jours.</b> Tu mets tous les comptes (Apple, Google, Vercel, Supabase) sur des emails du projet, pas ton email perso. Ça simplifie la vente.</p>
+  </div>
+
+  <div class="green-bg">
+    <p style="margin: 0; font-size: 13pt;"><b>Total&nbsp;: 25 à 35 jours de travail + environ 4&nbsp;000&nbsp;€ de frais.</b></p>
+    <p style="margin: 3mm 0 0 0;">Et ça fait passer le prix de vente de <b>25-50&nbsp;k€</b> à <b>60-100&nbsp;k€</b>.</p>
+    <p style="margin: 3mm 0 0 0;"><b>Tu gagnes 30 à 50&nbsp;000&nbsp;€ en un mois de travail.</b> C'est le meilleur deal de ta vie.</p>
+  </div>
+</section>
+
+<!-- ============ CHAP 8 ============ -->
+<section class="page">
+  <h2>8. Comment <span class="accent">faire monter</span> le prix très haut</h2>
+  <p class="lead">
+    Maintenant on passe au niveau au-dessus. <b>Pour vraiment gagner beaucoup d'argent, il faut quelque chose que ton code à lui tout seul ne peut pas donner&nbsp;: des CLIENTS qui PAYENT.</b>
+  </p>
+
+  <div class="yellow-bg">
+    <p style="margin: 0;"><b>L'histoire des amis qui jouent dans la cabane</b></p>
+    <p style="margin: 3mm 0 0 0;">
+      Une cabane vide, ça ne vaut pas grand-chose. Mais une cabane où <b>10 amis viennent jouer chaque jour</b> et <b>te donnent un bonbon par mois</b> pour pouvoir y jouer&hellip; là, c'est <b>très</b> précieux.
+    </p>
+    <p style="margin: 3mm 0 0 0;">L'acheteur ne paye pas seulement la cabane. Il paye aussi les <b>10 amis</b> qui vont continuer à donner des bonbons à lui.</p>
+  </div>
+
+  <h3>La règle magique des SaaS</h3>
+  <p>Pour les applis comme la tienne, il existe une règle simple&nbsp;:</p>
+  <div class="gray-bg" style="font-size: 14pt; text-align: center;">
+    <b>Prix de vente = entre 3 et 8 fois ce que tes clients te payent en 1 an.</b>
+  </div>
+
+  <p><b>Exemple&nbsp;:</b> si tu as 10 patrons qui te payent chacun 100&nbsp;€ par mois, ça fait&nbsp;:</p>
+  <ul class="simple">
+    <li>10 × 100&nbsp;€ × 12 mois = <b>12&nbsp;000&nbsp;€ par an</b></li>
+    <li>Prix de vente = 12&nbsp;000 × 5 = <b>60&nbsp;000&nbsp;€</b></li>
+  </ul>
+
+  <p>Et plus tu as de clients, plus le prix monte&nbsp;:</p>
+
+  <table>
+    <tr><th>Tes clients</th><th>Argent par mois</th><th>Prix de vente</th></tr>
+    <tr><td>0 client</td><td>0&nbsp;€</td><td>60-100&nbsp;k€ (juste le code)</td></tr>
+    <tr><td>3-5 patrons à 100&nbsp;€/mois</td><td>~400&nbsp;€</td><td><b>150-300&nbsp;k€</b></td></tr>
+    <tr><td>30 patrons à 100&nbsp;€/mois</td><td>~3&nbsp;000&nbsp;€</td><td><b>300-600&nbsp;k€</b></td></tr>
+    <tr><td>100 patrons</td><td>~10&nbsp;000&nbsp;€</td><td><b>800&nbsp;k€ - 2&nbsp;M€</b></td></tr>
+  </table>
+
+  <div class="green-bg">
+    <p style="margin: 0;"><b>Tu vois la différence&nbsp;?</b> Avec 30 clients qui payent, ton appli vaut <b>10 fois plus</b> que sans clients.</p>
+    <p style="margin: 3mm 0 0 0;">Le code, c'est important. Mais les <b>clients qui payent</b>, c'est ce qui fait vraiment gonfler le prix.</p>
+  </div>
+</section>
+
+<!-- ============ CHAP 8 SUITE ============ -->
+<section class="page">
+  <h2>8 (suite). Comment trouver des clients&nbsp;?</h2>
+
+  <h3>Le plan en 4 étapes</h3>
+
+  <div class="step-card">
+    <div class="num">Étape A — Faire une liste</div>
+    <p style="margin: 2mm 0 0 0;">Tu fais une <b>grande liste de 200 sociétés de taxi-médical en France</b>. Tu peux les trouver sur Google, dans les Pages Jaunes, dans les syndicats de taxi.</p>
+  </div>
+
+  <div class="step-card">
+    <div class="num">Étape B — Les contacter</div>
+    <p style="margin: 2mm 0 0 0;">Tu leur envoies un <b>email court et gentil</b>&nbsp;: «&nbsp;Bonjour, j'ai fait une appli pour les taxis comme vous. Voulez-vous l'essayer gratuitement pendant 3 mois&nbsp;?&nbsp;» Tu en envoies 200. 50 vont répondre. 10 vont vouloir essayer.</p>
+  </div>
+
+  <div class="step-card">
+    <div class="num">Étape C — Faire essayer gratuitement</div>
+    <p style="margin: 2mm 0 0 0;">Tu installes ton appli chez 10 patrons <b>gratuitement</b>. Tu les aides. Tu écoutes ce qu'ils disent. Tu corriges les bugs. Tu enregistres une vidéo où ils disent «&nbsp;c'est super, ça nous fait gagner du temps&nbsp;».</p>
+  </div>
+
+  <div class="step-card">
+    <div class="num">Étape D — Les faire payer</div>
+    <p style="margin: 2mm 0 0 0;">Au bout de 3 mois, tu dis&nbsp;: «&nbsp;C'était l'essai gratuit. Maintenant, c'est 99&nbsp;€ par mois pour continuer.&nbsp;» Sur 10, tu en gardes 3-5 qui payent. <b>Tu as ton premier argent qui rentre tout seul chaque mois.</b></p>
+  </div>
+
+  <h3>Les bonus qui font monter le prix encore plus</h3>
+  <table>
+    <tr><th>Ce que tu fais</th><th>Coût</th><th>Argent que ça rapporte en plus</th></tr>
+    <tr><td>Brancher le système officiel SESAM-Vitale (Olaqin)</td><td>8 à 15&nbsp;k€</td><td>+50 à 100&nbsp;k€ sur le prix</td></tr>
+    <tr><td>Mettre les données sur un terrain HDS (santé)</td><td>3 à 5&nbsp;k€/an</td><td>+30 à 50&nbsp;k€</td></tr>
+    <tr><td>Apps mobiles avec 500+ téléchargements et bonnes notes</td><td>~6 mois de pub</td><td>+30 à 80&nbsp;k€</td></tr>
+    <tr><td>Audit sécurité officiel (ISO 27001 light)</td><td>8 à 15&nbsp;k€</td><td>+20 à 40&nbsp;k€</td></tr>
+  </table>
+
+  <div class="blue-bg">
+    <p style="margin: 0;"><b>Un piège à éviter à tout prix&nbsp;:</b> rajouter encore et encore du code <b>sans avoir de clients</b>. Plus de code sans clients, ça ne fait <b>pas</b> monter le prix. C'est du temps perdu. <b>D'abord les clients, ensuite le code.</b></p>
+  </div>
+</section>
+
+<!-- ============ CHAP 9 ============ -->
+<section class="page">
+  <h2>9. Le grand tableau récap</h2>
+  <p class="lead">Voici toutes les situations possibles, du moins cher au plus cher.</p>
+
+  <table>
+    <tr>
+      <th>Situation</th>
+      <th>Travail à faire</th>
+      <th>Temps</th>
+      <th>Prix de vente</th>
+    </tr>
+    <tr>
+      <td>Tu vends <b>tout de suite</b>, sans rien préparer</td>
+      <td>Rien</td>
+      <td>0 jour</td>
+      <td>25 à 50&nbsp;k€</td>
+    </tr>
+    <tr>
+      <td>Tu vends après avoir <b>fait toutes les étapes</b> du chapitre 7</td>
+      <td>Doc + tests + plan déménagement + RGPD + INPI</td>
+      <td>~30 jours</td>
+      <td><b>60 à 100&nbsp;k€</b></td>
+    </tr>
+    <tr>
+      <td>Tu vends après avoir <b>3-5 patrons qui payent</b></td>
+      <td>Tout ce qui est au-dessus + démarchage commercial</td>
+      <td>~9-12 mois</td>
+      <td><b>150 à 300&nbsp;k€</b></td>
+    </tr>
+    <tr>
+      <td>Tu vends avec <b>30 patrons qui payent</b> stable depuis 6 mois</td>
+      <td>Tout ce qui est au-dessus + croissance</td>
+      <td>~18-24 mois</td>
+      <td><b>300 à 600&nbsp;k€</b></td>
+    </tr>
+    <tr>
+      <td>Tu vends avec <b>100 patrons + agrément Olaqin + HDS</b></td>
+      <td>Énorme travail commercial + intégrations + équipe</td>
+      <td>~30 mois ou plus</td>
+      <td><b>800&nbsp;k€ à 2 millions €</b></td>
+    </tr>
+  </table>
+
+  <div class="yellow-bg">
+    <p style="margin: 0;"><b>Le message le plus important du livret&nbsp;:</b></p>
+    <p style="margin: 3mm 0 0 0; font-size: 13pt;">
+      Plus tu attends en travaillant intelligemment, plus ton appli vaut cher.<br>
+      Mais si tu attends sans travailler, elle perd de la valeur petit à petit.
+    </p>
+  </div>
+</section>
+
+<!-- ============ CHAP 10 ============ -->
+<section class="page">
+  <h2>10. Ce qu'il faut retenir</h2>
+
+  <div class="green-bg">
+    <h3 style="margin-top:0;">Les 5 vérités importantes</h3>
+
+    <p><b style="font-size: 14pt;">1.</b> Une appli <b>coûte cher à fabriquer</b> mais <b>se vend moins cher</b> qu'elle n'a coûté à faire. C'est normal.</p>
+
+    <p><b style="font-size: 14pt;">2.</b> <b>L'acheteur a peur</b>, et chaque peur fait baisser le prix avec une «&nbsp;remise&nbsp;». Plus tu rassures, plus le prix monte.</p>
+
+    <p><b style="font-size: 14pt;">3.</b> Les <b>deux plus grosses peurs</b> sont&nbsp;: «&nbsp;tu es tout seul à savoir comment ça marche&nbsp;» et «&nbsp;c'est collé à Supabase&nbsp;».</p>
+
+    <p><b style="font-size: 14pt;">4.</b> <b>30 jours de travail bien ciblé</b> peuvent faire <b>doubler</b> le prix de vente. C'est le meilleur deal possible.</p>
+
+    <p style="margin-bottom: 0;"><b style="font-size: 14pt;">5.</b> <b>Le vrai trésor, ce sont les clients qui payent.</b> Pas le code. Le code sans clients, ça plafonne. Le code avec 10 clients qui payent chaque mois, c'est de l'or.</p>
+  </div>
+
+  <h3>Si tu ne devais retenir qu'UNE seule chose&nbsp;:</h3>
+
+  <div class="yellow-bg" style="text-align: center; padding: 12mm 8mm;">
+    <p class="big-number" style="font-size: 32pt;">Avant de vendre,</p>
+    <p style="font-size: 18pt; margin: 4mm 0; font-weight: 600;">prépare la maison&nbsp;:</p>
+    <p style="font-size: 14pt; margin: 0;">
+      mode d'emploi, tests, papiers en règle,<br>marque déposée.
+    </p>
+    <p style="font-size: 18pt; margin: 6mm 0 4mm 0; font-weight: 600;">Et si tu peux,</p>
+    <p style="font-size: 14pt; margin: 0;">
+      trouve <b>3 à 5 clients qui te payent un peu</b>.<br>
+      Ça change tout.
+    </p>
+  </div>
+
+  <div style="text-align: center; margin-top: 14mm; color: #6b7280;">
+    <p style="margin: 0; font-size: 11pt;">— Fin du livret —</p>
+    <p style="margin: 2mm 0 0 0; font-size: 10pt;">TaxiLink · Édition du 9 mai 2026</p>
+  </div>
+</section>
+
+</body>
+</html>

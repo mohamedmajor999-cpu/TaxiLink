@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Comment je mets à jour mes 3 apps TaxiLink ? — Expliqué à un enfant de 10 ans</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a2e;
+    line-height: 1.55;
+    font-size: 12pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 26pt;
+    color: #1a1a2e;
+    background: linear-gradient(90deg, #FBBF24 0%, #FDE68A 100%);
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: 18pt;
+    color: #fff;
+    background: #1a1a2e;
+    padding: 10px 16px;
+    border-radius: 10px;
+    margin: 28px 0 14px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 14pt;
+    color: #1a1a2e;
+    margin: 18px 0 8px 0;
+    border-left: 5px solid #FBBF24;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #555;
+    margin: 0 0 24px 4px;
+    font-style: italic;
+  }
+  .intro-box {
+    background: #FEF3C7;
+    border: 2px dashed #FBBF24;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .step {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-left: 6px solid #FBBF24;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+  .step-title {
+    font-weight: 700;
+    font-size: 13pt;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+  }
+  .step-num {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    font-weight: 800;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    margin-right: 10px;
+  }
+  .problem {
+    background: #FEE2E2;
+    border-left: 6px solid #DC2626;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .problem-title { font-weight: 700; color: #991B1B; }
+  .solution {
+    background: #DCFCE7;
+    border-left: 6px solid #16A34A;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .solution-title { font-weight: 700; color: #14532D; }
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .tool-card {
+    background: #F3F4F6;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid #E5E7EB;
+  }
+  .tool-card-title { font-weight: 700; color: #1a1a2e; font-size: 11.5pt; }
+  .tool-card-price { color: #DC2626; font-weight: 600; font-size: 10.5pt; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+  }
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #E5E7EB;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #FAFAFA; }
+  .analogy {
+    background: #DBEAFE;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-left: 6px solid #2563EB;
+    page-break-inside: avoid;
+  }
+  .analogy-title { font-weight: 700; color: #1E3A8A; }
+  .pill {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 10pt;
+  }
+  .pill-blue {
+    background: #DBEAFE;
+    color: #1E3A8A;
+  }
+  .pill-red {
+    background: #FEE2E2;
+    color: #991B1B;
+  }
+  .pill-green {
+    background: #DCFCE7;
+    color: #14532D;
+  }
+  .arrow {
+    text-align: center;
+    color: #FBBF24;
+    font-size: 22pt;
+    margin: 4px 0;
+    font-weight: 800;
+  }
+  .footer {
+    margin-top: 30px;
+    padding-top: 14px;
+    border-top: 2px solid #FBBF24;
+    color: #6B7280;
+    font-size: 9.5pt;
+    text-align: center;
+  }
+  .big-number {
+    font-size: 30pt;
+    font-weight: 800;
+    color: #FBBF24;
+    line-height: 1;
+  }
+  .summary-card {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .summary-card h3 {
+    color: #FBBF24;
+    border: none;
+    padding: 0;
+    margin: 0 0 8px 0;
+    font-size: 14pt;
+  }
+  .check { color: #16A34A; font-weight: 800; }
+  .cross { color: #DC2626; font-weight: 800; }
+  ul { padding-left: 22px; }
+  li { margin: 4px 0; }
+  .page-break { page-break-before: always; }
+  .scenario {
+    background: #fff;
+    border: 2px solid #2563EB;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+  .scenario-title {
+    font-weight: 800;
+    color: #1E3A8A;
+    font-size: 13pt;
+    margin-bottom: 8px;
+  }
+  .scenario-time {
+    background: #DBEAFE;
+    color: #1E3A8A;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 10pt;
+    margin-left: 8px;
+  }
+  .timeline {
+    border-left: 3px solid #FBBF24;
+    padding-left: 14px;
+    margin: 8px 0 8px 6px;
+  }
+  .timeline-item {
+    position: relative;
+    padding: 4px 0;
+  }
+  .timeline-item::before {
+    content: "•";
+    color: #FBBF24;
+    font-size: 18pt;
+    position: absolute;
+    left: -22px;
+    top: -2px;
+  }
+  .vs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .vs-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 2px solid #e5e7eb;
+    page-break-inside: avoid;
+  }
+  .vs-card-ota {
+    border-color: #16A34A;
+    background: #F0FDF4;
+  }
+  .vs-card-native {
+    border-color: #2563EB;
+    background: #EFF6FF;
+  }
+  .vs-emoji {
+    font-size: 36pt;
+    line-height: 1;
+  }
+  .vs-title {
+    font-weight: 800;
+    font-size: 14pt;
+    margin: 6px 0;
+  }
+  .vs-card-ota .vs-title { color: #14532D; }
+  .vs-card-native .vs-title { color: #1E3A8A; }
+</style>
+</head>
+<body>
+
+<h1>Comment je mets à jour mes 3 apps TaxiLink ?</h1>
+<p class="subtitle">Expliqué comme à un enfant de 10 ans — corriger un bug, ajouter une fonctionnalité, sortir une nouvelle version</p>
+
+<div class="intro-box">
+  <p style="margin:0;"><strong>Imagine</strong> que tes 3 apps TaxiLink sont sorties dans les magasins Apple et Google. <strong>500 chauffeurs, 50 patrons et 2000 patients</strong> les utilisent. Bravo ! 🎉</p>
+  <p style="margin:8px 0 0 0;">Mais lundi matin, un chauffeur t'appelle : <em>"Le tarif CPAM s'affiche en double sur l'écran fin de course."</em></p>
+  <p style="margin:8px 0 0 0;">👉 Comment tu envoies la correction sur les <strong>2 550 téléphones</strong> qui utilisent ton appli, sans qu'ils aient à faire quoi que ce soit ? C'est ce qu'on va t'expliquer.</p>
+</div>
+
+<h2>1. Les 2 sortes de mises à jour</h2>
+
+<p>Il y a deux façons très différentes de modifier ton appli une fois qu'elle est dans les stores. Tu vas en utiliser <strong>les deux</strong>, mais pas pour les mêmes raisons.</p>
+
+<div class="vs-grid">
+  <div class="vs-card vs-card-ota">
+    <div class="vs-emoji">⚡</div>
+    <div class="vs-title">La mise à jour MAGIQUE (OTA)</div>
+    <p style="margin:0; font-size:11pt;">L'appli se corrige toute seule en arrière-plan, en quelques minutes, <strong>sans que personne télécharge rien</strong>. Apple et Google ne sont même pas au courant.</p>
+    <p style="margin:8px 0 0 0; font-size:10.5pt; color:#14532D;"><strong>Délai : instantané</strong></p>
+  </div>
+  <div class="vs-card vs-card-native">
+    <div class="vs-emoji">📦</div>
+    <div class="vs-title">La mise à jour OFFICIELLE (native)</div>
+    <p style="margin:0; font-size:11pt;">Tu envoies une <strong>nouvelle version complète</strong> à Apple et Google. Ils la relisent, ils valident, puis les utilisateurs la voient apparaître dans le store et la téléchargent.</p>
+    <p style="margin:8px 0 0 0; font-size:10.5pt; color:#1E3A8A;"><strong>Délai : 1 à 3 jours</strong></p>
+  </div>
+</div>
+
+<div class="analogy">
+  <div class="analogy-title">L'image facile à comprendre</div>
+  <p style="margin:6px 0 0 0;">⚡ <strong>OTA</strong>, c'est comme un livre <strong>magique</strong> : pendant que tu dors, les pages se réécrivent toutes seules avec les corrections du jour. Tu te lèves le matin, tu rouvres ton livre, c'est déjà à jour.</p>
+  <p style="margin:8px 0 0 0;">📦 <strong>Native</strong>, c'est comme rééditer le livre en imprimerie, l'envoyer dans toutes les librairies, et attendre que les gens viennent chercher la nouvelle édition. C'est plus long, mais c'est obligatoire pour les <strong>grandes nouveautés</strong>.</p>
+</div>
+
+<h2>2. Quand utiliser laquelle ?</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Si tu veux changer ça…</th>
+      <th>Tu utilises…</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Corriger un bug dans le calcul du tarif CPAM</td>
+      <td><span class="pill pill-green">⚡ OTA</span></td>
+      <td>C'est juste du code JavaScript, pas de pièce native</td>
+    </tr>
+    <tr>
+      <td>Changer un texte mal orthographié</td>
+      <td><span class="pill pill-green">⚡ OTA</span></td>
+      <td>Texte = pas natif</td>
+    </tr>
+    <tr>
+      <td>Ajouter un nouvel écran "statistiques de la semaine"</td>
+      <td><span class="pill pill-green">⚡ OTA</span></td>
+      <td>Tant qu'il n'utilise pas de nouveau plugin natif</td>
+    </tr>
+    <tr>
+      <td>Modifier les couleurs du dashboard</td>
+      <td><span class="pill pill-green">⚡ OTA</span></td>
+      <td>Style = pas natif</td>
+    </tr>
+    <tr>
+      <td>Ajouter le scan NFC de la carte Vitale</td>
+      <td><span class="pill pill-blue">📦 Native</span></td>
+      <td>NFC est un plugin natif, il faut rebuilder</td>
+    </tr>
+    <tr>
+      <td>Ajouter une nouvelle permission (genre Bluetooth)</td>
+      <td><span class="pill pill-blue">📦 Native</span></td>
+      <td>Apple et Google doivent valider la permission</td>
+    </tr>
+    <tr>
+      <td>Mettre à jour Expo SDK 51 → 52</td>
+      <td><span class="pill pill-blue">📦 Native</span></td>
+      <td>Code natif change, rebuild obligatoire</td>
+    </tr>
+    <tr>
+      <td>Changer l'icône de l'app ou le splash screen</td>
+      <td><span class="pill pill-blue">📦 Native</span></td>
+      <td>Ces ressources sont compilées dans le binaire</td>
+    </tr>
+    <tr>
+      <td>Sortir une "version 2.0" avec gros changements</td>
+      <td><span class="pill pill-blue">📦 Native</span></td>
+      <td>Toujours par sécurité + visibilité dans les stores</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="solution">
+  <div class="solution-title">✅ La règle simple</div>
+  <p style="margin:6px 0 0 0;">Si tu modifies <strong>uniquement</strong> du code TypeScript, des images ou du texte → <strong>OTA</strong>. Si tu touches à <strong>n'importe quel plugin natif</strong>, à l'icône, aux permissions ou au SDK → <strong>build natif</strong>.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>3. Tes outils, dans ton cas TaxiLink</h2>
+
+<p>Tu as déjà plein d'outils en place qui vont te servir pour les mises à jour. Voilà à quoi ils servent dans ce contexte.</p>
+
+<div class="tool-grid">
+  <div class="tool-card">
+    <div class="tool-card-title">EAS Update (~30 €/mois)</div>
+    <div class="tool-card-price">Inclus dans EAS Production</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">L'<strong>usine magique des mises à jour OTA</strong>. Tu lances <code>eas update</code>, et en 30 secondes tes 2 550 utilisateurs ont la nouvelle version au prochain démarrage de l'appli.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">EAS Build</div>
+    <div class="tool-card-price">Inclus dans EAS Production</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">L'usine cloud qui fabrique les <strong>fichiers .ipa (Apple) et .aab (Google)</strong> à envoyer aux stores. ~15-30 min par app.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">EAS Submit</div>
+    <div class="tool-card-price">Gratuit</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Le <strong>postier automatique</strong> qui envoie les fichiers à Apple et Google sans que tu touches à Xcode ou Android Studio.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">Sentry (déjà chez toi)</div>
+    <div class="tool-card-price">~0 € (mutualisé avec ton site)</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Le <strong>radar à bugs</strong>. Si l'appli plante chez un chauffeur, Sentry te notifie en 30 secondes avec la ligne de code en cause. Indispensable pour réagir vite.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">App Store Connect (Apple)</div>
+    <div class="tool-card-price">Gratuit (compte 99 €/an)</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Le <strong>tableau de bord Apple</strong> où tu vois tes versions, les statistiques, les crashes. C'est là que tu cliques "Submit for review".</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">Google Play Console</div>
+    <div class="tool-card-price">Gratuit (compte 25 € à vie)</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Le <strong>tableau de bord Google</strong>. Tu y gères les versions, les testeurs, le déploiement progressif.</p>
+  </div>
+</div>
+
+<h2>4. Trois scénarios concrets dans ta vraie vie TaxiLink</h2>
+
+<div class="scenario">
+  <div class="scenario-title">Scénario 1 : un chauffeur trouve un bug grave dans le tarif CPAM <span class="scenario-time">Délai : 30 min</span></div>
+  <p><strong>Lundi 8h30</strong> — Karim, chauffeur à Marseille, t'appelle : <em>"Le total de la course s'affiche 2 fois sur l'écran fin de course depuis ce matin."</em></p>
+
+  <div class="timeline">
+    <div class="timeline-item"><strong>8h35</strong> — Tu ouvres Sentry. Tu vois 23 occurrences du même bug depuis 7h. Pas une coïncidence.</div>
+    <div class="timeline-item"><strong>8h40</strong> — Avec Claude Code, tu identifies le coupable : un calcul dupliqué dans <code>fareCalculator.ts</code>.</div>
+    <div class="timeline-item"><strong>8h50</strong> — Fix écrit, tests passent localement.</div>
+    <div class="timeline-item"><strong>8h52</strong> — Tu lances : <code>eas update --branch production --message "Fix double tarif CPAM"</code></div>
+    <div class="timeline-item"><strong>8h53</strong> — L'usine Expo upload la mise à jour.</div>
+    <div class="timeline-item"><strong>8h55-9h05</strong> — Au fur et à mesure que les chauffeurs ouvrent l'appli, ils téléchargent silencieusement la correction.</div>
+    <div class="timeline-item"><strong>9h10</strong> — Tu rappelles Karim : <em>"Ferme et rouvre ton appli."</em> Il le fait. Le bug a disparu.</div>
+    <div class="timeline-item"><strong>9h15</strong> — Sentry est revenu à zéro nouvelle occurrence. ✅</div>
+  </div>
+
+  <p style="margin-bottom:0;"><strong>Total : 30 minutes du signalement à la correction sur 500 téléphones.</strong> Apple et Google n'ont rien fait.</p>
+</div>
+
+<div class="scenario">
+  <div class="scenario-title">Scénario 2 : tu ajoutes le scan NFC de la carte Vitale (vraie nouvelle fonctionnalité) <span class="scenario-time">Délai : 4 jours</span></div>
+  <p><strong>Mardi matin</strong> — Tu décides de simplifier la vie des chauffeurs : au lieu de tout taper, ils approchent la carte Vitale du téléphone et hop, infos patient récupérées.</p>
+
+  <div class="timeline">
+    <div class="timeline-item"><strong>Mardi 10h</strong> — Tu ajoutes le plugin <code>react-native-nfc-manager</code> dans <code>app.json</code>.</div>
+    <div class="timeline-item"><strong>Mardi 10h-17h</strong> — Avec Claude Code, tu codes l'écran de scan + le service de lecture NFC.</div>
+    <div class="timeline-item"><strong>Mardi 18h</strong> — Tu bumpes la version : <code>"version": "1.5.0"</code>, <code>"buildNumber": "47"</code>, <code>"versionCode": 47</code>.</div>
+    <div class="timeline-item"><strong>Mardi 18h05</strong> — Tu lances : <code>eas build --platform all --profile production</code></div>
+    <div class="timeline-item"><strong>Mardi 18h35</strong> — Les 2 builds (iOS + Android) sont prêts.</div>
+    <div class="timeline-item"><strong>Mardi 18h40</strong> — Tu lances : <code>eas submit --platform all</code></div>
+    <div class="timeline-item"><strong>Mardi 18h45</strong> — Apple et Google reçoivent les fichiers.</div>
+    <div class="timeline-item"><strong>Mercredi 14h</strong> — Google Play approuve. Tu lances un staged rollout à 5%.</div>
+    <div class="timeline-item"><strong>Mercredi 16h</strong> — Apple : <em>"Pourquoi cette permission NFC ? Donnez une vidéo de démo."</em></div>
+    <div class="timeline-item"><strong>Mercredi 17h</strong> — Tu enregistres une vidéo de 30s + tu réponds.</div>
+    <div class="timeline-item"><strong>Jeudi 11h</strong> — Apple approuve. Tu lances un phased release iOS.</div>
+    <div class="timeline-item"><strong>Vendredi-Lundi</strong> — Sentry surveille. Pas de crash. Tu montes Google à 50% puis 100%.</div>
+    <div class="timeline-item"><strong>Lundi suivant</strong> — 100% des utilisateurs sur la 1.5.0 avec NFC actif. ✅</div>
+  </div>
+
+  <p style="margin-bottom:0;"><strong>Total : 4 jours ouvrés</strong> dont 1 cycle de question Apple. Avec Claude Code, le code lui-même prend 1 journée.</p>
+</div>
+
+<div class="scenario">
+  <div class="scenario-title">Scénario 3 : Apple sort iOS 27 et casse une ancienne API de localisation <span class="scenario-time">Délai : 1-2 semaines</span></div>
+  <p><strong>Septembre</strong> — Apple sort iOS 27. Sentry te montre que <strong>15 % des chauffeurs iPhone ont leur GPS qui freeze</strong>.</p>
+
+  <div class="timeline">
+    <div class="timeline-item"><strong>J1</strong> — Tu identifies que <code>expo-location</code> doit passer en version 17 → SDK Expo 52 requis.</div>
+    <div class="timeline-item"><strong>J1-J3</strong> — Tu mets à jour le SDK avec Claude Code, tu fixes les breaking changes (typiquement 5-10 endroits).</div>
+    <div class="timeline-item"><strong>J4</strong> — Tu testes sur ton iPhone perso + 2 testeurs beta.</div>
+    <div class="timeline-item"><strong>J5</strong> — Bump 1.6.0, build, submit.</div>
+    <div class="timeline-item"><strong>J6-J8</strong> — Apple review (sensible car GPS background, parfois 2 cycles).</div>
+    <div class="timeline-item"><strong>J9-J14</strong> — Phased release surveillé, et urgence sur les 15 % bloqués.</div>
+  </div>
+
+  <p style="margin-bottom:0;"><strong>Total : 1-2 semaines.</strong> C'est le scénario le plus stressant car il y a une <em>deadline naturelle</em> imposée par Apple.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>5. Le déploiement progressif (le plus important !)</h2>
+
+<div class="analogy">
+  <div class="analogy-title">L'image facile à comprendre</div>
+  <p style="margin:6px 0 0 0;">Imagine que tu inventes une nouvelle recette de gâteau pour ta classe. Tu ne vas pas en faire <strong>30 d'un coup</strong> et risquer que tout soit raté. Tu fais d'abord <strong>un seul gâteau test</strong>, tu le donnes à 1 ami, tu vois sa réaction. Si c'est bon, tu en fais 5. Si c'est encore bon, 15. Si tout le monde adore, tu fais les 30.</p>
+  <p style="margin:8px 0 0 0;">Avec une appli c'est pareil. On appelle ça le <strong>"phased rollout"</strong> ou <strong>"déploiement progressif"</strong>.</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Jour</th>
+      <th>iOS Apple (Phased Release)</th>
+      <th>Android Google (Staged Rollout)</th>
+      <th>Toi tu fais quoi ?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Jour 1</td><td>1 % des users</td><td>5 % des users (à toi de choisir)</td><td>Tu surveilles Sentry toutes les 30 min</td></tr>
+    <tr><td>Jour 2</td><td>2 %</td><td>10 % si Sentry clean</td><td>Surveillance Sentry</td></tr>
+    <tr><td>Jour 3</td><td>5 %</td><td>20 %</td><td>Tu lis les retours WhatsApp / email chauffeurs</td></tr>
+    <tr><td>Jour 4</td><td>10 %</td><td>50 %</td><td>Surveillance</td></tr>
+    <tr><td>Jour 5</td><td>20 %</td><td>100 %</td><td>Surveillance</td></tr>
+    <tr><td>Jour 6</td><td>50 %</td><td>—</td><td>Surveillance</td></tr>
+    <tr><td>Jour 7</td><td>100 %</td><td>—</td><td>🎉 Tout le monde est sur la nouvelle version</td></tr>
+  </tbody>
+</table>
+
+<div class="problem">
+  <div class="problem-title">⚠️ Et si Sentry montre un crash gros au jour 2 ?</div>
+  <ul style="margin:6px 0 0 0;">
+    <li><strong>Apple iOS :</strong> tu cliques "Pause" dans App Store Connect → la diffusion s'arrête net (les 5 % qui ont déjà téléchargé restent dessus).</li>
+    <li><strong>Google Play :</strong> tu fais un <strong>"halt rollout"</strong> et tu peux même <strong>revenir à la version précédente</strong> ! C'est la fonction "rollback".</li>
+    <li><strong>OTA :</strong> tu peux republier en 30 secondes la version d'avant via <code>eas update --rollback-to-embedded</code>.</li>
+  </ul>
+</div>
+
+<h2>6. Les numéros de version (ne te trompe pas !)</h2>
+
+<div class="analogy">
+  <div class="analogy-title">L'image facile à comprendre</div>
+  <p style="margin:6px 0 0 0;">Imagine que ton appli est un livre. Le <strong>numéro de version</strong> (ex : 1.4.2) est ce qui s'affiche sur la couverture du livre, ce que tout le monde voit. Le <strong>buildNumber / versionCode</strong> (ex : 42) est un numéro <em>interne</em>, comme le numéro d'édition imprimé en bas du dos. Personne ne le voit, mais Apple et Google s'en servent pour ne pas se tromper.</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Champ dans <code>app.json</code></th>
+      <th>Exemple</th>
+      <th>Règle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>"version"</code></td>
+      <td>"1.4.2"</td>
+      <td>Visible des utilisateurs. 3 chiffres : <strong>majeur.mineur.patch</strong>. Tu choisis.</td>
+    </tr>
+    <tr>
+      <td><code>"ios.buildNumber"</code></td>
+      <td>"42"</td>
+      <td>Interne Apple. <strong>Doit toujours augmenter de 1</strong> à chaque submit.</td>
+    </tr>
+    <tr>
+      <td><code>"android.versionCode"</code></td>
+      <td>42</td>
+      <td>Interne Google. <strong>Doit toujours augmenter de 1</strong> à chaque submit.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Convention pour TaxiLink</h3>
+
+<table>
+  <thead>
+    <tr><th>Type de changement</th><th>Numéro à bumper</th><th>Exemple</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Fix de bug (OTA ou native)</td><td>Le dernier chiffre (patch)</td><td>1.4.2 → 1.4.3</td></tr>
+    <tr><td>Nouvelle fonctionnalité</td><td>Le 2<sup>e</sup> chiffre (mineur)</td><td>1.4.3 → 1.5.0</td></tr>
+    <tr><td>Refonte majeure (genre nouveau design complet)</td><td>Le 1<sup>er</sup> chiffre (majeur)</td><td>1.5.3 → 2.0.0</td></tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>7. Les pièges spéciaux TaxiLink</h2>
+
+<div class="problem">
+  <div class="problem-title">🎩 Piège n°1 : la mise à jour OTA pendant que Apple review une autre version</div>
+  <p style="margin:6px 0 0 0;">Tu as soumis la 1.5.0 à Apple. Pendant que Apple regarde, tu pousses un OTA sur la 1.4.x en prod. <strong>Apple voit la nouvelle UI sur le binaire 1.5.0 qu'il review</strong> alors que ce binaire ne contient pas cette UI. Confusion garantie, possible rejet.</p>
+  <p style="margin:6px 0 0 0;"><strong>Solution :</strong> mettre les OTA en pause pendant la review (option dans EAS), ou aligner la branche OTA <code>runtimeVersion</code> avec le binaire.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">🎩 Piège n°2 : casser le tarif CPAM en prod chauffeur</div>
+  <p style="margin:6px 0 0 0;">Le calcul tarif CPAM est <strong>extra-sensible</strong> chez toi : un mauvais arrondi = facturation patron qui s'effondre, ou pire, fraude involontaire à la Sécu. Pour cette zone du code, <strong>jamais d'OTA direct</strong>.</p>
+  <p style="margin:6px 0 0 0;"><strong>Règle :</strong> tout changement sur <code>fareCalculator.ts</code> ou <code>cpamRules.ts</code> = passe par un build natif + beta interne 48h avant prod.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">🎩 Piège n°3 : oublier que les patients sont âgés</div>
+  <p style="margin:6px 0 0 0;">L'app patient sera utilisée par des seniors avec téléphones anciens (iPhone 8, Android Samsung de 2018). Une mise à jour qui marche chez toi peut <strong>planter ou être lente</strong> chez eux.</p>
+  <p style="margin:6px 0 0 0;"><strong>Solution :</strong> avoir un vieux iPhone et un vieux Android dans le stock test, et un staged rollout plus lent (10 jours pour le 1.0 → 100 %) sur l'app patient.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">🎩 Piège n°4 : 3 apps = 3 calendriers de release</div>
+  <p style="margin:6px 0 0 0;">Tu auras 3 apps qui évoluent à des rythmes différents : la chauffeur change tous les jours, la patron une fois par mois, la patient rarement.</p>
+  <p style="margin:6px 0 0 0;"><strong>Solution :</strong> une <strong>release notes</strong> partagée par app, un canal Slack/Discord par app, et 3 colonnes "version live" dans un tableau dashboard.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">🎩 Piège n°5 : le chauffeur qui n'ouvre pas l'appli pendant 3 semaines</div>
+  <p style="margin:6px 0 0 0;">Pour qu'un OTA prenne effet, il faut <strong>ouvrir l'appli</strong>. Si Karim part en vacances 3 semaines, il rouvre avec une version <em>très</em> en retard. Bug du jour ? Bug du jour 1 ? Bug du jour 5 ? Tout d'un coup.</p>
+  <p style="margin:6px 0 0 0;"><strong>Solution :</strong> écran "Mise à jour disponible, redémarrer maintenant" si l'écart de version est trop grand, et forcer un rebuild natif tous les ~3 mois pour absorber les OTA accumulés.</p>
+</div>
+
+<h2>8. La cadence type de TaxiLink en croisière</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type d'action</th>
+      <th>Méthode</th>
+      <th>Fréquence</th>
+      <th>Qui fait ?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Fix de bug urgent</td><td><span class="pill pill-green">⚡ OTA</span></td><td>Dès que Sentry alerte</td><td>Toi + Claude Code</td></tr>
+    <tr><td>Petite amélioration UX</td><td><span class="pill pill-green">⚡ OTA</span></td><td>2 fois par semaine</td><td>Toi + Claude Code</td></tr>
+    <tr><td>Nouvelle fonctionnalité moyenne</td><td><span class="pill pill-blue">📦 Native</span></td><td>1 fois par mois</td><td>Toi + Claude Code</td></tr>
+    <tr><td>Mise à jour Expo SDK</td><td><span class="pill pill-blue">📦 Native</span></td><td>2 fois par an</td><td>Toi + Claude Code (1-2 jours)</td></tr>
+    <tr><td>Réponse à un nouveau iOS / Android</td><td><span class="pill pill-blue">📦 Native</span></td><td>1 fois par an (sept-oct typiquement)</td><td>Toi + Claude Code</td></tr>
+    <tr><td>Refonte majeure (v2.0)</td><td><span class="pill pill-blue">📦 Native</span></td><td>1 fois par an ou plus</td><td>Toi + Claude Code (gros chantier) </td></tr>
+  </tbody>
+</table>
+
+<h2>9. Le grand récap en une page</h2>
+
+<div class="summary-card">
+  <h3>🎯 Ce qu'il faut retenir</h3>
+  <ul style="margin:0;">
+    <li><strong>OTA = magique, instantané.</strong> Pour les bugs et les petites améliorations.</li>
+    <li><strong>Native = officiel, 1 à 3 jours.</strong> Pour les vraies nouveautés et tout ce qui touche au natif.</li>
+    <li><strong>Toujours faire un déploiement progressif</strong> (5 % → 100 %) pour éviter les catastrophes.</li>
+    <li><strong>Sentry</strong> est ton meilleur ami : il te prévient des bugs avant les chauffeurs.</li>
+    <li><strong>Numéros de version</strong> doivent toujours augmenter, sinon Apple et Google rejettent.</li>
+    <li><strong>Le tarif CPAM</strong> ne s'OTA jamais direct : toujours via build + beta interne 48h.</li>
+  </ul>
+</div>
+
+<div class="summary-card">
+  <h3>⏱️ La promesse de vitesse</h3>
+  <p style="margin:0;">Avec ton stack TaxiLink (Expo + EAS + Sentry + Claude Code), tu peux :</p>
+  <ul style="margin:8px 0 0 0;">
+    <li>Corriger un bug sur 2 550 téléphones en <strong>30 minutes</strong></li>
+    <li>Déployer une nouvelle fonctionnalité moyenne en <strong>4 jours</strong></li>
+    <li>Réagir à un changement Apple/Google en <strong>1-2 semaines</strong></li>
+    <li>Sortir une refonte v2.0 en <strong>4-6 semaines</strong></li>
+  </ul>
+  <p style="margin:8px 0 0 0;">C'est <strong>10 fois plus rapide</strong> qu'une équipe classique sans IA il y a 5 ans.</p>
+</div>
+
+<div class="footer">
+  Document explicatif TaxiLink — Mises à jour des apps mobiles iOS &amp; Android<br>
+  Version 1.0 — 2026-05-09 — Référence technique : MOBILE_STRATEGY.md
+</div>
+
+</body>
+</html>

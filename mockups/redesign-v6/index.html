@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TaxiLink · V6</title>
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #141414;
+      --ink: #ffffff; --ink-soft: #9a9a9a;
+      --line: #1f1f1f; --brand: #ffd23f;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 80px; }
+    header h1 { font-size: 32px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.8px; }
+    header p { color: var(--ink-soft); margin: 0 0 32px; font-size: 15px; line-height: 1.55; max-width: 720px; }
+
+    .lead {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 16px; padding: 22px; margin-bottom: 28px;
+    }
+    .lead h2 { margin: 0 0 12px; font-size: 16px; font-weight: 700; }
+    .lead ul { margin: 0; padding-left: 20px; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+    .lead li b { color: var(--ink); font-weight: 600; }
+
+    .section-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--ink-soft); margin: 40px 0 16px; font-weight: 700;
+    }
+
+    .grid {
+      display: grid; gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 20px; overflow: hidden; text-decoration: none; color: inherit;
+      display: flex; flex-direction: column;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: #2a2a2a; }
+    .thumb {
+      aspect-ratio: 9/16;
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+      border-bottom: 1px solid var(--line); overflow: hidden;
+    }
+    .thumb iframe { width: 100%; height: 100%; border: 0; pointer-events: none; transform: scale(0.95); transform-origin: top center; }
+    .meta { padding: 16px 18px 18px; }
+    .meta h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+    .meta p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.4; }
+    .pill {
+      display: inline-block; padding: 3px 8px; border-radius: 6px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .pill.screen { background: rgba(255, 210, 63, 0.15); color: #ffd23f; }
+    .pill.notif { background: rgba(220, 38, 38, 0.18); color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>V6 · Refonte finale + notifications</h1>
+      <p>Carte avec CTA Accepter sur les cards, hero En cours style card blanche (comme ton screenshot), accès double aux annonces (icône + bouton dédié), plus 3 maquettes de notifications popup.</p>
+    </header>
+
+    <div class="lead">
+      <h2>Ce qui change vs V5</h2>
+      <ul>
+        <li><b>Carte</b> — chaque card du carrousel a maintenant un <b>bouton "Accepter" + lien "Détails"</b>.</li>
+        <li><b>Mes courses</b> — la card "En cours" reprend exactement le style de ton screenshot (fond blanc, label "EN COURS" + "Patient à bord", pill verte, CTA noir).</li>
+        <li><b>Accès Annonces</b> — icône en haut <i>+ bouton dédié visible sous le hero</i> "📢 Mes annonces · 2 nouvelles".</li>
+        <li><b>3 popups notifications</b> ajoutés (voir section ci-dessous).</li>
+      </ul>
+    </div>
+
+    <h2 class="section-title">Écrans principaux</h2>
+    <div class="grid">
+      <a class="card" href="v6-carte.html" target="_blank">
+        <div class="thumb"><iframe src="v6-carte.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill screen">Écran 1</span>
+          <h3>Carte (avec CTA)</h3>
+          <p>Carrousel Bolt + bouton Accepter & lien Détails sur chaque card</p>
+        </div>
+      </a>
+
+      <a class="card" href="v6-courses.html" target="_blank">
+        <div class="thumb"><iframe src="v6-courses.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill screen">Écran 2</span>
+          <h3>Mes courses</h3>
+          <p>Hero "En cours" style screenshot + accès double aux annonces</p>
+        </div>
+      </a>
+
+      <a class="card" href="v6-annonces.html" target="_blank">
+        <div class="thumb"><iframe src="v6-annonces.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill screen">Écran 3</span>
+          <h3>Mes annonces postées</h3>
+          <p>Liste avec offres reçues, stuck, acceptées, expirées</p>
+        </div>
+      </a>
+
+      <a class="card" href="v6-groupes.html" target="_blank">
+        <div class="thumb"><iframe src="v6-groupes.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill screen">Écran 4</span>
+          <h3>Mes groupes</h3>
+          <p>Groupe principal en hero, autres en cards</p>
+        </div>
+      </a>
+
+      <a class="card" href="v6-profil.html" target="_blank">
+        <div class="thumb"><iframe src="v6-profil.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill screen">Écran 5</span>
+          <h3>Profil + Stats</h3>
+          <p>Avatar + carte stats sombre + breakdown CPAM/Privé + menu</p>
+        </div>
+      </a>
+    </div>
+
+    <h2 class="section-title">Notifications popup</h2>
+    <div class="grid">
+      <a class="card" href="v6-notif-mission.html" target="_blank">
+        <div class="thumb"><iframe src="v6-notif-mission.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill notif">Popup A</span>
+          <h3>Nouvelle mission dans ma zone</h3>
+          <p>Takeover plein écran style Uber : prix XL, carte mini, countdown, accept/refuse</p>
+        </div>
+      </a>
+
+      <a class="card" href="v6-notif-offer-accepted.html" target="_blank">
+        <div class="thumb"><iframe src="v6-notif-offer-accepted.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill notif">Popup B</span>
+          <h3>Annonce acceptée par un confrère</h3>
+          <p>Banner toast en haut de l'écran courant, glisse depuis le haut, swipe pour ignorer</p>
+        </div>
+      </a>
+
+      <a class="card" href="v6-notif-new-offer.html" target="_blank">
+        <div class="thumb"><iframe src="v6-notif-new-offer.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill notif">Popup C</span>
+          <h3>Nouvelle offre reçue</h3>
+          <p>Modal centré : un confrère propose de prendre ta course, accepter / refuser</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

@@ -34,6 +34,68 @@ const RING_KM_TIERS = [3, 6, 12, 20, 30] as const;
 const RING_DURATION_MS = 20_000;
 const AVG_SPEED_KM_PER_MIN = 0.6; // 36 km/h moyenne urbaine
 const STREAK_LEAD_SECONDS = 5;    // chaque cran de streak = 5s d'avance
+const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
+const PUSH_BATCH_SIZE = 100;
+
+interface DirectOfferPushPayload {
+  missionId: string;
+  departure: string | null;
+  destination: string | null;
+}
+
+// Best-effort : envoi push Expo "Course pour toi !" aux drivers qui viennent
+// de recevoir une offre PENDING. Channel direct-offer, priority high, son +
+// vibration. Erreur silencieuse pour ne pas bloquer la cascade.
+async function pushDirectOfferToDrivers(
+  adminClient: ReturnType<typeof createClient>,
+  driverIds: string[],
+  payload: DirectOfferPushPayload,
+): Promise<void> {
+  if (driverIds.length === 0) return;
+  const { data: tokens, error } = await adminClient
+    .from("push_tokens")
+    .select("token")
+    .in("user_id", driverIds);
+  if (error) {
+    console.warn("[dispatch_mission] push_tokens fetch failed", error);
+    return;
+  }
+  const list = ((tokens ?? []) as { token: string }[])
+    .map((r) => r.token)
+    .filter((t) => t.startsWith("ExponentPushToken["));
+  if (list.length === 0) return;
+
+  const trajet = [payload.departure ?? "?", payload.destination ?? "?"].join(" -> ");
+  const messages = list.map((to) => ({
+    to,
+    title: "Course pour toi !",
+    body: `${trajet} - vite, accepte avant que ca expire`,
+    data: { mission_id: payload.missionId, kind: "direct_offer" },
+    sound: "default" as const,
+    priority: "high" as const,
+    channelId: "direct-offer",
+  }));
+
+  for (let i = 0; i < messages.length; i += PUSH_BATCH_SIZE) {
+    const chunk = messages.slice(i, i + PUSH_BATCH_SIZE);
+    try {
+      const resp = await fetch(EXPO_PUSH_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Accept-Encoding": "gzip, deflate",
+        },
+        body: JSON.stringify(chunk),
+      });
+      if (!resp.ok) {
+        console.warn("[dispatch_mission] expo push batch failed", resp.status, await resp.text());
+      }
+    } catch (err) {
+      console.warn("[dispatch_mission] expo push fetch threw", err);
+    }
+  }
+}
 
 interface DispatchRequest {
   mission_id: string;
@@ -124,10 +186,11 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "MISSING_MISSION_ID" }, 400);
   }
 
-  // Charge la mission
+  // Charge la mission. departure/destination utilises pour le payload push
+  // envoye aux drivers cibles par chaque palier.
   const { data: mission, error: missionErr } = await adminClient
     .from("missions")
-    .select("id, status, scheduled_at, departure_lat, departure_lng, shared_by, organization_id")
+    .select("id, status, scheduled_at, departure_lat, departure_lng, shared_by, organization_id, departure, destination")
     .eq("id", body.mission_id)
     .maybeSingle();
   if (missionErr || !mission) {
@@ -265,6 +328,17 @@ Deno.serve(async (req: Request) => {
     } else {
       totalOffers += newCandidates.length;
       ringsExplored.push(radiusKm);
+      // Push notif "Course pour toi !" aux drivers cibles par ce palier.
+      // Fire-and-forget en parallele de l'attente 20s du palier. Ne bloque pas.
+      void pushDirectOfferToDrivers(
+        adminClient,
+        newCandidates.map((c) => c.driver_id),
+        {
+          missionId: body.mission_id,
+          departure: (mission.departure as string | null) ?? null,
+          destination: (mission.destination as string | null) ?? null,
+        },
+      );
     }
     // Marquer comme deja tente meme si l'INSERT a echoue : sinon, en cas de
     // conflit (race avec un autre dispatch ou cron) on retentait les memes

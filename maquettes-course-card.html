@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxiLink — Maquette finale carte course imminente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #000000;
+  --paper: #FFFFFF;
+  --brand: #FFD23F;
+  --warm-50: #F7F5EF;
+  --warm-100: #F1EFE8;
+  --warm-200: #E8E6DF;
+  --warm-300: #D3D1C7;
+  --warm-400: #ADAAA0;
+  --warm-500: #888780;
+  --warm-600: #5F5E5A;
+  --warm-700: #3F3E3B;
+  --danger: #A32D2D;
+  --danger-soft: #FBEDED;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  font-family: 'Inter', sans-serif;
+  background: #EAE8E1;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+}
+
+.lab {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.lab-head { text-align: center; margin-bottom: 56px; }
+.lab-head h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.lab-head p { margin-top: 8px; font-size: 12.5px; color: var(--warm-600); }
+.lab-head .pill {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--brand);
+  padding: 5px 11px;
+  border-radius: 999px;
+}
+
+.section { margin-bottom: 56px; }
+.section-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--warm-500);
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+.duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .duo { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+}
+.col-head { margin-bottom: 12px; padding: 0 4px; }
+.col-title { font-size: 14px; font-weight: 700; }
+.col-desc { font-size: 11.5px; color: var(--warm-600); margin-top: 4px; line-height: 1.5; }
+
+.viewport {
+  background: var(--paper);
+  border-radius: 14px;
+  border: 1px solid var(--warm-100);
+  padding: 18px;
+  position: relative;
+}
+
+/* ICONS */
+.ico {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.13em;
+  background: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+.ico-arrow-r { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>"); }
+.ico-phone { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z'/></svg>"); }
+.ico-more { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='5' cy='12' r='1.2'/><circle cx='12' cy='12' r='1.2'/><circle cx='19' cy='12' r='1.2'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='5' cy='12' r='1.2'/><circle cx='12' cy='12' r='1.2'/><circle cx='19' cy='12' r='1.2'/></svg>"); }
+.ico-msg { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2a2'/></svg>"); }
+.ico-edit { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'/></svg>"); }
+.ico-userx { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/><circle cx='8.5' cy='7' r='4'/><line x1='17' y1='8' x2='22' y2='13'/><line x1='22' y1='8' x2='17' y2='13'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/><circle cx='8.5' cy='7' r='4'/><line x1='17' y1='8' x2='22' y2='13'/><line x1='22' y1='8' x2='17' y2='13'/></svg>"); }
+.ico-x { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>"); }
+.ico-info { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><line x1='12' y1='16' x2='12' y2='12'/><line x1='12' y1='8' x2='12.01' y2='8'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><line x1='12' y1='16' x2='12' y2='12'/><line x1='12' y1='8' x2='12.01' y2='8'/></svg>"); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.pulse { animation: pulse 2.4s ease-in-out infinite; }
+
+/* =========================================================
+   BASE — Ligne d'agenda
+   ========================================================= */
+.row { padding: 4px 0; position: relative; }
+.row-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--warm-500);
+  letter-spacing: 0.02em;
+}
+.row-status .left {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.row-status .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--brand);
+}
+.row-status .type {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--warm-700);
+  background: var(--warm-100);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.row-line1 {
+  margin-top: 14px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.row-when {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+}
+.row-when .light { color: var(--warm-500); font-weight: 400; }
+.row-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--warm-700);
+  font-variant-numeric: tabular-nums;
+}
+.row-price .euro { color: var(--warm-400); }
+
+.row-trip {
+  margin-top: 10px;
+  font-size: 13.5px;
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.row-trip .arrow {
+  color: var(--warm-400);
+  margin: 0 6px;
+  font-weight: 400;
+}
+.row-trip .place { font-weight: 600; }
+.row-trip .meta { color: var(--warm-500); font-weight: 400; font-size: 12px; margin-left: 4px; }
+
+/* Stepper B — Barre 4 segments */
+.stepper {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--warm-100);
+}
+.stepper-bar {
+  display: flex;
+  gap: 3px;
+}
+.stepper-seg {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--warm-200);
+}
+.stepper-seg.--done { background: var(--ink); }
+.stepper-seg.--current { background: var(--brand); }
+.stepper-labels {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+}
+.stepper-labels span {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warm-400);
+}
+.stepper-labels span.--done { color: var(--warm-600); }
+.stepper-labels span.--current { color: var(--ink); }
+
+/* Actions */
+.row-actions {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.row-cta {
+  flex: 1;
+  height: 38px;
+  border: none;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  position: relative;
+}
+.row-cta:hover { background: #1a1a1a; }
+.row-cta .ico { font-size: 12px; }
+.row-iconbtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--warm-200);
+  background: transparent;
+  color: var(--warm-700);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.row-iconbtn:hover { background: var(--warm-50); color: var(--ink); }
+.row-iconbtn .ico { font-size: 14px; }
+
+/* Popover menu "..." */
+.menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  background: var(--paper);
+  border: 1px solid var(--warm-200);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px -16px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.02);
+  min-width: 220px;
+  padding: 6px;
+  z-index: 5;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.menu-item:hover { background: var(--warm-50); }
+.menu-item .ico { font-size: 14px; color: var(--warm-600); }
+.menu-item.--danger { color: var(--danger); }
+.menu-item.--danger:hover { background: var(--danger-soft); }
+.menu-item.--danger .ico { color: var(--danger); }
+.menu-divider {
+  height: 1px;
+  background: var(--warm-100);
+  margin: 4px 6px;
+}
+
+/* SMS toast */
+.sms-toast {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 50px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  box-shadow: 0 12px 24px -16px rgba(0,0,0,0.3);
+}
+.sms-toast::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--ink);
+}
+.sms-toast .ico {
+  font-size: 14px;
+  color: var(--brand);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.sms-toast b { color: var(--brand); font-weight: 700; }
+.sms-toast em {
+  display: block;
+  margin-top: 4px;
+  font-style: normal;
+  color: rgba(255,255,255,0.65);
+  font-size: 10.5px;
+}
+
+/* Notes */
+.note {
+  margin-top: 24px;
+  padding: 14px 16px;
+  background: var(--warm-50);
+  border-left: 2px solid var(--ink);
+  border-radius: 0 8px 8px 0;
+  font-size: 12px;
+  color: var(--warm-700);
+  line-height: 1.6;
+}
+.note b { color: var(--ink); }
+.note .ico { font-size: 14px; color: var(--warm-500); margin-right: 4px; vertical-align: -0.15em; }
+
+/* Section "états du stepper" */
+.states {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1100px) {
+  .states { grid-template-columns: 1fr 1fr; }
+}
+.state-card {
+  background: var(--paper);
+  border-radius: 10px;
+  border: 1px solid var(--warm-100);
+  padding: 14px;
+}
+.state-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--warm-500);
+  margin-bottom: 10px;
+}
+.state-cta {
+  margin-top: 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--warm-50);
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="lab">
+  <header class="lab-head">
+    <h1>Carte course imminente — version finale</h1>
+    <p>Stepper B (barre 4 segments) · type "Privé" en chip · menu <code>...</code> avec 4 actions · SMS auto au patient</p>
+    <span class="pill">À coder</span>
+  </header>
+
+  <!-- ============== ÉTAT AU REPOS + MENU OUVERT ============== -->
+  <div class="section">
+    <div class="section-tag">État de la carte · 2 vues</div>
+    <div class="duo">
+
+      <!-- Vue 1 : repos -->
+      <div>
+        <div class="col-head">
+          <div class="col-title">Vue 1 — Au repos</div>
+          <p class="col-desc">Statut + type · countdown + prix · trajet · stepper 4 segments · CTA noir + appel + menu.</p>
+        </div>
+
+        <div class="viewport">
+          <div class="row">
+            <div class="row-status">
+              <span class="left"><span class="dot pulse"></span>En route vers le patient</span>
+              <span class="type">Privé</span>
+            </div>
+
+            <div class="row-line1">
+              <span class="row-when">Dans 16h58 <span class="light">· 20:30</span></span>
+              <span class="row-price">58<span class="euro">€</span></span>
+            </div>
+
+            <div class="row-trip">
+              <span class="place">Mazargues</span><span class="arrow">→</span><span class="place">Aubagne</span><span class="meta">19 km · 22 min</span>
+            </div>
+
+            <div class="stepper">
+              <div class="stepper-bar">
+                <span class="stepper-seg --done"></span>
+                <span class="stepper-seg --current"></span>
+                <span class="stepper-seg"></span>
+                <span class="stepper-seg"></span>
+              </div>
+              <div class="stepper-labels">
+                <span class="--done">Acceptée</span>
+                <span class="--current">En route</span>
+                <span>À bord</span>
+                <span>Déposé</span>
+              </div>
+            </div>
+
+            <div class="row-actions">
+              <button class="row-cta">Je pars chercher M. Patient<span class="ico ico-arrow-r"></span></button>
+              <button class="row-iconbtn" aria-label="Appeler"><span class="ico ico-phone"></span></button>
+              <button class="row-iconbtn" aria-label="Plus"><span class="ico ico-more"></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vue 2 : menu ouvert + tooltip SMS -->
+      <div>
+        <div class="col-head">
+          <div class="col-title">Vue 2 — Menu <code>...</code> ouvert + SMS auto</div>
+          <p class="col-desc">Le popover 4 actions s'ouvre au-dessus du bouton. Au clic du CTA noir, un toast confirme l'envoi du SMS au patient avant d'ouvrir le GPS.</p>
+        </div>
+
+        <div class="viewport">
+          <div class="row">
+            <div class="row-status">
+              <span class="left"><span class="dot pulse"></span>En route vers le patient</span>
+              <span class="type">Privé</span>
+            </div>
+
+            <div class="row-line1">
+              <span class="row-when">Dans 16h58 <span class="light">· 20:30</span></span>
+              <span class="row-price">58<span class="euro">€</span></span>
+            </div>
+
+            <div class="row-trip">
+              <span class="place">Mazargues</span><span class="arrow">→</span><span class="place">Aubagne</span><span class="meta">19 km · 22 min</span>
+            </div>
+
+            <div class="stepper">
+              <div class="stepper-bar">
+                <span class="stepper-seg --done"></span>
+                <span class="stepper-seg --current"></span>
+                <span class="stepper-seg"></span>
+                <span class="stepper-seg"></span>
+              </div>
+              <div class="stepper-labels">
+                <span class="--done">Acceptée</span>
+                <span class="--current">En route</span>
+                <span>À bord</span>
+                <span>Déposé</span>
+              </div>
+            </div>
+
+            <div class="row-actions">
+              <button class="row-cta">
+                Je pars chercher M. Patient<span class="ico ico-arrow-r"></span>
+                <div class="sms-toast">
+                  <span class="ico ico-info"></span>
+                  <div>
+                    SMS envoyé à <b>M. Patient</b>
+                    <em>« Bonjour M. Patient, votre taxi est en route, arrivée prévue vers 20:30. »</em>
+                  </div>
+                </div>
+              </button>
+              <button class="row-iconbtn" aria-label="Appeler"><span class="ico ico-phone"></span></button>
+              <button class="row-iconbtn" aria-label="Plus">
+                <span class="ico ico-more"></span>
+                <div class="menu">
+                  <button class="menu-item">
+                    <span class="ico ico-msg"></span>
+                    Prévenir le patient
+                  </button>
+                  <button class="menu-item">
+                    <span class="ico ico-edit"></span>
+                    Modifier la course
+                  </button>
+                  <div class="menu-divider"></div>
+                  <button class="menu-item">
+                    <span class="ico ico-userx"></span>
+                    Patient absent
+                  </button>
+                  <button class="menu-item --danger">
+                    <span class="ico ico-x"></span>
+                    Annuler la course
+                  </button>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <span class="ico ico-info"></span>
+      <b>Flow du CTA noir</b> selon l'étape :<br>
+      · <b>Acceptée</b> → libellé « Je pars chercher M. Patient » · pose <code>enroute_at</code> · envoie le SMS auto · ouvre le GPS vers le départ<br>
+      · <b>En route</b> → libellé « J'y suis arrivé — patient à bord » · pose <code>pickup_at</code> · ouvre le GPS vers la destination<br>
+      · <b>À bord</b> → libellé « Patient déposé » · pose <code>dropoff_at</code><br>
+      · <b>Déposé</b> → libellé « Course terminée » · clôture la course
+    </div>
+  </div>
+
+  <!-- ============== LES 4 ÉTATS ============== -->
+  <div class="section">
+    <div class="section-tag">Les 4 états du stepper</div>
+    <div class="states">
+      <div class="state-card">
+        <div class="state-name">1 — Acceptée</div>
+        <div class="stepper-bar">
+          <span class="stepper-seg --current"></span>
+          <span class="stepper-seg"></span>
+          <span class="stepper-seg"></span>
+          <span class="stepper-seg"></span>
+        </div>
+        <div class="stepper-labels">
+          <span class="--current">Acceptée</span>
+          <span>En route</span>
+          <span>À bord</span>
+          <span>Déposé</span>
+        </div>
+        <div class="state-cta">Je pars chercher</div>
+      </div>
+
+      <div class="state-card">
+        <div class="state-name">2 — En route</div>
+        <div class="stepper-bar">
+          <span class="stepper-seg --done"></span>
+          <span class="stepper-seg --current"></span>
+          <span class="stepper-seg"></span>
+          <span class="stepper-seg"></span>
+        </div>
+        <div class="stepper-labels">
+          <span class="--done">Acceptée</span>
+          <span class="--current">En route</span>
+          <span>À bord</span>
+          <span>Déposé</span>
+        </div>
+        <div class="state-cta">J'y suis arrivé</div>
+      </div>
+
+      <div class="state-card">
+        <div class="state-name">3 — À bord</div>
+        <div class="stepper-bar">
+          <span class="stepper-seg --done"></span>
+          <span class="stepper-seg --done"></span>
+          <span class="stepper-seg --current"></span>
+          <span class="stepper-seg"></span>
+        </div>
+        <div class="stepper-labels">
+          <span class="--done">Acceptée</span>
+          <span class="--done">En route</span>
+          <span class="--current">À bord</span>
+          <span>Déposé</span>
+        </div>
+        <div class="state-cta">Patient déposé</div>
+      </div>
+
+      <div class="state-card">
+        <div class="state-name">4 — Déposé</div>
+        <div class="stepper-bar">
+          <span class="stepper-seg --done"></span>
+          <span class="stepper-seg --done"></span>
+          <span class="stepper-seg --done"></span>
+          <span class="stepper-seg --current"></span>
+        </div>
+        <div class="stepper-labels">
+          <span class="--done">Acceptée</span>
+          <span class="--done">En route</span>
+          <span class="--done">À bord</span>
+          <span class="--current">Déposé</span>
+        </div>
+        <div class="state-cta">Course terminée</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

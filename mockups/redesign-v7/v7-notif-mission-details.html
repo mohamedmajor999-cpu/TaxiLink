@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V7 - D&eacute;tail mission</title>
+  <style>
+    :root {
+      --ink: #0a0a0a; --ink-soft: #6b6b6b; --ink-muted: #9a9a9a;
+      --bg: #ffffff; --line: #ececec;
+      --brand: #ffd23f; --accent: #1a1a1a;
+      --success: #16a34a; --danger: #dc2626;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px; margin: 40px auto;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink); z-index: 50;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    .scroll {
+      position: absolute; inset: 50px 0 100px 0;
+      overflow-y: auto;
+    }
+
+    /* Header avec back + countdown */
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px 10px;
+    }
+    .back-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #f3f3f3;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .countdown-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent); color: #fff;
+      padding: 8px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 800;
+    }
+    .countdown-pill .ring {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--brand);
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Mini map preview en haut */
+    .map-preview {
+      height: 180px;
+      margin: 0 16px 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #e8eef4 0%, #c8d4dc 100%);
+      position: relative; overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .map-preview::before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(0deg, rgba(120,140,160,0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,140,160,0.18) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    .route-line {
+      position: absolute;
+      top: 40px; left: 30px;
+      width: 280px; height: 3px;
+      background: #0a0a0a; border-radius: 2px;
+      transform: rotate(20deg); transform-origin: left;
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+    }
+    .pin-label {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      font-size: 10px; font-weight: 800;
+      padding: 4px 8px; border-radius: 6px;
+    }
+    .pin-label.a { background: #0a0a0a; color: #fff; left: 40px; top: 70px; }
+    .pin-label.b { background: #fff; color: #0a0a0a; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); right: 30px; bottom: 30px; left: auto; top: auto; transform: translate(50%, 100%); }
+
+    /* Bloc prix XL */
+    .price-block {
+      padding: 4px 24px 18px;
+      text-align: center;
+    }
+    .price-block .price {
+      font-size: 52px; font-weight: 900;
+      letter-spacing: -2.5px; line-height: 1;
+    }
+    .price-block .price .cur {
+      font-size: 26px; font-weight: 800;
+      color: var(--ink-soft); margin-left: 2px;
+    }
+    .tags-row {
+      display: flex; justify-content: center; gap: 6px;
+      margin-top: 12px;
+    }
+    .tag {
+      font-size: 10.5px; font-weight: 800;
+      padding: 5px 9px; border-radius: 6px;
+      letter-spacing: 0.4px;
+    }
+    .tag.cpam { background: #dbeafe; color: #1e40af; }
+    .tag.urgent { background: #fef2f2; color: #dc2626; }
+    .tag.time { background: #f3f3f3; color: var(--ink-soft); }
+
+    /* Sections */
+    .section-title {
+      padding: 18px 24px 8px;
+      font-size: 10.5px; font-weight: 800;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    /* Trip full */
+    .trip-full {
+      margin: 0 16px 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .trip-step {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 10px 0;
+    }
+    .trip-step:not(:last-child) { border-bottom: 1px solid var(--line); }
+    .trip-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .trip-icon.dep { background: #0a0a0a; }
+    .trip-icon.dep::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+    .trip-icon.arr { background: #fff; border: 2px solid #0a0a0a; }
+    .trip-step-body { flex: 1; }
+    .trip-step .label { font-size: 11px; font-weight: 800; color: var(--ink-soft); letter-spacing: 0.5px; }
+    .trip-step .place { font-size: 15px; font-weight: 800; margin-top: 2px; letter-spacing: -0.2px; }
+    .trip-step .meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+    /* Patient detail card */
+    .patient-card {
+      margin: 0 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .patient-head {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 14px;
+    }
+    .patient-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #dbeafe; color: #1e40af;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 900;
+    }
+    .patient-name { font-size: 16px; font-weight: 800; letter-spacing: -0.2px; }
+    .patient-sub {
+      font-size: 12px; color: var(--ink-soft); margin-top: 2px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .patient-sub .star { color: #f59e0b; font-weight: 800; }
+    .patient-sub .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-muted); }
+
+    .detail-rows {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .detail-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+    .detail-row:not(:last-child) { border-bottom: 1px solid var(--line); }
+    .detail-row .k { color: var(--ink-soft); font-weight: 600; }
+    .detail-row .v { color: var(--ink); font-weight: 700; }
+
+    /* Notes */
+    .notes-card {
+      margin: 8px 16px;
+      background: #fffaeb;
+      border: 1px solid #fef3c7;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex; gap: 10px;
+    }
+    .notes-card svg { flex-shrink: 0; }
+    .notes-text { font-size: 12.5px; color: #78350f; line-height: 1.5; }
+    .notes-text b { color: #92400e; }
+
+    /* Cost breakdown */
+    .cost-card {
+      margin: 0 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .cost-row {
+      display: flex; justify-content: space-between;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    .cost-row .k { color: var(--ink-soft); }
+    .cost-row .v { font-weight: 700; }
+    .cost-total {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding-top: 10px;
+      margin-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .cost-total .k { font-size: 13px; font-weight: 800; }
+    .cost-total .v { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+
+    /* CTA bar fixed bottom */
+    .cta-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      padding: 12px 16px 28px;
+      display: flex; gap: 8px;
+      z-index: 20;
+    }
+    .btn-refuse {
+      flex: 0 0 90px;
+      height: 54px;
+      background: #f3f3f3; color: var(--ink);
+      border: 0; border-radius: 16px;
+      font-size: 14px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .btn-accept {
+      flex: 1; height: 54px;
+      background: var(--accent); color: #fff;
+      border: 0; border-radius: 16px;
+      font-size: 16px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000; z-index: 30;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="scroll">
+      <div class="header-bar">
+        <div class="back-btn">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <span class="countdown-pill">
+          <span class="ring"></span>
+          12s &middot; r&eacute;ponds avant
+        </span>
+      </div>
+
+      <div class="map-preview">
+        <div class="route-line"></div>
+        <div class="pin-label a">PICKUP</div>
+        <div class="pin-label b">AUBAGNE</div>
+      </div>
+
+      <div class="price-block">
+        <div class="price">61<span class="cur"> &euro;</span></div>
+        <div class="tags-row">
+          <span class="tag cpam">CPAM</span>
+          <span class="tag urgent">URGENT</span>
+          <span class="tag time">14:30</span>
+        </div>
+      </div>
+
+      <div class="section-title">TRAJET</div>
+      <div class="trip-full">
+        <div class="trip-step">
+          <div class="trip-icon dep"></div>
+          <div class="trip-step-body">
+            <div class="label">PRISE EN CHARGE</div>
+            <div class="place">H&ocirc;pital Nord</div>
+            <div class="meta">Chemin des Bourrely &middot; Marseille 15 &middot; 3,2 km de toi</div>
+          </div>
+        </div>
+        <div class="trip-step">
+          <div class="trip-icon arr"></div>
+          <div class="trip-step-body">
+            <div class="label">DESTINATION</div>
+            <div class="place">Aubagne centre</div>
+            <div class="meta">Boulevard Jean Jaur&egrave;s &middot; 14 km &middot; 22 min</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">PATIENT</div>
+      <div class="patient-card">
+        <div class="patient-head">
+          <div class="patient-avatar">MM</div>
+          <div>
+            <div class="patient-name">Mme Martin</div>
+            <div class="patient-sub">
+              <span class="star">&starf; 4,8</span>
+              <span class="dot"></span>
+              <span>67 ans</span>
+              <span class="dot"></span>
+              <span>12 courses</span>
+            </div>
+          </div>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row">
+            <span class="k">T&eacute;l&eacute;phone</span>
+            <span class="v">06 12 34 &middot;&middot; &middot;&middot;</span>
+          </div>
+          <div class="detail-row">
+            <span class="k">Mobilit&eacute;</span>
+            <span class="v">Fauteuil pliant</span>
+          </div>
+          <div class="detail-row">
+            <span class="k">Mutuelle</span>
+            <span class="v">MGEN &middot; tiers-payant</span>
+          </div>
+          <div class="detail-row">
+            <span class="k">Motif</span>
+            <span class="v">Consultation cardio</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes-card">
+        <svg fill="none" stroke="#92400e" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24" width="18" height="18">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <div class="notes-text">
+          <b>Note importante :</b> a besoin d'aide pour monter dans le v&eacute;hicule. Pr&eacute;f&egrave;re la porte gauche.
+        </div>
+      </div>
+
+      <div class="section-title">R&Eacute;MUN&Eacute;RATION</div>
+      <div class="cost-card">
+        <div class="cost-row">
+          <span class="k">Prix de base CPAM</span>
+          <span class="v">54 &euro;</span>
+        </div>
+        <div class="cost-row">
+          <span class="k">Suppl&eacute;ment urgence</span>
+          <span class="v">+ 7 &euro;</span>
+        </div>
+        <div class="cost-row">
+          <span class="k">Estimation p&eacute;age</span>
+          <span class="v">0 &euro;</span>
+        </div>
+        <div class="cost-total">
+          <span class="k">Total estim&eacute;</span>
+          <span class="v">61 &euro;</span>
+        </div>
+      </div>
+
+      <div style="height: 16px;"></div>
+    </div>
+
+    <div class="cta-bar">
+      <button class="btn-refuse">Refuser</button>
+      <button class="btn-accept">
+        Accepter
+        <span style="background: rgba(255,255,255,0.18); padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 800;">12s</span>
+      </button>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

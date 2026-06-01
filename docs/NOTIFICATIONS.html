@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Les notifications du chauffeur — TaxiLink</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+    color: #1f2937;
+    line-height: 1.5;
+    font-size: 13pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 28pt;
+    color: #FFD23F;
+    text-shadow: 2px 2px 0 #1f2937;
+    text-align: center;
+    margin: 0 0 4pt;
+    letter-spacing: 1px;
+  }
+  .sub {
+    text-align: center;
+    color: #6b7280;
+    margin: 0 0 18pt;
+    font-size: 12pt;
+  }
+  h2 {
+    font-size: 18pt;
+    color: white;
+    background: #1f2937;
+    padding: 6pt 12pt;
+    border-radius: 8pt;
+    margin-top: 18pt;
+    margin-bottom: 10pt;
+  }
+  h2.green { background: #16a34a; }
+  h2.blue { background: #2563eb; }
+  h2.purple { background: #c026d3; }
+  h2.orange { background: #ea580c; }
+  h2.red { background: #dc2626; }
+
+  .card {
+    border: 3px solid #1f2937;
+    border-radius: 12pt;
+    padding: 12pt 16pt;
+    margin: 10pt 0;
+    background: #fffbeb;
+    page-break-inside: avoid;
+  }
+  .card.green { background: #ecfdf5; border-color: #16a34a; }
+  .card.blue { background: #eff6ff; border-color: #2563eb; }
+  .card.purple { background: #fdf4ff; border-color: #c026d3; }
+  .card.orange { background: #fff7ed; border-color: #ea580c; }
+  .card.red { background: #fef2f2; border-color: #dc2626; }
+
+  .big { font-size: 15pt; font-weight: bold; }
+
+  .phone {
+    font-family: "Consolas", "Courier New", monospace;
+    background: #1f2937;
+    color: #FFD23F;
+    padding: 10pt 14pt;
+    border-radius: 14pt;
+    font-size: 11pt;
+    line-height: 1.4;
+    white-space: pre;
+    margin: 8pt auto;
+    display: block;
+    max-width: 90%;
+    box-shadow: 0 4pt 0 #0f172a;
+  }
+
+  .ok { color: #16a34a; font-weight: bold; }
+  .no { color: #dc2626; font-weight: bold; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 14pt 0;
+    font-size: 12pt;
+  }
+  th, td {
+    border: 2pt solid #1f2937;
+    padding: 6pt 8pt;
+    text-align: left;
+  }
+  th {
+    background: #1f2937;
+    color: #FFD23F;
+  }
+  tr.bip td { background: #dcfce7; }
+
+  .footer {
+    margin-top: 24pt;
+    padding: 12pt 14pt;
+    background: #1f2937;
+    color: #FFD23F;
+    border-radius: 10pt;
+    font-size: 12pt;
+    text-align: center;
+  }
+
+  ul { padding-left: 20pt; }
+  li { margin: 4pt 0; }
+</style>
+</head>
+<body>
+
+<h1>🔔 Les notifications du chauffeur</h1>
+<p class="sub">Quand est-ce que le téléphone fait du bruit ?</p>
+
+<!-- ============================================================== -->
+<h2 class="green">1️⃣ Nouvelle course près de toi</h2>
+
+<div class="card green">
+  <p class="big">✅ Le tel BIPE, même app fermée</p>
+
+<div class="phone">┌─────────────────────────────────┐
+│ 🚖 TaxiLink                     │
+│                                 │
+│   Nouvelle course               │
+│   Départ : 12 rue de la Paix    │
+│                                 │
+└─────────────────────────────────┘
+       ↑ écran de verrouillage</div>
+
+  <p>🎯 <b>Quand ?</b> Quelqu'un poste une course dans <b>ton département</b>.</p>
+  <p>📡 <b>Comment ?</b> Serveur → Expo Push → Google/Apple → ton tel bipe.</p>
+</div>
+
+<!-- ============================================================== -->
+<h2 class="blue">2️⃣ Pop-up dans l'app</h2>
+
+<div class="card blue">
+  <p class="big">❌ Pas de bip — popup seulement si app ouverte</p>
+
+<div class="phone">       ┌──────────────────────┐
+       │  Nouvelle course     │
+       │                      │
+       │  Départ :            │
+       │  12 rue de la Paix   │
+       │                      │
+       │  [Plus tard]  [Voir] │
+       └──────────────────────┘</div>
+
+  <p>🎯 Même évènement que le #1, mais <b>en plus</b> quand l'app est ouverte.</p>
+</div>
+
+<!-- ============================================================== -->
+<h2 class="purple">3️⃣ Course RIEN QUE POUR TOI</h2>
+
+<div class="card purple">
+  <p class="big">❌ Pas de bip — carte dans l'app avec compte à rebours</p>
+
+<div class="phone"> ┌────────────────────────────────┐
+ │ 🎯 Course pour toi !           │
+ │                                │
+ │  📍 12 rue de la Paix          │
+ │  🏁 Gare de Lyon               │
+ │  💰 35€                        │
+ │                                │
+ │       ⏱️ 18 secondes            │
+ │                                │
+ │  [ Refuser ]    [ Accepter ]   │
+ └────────────────────────────────┘</div>
+
+  <p>🎯 <b>Quand ?</b> Le serveur t'a choisi TOI (le plus proche).</p>
+</div>
+
+<!-- ============================================================== -->
+<h2 class="orange">4️⃣ Quelqu'un a pris ton annonce</h2>
+
+<div class="card orange">
+  <p class="big">❌ Pas de bip — point rouge 🔴 dans l'app</p>
+
+<div class="phone"> ┌────────────────────────────┐
+ │  ☰  TaxiLink         🔴    │
+ │                            │
+ │  [Courses]  [Annonces 🔴] │
+ │                            │
+ │  ✅ Marc a pris ta course  │
+ │     Paris → Lyon           │
+ └────────────────────────────┘</div>
+
+  <p>🎯 <b>Quand ?</b> Tu postes une course, un pote chauffeur l'accepte.</p>
+</div>
+
+<!-- ============================================================== -->
+<h2 class="red">5️⃣ Ton annonce trouve pas preneur</h2>
+
+<div class="card red">
+  <p class="big">❌ Pas de bip — point orange 🟠 dans l'app</p>
+
+<div class="phone"> ┌────────────────────────────┐
+ │  ☰  TaxiLink               │
+ │                            │
+ │  ⚠️ Annonce stuck           │
+ │  Paris → Lyon              │
+ │  Personne l'a prise        │
+ │  depuis 2 minutes          │
+ └────────────────────────────┘</div>
+
+  <p>🎯 <b>Quand ?</b> Après <b>2 minutes</b> sans preneur.</p>
+</div>
+
+<!-- ============================================================== -->
+<h2>📊 Récap</h2>
+
+<table>
+  <thead>
+    <tr><th>#</th><th>Cas</th><th>Tel bipe ?</th></tr>
+  </thead>
+  <tbody>
+    <tr class="bip"><td>1</td><td>Nouvelle course dans ton département</td><td class="ok">✅ OUI</td></tr>
+    <tr><td>2</td><td>Popup nouvelle course</td><td class="no">❌ NON</td></tr>
+    <tr><td>3</td><td>Offre rien que pour toi</td><td class="no">❌ NON</td></tr>
+    <tr><td>4</td><td>Ton annonce acceptée</td><td class="no">❌ NON</td></tr>
+    <tr><td>5</td><td>Ton annonce pas prise</td><td class="no">❌ NON</td></tr>
+  </tbody>
+</table>
+
+<div class="footer">
+👉 <b>1 seul cas fait biper le tel quand l'app est fermée :</b><br>
+la nouvelle course dans ton département.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TaxiLink · Maquettes redesign Uber/Bolt</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --ink: #ffffff;
+      --ink-soft: #9a9a9a;
+      --line: #1f1f1f;
+      --brand: #ffd23f;
+      --accent: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 80px; }
+    header h1 {
+      font-size: 32px; font-weight: 800; margin: 0 0 8px;
+      letter-spacing: -0.8px;
+    }
+    header p {
+      color: var(--ink-soft); margin: 0 0 32px; font-size: 15px; line-height: 1.55;
+      max-width: 640px;
+    }
+    .section-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--ink-soft); margin: 40px 0 16px; font-weight: 700;
+    }
+    .grid {
+      display: grid; gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex; flex-direction: column;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: #2a2a2a; }
+    .thumb {
+      aspect-ratio: 9/16;
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      border-bottom: 1px solid var(--line);
+    }
+    .thumb iframe {
+      width: 100%; height: 100%; border: 0; pointer-events: none;
+      transform: scale(0.95); transform-origin: top center;
+    }
+    .meta { padding: 16px 18px 18px; }
+    .meta h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+    .meta p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.4; }
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .pill.map { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .pill.list { background: rgba(255, 210, 63, 0.15); color: #ffd23f; }
+    .lead {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 12px;
+    }
+    .lead h2 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
+    .lead ul { margin: 0; padding-left: 20px; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+    .lead li b { color: var(--ink); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Redesign carte + mes courses</h1>
+      <p>3 directions par écran, inspirées Uber / Bolt. Moins d'info à l'écran, hiérarchie claire, une seule action prioritaire à la fois. Clique sur une maquette pour l'ouvrir en grand.</p>
+    </header>
+
+    <div class="lead">
+      <h2>Principes de simplification</h2>
+      <ul>
+        <li><b>Carte</b> — pas de chips de filtre visibles en permanence (caché derrière un seul bouton), pas de bottom-sheet à 3 stops, popup pin minimal, FAB unique en bas.</li>
+        <li><b>Mes courses</b> — 1 hero card (course en cours) au lieu de 4 onglets visibles, infos secondaires repliées, prix + heure + lieu seulement sur les rows.</li>
+        <li><b>Hiérarchie</b> — 1 action primaire par écran (Accepter / Démarrer), tout le reste passe en secondary discret.</li>
+      </ul>
+    </div>
+
+    <h2 class="section-title">Écran carte (page d'accueil chauffeur)</h2>
+    <div class="grid">
+      <a class="card" href="carte-v1-minimal.html" target="_blank">
+        <div class="thumb"><iframe src="carte-v1-minimal.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill map">Carte · V1</span>
+          <h3>Minimal Uber</h3>
+          <p>Carte plein écran, header transparent, sheet bas réduit à un compteur + 1 swipe</p>
+        </div>
+      </a>
+      <a class="card" href="carte-v2-bolt.html" target="_blank">
+        <div class="thumb"><iframe src="carte-v2-bolt.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill map">Carte · V2</span>
+          <h3>Bolt-style cards</h3>
+          <p>Carrousel horizontal de cartes-courses en bas, swipe pour parcourir les missions</p>
+        </div>
+      </a>
+      <a class="card" href="carte-v3-focus.html" target="_blank">
+        <div class="thumb"><iframe src="carte-v3-focus.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill map">Carte · V3</span>
+          <h3>Focus mission</h3>
+          <p>Sheet bas avec 1 seule course mise en avant, navigation entre missions par chevrons</p>
+        </div>
+      </a>
+    </div>
+
+    <h2 class="section-title">Écran mes courses</h2>
+    <div class="grid">
+      <a class="card" href="courses-v1-hero.html" target="_blank">
+        <div class="thumb"><iframe src="courses-v1-hero.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill list">Courses · V1</span>
+          <h3>Hero unique</h3>
+          <p>1 grosse carte course en cours, sous-liste compacte, tabs cachés dans un kebab</p>
+        </div>
+      </a>
+      <a class="card" href="courses-v2-timeline.html" target="_blank">
+        <div class="thumb"><iframe src="courses-v2-timeline.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill list">Courses · V2</span>
+          <h3>Timeline du jour</h3>
+          <p>Ligne de temps verticale style agenda, course active en surbrillance</p>
+        </div>
+      </a>
+      <a class="card" href="courses-v3-uber.html" target="_blank">
+        <div class="thumb"><iframe src="courses-v3-uber.html" scrolling="no"></iframe></div>
+        <div class="meta">
+          <span class="pill list">Courses · V3</span>
+          <h3>Uber Driver clone</h3>
+          <p>Gains du jour XL en haut, segmented control, liste blanche minimaliste</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

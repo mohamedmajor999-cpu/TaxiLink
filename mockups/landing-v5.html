@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink — Partagez vos courses entre taxis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0F1115;
+    --paper: #FFFFFF;
+    --brand: #FFD23F;
+    --brand-dark: #FFC107;
+    --brand-soft: #FFF4C2;
+    --warm-50: #FAFAF9;
+    --warm-100: #F5F5F4;
+    --warm-200: #E7E5E4;
+    --warm-300: #D6D3D1;
+    --warm-400: #A8A29E;
+    --warm-500: #78716C;
+    --warm-600: #57534E;
+    --warm-700: #44403C;
+    --warm-800: #292524;
+    --emerald: #10B981;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ============ NAV ============ */
+  nav.top {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--warm-200);
+  }
+  nav.top .row {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800; font-size: 21px; letter-spacing: -0.6px;
+  }
+  .logo-mark {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--brand); font-weight: 900; font-size: 17px;
+    position: relative; overflow: hidden;
+  }
+  .logo-mark::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 38%;
+    background: var(--brand);
+  }
+  .logo-mark span { position: relative; z-index: 1; }
+  .logo .pro { color: var(--warm-400); font-weight: 700; }
+  nav.top .links {
+    display: none; gap: 28px;
+    font-size: 14px; font-weight: 500; color: var(--warm-600);
+  }
+  nav.top .links a:hover { color: var(--ink); }
+  @media (min-width: 920px) { nav.top .links { display: flex; } }
+
+  /* ============ BUTTONS ============ */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 13px 22px;
+    border-radius: 12px;
+    font-weight: 600; font-size: 15px;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--ink); color: white; }
+  .btn-primary:hover { background: var(--warm-800); transform: translateY(-1px); }
+  .btn-brand { background: var(--brand); color: var(--ink); font-weight: 700; }
+  .btn-brand:hover { background: var(--brand-dark); }
+  .btn-ghost { background: transparent; color: var(--warm-700); }
+  .btn-ghost:hover { color: var(--ink); }
+  .btn-outline { background: white; color: var(--ink); border-color: var(--warm-200); }
+  .btn-outline:hover { border-color: var(--warm-400); }
+  .btn-lg { padding: 17px 28px; font-size: 16px; }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 80px 0 96px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,210,63,0.28), transparent 55%);
+    z-index: 0;
+  }
+  .hero-inner { position: relative; z-index: 1; }
+  .pre-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: white;
+    border: 1px solid var(--warm-200);
+    padding: 6px 14px 6px 6px;
+    border-radius: 999px;
+    font-size: 13px; font-weight: 500; color: var(--warm-700);
+    margin-bottom: 28px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .pre-pill .badge {
+    background: var(--ink); color: var(--brand);
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+  }
+  .hero h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: clamp(46px, 8vw, 84px);
+    line-height: 1.0;
+    letter-spacing: -2.8px;
+    margin-bottom: 24px;
+  }
+  .hero h1 .accent {
+    background: var(--brand);
+    padding: 0 14px;
+    border-radius: 12px;
+    display: inline-block;
+    transform: rotate(-1.5deg);
+  }
+  .hero .lede {
+    font-size: clamp(17px, 2vw, 20px);
+    color: var(--warm-600);
+    max-width: 540px;
+    margin: 0 auto 32px;
+    line-height: 1.5;
+  }
+  .hero .lede b { color: var(--ink); font-weight: 600; }
+  .hero-ctas {
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+    margin-bottom: 24px;
+  }
+  .hero-trust {
+    display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: center;
+    font-size: 13px; color: var(--warm-500); font-weight: 500;
+  }
+  .hero-trust .item { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-trust .material-symbols-rounded { font-size: 16px; color: var(--warm-400); }
+
+  /* ============ PHONE FRAME ============ */
+  .phone {
+    width: 280px;
+    background: var(--ink);
+    border-radius: 38px;
+    padding: 8px;
+    box-shadow: 0 60px 100px -30px rgba(15,17,21,0.35), inset 0 0 0 2px #2a2a2a;
+    margin: 0 auto;
+    position: relative;
+  }
+  .phone.tilt-l { transform: rotate(-2.5deg); }
+  .phone.tilt-r { transform: rotate(2.5deg); }
+  .phone img {
+    width: 100%; height: auto;
+    display: block;
+    border-radius: 30px;
+  }
+  .phone-glow {
+    position: relative;
+    padding: 32px;
+  }
+  .phone-glow::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(255,210,63,0.22), transparent 70%);
+    z-index: 0;
+  }
+  .phone-glow > * { position: relative; z-index: 1; }
+
+  /* ============ HERO SHOWCASE (3 phones) ============ */
+  .hero-phones {
+    margin-top: 72px;
+    display: flex; justify-content: center; align-items: center;
+    gap: -40px;
+    position: relative;
+    perspective: 1500px;
+  }
+  .hero-phones .phone:nth-child(1) {
+    width: 220px;
+    transform: rotate(-8deg) translateX(40px) translateY(20px) scale(0.92);
+    opacity: 0.85;
+    z-index: 1;
+  }
+  .hero-phones .phone:nth-child(2) {
+    width: 280px;
+    z-index: 3;
+  }
+  .hero-phones .phone:nth-child(3) {
+    width: 220px;
+    transform: rotate(8deg) translateX(-40px) translateY(20px) scale(0.92);
+    opacity: 0.85;
+    z-index: 1;
+  }
+  @media (max-width: 720px) {
+    .hero-phones .phone:nth-child(1),
+    .hero-phones .phone:nth-child(3) { display: none; }
+  }
+
+  /* ============ SECTION ============ */
+  section { padding: 96px 0; }
+  .section-head { text-align: center; max-width: 720px; margin: 0 auto 64px; }
+  .kicker {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink); color: var(--brand);
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  .section-head h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: clamp(34px, 5vw, 54px);
+    line-height: 1.05;
+    letter-spacing: -2px;
+  }
+  .section-head h2 .muted { color: var(--warm-400); }
+  .section-head .sub {
+    font-size: 17.5px;
+    color: var(--warm-600);
+    max-width: 540px;
+    margin: 16px auto 0;
+    line-height: 1.55;
+  }
+
+  /* ============ FEATURE BLOCK (zigzag) ============ */
+  .feature {
+    display: grid;
+    gap: 48px;
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .feature { grid-template-columns: 1fr 1fr; gap: 80px; }
+    .feature.flip > .phone-wrap { order: 2; }
+  }
+  .phone-wrap {
+    display: flex; justify-content: center; align-items: center;
+    padding: 24px;
+    position: relative;
+  }
+  .phone-wrap::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(255,210,63,0.18), transparent 70%);
+    z-index: 0;
+  }
+  .phone-wrap .phone { position: relative; z-index: 1; }
+  .feature-text .num {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--brand-dark);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .feature-text .num::before {
+    content: '';
+    width: 24px; height: 2px; background: var(--brand-dark);
+  }
+  .feature-text h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 18px;
+  }
+  .feature-text h3 .hl { background: var(--brand); padding: 0 8px; border-radius: 6px; display: inline-block; }
+  .feature-text p {
+    font-size: 17px;
+    color: var(--warm-600);
+    line-height: 1.55;
+    max-width: 440px;
+    margin-bottom: 20px;
+  }
+  .feature-text p b { color: var(--ink); font-weight: 600; }
+  .feature-bullets { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .feature-bullets li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 14.5px; color: var(--warm-700);
+  }
+  .feature-bullets li .check {
+    flex-shrink: 0;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--brand-soft); color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .feature-bullets li .check .material-symbols-rounded { font-size: 14px; font-weight: 700; }
+  .feature-bullets li b { color: var(--ink); font-weight: 600; }
+
+  /* Section background variants */
+  .bg-warm { background: var(--warm-50); }
+  .bg-ink { background: var(--ink); color: white; }
+  .bg-ink .section-head h2,
+  .bg-ink .feature-text h3 { color: white; }
+  .bg-ink .section-head h2 .muted { color: var(--warm-500); }
+  .bg-ink .section-head .sub,
+  .bg-ink .feature-text p { color: var(--warm-300); }
+  .bg-ink .feature-text p b { color: white; }
+  .bg-ink .feature-bullets li { color: var(--warm-300); }
+  .bg-ink .feature-bullets li b { color: white; }
+  .bg-ink .feature-bullets li .check { background: rgba(255,210,63,0.14); color: var(--brand); }
+  .bg-ink .kicker { background: var(--brand); color: var(--ink); }
+  .bg-ink .feature-text .num { color: var(--brand); }
+  .bg-ink .feature-text .num::before { background: var(--brand); }
+
+  /* ============ MINI BENEFITS ============ */
+  .mini-benefits {
+    display: grid; gap: 14px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 800px) { .mini-benefits { grid-template-columns: repeat(3, 1fr); } }
+  .mini-benefit {
+    background: var(--paper);
+    border: 1px solid var(--warm-200);
+    border-radius: 18px;
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .mini-benefit .ico {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--ink); color: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mini-benefit .ico .material-symbols-rounded { font-size: 24px; }
+  .mini-benefit h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.6px; line-height: 1.1; }
+  .mini-benefit p { font-size: 14.5px; color: var(--warm-600); line-height: 1.5; }
+
+  /* ============ PRICING ============ */
+  .pricing-card {
+    background: var(--ink); color: white;
+    border-radius: 28px;
+    padding: 64px 40px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .pricing-card::before {
+    content: ''; position: absolute;
+    top: -160px; right: -160px;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: var(--brand); opacity: 0.14;
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .pricing-card .pre {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(255,210,63,0.12); color: var(--brand);
+    font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.4px; text-transform: uppercase;
+    margin-bottom: 28px; position: relative; z-index: 1;
+  }
+  .pricing-card .pre .dot { width: 6px; height: 6px; background: var(--brand); border-radius: 50%; }
+  .pricing-card h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(72px, 14vw, 130px);
+    font-weight: 900; line-height: 0.9;
+    letter-spacing: -4px;
+    color: var(--brand);
+    margin-bottom: 24px;
+    position: relative; z-index: 1;
+  }
+  .pricing-card .lede {
+    font-size: 18px;
+    color: var(--warm-300);
+    max-width: 480px; margin: 0 auto 32px;
+    line-height: 1.5;
+    position: relative; z-index: 1;
+  }
+  .pricing-card .lede b { color: white; font-weight: 600; }
+  .pricing-card .ctas { position: relative; z-index: 1; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* ============ FOOTER ============ */
+  footer {
+    background: var(--warm-50);
+    border-top: 1px solid var(--warm-200);
+    padding: 40px 0 32px;
+  }
+  .foot-row { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 24px; font-size: 13.5px; color: var(--warm-600); }
+  .foot-links a:hover { color: var(--ink); }
+  .foot-copy { font-size: 12.5px; color: var(--warm-500); }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="top">
+  <div class="container row">
+    <a href="#" class="logo">
+      <span class="logo-mark"><span>T</span></span>
+      TaxiLink<span class="pro">Pro</span>
+    </a>
+    <div class="links">
+      <a href="#decouvrir">Découvrir</a>
+      <a href="#tarif">Tarif</a>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a href="#" class="btn btn-ghost">Se connecter</a>
+      <a href="#" class="btn btn-primary">S'inscrire</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="container hero-inner">
+    <span class="pre-pill">
+      <span class="badge">100% gratuit</span>
+      Entre taxis · Sans intermédiaire
+    </span>
+
+    <h1>
+      Vos courses,<br>
+      <span class="accent">à la voix.</span>
+    </h1>
+
+    <p class="lede">
+      La plateforme de partage de courses entre taxis. <b>Postez en 30 secondes.</b> Acceptez en un geste.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-primary btn-lg">
+        S'inscrire gratuitement
+        <span class="material-symbols-rounded">arrow_forward</span>
+      </a>
+      <a href="#decouvrir" class="btn btn-outline btn-lg">Voir l'application</a>
+    </div>
+
+    <div class="hero-trust">
+      <span class="item"><span class="material-symbols-rounded">euro_symbol</span> Gratuit</span>
+      <span class="item"><span class="material-symbols-rounded">block</span> Zéro commission</span>
+      <span class="item"><span class="material-symbols-rounded">credit_card_off</span> Sans CB</span>
+    </div>
+
+    <!-- 3 phones triptyque -->
+    <div class="hero-phones">
+      <div class="phone">
+        <img src="captures/01-poster-voix.jpg" alt="Poster une course à la voix" />
+      </div>
+      <div class="phone">
+        <img src="captures/03-carte-courses.jpg" alt="Carte des courses disponibles" />
+      </div>
+      <div class="phone">
+        <img src="captures/04-popup-acceptation.jpg" alt="Acceptation d'une course" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INTRO 5 ÉCRANS ============ -->
+<section style="padding: 0 0 32px;" id="decouvrir">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">L'app en 6 écrans</span>
+      <h2>Tout ce que vous trouverez <span class="muted">une fois inscrit.</span></h2>
+      <p class="sub">6 écrans, 6 gestes. Vraies captures. Pas de blabla.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 1 — Postez à la voix ============ -->
+<section style="padding: 32px 0 96px;">
+  <div class="container">
+    <div class="feature">
+      <div class="phone-wrap">
+        <div class="phone tilt-l">
+          <img src="captures/01-poster-voix.jpg" alt="Écran : poster une course à la voix" />
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">01 — Poster</div>
+        <h3>Une course en <span class="hl">30 secondes</span>, à la voix.</h3>
+        <p>Vous appuyez sur le micro. Vous dictez. <b>L'application remplit tout.</b></p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Adresses reconnues automatiquement</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Si un détail manque, l'app vous le redemande</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Standard ou conventionné, vous choisissez</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 2 — Le bon prix calculé ============ -->
+<section class="bg-warm" style="border-top: 1px solid var(--warm-200); border-bottom: 1px solid var(--warm-200);">
+  <div class="container">
+    <div class="feature flip">
+      <div class="phone-wrap">
+        <div class="phone tilt-r">
+          <img src="captures/02-prix-calcule.jpg" alt="Écran : prix de la course calculé automatiquement" />
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">02 — Le bon prix</div>
+        <h3>Le prix exact, <span class="hl">instantanément.</span></h3>
+        <p>Trajet, distance, durée. <b>Le tarif s'affiche tout seul.</b> Plus de calculatrice. Plus de doute. Plus de sous-facturation.</p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Distance et durée affichées</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Aller-retour, fauteuil roulant, plusieurs patients : tout intégré</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Diffusion à vos groupes ou à tous les chauffeurs</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 3 — Toutes les courses sur la carte ============ -->
+<section>
+  <div class="container">
+    <div class="feature">
+      <div class="phone-wrap">
+        <div class="phone tilt-l">
+          <img src="captures/03-carte-courses.jpg" alt="Écran : carte avec toutes les courses disponibles" />
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">03 — Trouver</div>
+        <h3>Toutes les courses sur <span class="hl">une carte.</span></h3>
+        <p>Les courses postées par vos confrères s'affichent en direct, avec le prix sur chaque pin. <b>Plus besoin de scroller WhatsApp pendant des heures.</b></p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Carte plein écran, prix visible d'un coup d'œil</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Filtres : tout, médical, privé, urgent, &lt;5 km</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Vous voyez en direct qui est en ligne</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 4 — Acceptez en un geste ============ -->
+<section class="bg-warm" style="border-top: 1px solid var(--warm-200); border-bottom: 1px solid var(--warm-200);">
+  <div class="container">
+    <div class="feature flip">
+      <div class="phone-wrap">
+        <div class="phone tilt-r">
+          <img src="captures/04-popup-acceptation.jpg" alt="Écran : popup pour accepter une course" />
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">04 — Accepter</div>
+        <h3>Un appui long. <span class="hl">C'est pris.</span></h3>
+        <p>Le détail s'ouvre : départ, arrivée, distance, prix. Vous maintenez 2 secondes. <b>La course est à vous.</b> Plus de doublons, plus de "qui a pris quoi ?".</p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Notification instantanée, même app fermée</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Aperçu complet avant d'accepter</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Premier arrivé, premier servi. Pas de litige.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 5 — Votre journée (course en cours) ============ -->
+<section>
+  <div class="container">
+    <div class="feature">
+      <div class="phone-wrap">
+        <div class="phone tilt-l">
+          <img src="captures/05-course-en-cours.jpg" alt="Écran : mes courses du jour avec la prochaine course en cours" />
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">05 — Rouler</div>
+        <h3>Votre journée, <span class="hl">à portée de main.</span></h3>
+        <p>Toutes vos courses du jour. La prochaine en gros, prête à démarrer. <b>Un bouton vous guide d'étape en étape.</b></p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Étapes claires : Acceptée → En route → À bord → Déposé</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Le bouton change tout seul selon où vous en êtes</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Le reste de la journée toujours sous les yeux</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 6 — Groupes & stats ============ -->
+<section class="bg-ink">
+  <div class="container">
+    <div class="feature flip">
+      <div class="phone-wrap">
+        <div class="phone tilt-r">
+          <img src="captures/06-groupe-stats.jpg" alt="Écran : détail d'un groupe privé avec statistiques" />
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">06 — Vos confrères</div>
+        <h3>Vos cercles privés. <span class="hl">Vos stats.</span></h3>
+        <p>Vos vrais collègues, dans des groupes privés. Chacun voit son activité personnelle. <b>Vous savez où vous en êtes.</b></p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Groupes privés illimités</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Compteur "courses échangées" sur 7 jours</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Vos stats personnelles, jamais publiques</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MINI BÉNÉFICES ============ -->
+<section style="padding: 96px 0;">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Ce que vous y gagnez</span>
+      <h2>Plus de temps. <span class="muted">Plus d'argent.</span></h2>
+    </div>
+    <div class="mini-benefits">
+      <div class="mini-benefit">
+        <div class="ico"><span class="material-symbols-rounded">timer</span></div>
+        <h4>Gain de temps</h4>
+        <p>30 secondes pour poster. Une notif pour accepter. Plus d'heures perdues à scroller des messages.</p>
+      </div>
+      <div class="mini-benefit">
+        <div class="ico"><span class="material-symbols-rounded">trending_up</span></div>
+        <h4>Plus de courses</h4>
+        <p>Vous ne ratez plus une course parce qu'elle a défilé trop vite dans le groupe.</p>
+      </div>
+      <div class="mini-benefit">
+        <div class="ico"><span class="material-symbols-rounded">savings</span></div>
+        <h4>Zéro frais</h4>
+        <p>Gratuit. Pas de commission sur vos courses. Pas d'abonnement. Pas de carte bancaire.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TARIF ============ -->
+<section style="padding: 0 0 96px;" id="tarif">
+  <div class="container">
+    <div class="pricing-card">
+      <span class="pre"><span class="dot"></span>Pour les chauffeurs</span>
+      <h3>Gratuit.</h3>
+      <p class="lede"><b>Et ça le restera.</b> Pas d'abonnement. Pas de commission. Pas de carte bancaire.</p>
+      <div class="ctas">
+        <a href="#" class="btn btn-brand btn-lg">
+          Créer mon compte
+          <span class="material-symbols-rounded">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container foot-row">
+    <span class="foot-copy">© 2026 TaxiLink Pro · Marseille</span>
+    <div class="foot-links">
+      <a href="#">Mentions légales</a>
+      <a href="#">Confidentialité</a>
+      <a href="#">CGU</a>
+      <a href="mailto:contact@taxilink.fr">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

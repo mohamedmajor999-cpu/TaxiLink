@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Maquette 3 — Premium Light Glass · TaxiLink</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --yellow:#FFD500; --yellow-dark:#F2BC00; --yellow-glow:rgba(255,213,0,.5);
+      --t-1:#0A0A0B; --t-2:#5C5C62; --t-3:#9A9AA0;
+      --surface:rgba(255,255,255,.78);
+      --line:rgba(10,10,11,.06);
+      --green:#22C55E;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      background:radial-gradient(ellipse at top,#1a1a1d 0%,#0a0a0b 100%);
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:32px;color:#fff;font-feature-settings:'ss01','cv11';
+    }
+    .phone{
+      width:390px;height:844px;background:#000;border-radius:55px;
+      border:11px solid #0b0b0b;position:relative;overflow:hidden;
+      box-shadow:
+        0 0 0 1.5px rgba(255,255,255,.08),
+        0 30px 80px rgba(0,0,0,.6),
+        0 70px 140px rgba(0,0,0,.4);
+    }
+    .island{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:124px;height:36px;border-radius:20px;background:#000;z-index:30}
+    .status{position:absolute;top:0;left:0;right:0;height:54px;z-index:25;display:flex;justify-content:space-between;align-items:center;padding:18px 32px 0;font-weight:600;font-size:15px;color:#0A0A0B;letter-spacing:-.2px}
+    .status .ind{display:flex;align-items:center;gap:6px;color:#0A0A0B}
+
+    .map{position:absolute;inset:0;z-index:1}
+    .map svg{width:100%;height:100%;display:block}
+
+    .floating{position:absolute;top:62px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:center;z-index:6}
+    .pill{
+      background:rgba(255,255,255,.85);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+      border:1px solid rgba(255,255,255,.6);
+      color:#0A0A0B;padding:11px 16px;border-radius:999px;font-weight:600;font-size:14px;
+      display:flex;align-items:center;gap:10px;
+      box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.10);
+      letter-spacing:-.2px;
+    }
+    .pill .live{width:8px;height:8px;border-radius:50%;background:var(--green);position:relative;box-shadow:0 0 8px rgba(34,197,94,.5)}
+    .pill .live::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:var(--green);opacity:.25;animation:pulse 2s ease-out infinite}
+    @keyframes pulse{0%{transform:scale(.8);opacity:.6}100%{transform:scale(2);opacity:0}}
+    .pill .count{background:#0A0A0B;color:#fff;font-size:12.5px;font-weight:700;padding:2px 8px;border-radius:999px}
+    .icon-btn{
+      width:42px;height:42px;border-radius:50%;
+      background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,.6);
+      display:flex;align-items:center;justify-content:center;color:#0A0A0B;
+      box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 8px 24px rgba(0,0,0,.10);
+    }
+
+    /* GLASS SHEET — pearlescent light */
+    .sheet{
+      position:absolute;left:8px;right:8px;bottom:92px;z-index:10;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.92) 0%,rgba(252,250,246,.86) 100%);
+      backdrop-filter:blur(40px) saturate(180%);
+      -webkit-backdrop-filter:blur(40px) saturate(180%);
+      border-radius:32px;
+      border:1px solid rgba(255,255,255,.85);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,1) inset,
+        0 -1px 0 rgba(255,255,255,.5) inset,
+        0 1px 2px rgba(0,0,0,.04),
+        0 24px 48px -8px rgba(0,0,0,.18),
+        0 60px 120px -20px rgba(0,0,0,.22);
+      overflow:hidden;
+      animation:slide 700ms cubic-bezier(.16,1,.3,1);
+    }
+    @keyframes slide{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+    /* subtle iridescent top sheen */
+    .sheet::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:60%;
+      background:linear-gradient(180deg,rgba(255,250,235,.4) 0%,transparent 100%);
+      pointer-events:none;border-radius:32px 32px 0 0;
+    }
+
+    .timer{height:3px;background:rgba(10,10,11,.06);position:relative}
+    .timer-fill{position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(90deg,var(--yellow),var(--yellow-dark));box-shadow:0 0 14px rgba(255,213,0,.7);animation:tick 15s linear forwards}
+    @keyframes tick{from{width:100%}to{width:0%}}
+
+    .body{padding:22px 22px 20px;position:relative}
+
+    .hero{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:6px}
+    .eyebrow{font-size:11px;font-weight:800;color:var(--t-1);letter-spacing:1.8px;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+    .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--yellow);box-shadow:0 0 10px rgba(255,213,0,.7)}
+    .hero h1{font-size:25px;font-weight:800;color:var(--t-1);margin:5px 0 0;letter-spacing:-.6px;line-height:1.1}
+    .price-wrap{text-align:right;position:relative}
+    .price-wrap::before{
+      content:'';position:absolute;inset:-12px -8px;border-radius:20px;
+      background:radial-gradient(ellipse at center,rgba(255,213,0,.18) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .price{font-size:38px;font-weight:800;color:var(--t-1);letter-spacing:-1.6px;line-height:1;font-variant-numeric:tabular-nums;position:relative}
+    .price .cur{font-size:18px;font-weight:600;color:var(--t-2);margin-left:2px;letter-spacing:-.5px}
+    .bonus{
+      display:inline-flex;align-items:center;gap:5px;
+      background:linear-gradient(180deg,#FFF6CC,#FFEC9E);
+      color:#5C4500;font-size:11px;font-weight:800;padding:5px 10px;border-radius:999px;
+      margin-top:8px;letter-spacing:.3px;border:1px solid rgba(244,210,74,.6);
+      box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 2px 6px rgba(244,210,74,.3);
+    }
+
+    /* Metric bar — glass pill */
+    .pill-stats{
+      background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(248,247,243,.5));
+      border:1px solid rgba(10,10,11,.05);
+      border-radius:18px;padding:14px 12px;display:flex;justify-content:space-between;margin:18px 0 18px;
+      box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 1px 2px rgba(0,0,0,.02);
+    }
+    .pill-stats .col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+    .pill-stats .col + .col{border-left:1px solid rgba(10,10,11,.06)}
+    .pill-stats .v{font-size:16px;font-weight:800;color:var(--t-1);letter-spacing:-.4px;font-variant-numeric:tabular-nums;line-height:1}
+    .pill-stats .k{font-size:10.5px;color:var(--t-3);font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+    .pill-stats svg{color:var(--t-2);opacity:.65}
+
+    /* Route */
+    .route{position:relative;padding-left:26px;margin-bottom:20px}
+    .route::before{content:'';position:absolute;left:8px;top:14px;bottom:18px;width:2px;background:linear-gradient(180deg,var(--green) 0%,var(--yellow) 50%,#EF4444 100%);opacity:.5;border-radius:2px}
+    .stop{margin-bottom:14px;position:relative}
+    .stop:last-child{margin-bottom:0}
+    .stop::before{content:'';position:absolute;left:-26px;width:16px;height:16px;border-radius:50%}
+    .stop.from::before{top:4px;background:var(--green);box-shadow:0 0 0 4px rgba(34,197,94,.15),0 0 14px rgba(34,197,94,.45)}
+    .stop.to::before{top:4px;background:#EF4444;box-shadow:0 0 0 4px rgba(239,68,68,.15),0 0 14px rgba(239,68,68,.45)}
+    .stop .name{font-size:15px;font-weight:700;color:var(--t-1);letter-spacing:-.2px;line-height:1.25}
+    .stop .sub{font-size:12.5px;color:var(--t-2);margin-top:2px;letter-spacing:-.1px}
+
+    /* CTA */
+    .cta{
+      width:100%;border:none;border-radius:18px;
+      background:linear-gradient(180deg,#FFE145,var(--yellow) 50%,var(--yellow-dark));color:var(--t-1);
+      font-family:inherit;padding:20px;font-size:15.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,.6) inset,
+        0 -2px 0 rgba(0,0,0,.08) inset,
+        0 14px 28px -4px rgba(242,188,0,.5),
+        0 0 60px -10px rgba(255,213,0,.4);
+      cursor:pointer;
+    }
+    .footer-link{text-align:center;margin-top:14px;color:var(--t-3);font-size:13.5px;font-weight:600;cursor:pointer;letter-spacing:-.1px}
+    .footer-link:hover{color:var(--t-1)}
+
+    .nav{
+      position:absolute;left:0;right:0;bottom:0;height:84px;
+      background:rgba(255,255,255,.92);backdrop-filter:blur(20px) saturate(180%);
+      border-top:1px solid rgba(10,10,11,.05);
+      display:flex;justify-content:space-around;align-items:flex-start;padding:14px 16px 0;z-index:8;
+    }
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--t-3)}
+    .nav-item.active{color:var(--t-1)}
+    .nav-fab{width:54px;height:54px;border-radius:18px;background:linear-gradient(180deg,#FFE145,var(--yellow-dark));display:flex;align-items:center;justify-content:center;color:var(--t-1);box-shadow:0 10px 24px rgba(242,188,0,.45);margin-top:-12px}
+
+    .legend{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);color:#fff;font-size:12px;opacity:.4;letter-spacing:.4px}
+  </style>
+</head>
+<body>
+  <div class="phone">
+
+    <!-- LIGHT MAP -->
+    <div class="map">
+      <svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="terrainL" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F2EBDB"/>
+            <stop offset="1" stop-color="#E5DCC4"/>
+          </linearGradient>
+          <pattern id="hatchL" patternUnits="userSpaceOnUse" width="8" height="8">
+            <path d="M0,4 L8,4" stroke="rgba(0,0,0,.018)" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="390" height="844" fill="url(#terrainL)"/>
+        <rect width="390" height="844" fill="url(#hatchL)"/>
+
+        <!-- Water -->
+        <path d="M-20,600 Q 100,580 200,620 Q 290,650 410,625 L 410,884 L -20,884 Z" fill="#B6D7EB"/>
+        <path d="M-20,600 Q 100,580 200,620 Q 290,650 410,625" stroke="#88BCD8" stroke-width="1" fill="none" opacity=".5"/>
+
+        <!-- Parks -->
+        <ellipse cx="65" cy="180" rx="60" ry="38" fill="#C9DBBB" opacity=".9"/>
+        <path d="M260,80 Q 330,75 355,135 Q 345,210 280,210 Q 225,165 260,80Z" fill="#C9DBBB" opacity=".9"/>
+
+        <!-- Highways -->
+        <path d="M-30,320 Q 80,275 175,330 Q 250,375 410,355" stroke="#F4D796" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M-30,320 Q 80,275 175,330 Q 250,375 410,355" stroke="#EDB85D" stroke-width="1.5" fill="none" stroke-dasharray="3 5"/>
+
+        <!-- Major streets -->
+        <g stroke="#FEFCF8" stroke-linecap="round" fill="none">
+          <path d="M-10,440 Q 120,410 250,450 Q 320,485 410,470" stroke-width="7"/>
+          <path d="M125,-10 Q 135,180 115,360 Q 105,500 135,720" stroke-width="6"/>
+          <path d="M315,-10 Q 295,200 325,420 Q 345,580 310,720" stroke-width="6"/>
+          <path d="M-10,200 Q 80,190 180,215 Q 280,240 410,210" stroke-width="5"/>
+        </g>
+
+        <g stroke="#FEFCF8" stroke-linecap="round" fill="none" stroke-width="2.5" opacity=".95">
+          <path d="M0,100 L 390,108"/>
+          <path d="M0,260 L 390,272"/>
+          <path d="M0,520 L 390,510"/>
+          <path d="M55,-10 L 65,560"/>
+          <path d="M195,-10 L 205,500"/>
+          <path d="M255,-10 L 245,440"/>
+          <path d="M365,-10 L 375,560"/>
+        </g>
+
+        <g fill="#D9CFB6" opacity=".7">
+          <rect x="20" y="118" width="28" height="22" rx="1"/>
+          <rect x="60" y="118" width="34" height="22" rx="1"/>
+          <rect x="100" y="118" width="20" height="22" rx="1"/>
+          <rect x="140" y="118" width="46" height="22" rx="1"/>
+          <rect x="200" y="118" width="30" height="22" rx="1"/>
+          <rect x="20" y="280" width="42" height="28" rx="1"/>
+          <rect x="70" y="280" width="38" height="28" rx="1"/>
+          <rect x="115" y="280" width="60" height="28" rx="1"/>
+          <rect x="180" y="280" width="36" height="28" rx="1"/>
+          <rect x="220" y="280" width="22" height="28" rx="1"/>
+          <rect x="20" y="380" width="32" height="38" rx="1"/>
+          <rect x="60" y="380" width="55" height="38" rx="1"/>
+          <rect x="125" y="380" width="22" height="38" rx="1"/>
+          <rect x="160" y="385" width="40" height="33" rx="1"/>
+          <rect x="270" y="290" width="42" height="24" rx="1"/>
+          <rect x="320" y="290" width="38" height="24" rx="1"/>
+          <rect x="270" y="335" width="60" height="22" rx="1"/>
+          <rect x="335" y="335" width="25" height="22" rx="1"/>
+        </g>
+
+        <text x="40" y="160" font-family="Inter" font-size="9" fill="#7E8770" font-weight="700" opacity=".7" letter-spacing="1">PARC LONGCHAMP</text>
+        <text x="260" y="500" font-family="Inter" font-size="10" fill="#8B8270" font-weight="600" opacity=".6">Bd de la Libération</text>
+        <text x="35" y="640" font-family="Inter" font-size="11" fill="#5BA1C7" font-weight="800" opacity=".85" letter-spacing="2.5">MARSEILLE</text>
+
+        <!-- Route with shadow glow -->
+        <path d="M70,260 Q 130,310 200,355 Q 260,395 305,440" stroke="rgba(255,213,0,.4)" stroke-width="14" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+        <defs>
+          <filter id="glow"><feGaussianBlur stdDeviation="3"/></filter>
+        </defs>
+        <path d="M70,260 Q 130,310 200,355 Q 260,395 305,440" stroke="rgba(0,0,0,.2)" stroke-width="9" fill="none" stroke-linecap="round" transform="translate(0,2)"/>
+        <path d="M70,260 Q 130,310 200,355 Q 260,395 305,440" stroke="#0A0A0B" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M70,260 Q 130,310 200,355 Q 260,395 305,440" stroke="#FFD500" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+        <g transform="translate(70, 260)">
+          <ellipse cy="14" rx="10" ry="2.5" fill="rgba(0,0,0,.18)"/>
+          <circle r="18" fill="#22C55E" opacity=".15"/>
+          <circle r="14" fill="white" opacity=".9"/>
+          <circle r="9" fill="white" stroke="#22C55E" stroke-width="4"/>
+        </g>
+        <g transform="translate(305, 440)">
+          <circle r="20" fill="#EF4444" opacity=".15"/>
+          <ellipse cy="22" rx="9" ry="3" fill="rgba(0,0,0,.25)"/>
+          <path d="M0,-18 C -11,-18 -18,-10 -18,-1 C -18,10 0,24 0,24 C 0,24 18,10 18,-1 C 18,-10 11,-18 0,-18Z" fill="#0A0A0B"/>
+          <circle cx="0" cy="-1" r="5.5" fill="white"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="island"></div>
+    <div class="status">
+      <span>9:41</span>
+      <div class="ind">
+        <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx=".5"/><rect x="5" y="5" width="3" height="6" rx=".5"/><rect x="10" y="3" width="3" height="8" rx=".5"/><rect x="15" y="0" width="3" height="11" rx=".5"/></svg>
+        <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 11a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM3 6.5a7 7 0 0110 0l-1.4 1.4a5 5 0 00-7.2 0L3 6.5zM0 3.5a11 11 0 0116 0L14.6 4.9a9 9 0 00-13.2 0L0 3.5z"/></svg>
+        <svg width="27" height="11" viewBox="0 0 27 11" fill="none"><rect x=".5" y=".5" width="22" height="10" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="7" rx="1.5" fill="currentColor"/><rect x="24" y="3.5" width="2" height="4" rx=".7" fill="currentColor" opacity=".4"/></svg>
+      </div>
+    </div>
+
+    <div class="floating">
+      <div class="pill"><span class="live"></span> En ligne <span class="count">2</span></div>
+      <div class="icon-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6"/></svg>
+      </div>
+    </div>
+
+    <div class="nav">
+      <div class="nav-item active">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V21a1 1 0 01-1 1h-5v-7h-6v7H4a1 1 0 01-1-1V9.5z"/></svg>
+        Carte
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/></svg>
+        Courses
+      </div>
+      <div class="nav-fab"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2"/><circle cx="10" cy="7" r="4"/></svg>
+        Groupes
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+        Profil
+      </div>
+    </div>
+
+    <!-- GLASS LIGHT SHEET -->
+    <section class="sheet">
+      <div class="timer"><div class="timer-fill"></div></div>
+      <div class="body">
+        <div class="hero">
+          <div>
+            <div class="eyebrow">Nouvelle course</div>
+            <h1>Course privée</h1>
+            <span class="bonus">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              Bonus heures creuses · +12 €
+            </span>
+          </div>
+          <div class="price-wrap">
+            <div class="price">28<span class="cur">€</span></div>
+          </div>
+        </div>
+
+        <div class="pill-stats">
+          <div class="col">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg>
+            <div class="v">0.4 km</div>
+            <div class="k">De vous</div>
+          </div>
+          <div class="col">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            <div class="v">20 km</div>
+            <div class="k">Distance</div>
+          </div>
+          <div class="col">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <div class="v">33 min</div>
+            <div class="k">Avant</div>
+          </div>
+        </div>
+
+        <div class="route">
+          <div class="stop from">
+            <div class="name">Collège Rosa Parks</div>
+            <div class="sub">236 Rue de Lyon, 13015 Marseille</div>
+          </div>
+          <div class="stop to">
+            <div class="name">Vitrolles</div>
+            <div class="sub">13127 Vitrolles, France</div>
+          </div>
+        </div>
+
+        <button class="cta">J'accepte la course</button>
+        <div class="footer-link">Passer cette course</div>
+      </div>
+    </section>
+  </div>
+  <div class="legend">Maquette — Premium Light Glass (pearlescent + glow jaune)</div>
+</body>
+</html>

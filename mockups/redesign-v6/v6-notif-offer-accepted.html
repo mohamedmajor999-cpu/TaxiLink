@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V6 - Notif annonce acceptee</title>
+  <style>
+    :root {
+      --ink: #0a0a0a; --ink-soft: #6b6b6b; --ink-muted: #9a9a9a;
+      --bg: #ffffff; --line: #ececec;
+      --brand: #ffd23f; --accent: #1a1a1a; --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px; margin: 40px auto;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink); z-index: 30;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    /* Fond : ecran carte normal */
+    .map-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 30%, #eef3ee 0%, #d8e4d6 100%);
+    }
+    .map-bg::before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(0deg, rgba(120,150,120,0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,150,120,0.18) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    .road { position: absolute; background: #fff; box-shadow: 0 0 0 1px #c5d5c3; }
+    .road.h1 { top: 220px; left: -20px; right: -20px; height: 14px; transform: rotate(-2deg); }
+    .road.v1 { left: 140px; top: -20px; bottom: -20px; width: 12px; }
+    .pin {
+      position: absolute; transform: translate(-50%, -100%);
+      font-weight: 800; font-size: 12px;
+      padding: 5px 9px; border-radius: 999px;
+      letter-spacing: -0.3px; white-space: nowrap;
+    }
+    .pin.dark { background: #0a0a0a; color: #fff; }
+    .pin.me {
+      padding: 0; width: 20px; height: 20px;
+      border-radius: 50%; background: #2563eb; border: 4px solid #fff;
+      box-shadow: 0 0 0 8px rgba(37,99,235,0.18), 0 4px 12px rgba(37,99,235,0.4);
+    }
+
+    /* Banner toast en haut, qui descend */
+    .toast-banner {
+      position: absolute;
+      top: 56px; left: 14px; right: 14px;
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04);
+      z-index: 25;
+      display: flex; align-items: flex-start; gap: 14px;
+      animation: slideDown 0.4s ease-out;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .toast-banner::before {
+      content: "";
+      position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+      width: 32px; height: 4px; border-radius: 2px;
+      background: rgba(0,0,0,0.12);
+    }
+    .toast-icon {
+      position: relative;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #ecfdf5;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+    .toast-icon svg { width: 22px; height: 22px; }
+    .toast-icon .badge {
+      position: absolute; bottom: -3px; right: -3px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .toast-icon .badge svg { width: 12px; height: 12px; }
+    .toast-body { flex: 1; min-width: 0; padding-top: 4px; }
+    .toast-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .toast-title { font-size: 13.5px; font-weight: 800; }
+    .toast-time { font-size: 11px; color: var(--ink-muted); }
+    .toast-msg {
+      font-size: 12.5px; color: var(--ink-soft);
+      line-height: 1.4;
+    }
+    .toast-msg b { color: var(--ink); font-weight: 700; }
+    .toast-trip {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 8px;
+      font-size: 11.5px; font-weight: 700;
+      color: var(--ink);
+      background: #f3f3f3;
+      padding: 4px 8px; border-radius: 6px;
+    }
+    .toast-trip .price {
+      font-weight: 900; color: var(--ink);
+    }
+    .toast-trip .arr { color: var(--ink-muted); }
+
+    /* CTA bouton */
+    .toast-actions {
+      display: flex; gap: 8px;
+      margin-top: 12px;
+    }
+    .toast-btn {
+      flex: 1; height: 38px;
+      border-radius: 10px;
+      font-size: 12.5px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      border: 0;
+    }
+    .toast-btn.primary {
+      background: var(--accent); color: #fff;
+    }
+    .toast-btn.ghost {
+      background: #f3f3f3; color: var(--ink);
+    }
+
+    /* Annotation explicative (swipe hint) */
+    .swipe-hint {
+      position: absolute;
+      top: 250px; left: 14px; right: 14px;
+      text-align: center;
+      font-size: 11.5px;
+      color: rgba(255,255,255,0.85);
+      background: rgba(0,0,0,0.65);
+      padding: 8px 12px; border-radius: 10px;
+      font-weight: 600;
+      z-index: 20;
+    }
+    .swipe-hint b { color: var(--brand); font-weight: 800; }
+
+    /* Top bar carte normale (en arriere plan) */
+    .topbar-bg {
+      position: absolute; top: 56px; left: 16px; right: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      opacity: 0.6;
+      z-index: 5;
+    }
+    .pill-bg {
+      background: #fff;
+      padding: 10px 16px 10px 12px;
+      border-radius: 999px;
+      font-size: 13.5px; font-weight: 800;
+      display: inline-flex; gap: 8px; align-items: center;
+    }
+    .pill-bg .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--success); }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 90px; background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-around; align-items: center;
+      padding-bottom: 22px; z-index: 10;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 10.5px; font-weight: 700; color: var(--ink-muted); flex: 1;
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item.active svg { stroke: var(--ink); }
+    .nav-item svg { width: 22px; height: 22px; stroke: var(--ink-muted); }
+    .nav-fab-slot { width: 64px; }
+    .fab-poster {
+      position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 60px; border-radius: 20px;
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 24px rgba(255,210,63,0.5), 0 0 0 4px #fff;
+      z-index: 12;
+    }
+    .fab-poster svg { width: 28px; height: 28px; }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000; z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="map-bg">
+      <div class="road h1"></div>
+      <div class="road v1"></div>
+      <div class="pin dark" style="left: 30%; top: 320px;">42 &euro;</div>
+      <div class="pin dark" style="left: 70%; top: 280px;">28 &euro;</div>
+      <div class="pin me" style="left: 50%; top: 460px;"></div>
+    </div>
+
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <!-- Top bar en arriere plan, attenuee -->
+    <div class="topbar-bg">
+      <div class="pill-bg">
+        <span class="dot"></span>
+        En ligne
+      </div>
+    </div>
+
+    <!-- TOAST BANNER : annonce acceptee -->
+    <div class="toast-banner">
+      <div class="toast-icon">
+        <svg fill="none" stroke="#14532d" stroke-width="2.3" stroke-linecap="round" viewBox="0 0 24 24">
+          <path d="M5 12l5 5L20 7"/>
+        </svg>
+        <span class="badge">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24">
+            <path d="M3 11l18-7v16L3 13v-2z"/>
+          </svg>
+        </span>
+      </div>
+      <div class="toast-body">
+        <div class="toast-head">
+          <span class="toast-title">Ton annonce a &eacute;t&eacute; accept&eacute;e</span>
+          <span class="toast-time">il y a 1 min</span>
+        </div>
+        <div class="toast-msg">
+          <b>Karim L.</b> a accept&eacute; ta course post&eacute;e.
+        </div>
+        <span class="toast-trip">
+          H&ocirc;pital Nord <span class="arr">&rarr;</span> Aubagne &middot; <span class="price">61 &euro;</span>
+        </span>
+
+        <div class="toast-actions">
+          <button class="toast-btn ghost">Plus tard</button>
+          <button class="toast-btn primary">Confirmer le transfert</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="swipe-hint">
+      <b>Glisser vers le haut</b> pour ignorer &middot; tap pour ouvrir
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+        Carte
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Courses
+      </div>
+      <div class="nav-fab-slot"></div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><circle cx="17" cy="9" r="3"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6M14 21c0-2.5 2-4.5 5-4.5s5 2 5 4.5"/></svg>
+        Groupes
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+        Profil
+      </div>
+    </div>
+
+    <div class="fab-poster">
+      <svg fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Comment transformer TaxiLink en 3 super-applis ? — Expliqué à un enfant de 10 ans</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a2e;
+    line-height: 1.55;
+    font-size: 12pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 26pt;
+    color: #1a1a2e;
+    background: linear-gradient(90deg, #FBBF24 0%, #FDE68A 100%);
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: 18pt;
+    color: #fff;
+    background: #1a1a2e;
+    padding: 10px 16px;
+    border-radius: 10px;
+    margin: 28px 0 14px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 14pt;
+    color: #1a1a2e;
+    margin: 18px 0 8px 0;
+    border-left: 5px solid #FBBF24;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #555;
+    margin: 0 0 24px 4px;
+    font-style: italic;
+  }
+  .intro-box {
+    background: #FEF3C7;
+    border: 2px dashed #FBBF24;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .step {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-left: 6px solid #FBBF24;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+  .step-title {
+    font-weight: 700;
+    font-size: 13pt;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+  }
+  .step-num {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    font-weight: 800;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    margin-right: 10px;
+  }
+  .problem {
+    background: #FEE2E2;
+    border-left: 6px solid #DC2626;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .problem-title { font-weight: 700; color: #991B1B; }
+  .solution {
+    background: #DCFCE7;
+    border-left: 6px solid #16A34A;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .solution-title { font-weight: 700; color: #14532D; }
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .tool-card {
+    background: #F3F4F6;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid #E5E7EB;
+  }
+  .tool-card-title { font-weight: 700; color: #1a1a2e; font-size: 11.5pt; }
+  .tool-card-price { color: #DC2626; font-weight: 600; font-size: 10.5pt; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+  }
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+  tr:nth-child(even) td { background: #FAFAFA; }
+  .analogy {
+    background: #DBEAFE;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-left: 6px solid #2563EB;
+    page-break-inside: avoid;
+  }
+  .analogy-title { font-weight: 700; color: #1E3A8A; }
+  .pill {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 10pt;
+  }
+  .arrow {
+    text-align: center;
+    color: #FBBF24;
+    font-size: 22pt;
+    margin: 4px 0;
+    font-weight: 800;
+  }
+  .footer {
+    margin-top: 30px;
+    padding-top: 14px;
+    border-top: 2px solid #FBBF24;
+    color: #6B7280;
+    font-size: 9.5pt;
+    text-align: center;
+  }
+  .big-number {
+    font-size: 30pt;
+    font-weight: 800;
+    color: #FBBF24;
+    line-height: 1;
+  }
+  .summary-card {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .summary-card h3 {
+    color: #FBBF24;
+    border: none;
+    padding: 0;
+    margin: 0 0 8px 0;
+    font-size: 14pt;
+  }
+  .check { color: #16A34A; font-weight: 800; }
+  .cross { color: #DC2626; font-weight: 800; }
+  ul { padding-left: 22px; }
+  li { margin: 4px 0; }
+  .page-break { page-break-before: always; }
+  .three-apps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .app-card {
+    background: #fff;
+    border: 2px solid #FBBF24;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+  .app-card-emoji { font-size: 28pt; }
+  .app-card-title { font-weight: 800; color: #1a1a2e; margin-top: 4px; }
+  .app-card-desc { font-size: 10pt; color: #555; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<h1>Comment transformer TaxiLink en 3 super-applis ?</h1>
+<p class="subtitle">Expliqué comme à un enfant de 10 ans — du site web aux applis iPhone et Android</p>
+
+<div class="intro-box">
+  <p style="margin:0;"><strong>Imagine</strong> que tu as construit un super magasin de bonbons sur la rue (c'est ton site web TaxiLink). Tout le monde peut entrer, mais il faut <em>marcher jusqu'à la rue</em>. Maintenant, tu veux que ton magasin <strong>tienne dans la poche</strong> de tes clients, partout, tout le temps.</p>
+  <p style="margin:8px 0 0 0;">👉 Ça s'appelle faire une <strong>appli mobile</strong>. Et tu veux en faire <strong>3 différentes</strong>, parce que tu as 3 sortes de clients : les chauffeurs, les patrons et les patients. On va t'expliquer comment, étape par étape.</p>
+</div>
+
+<h2>1. C'est quoi la différence entre un site web et une appli ?</h2>
+
+<div class="analogy">
+  <div class="analogy-title">L'image facile à comprendre</div>
+  <p style="margin:6px 0 0 0;">Un <strong>site web</strong>, c'est comme une <strong>boutique sur la grand-rue</strong> : tu dois sortir, ouvrir ton navigateur, taper l'adresse, et entrer. C'est un peu loin, et si tu n'as pas de réseau, tu ne peux rien faire.</p>
+  <p style="margin:8px 0 0 0;">Une <strong>appli</strong>, c'est comme une <strong>petite boutique posée sur ton bureau</strong> : tu cliques une fois, et hop, t'es dedans. Elle se souvient de toi, elle te parle même quand elle est fermée (avec des notifications), elle peut allumer ton GPS, ton micro, ta caméra. Elle est <em>chez elle</em> dans ton téléphone.</p>
+</div>
+
+<h3>Pourquoi TaxiLink a vraiment besoin d'applis</h3>
+
+<div class="problem">
+  <div class="problem-title">⚠️ Les soucis du site web actuel pour les chauffeurs</div>
+  <ul style="margin:6px 0 0 0;">
+    <li>Le navigateur Safari ou Chrome <strong>arrête le GPS</strong> quand le téléphone est dans la poche.</li>
+    <li>Pas de <strong>vraies notifications</strong> qui réveillent l'écran (sur iPhone surtout).</li>
+    <li>Plus lent qu'une vraie appli, surtout en 4G faible.</li>
+    <li>Pas dans l'<strong>App Store</strong> ni le <strong>Play Store</strong>, donc moins de confiance pour les nouveaux chauffeurs.</li>
+  </ul>
+</div>
+
+<div class="solution">
+  <div class="solution-title">✅ Ce que les applis vont apporter</div>
+  <ul style="margin:6px 0 0 0;">
+    <li>GPS qui <strong>continue de tourner</strong> écran éteint, téléphone dans la poche.</li>
+    <li>Notifications "Bing !" pour chaque nouvelle course, même quand l'appli est fermée.</li>
+    <li>Démarre en <strong>1 seconde</strong>, fluide comme TikTok.</li>
+    <li>Disponible dans les stores Apple et Google → crédibilité totale.</li>
+  </ul>
+</div>
+
+<h2>2. Pourquoi 3 applis et pas une seule ?</h2>
+
+<p>Parce que tu as <strong>3 sortes d'utilisateurs</strong> qui font des choses très différentes. Mettre tout dans une seule appli, ce serait comme mettre un magasin de bonbons, un cabinet de docteur et une station-service dans le même bâtiment : ça gêne tout le monde.</p>
+
+<div class="three-apps">
+  <div class="app-card">
+    <div class="app-card-emoji">🚖</div>
+    <div class="app-card-title">App Chauffeur</div>
+    <div class="app-card-desc">Pour ceux qui conduisent. Voient les courses, acceptent, suivent le trajet, parlent au micro.</div>
+  </div>
+  <div class="app-card">
+    <div class="app-card-emoji">👨‍💼</div>
+    <div class="app-card-title">App Patron</div>
+    <div class="app-card-desc">Pour les chefs d'entreprise de taxis. Suivent leurs employés, gèrent l'agenda, voient les chiffres.</div>
+  </div>
+  <div class="app-card">
+    <div class="app-card-emoji">👵</div>
+    <div class="app-card-title">App Patient/Famille</div>
+    <div class="app-card-desc">Pour les patients âgés et leurs enfants. Voient le taxi arriver, l'historique, les factures.</div>
+  </div>
+</div>
+
+<div class="analogy">
+  <div class="analogy-title">L'image facile à comprendre</div>
+  <p style="margin:6px 0 0 0;">C'est comme <strong>Uber</strong> : il y a "Uber" pour le client, et "Uber Driver" pour le chauffeur. Deux applis séparées qui parlent à la même base de données. Toi pareil, mais avec 3 applis, parce que les <strong>patrons d'entreprise</strong> sont une troisième catégorie.</p>
+</div>
+
+<h2>3. La grande nouvelle : on ne refait PAS tout</h2>
+
+<p>Bonne nouvelle énorme : ton site web a été construit comme une <strong>maison Lego bien rangée</strong>. Les briques importantes (le moteur, les calculs, la connexion à la base de données) peuvent être <strong>déplacées dans les applis</strong> sans rien changer.</p>
+
+<div class="summary-card">
+  <h3>💡 Le truc magique : 60 à 70 % du code est déjà bon</h3>
+  <p style="margin:0;">Tout ce qui parle à la base de données Supabase, tout ce qui calcule un tarif CPAM, tout ce qui gère les groupes, les blocages, les missions… <strong>Tout ça marche pareil dans une appli.</strong> On va juste <em>"déplacer ces briques dans une boîte commune"</em> que les 3 applis et le site partagent.</p>
+</div>
+
+<h3>Ce qu'on garde (les Legos déjà construits)</h3>
+<ul>
+  <li>🧠 <strong>Le cerveau</strong> : les services qui parlent à Supabase (50 fichiers déjà prêts).</li>
+  <li>📦 <strong>La mémoire</strong> : les "stores" qui retiennent qui tu es et ce que tu fais.</li>
+  <li>🔢 <strong>Les calculs</strong> : tarifs, distances, géofence, auto-progression GPS.</li>
+  <li>🎤 <strong>La voix</strong> : la machine qui transforme ta voix en course (Whisper d'OpenAI).</li>
+</ul>
+
+<h3>Ce qu'on doit refaire (les nouvelles pièces Lego)</h3>
+<ul>
+  <li>🎨 <strong>Les écrans</strong> : un site web et une appli n'affichent pas pareil. On redessine, mais avec les mêmes couleurs jaune/noir.</li>
+  <li>🛰️ <strong>Le GPS qui tourne en fond</strong> : techno spéciale appli, n'existe pas en web.</li>
+  <li>🔔 <strong>Les notifications</strong> : il faut brancher Apple et Google qui les envoient.</li>
+  <li>🎙️ <strong>Le bouton volume</strong> qui démarre l'enregistrement micro pour le chauffeur.</li>
+</ul>
+
+<h2>4. Les outils magiques qu'on va utiliser</h2>
+
+<div class="tool-grid">
+  <div class="tool-card">
+    <div class="tool-card-title">React Native + Expo</div>
+    <div class="tool-card-price">Gratuit</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">La <strong>baguette magique</strong> : tu écris ton code une seule fois, et il devient <strong>une vraie appli iPhone ET Android</strong>. C'est ce qu'utilisent Discord, Coinbase, Shopify.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">EAS Build</div>
+    <div class="tool-card-price">~30 € / mois</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">L'<strong>usine dans les nuages</strong> qui fabrique le fichier .ipa (Apple) et .aab (Google) à partir de ton code. Tu ne touches jamais à Xcode.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">NativeWind</div>
+    <div class="tool-card-price">Gratuit</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Permet d'utiliser <strong>les mêmes couleurs et styles</strong> que ton site web Tailwind, dans l'appli. Pas de répétition.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">expo-location</div>
+    <div class="tool-card-price">Gratuit</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Le <strong>GPS spécial appli</strong> qui continue de tourner même téléphone éteint. Indispensable pour les chauffeurs en course.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">expo-notifications</div>
+    <div class="tool-card-price">Gratuit</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Le <strong>klaxon</strong> qui fait "Bing !" sur les téléphones des chauffeurs quand une nouvelle course arrive.</p>
+  </div>
+  <div class="tool-card">
+    <div class="tool-card-title">react-native-maps</div>
+    <div class="tool-card-price">Gratuit</div>
+    <p style="margin:6px 0 0 0; font-size:10.5pt;">Affiche les <strong>cartes Apple Maps</strong> sur iPhone et <strong>Google Maps</strong> sur Android. Zéro coût.</p>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<h2>5. La grande aventure étape par étape</h2>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">1</span>Préparer la "boîte commune" de Legos partagés</div>
+  <p>On range les 50 morceaux de cerveau dans une <strong>boîte commune</strong> (qu'on appelle <span class="pill">packages/services</span>) que le site web ET les 3 applis vont utiliser.</p>
+  <p style="margin-bottom:0;"><strong>Durée :</strong> 1 à 2 jours avec Claude Code. Le site web continue de marcher pendant tout ce temps, on ne casse rien.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">2</span>Créer les comptes Apple et Google (à faire EN PARALLÈLE)</div>
+  <p>Apple et Google sont les <strong>directeurs de l'école</strong> qui décident si ton appli a le droit d'être dans leurs magasins. Il faut leur écrire, payer, et attendre qu'ils valident ton identité.</p>
+  <ul>
+    <li>Apple : <strong>99 € par an</strong>. Délai : 2 à 7 jours.</li>
+    <li>Google : <strong>25 € une fois pour toutes</strong>. Délai : 3 à 7 jours.</li>
+  </ul>
+  <p style="margin-bottom:0;">⚠️ <strong>Important :</strong> ces démarches doivent commencer <strong>tout de suite</strong>, pas à la fin. Sinon ça bloque la sortie.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">3</span>Construire la première appli : le Chauffeur</div>
+  <p>C'est la plus importante et la plus dure (le GPS qui tourne tout seul, les notifications, la voix mains-libres). On fait :</p>
+  <ul>
+    <li>Le bouton "Connexion" → marche.</li>
+    <li>La liste des courses qui arrivent en direct → marche.</li>
+    <li>La carte avec le trajet → marche.</li>
+    <li>Le GPS qui suit le chauffeur même téléphone éteint → <strong>la partie la plus difficile</strong>.</li>
+    <li>Le "Bing !" quand une nouvelle course arrive → marche.</li>
+    <li>Le bouton volume qui enregistre la voix → marche.</li>
+  </ul>
+  <p style="margin-bottom:0;"><strong>Durée :</strong> 4 à 6 semaines avec Claude Code (au lieu de 12 à 16 sans).</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">4</span>Tester avec 10 vrais chauffeurs (la "beta")</div>
+  <p>Pas la peine de sortir l'appli au monde entier tout de suite. On la donne en avant-première à <strong>10 chauffeurs amis</strong>, pendant <strong>2 à 3 semaines</strong>. Ils l'utilisent en vrai dans leurs taxis.</p>
+  <p style="margin-bottom:0;">Ils trouvent les bugs cachés que personne n'avait vus. On les corrige. <strong>Cette étape ne peut PAS être accélérée :</strong> il faut du temps réel, des vraies routes, des vrais patients.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">5</span>Construire l'appli Patron (plus simple)</div>
+  <p>Le patron travaille surtout sur ordi. L'appli mobile lui sert juste à <strong>recevoir des alertes urgentes</strong> et voir un coup d'œil rapide. Donc plus rapide à faire :</p>
+  <ul>
+    <li>3 onglets simples : Vue / Courses / Agenda.</li>
+    <li>Notification quand un employé est hors ligne pendant une course.</li>
+    <li>Notification quand une course n'a pas été prise.</li>
+  </ul>
+  <p style="margin-bottom:0;"><strong>Durée :</strong> 1 à 2 semaines avec Claude Code.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">6</span>Construire l'appli Patient/Famille</div>
+  <p>L'appli pour les patients (souvent âgés) et leurs enfants. Doit être <strong>très très simple</strong> : grosses lettres, peu de boutons, gros contraste.</p>
+  <ul>
+    <li>"Mon taxi arrive dans 7 minutes" → carte qui suit le chauffeur en temps réel.</li>
+    <li>Photo + nom + plaque d'immatriculation du chauffeur.</li>
+    <li>Bouton "Appeler le chauffeur".</li>
+    <li>Historique des courses + factures PDF.</li>
+  </ul>
+  <p style="margin-bottom:0;"><strong>Durée :</strong> 1 à 2 semaines avec Claude Code.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">7</span>Le grand examen d'Apple et Google</div>
+  <p>Tu envoies tes 3 applis aux <strong>"profs"</strong> Apple et Google. Ils vérifient que :</p>
+  <ul>
+    <li>L'appli ne triche pas (pas de virus, pas d'arnaque).</li>
+    <li>L'appli demande la permission AVANT d'utiliser le GPS, le micro, etc.</li>
+    <li>Tu as bien écrit une <strong>politique de confidentialité</strong> (le contrat qui dit ce que tu fais avec les données).</li>
+    <li>Tu fournis un <strong>compte de démo</strong> pour qu'ils testent (avec des fausses courses).</li>
+  </ul>
+  <p style="margin-bottom:0;">⚠️ Apple est <strong>très strict</strong>, surtout pour le GPS qui tourne tout le temps. Souvent ils disent "non" la première fois, tu corriges, tu renvoies. <strong>Compte 2 à 6 semaines</strong> de va-et-vient. C'est incompressible.</p>
+</div>
+
+<div class="step">
+  <div class="step-title"><span class="step-num">8</span>Publication ! 🎉</div>
+  <p>Apple et Google disent "OUI". Tes 3 applis apparaissent dans les stores. Tout le monde peut les télécharger.</p>
+  <p style="margin-bottom:0;">Mais on ne sort pas à 100 % d'un coup : on commence par <strong>10 % des utilisateurs</strong>, on regarde s'il y a des plantages, puis 30 %, puis 100 %. C'est le <strong>"déploiement progressif"</strong>.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>6. Combien de temps ça prend vraiment ?</h2>
+
+<div class="intro-box">
+  <p style="margin:0;"><strong>Question importante :</strong> tu m'as demandé pourquoi 7,5 mois si Claude Code fait le code ? Bonne question. Voilà la vérité.</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Étape</th>
+      <th>Sans Claude Code</th>
+      <th>Avec Claude Code</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>1. Préparer la boîte commune</td><td>1 semaine</td><td><strong>1-2 jours</strong></td><td>Tâche de plomberie, parfait pour Claude</td></tr>
+    <tr><td>2. Comptes Apple + Google</td><td>2 semaines</td><td><strong>2 semaines</strong></td><td>Délai administratif, incompressible</td></tr>
+    <tr><td>3. App Chauffeur</td><td>12-16 sem</td><td><strong>4-6 sem</strong></td><td>Code 5x plus rapide, mais le GPS background sur vrais devices reste long à débugger</td></tr>
+    <tr><td>4. Beta avec 10 chauffeurs</td><td>2-3 sem</td><td><strong>2-3 sem</strong></td><td>Il FAUT du temps réel sur la route</td></tr>
+    <tr><td>5. App Patron</td><td>5-6 sem</td><td><strong>1-2 sem</strong></td><td>Simple, beaucoup de copier-réutiliser</td></tr>
+    <tr><td>6. App Patient/Famille</td><td>5-6 sem</td><td><strong>1-2 sem</strong></td><td>Pareil, simple</td></tr>
+    <tr><td>7. Examen Apple/Google</td><td>2-6 sem</td><td><strong>2-6 sem</strong></td><td>Délai des "profs" Apple, incompressible</td></tr>
+    <tr><td>8. Publication progressive</td><td>1-2 sem</td><td><strong>1-2 sem</strong></td><td>Surveillance des plantages, incompressible</td></tr>
+    <tr style="background:#FEF3C7;"><td><strong>TOTAL</strong></td><td><strong>~7,5 mois</strong></td><td><strong>~3 mois</strong></td><td>Avec Claude Code, on divise par ~2,5</td></tr>
+  </tbody>
+</table>
+
+<h3>Pourquoi pas 1 mois alors ?</h3>
+
+<div class="problem">
+  <div class="problem-title">⚠️ Les 4 "murs incompressibles" qui empêchent d'aller plus vite</div>
+  <ol style="margin:6px 0 0 0;">
+    <li><strong>Le mur d'Apple :</strong> tu envoies l'appli, ils répondent en 1-3 jours, ils disent "il manque ça", tu corriges, tu renvoies. Souvent 2-3 cycles. Claude Code n'écrit pas plus vite chez Apple.</li>
+    <li><strong>Le mur de Google "20 testeurs × 14 jours" :</strong> depuis 2023, les nouveaux comptes Play doivent avoir 20 testeurs internes pendant 14 jours minimum AVANT publication publique. Loi de Google.</li>
+    <li><strong>Le mur du GPS sur vrais téléphones :</strong> il y a 100 modèles d'Android (Samsung, Xiaomi, Oppo, Huawei…) qui chacun gèrent la batterie différemment. Le GPS qui marche sur Samsung peut planter sur Xiaomi. Il faut tester sur plein de devices.</li>
+    <li><strong>Le mur des vrais utilisateurs :</strong> tu peux écrire une appli parfaite sur le papier, mais tant que 10 chauffeurs n'ont pas roulé pendant 2 semaines, tu ne sais pas ce qui cloche en vrai.</li>
+  </ol>
+</div>
+
+<div class="solution">
+  <div class="solution-title">✅ Ce que Claude Code accélère vraiment</div>
+  <ul style="margin:6px 0 0 0;">
+    <li>Écriture du code des écrans : <strong>5 à 10 fois plus rapide</strong>.</li>
+    <li>Tests automatiques : générés en quelques minutes au lieu de quelques heures.</li>
+    <li>Migration de Lego (ranger les services dans la boîte commune) : <strong>quelques jours au lieu de quelques semaines</strong>.</li>
+    <li>Documentation : instantanée.</li>
+    <li>Debug d'erreurs courantes : très rapide.</li>
+  </ul>
+</div>
+
+<h2>7. Combien ça coûte ?</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Outil</th>
+      <th>Prix</th>
+      <th>À quoi ça sert</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Apple Developer Program</td><td><strong>99 € / an</strong></td><td>Le droit de mettre tes applis sur l'App Store</td></tr>
+    <tr><td>Google Play Console</td><td><strong>25 € (une fois)</strong></td><td>Le droit de mettre tes applis sur le Play Store</td></tr>
+    <tr><td>EAS Build (Expo)</td><td><strong>~30 € / mois</strong></td><td>L'usine qui fabrique les fichiers .ipa et .aab dans les nuages</td></tr>
+    <tr><td>Cartes (Apple + Google)</td><td><strong>0 €</strong></td><td>Apple Maps et Google Maps sont gratuits dans les applis</td></tr>
+    <tr><td>Notifications (Expo Push)</td><td><strong>0 €</strong></td><td>Gratuit, illimité</td></tr>
+    <tr><td>Sentry (déjà payé pour le web)</td><td><strong>0 € de plus</strong></td><td>Détection des bugs en production</td></tr>
+    <tr><td>Whisper d'OpenAI (déjà payé)</td><td><strong>0 € de plus</strong></td><td>Transcription voix → texte (déjà utilisé pour le site)</td></tr>
+    <tr style="background:#FEF3C7;"><td><strong>Total an 1</strong></td><td><strong>~485 €</strong></td><td>Très peu pour 3 applis professionnelles</td></tr>
+  </tbody>
+</table>
+
+<h2>8. Les pièges qu'il faut connaître</h2>
+
+<div class="problem">
+  <div class="problem-title">🎩 Piège n°1 : la batterie sur Android</div>
+  <p style="margin:6px 0 0 0;">Samsung, Xiaomi et compagnie <strong>tuent les applis qui tournent en arrière-plan</strong> pour économiser la batterie. Si on ne fait rien, le GPS du chauffeur s'éteint après 30 minutes. Il faut faire un <strong>petit tutoriel dans l'appli</strong> pour expliquer au chauffeur comment "whitelister" TaxiLink.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">🎩 Piège n°2 : la permission GPS d'Apple</div>
+  <p style="margin:6px 0 0 0;">Apple est <strong>très méfiant</strong> avec le GPS qui tourne toujours. Il faut écrire une <strong>petite phrase claire</strong> qui explique pourquoi : "TaxiLink suit votre position pendant les courses pour informer le patient et tracer la course pour la facturation CPAM." Sans ça, refus immédiat.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">🎩 Piège n°3 : les patients âgés</div>
+  <p style="margin:6px 0 0 0;">L'appli patient sera utilisée par des <strong>personnes âgées</strong>. Si on met des petits boutons et du texte gris, c'est foutu. Il faut <strong>tester avec de vraies grand-mères</strong> avant de sortir.</p>
+</div>
+
+<div class="problem">
+  <div class="problem-title">🎩 Piège n°4 : ne pas casser le site web pendant qu'on travaille</div>
+  <p style="margin:6px 0 0 0;">Les chauffeurs et patrons <strong>continuent d'utiliser le site web</strong> pendant qu'on construit les applis. Si on déplace mal une brique Lego, on peut casser le site. <strong>Règle d'or :</strong> chaque déplacement de Lego = un test du site complet juste après.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>9. Le grand récap en une page</h2>
+
+<div class="summary-card">
+  <h3>🎯 Le plan en 1 phrase</h3>
+  <p style="margin:0;">On garde le site web qui marche, on déplace les "moteurs" dans une boîte commune, et on construit 3 applis natives (chauffeur, patron, patient) en réutilisant 60-70 % du code existant grâce à React Native + Expo.</p>
+</div>
+
+<table>
+  <thead>
+    <tr><th>Question</th><th>Réponse courte</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Combien d'applis ?</td><td><strong>3 :</strong> Chauffeur, Patron, Patient/Famille</td></tr>
+    <tr><td>iPhone ou Android ?</td><td><strong>Les deux</strong>, en même temps</td></tr>
+    <tr><td>On refait tout depuis zéro ?</td><td><strong>Non.</strong> 60-70 % du code existant est réutilisé</td></tr>
+    <tr><td>Combien de temps avec Claude Code ?</td><td><strong>~3 mois</strong> (vs ~7,5 sans)</td></tr>
+    <tr><td>Combien d'argent la 1<sup>re</sup> année ?</td><td><strong>~485 €</strong></td></tr>
+    <tr><td>Quel outil principal ?</td><td><strong>React Native</strong> avec <strong>Expo</strong></td></tr>
+    <tr><td>Quelle est la partie la plus dure ?</td><td>Le <strong>GPS qui tourne en fond</strong> sur l'app chauffeur + l'<strong>examen d'Apple</strong></td></tr>
+    <tr><td>Quelle est la partie la plus facile ?</td><td>Les apps Patron et Patient (plus petites, code simple)</td></tr>
+    <tr><td>Par où on commence ?</td><td>1) Comptes Apple + Google (admin)<br>2) Préparer la boîte commune (Phase 0)<br>3) App Chauffeur</td></tr>
+    <tr><td>Quand on commence ?</td><td>Tu nous dis quand tu valides 👋</td></tr>
+  </tbody>
+</table>
+
+<h3>Le calendrier visuel</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Semaine</th>
+      <th>Ce qu'on fait</th>
+      <th>Livrable</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Sem 1</strong></td><td>Comptes Apple + Google + boîte commune</td><td>Démarrage admin + Phase 0</td></tr>
+    <tr><td><strong>Sem 2-7</strong></td><td>App Chauffeur (auth, missions, GPS, voix, notifs)</td><td>App Chauffeur en TestFlight</td></tr>
+    <tr><td><strong>Sem 8-9</strong></td><td>Beta avec 10 chauffeurs amis</td><td>Bugs corrigés en conditions réelles</td></tr>
+    <tr><td><strong>Sem 10-11</strong></td><td>App Patron</td><td>App Patron en TestFlight</td></tr>
+    <tr><td><strong>Sem 12</strong></td><td>App Patient/Famille</td><td>App Patient en TestFlight</td></tr>
+    <tr><td><strong>Sem 13-14</strong></td><td>Examen Apple + Google + corrections</td><td>Apps approuvées</td></tr>
+    <tr><td style="background:#FEF3C7;"><strong>Sem 15</strong></td><td style="background:#FEF3C7;"><strong>🎉 Publication progressive</strong></td><td style="background:#FEF3C7;"><strong>3 apps live sur les stores</strong></td></tr>
+  </tbody>
+</table>
+
+<div class="summary-card">
+  <h3>👋 Et maintenant ?</h3>
+  <p style="margin:0;">Trois petites décisions à prendre avant de démarrer :</p>
+  <ul style="margin:8px 0 0 0;">
+    <li>Compte Apple <strong>individuel</strong> (rapide) ou <strong>organisation</strong> (plus pro mais 5-14 jours d'attente) ?</li>
+    <li>Identifier les <strong>10 chauffeurs beta</strong> (idéalement 5 iPhone + 5 Android, mix Marseille/Paris).</li>
+    <li>Donner le <strong>feu vert</strong> pour démarrer la Phase 0 (boîte commune) — 1-2 jours de travail.</li>
+  </ul>
+</div>
+
+<div class="footer">
+  Document explicatif TaxiLink — Stratégie applis mobiles iOS &amp; Android<br>
+  Version 1.0 — 2026-05-08 — Référence détaillée : MOBILE_STRATEGY.md
+</div>
+
+</body>
+</html>

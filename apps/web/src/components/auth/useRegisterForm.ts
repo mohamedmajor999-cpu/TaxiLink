@@ -52,7 +52,7 @@ export function useRegisterForm() {
     e.preventDefault()
     setError('')
     if (!isValidEmail(email))        { setError('Adresse email invalide'); return }
-    if (!isValidPassword(password))  { setError('Le mot de passe doit contenir au moins 8 caractères'); return }
+    if (!isValidPassword(password))  { setError('Le mot de passe doit faire 14 caractères minimum, avec au moins une majuscule, une minuscule et un chiffre'); return }
     if (password !== confirmPassword) { setError('Les mots de passe ne correspondent pas'); return }
     setStep(2)
   }

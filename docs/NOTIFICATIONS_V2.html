@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Notifications chauffeur — Ce qui marche, ce qui manque</title>
+<style>
+  @page { size: A4; margin: 14mm 12mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+    color: #1f2937;
+    line-height: 1.45;
+    font-size: 12.5pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 26pt;
+    color: #FFD23F;
+    text-shadow: 2px 2px 0 #1f2937;
+    text-align: center;
+    margin: 0 0 4pt;
+    letter-spacing: 1px;
+  }
+  .sub {
+    text-align: center;
+    color: #6b7280;
+    margin: 0 0 14pt;
+    font-size: 11.5pt;
+  }
+  h2 {
+    font-size: 16pt;
+    color: white;
+    background: #1f2937;
+    padding: 5pt 10pt;
+    border-radius: 8pt;
+    margin-top: 16pt;
+    margin-bottom: 8pt;
+    page-break-after: avoid;
+  }
+  h2.green { background: #16a34a; }
+  h2.red { background: #dc2626; }
+  h2.orange { background: #ea580c; }
+  h2.blue { background: #2563eb; }
+  h2.purple { background: #c026d3; }
+
+  h3 {
+    font-size: 13pt;
+    color: #1f2937;
+    margin: 10pt 0 4pt;
+  }
+
+  .phone {
+    font-family: "Consolas", "Courier New", monospace;
+    background: #1f2937;
+    color: #FFD23F;
+    padding: 10pt 14pt;
+    border-radius: 12pt;
+    font-size: 10pt;
+    line-height: 1.35;
+    white-space: pre;
+    margin: 8pt auto;
+    display: block;
+    box-shadow: 0 3pt 0 #0f172a;
+  }
+  .phone .dot-red { color: #ef4444; }
+  .phone .dot-yellow { color: #facc15; }
+
+  .card {
+    border: 2pt solid #1f2937;
+    border-radius: 10pt;
+    padding: 10pt 14pt;
+    margin: 8pt 0;
+    background: #fffbeb;
+    page-break-inside: avoid;
+  }
+  .card.green { background: #ecfdf5; border-color: #16a34a; }
+  .card.red { background: #fef2f2; border-color: #dc2626; }
+  .card.gray { background: #f3f4f6; border-color: #6b7280; }
+
+  .big { font-size: 14pt; font-weight: bold; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10pt 0;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1.5pt solid #1f2937;
+    padding: 6pt 8pt;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #1f2937;
+    color: #FFD23F;
+    font-size: 11pt;
+  }
+  td.ok { background: #dcfce7; color: #14532d; font-weight: bold; }
+  td.warn { background: #fef3c7; color: #78350f; font-weight: bold; }
+  td.no { background: #fee2e2; color: #7f1d1d; font-weight: bold; }
+
+  .gap {
+    background: #fef2f2;
+    border-left: 5pt solid #dc2626;
+    padding: 8pt 12pt;
+    margin: 6pt 0;
+    border-radius: 0 8pt 8pt 0;
+  }
+  .gap .num {
+    display: inline-block;
+    background: #dc2626;
+    color: white;
+    width: 22pt; height: 22pt;
+    border-radius: 11pt;
+    text-align: center;
+    line-height: 22pt;
+    font-weight: bold;
+    margin-right: 6pt;
+  }
+
+  .arrow { color: #dc2626; font-weight: bold; }
+
+  ul { padding-left: 18pt; margin: 4pt 0; }
+  li { margin: 3pt 0; }
+</style>
+</head>
+<body>
+
+<h1>🔔 Les notifications</h1>
+<p class="sub">Ce que tu veux · Ce qui marche · Ce qui manque</p>
+
+<!-- ==================================================== -->
+<h2 class="red">🚨 Le résumé en 1 phrase</h2>
+
+<div class="card red">
+  <p class="big">Aujourd'hui, seul UN cas fait biper le tel quand l'app est fermée :<br>
+  une <b>nouvelle course</b> postée dans ton département.</p>
+  <p>Tous les autres évènements (annonce acceptée, offre exclusive, etc.)<br>
+  sont <b>silencieux</b> ou cachés dans des points colorés dans l'app.</p>
+</div>
+
+<!-- ==================================================== -->
+<h2 class="orange">🔴 Où sont les voyants rouge/orange dans l'app ?</h2>
+
+<p>👉 <b>Une seule page concernée : l'écran "Mes courses"</b> (qu'on ouvre depuis le menu hamburger).</p>
+
+<div class="phone">┌──────────────────────────────────────────┐
+│  ☰ <span class="dot-red">🔴</span>                                     │  ← ENDROIT 1
+│  ↑ point rouge sur le hamburger          │     (en haut à gauche)
+│                                          │
+├──────────────────────────────────────────┤
+│  [TL]  Mes courses                       │
+│        Mardi 12 mai           45€        │
+│                                          │
+│ ┌─────────┬───────┬──────────┬────────┐ │
+│ │Aujourd'h│Agenda │Annonces<span class="dot-yellow"> ②</span>│Stats   │ │  ← ENDROIT 2
+│ └─────────┴───────┴──────────┴────────┘ │     (badge "2" jaune
+│                       ↑                  │      sur onglet
+│                       badge jaune        │      "Annonces")
+│                                          │
+│  ┌─────────────────────────────────────┐ │
+│  │ ⚠️  2 nouveautés sur tes annonces   │ │  ← ENDROIT 3
+│  │     [✓✓ Tout marquer comme lu]      │ │     (bannière jaune
+│  └─────────────────────────────────────┘ │      visible UNIQUEMENT
+│                                          │      dans l'onglet
+│  [détails des annonces ici...]           │      "Annonces")
+└──────────────────────────────────────────┘</div>
+
+<div class="card gray">
+  <p class="big">⚠️ Pour voir ces voyants, il faut :</p>
+  <ol>
+    <li>Ouvrir l'app</li>
+    <li>Aller sur l'écran <b>Mes courses</b></li>
+    <li>Voir le point rouge sur le hamburger (= "y'a un truc")</li>
+    <li>Cliquer l'onglet <b>Annonces</b></li>
+    <li>Lire la bannière "X nouveautés"</li>
+  </ol>
+  <p>❌ <b>Aucun bip, aucune vibration, aucune notif lockscreen.</b></p>
+</div>
+
+<!-- ==================================================== -->
+<h2 class="blue">📊 Ce que tu veux VS ce qui existe</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Évènement</th>
+      <th>Ce que tu veux</th>
+      <th>Ce qui existe</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Nouvelle course dans ton dept</b><br><i>(app fermée)</i></td>
+      <td>🔔 BIP + vibreur + notif lockscreen</td>
+      <td class="ok">✅ OK<br>Bip + lockscreen</td>
+    </tr>
+    <tr>
+      <td><b>Nouvelle course</b><br><i>(app ouverte sur la carte)</i></td>
+      <td>Popup au milieu avec Accepter / Refuser</td>
+      <td class="warn">⚠️ Popup oui<br>mais sans son</td>
+    </tr>
+    <tr>
+      <td><b>Nouvelle course</b><br><i>(app ouverte, AUTRE page)</i></td>
+      <td>Bannière en haut style WhatsApp,<br>clic = aller sur l'annonce</td>
+      <td class="no">❌ Pas de bannière top<br>(même Alert au milieu)</td>
+    </tr>
+    <tr>
+      <td><b>Ton annonce est acceptée</b><br><i>(app fermée)</i></td>
+      <td>🔔 BIP "Marc a pris ta course"</td>
+      <td class="no">❌ RIEN du tout</td>
+    </tr>
+    <tr>
+      <td><b>Ton annonce est acceptée</b><br><i>(app ouverte)</i></td>
+      <td>Notif visible immédiatement</td>
+      <td class="warn">⚠️ Point rouge silencieux<br>caché dans "Mes courses"</td>
+    </tr>
+    <tr>
+      <td><b>Ton annonce pas prise (2 min)</b></td>
+      <td>Notif claire</td>
+      <td class="warn">⚠️ Bannière jaune cachée<br>dans l'onglet Annonces</td>
+    </tr>
+    <tr>
+      <td><b>Offre RIEN QUE POUR TOI</b><br><i>(app fermée)</i></td>
+      <td>🔔 BIP urgent<br>"Vite ! 20 sec pour accepter"</td>
+      <td class="no">❌ RIEN<br>(le poll marche pas app fermée)</td>
+    </tr>
+    <tr>
+      <td><b>Offre RIEN QUE POUR TOI</b><br><i>(app ouverte)</i></td>
+      <td>Carte au milieu + compte à rebours + bip</td>
+      <td class="warn">⚠️ Carte avec timer oui<br>mais sans son</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ==================================================== -->
+<h2 class="red">🚨 Donc 3 choses à coder</h2>
+
+<div class="gap">
+  <p><span class="num">1</span><b>Push notif "Ton annonce a été acceptée"</b></p>
+  <p>Quand un autre chauffeur prend une course que tu as postée<br>
+  <span class="arrow">→</span> Le tel bipe : <i>"Marc a pris ta course Paris → Lyon"</i></p>
+  <p><b>Aujourd'hui :</b> silence total, t'es au courant SEULEMENT en ouvrant l'app.</p>
+</div>
+
+<div class="gap">
+  <p><span class="num">2</span><b>Push notif "Offre exclusive pour toi"</b></p>
+  <p>Quand le serveur t'attribue une course en exclusivité (20-30 sec pour accepter)<br>
+  <span class="arrow">→</span> Le tel bipe : <i>"Course pour toi ! Ouvre vite l'app pour accepter"</i></p>
+  <p><b>Aujourd'hui :</b> tu ne le sais QUE si l'app est déjà ouverte au bon moment.</p>
+</div>
+
+<div class="gap">
+  <p><span class="num">3</span><b>Bannière in-app style WhatsApp</b></p>
+  <p>Quand l'app est ouverte mais que tu n'es PAS sur la carte<br>
+  <span class="arrow">→</span> Une bannière descend du haut, tu cliques, ça t'amène sur la course</p>
+  <p><b>Aujourd'hui :</b> un gros Alert.alert au milieu qui te bloque, peu importe où tu es.</p>
+</div>
+
+<!-- ==================================================== -->
+<h2 class="green">✅ Ce qui MARCHE déjà très bien</h2>
+
+<div class="card green">
+  <ul>
+    <li>🔔 <b>Bip + notif lockscreen</b> pour nouvelle course département (app fermée)</li>
+    <li>🚨 <b>Popup au milieu</b> pour nouvelle course (app ouverte)</li>
+    <li>⏱️ <b>Carte avec compte à rebours</b> pour offre exclusive (app ouverte)</li>
+    <li>🔴 <b>Point rouge + badge</b> sur "Mes courses" → "Annonces"</li>
+    <li>📢 <b>Bannière "X nouveautés"</b> dans l'onglet Annonces</li>
+  </ul>
+</div>
+
+<!-- ==================================================== -->
+<h2>📝 Récap final</h2>
+
+<table>
+  <thead>
+    <tr><th>État</th><th>Quoi</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="ok">✅ Marche</td><td>1 type de push (nouvelle course dept) + popups in-app</td></tr>
+    <tr><td class="warn">⚠️ Visible mais silencieux</td><td>Voyants dans "Mes courses" → "Annonces"</td></tr>
+    <tr><td class="no">❌ Manque</td><td>Push annonce acceptée · Push offre exclusive · Bannière top in-app</td></tr>
+  </tbody>
+</table>
+
+</body>
+</html>

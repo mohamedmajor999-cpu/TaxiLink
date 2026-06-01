@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V6 - Notif nouvelle offre re&ccedil;ue</title>
+  <style>
+    :root {
+      --ink: #0a0a0a; --ink-soft: #6b6b6b; --ink-muted: #9a9a9a;
+      --bg: #ffffff; --line: #ececec;
+      --brand: #ffd23f; --accent: #1a1a1a;
+      --success: #16a34a; --danger: #dc2626;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px; margin: 40px auto;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink); z-index: 30;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    /* Ecran de fond (carte) attenue */
+    .bg-screen {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 30%, #eef3ee 0%, #d8e4d6 100%);
+    }
+    .bg-screen::before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(0deg, rgba(120,150,120,0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,150,120,0.18) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    .road { position: absolute; background: #fff; }
+    .road.h1 { top: 200px; left: -20px; right: -20px; height: 12px; transform: rotate(-2deg); }
+
+    /* Backdrop overlay */
+    .backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(2px);
+      z-index: 20;
+    }
+
+    /* Modal centre */
+    .modal {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 340px;
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px 22px 22px;
+      z-index: 25;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+      animation: pop 0.3s ease-out;
+    }
+    @keyframes pop {
+      from { transform: translate(-50%, -50%) scale(0.92); opacity: 0; }
+      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .modal-top {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 18px;
+    }
+    .avatar-circle {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; font-weight: 900;
+      color: var(--ink);
+      position: relative;
+      flex-shrink: 0;
+    }
+    .avatar-circle .group-tag {
+      position: absolute; bottom: -2px; right: -2px;
+      background: #1e40af;
+      color: #fff;
+      font-size: 9px; font-weight: 800;
+      padding: 2px 5px; border-radius: 5px;
+      letter-spacing: 0.3px;
+      border: 2px solid #fff;
+    }
+    .modal-name { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; }
+    .modal-sub {
+      font-size: 12px; color: var(--ink-soft);
+      margin-top: 2px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .modal-sub .star { color: #f59e0b; font-weight: 800; }
+    .modal-sub .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-muted); }
+
+    .modal-msg {
+      font-size: 14.5px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+    .modal-msg b { font-weight: 800; }
+
+    /* Card mini-mission */
+    .mini-mission {
+      background: #f9f9f9;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+    .mini-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px;
+    }
+    .tag {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.4px;
+      padding: 3px 7px; border-radius: 5px;
+    }
+    .tag.cpam { background: #dbeafe; color: #1e40af; }
+    .mini-price {
+      font-size: 18px; font-weight: 900; letter-spacing: -0.5px;
+    }
+    .mini-trip { display: flex; gap: 10px; }
+    .mini-trip .dots { display: flex; flex-direction: column; align-items: center; padding-top: 5px; }
+    .mini-trip .dots .a, .mini-trip .dots .b { width: 7px; height: 7px; border-radius: 50%; background: #0a0a0a; }
+    .mini-trip .dots .b { background: #fff; border: 1.5px solid #0a0a0a; }
+    .mini-trip .dots .line { width: 2px; flex: 1; min-height: 14px; background: #d4d4d4; margin: 2px 0; }
+    .mini-trip .text .l1 { font-size: 13px; font-weight: 700; letter-spacing: -0.1px; }
+    .mini-trip .text .l2 { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+    .mini-trip .text .row1 { margin-bottom: 12px; }
+
+    /* Actions */
+    .modal-actions {
+      display: flex; gap: 10px;
+    }
+    .modal-btn {
+      flex: 1; height: 48px;
+      border-radius: 14px;
+      font-size: 14.5px; font-weight: 800;
+      border: 0;
+      display: flex; align-items: center; justify-content: center;
+      letter-spacing: -0.2px;
+    }
+    .modal-btn.refuse {
+      background: #f3f3f3;
+      color: var(--ink);
+    }
+    .modal-btn.accept {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .modal-footer {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 11.5px;
+      color: var(--ink-muted);
+    }
+    .modal-footer b { color: var(--ink); font-weight: 700; }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000; z-index: 40;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="bg-screen">
+      <div class="road h1"></div>
+    </div>
+
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="backdrop"></div>
+
+    <div class="modal">
+      <div class="modal-top">
+        <div class="avatar-circle">
+          KL
+          <span class="group-tag">CPAM13</span>
+        </div>
+        <div>
+          <div class="modal-name">Karim L.</div>
+          <div class="modal-sub">
+            <span class="star">★ 4,9</span>
+            <span class="dot"></span>
+            <span>3 courses partag&eacute;es</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-msg">
+        <b>Nouvelle offre</b> sur ton annonce post&eacute;e. Karim veut prendre cette course.
+      </div>
+
+      <div class="mini-mission">
+        <div class="mini-head">
+          <span class="tag cpam">CPAM</span>
+          <span class="mini-price">61 &euro;</span>
+        </div>
+        <div class="mini-trip">
+          <div class="dots">
+            <div class="a"></div>
+            <div class="line"></div>
+            <div class="b"></div>
+          </div>
+          <div class="text">
+            <div class="row1">
+              <div class="l1">H&ocirc;pital Nord</div>
+              <div class="l2">Demain 14h30</div>
+            </div>
+            <div>
+              <div class="l1">Aubagne centre</div>
+              <div class="l2">14 km &middot; Mme M.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn refuse">Refuser</button>
+        <button class="modal-btn accept">Accepter</button>
+      </div>
+
+      <div class="modal-footer">
+        2 autres offres re&ccedil;ues &middot; <b>voir toutes les offres</b>
+      </div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

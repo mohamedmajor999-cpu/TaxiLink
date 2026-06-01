@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V6 - Mes courses</title>
+  <style>
+    :root {
+      --ink: #0a0a0a; --ink-soft: #6b6b6b; --ink-muted: #9a9a9a;
+      --bg: #f7f7f7; --surface: #ffffff; --line: #ececec;
+      --brand: #ffd23f; --accent: #1a1a1a; --success: #16a34a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #1c1c1c; color: var(--ink);
+    }
+    .phone {
+      width: 390px; height: 844px; margin: 40px auto;
+      background: var(--bg); border-radius: 44px;
+      overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 8px #2a2a2a, 0 0 0 9px #555;
+    }
+    .statusbar {
+      position: absolute; top: 0; left: 0; right: 0; height: 50px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px;
+      font-size: 14px; font-weight: 700; color: var(--ink); z-index: 30;
+    }
+    .statusbar .right { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+
+    .scroll { position: absolute; inset: 50px 0 90px 0; overflow: hidden; }
+
+    /* Header : titre + icône annonces avec badge */
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px 4px;
+    }
+    .topbar h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.8px; }
+    .ic-ads {
+      position: relative;
+      width: 42px; height: 42px; border-radius: 12px;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--line);
+    }
+    .ic-ads .badge {
+      position: absolute; top: -4px; right: -4px;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      border-radius: 9px; background: #dc2626;
+      color: #fff; font-size: 10px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--bg);
+    }
+
+    .sub-date {
+      padding: 0 20px 14px;
+      font-size: 13px; color: var(--ink-soft);
+    }
+
+    /* SECTION HERO EN COURS - style screenshot */
+    .hero-section {
+      padding: 0 16px 14px;
+    }
+    .section-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; font-weight: 800; color: var(--ink-soft);
+      letter-spacing: 1.4px;
+      margin: 0 4px 10px;
+    }
+    .section-label .live {
+      color: var(--success);
+      letter-spacing: 0; text-transform: none;
+      font-size: 13.5px; font-weight: 700;
+    }
+
+    /* Hero card BLANCHE comme screenshot */
+    .hero-card {
+      background: var(--surface);
+      border-radius: 22px;
+      padding: 18px 18px 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
+    }
+    .hero-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #ecfdf5; color: #065f46;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+      padding: 5px 11px; border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    .hero-status .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.18);
+    }
+
+    .hero-trip {
+      display: flex; gap: 14px; align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .trip-dots { display: flex; flex-direction: column; align-items: center; padding-top: 7px; }
+    .trip-dots .a, .trip-dots .b { width: 11px; height: 11px; border-radius: 50%; background: #0a0a0a; }
+    .trip-dots .b { background: #fff; border: 2.5px solid #0a0a0a; }
+    .trip-dots .line { width: 2px; flex: 1; min-height: 28px; background: #d4d4d4; margin: 4px 0; }
+    .trip-text { flex: 1; min-width: 0; }
+    .trip-text .l1 { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+    .trip-text .l2 { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+    .trip-text .row1 { margin-bottom: 22px; }
+
+    .hero-meta-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 0 0;
+      border-top: 1px solid var(--line);
+    }
+    .hero-meta { display: flex; gap: 26px; }
+    .hero-meta .v { font-size: 14.5px; font-weight: 800; }
+    .hero-meta .k {
+      font-size: 10.5px; font-weight: 700; color: var(--ink-soft);
+      letter-spacing: 0.4px; text-transform: uppercase; margin-top: 2px;
+    }
+
+    /* CTA Naviguer noir plein */
+    .hero-cta {
+      width: 100%;
+      height: 54px;
+      background: var(--accent); color: #fff;
+      border: 0; border-radius: 16px;
+      font-size: 16px; font-weight: 800;
+      letter-spacing: -0.2px;
+      margin-top: 14px;
+    }
+
+    /* BOUTON ACCES ANNONCES POSTEES - visible et evident */
+    .ads-banner {
+      display: flex; align-items: center; gap: 12px;
+      margin: 0 16px 14px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+    .ads-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: rgba(255,210,63,0.15);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .ads-icon::after {
+      content: "2"; position: absolute; top: -4px; right: -4px;
+      width: 18px; height: 18px; border-radius: 9px;
+      background: #dc2626; color: #fff;
+      font-size: 10px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .ads-body { flex: 1; min-width: 0; }
+    .ads-body .t { font-size: 14px; font-weight: 800; }
+    .ads-body .s { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+    .ads-chev { color: var(--ink-muted); }
+
+    /* Date strip swipeable */
+    .day-strip-wrap {
+      padding: 4px 0 4px;
+    }
+    .day-strip-label {
+      padding: 0 20px 8px;
+      font-size: 10.5px; font-weight: 800;
+      color: var(--ink-soft); letter-spacing: 1.2px;
+    }
+    .day-strip {
+      display: flex; gap: 6px;
+      padding: 0 20px 14px;
+      overflow-x: auto;
+    }
+    .day-strip::-webkit-scrollbar { display: none; }
+    .day-chip {
+      flex: 0 0 54px;
+      height: 66px;
+      border-radius: 14px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; position: relative;
+    }
+    .day-chip .dow {
+      font-size: 10px; font-weight: 800; color: var(--ink-soft); letter-spacing: 0.4px;
+    }
+    .day-chip .d { font-size: 18px; font-weight: 900; letter-spacing: -0.3px; }
+    .day-chip .dot {
+      position: absolute; bottom: 8px;
+      width: 4px; height: 4px; border-radius: 50%; background: var(--ink-muted);
+    }
+    .day-chip.active { background: var(--accent); color: #fff; border-color: transparent; }
+    .day-chip.active .dow, .day-chip.active .d { color: #fff; }
+    .day-chip.active .dot { background: var(--brand); }
+
+    /* Liste Uber Driver */
+    .list-wrap {
+      background: var(--surface);
+      margin: 0 16px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .day-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 14px 18px 8px;
+    }
+    .day-header .dt {
+      font-size: 10.5px; font-weight: 800;
+      color: var(--ink-soft); letter-spacing: 1.2px; text-transform: uppercase;
+    }
+    .day-header .sum { font-size: 13px; font-weight: 800; color: var(--ink); }
+    .row {
+      display: flex; gap: 14px; align-items: center;
+      padding: 12px 18px;
+      border-top: 1px solid #f4f4f4;
+    }
+    .row-time { width: 46px; }
+    .row-time .h { font-size: 15px; font-weight: 900; letter-spacing: -0.4px; }
+    .row-body { flex: 1; min-width: 0; }
+    .row-route { font-size: 13.5px; font-weight: 700; letter-spacing: -0.2px; }
+    .row-route .arr { font-size: 11px; color: var(--ink-muted); font-weight: 800; }
+    .row-sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+    .row-fare {
+      font-size: 15px; font-weight: 900; letter-spacing: -0.4px; text-align: right;
+    }
+    .row-fare .sm {
+      font-size: 10px; font-weight: 700; color: var(--ink-muted);
+      margin-top: 1px; letter-spacing: 0.3px;
+    }
+    .row-fare .sm.cpam { color: #1e40af; }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 90px; background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-around; align-items: center;
+      padding-bottom: 22px; z-index: 10;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 10.5px; font-weight: 700; color: var(--ink-muted); flex: 1;
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item.active svg { stroke: var(--ink); }
+    .nav-item svg { width: 22px; height: 22px; stroke: var(--ink-muted); }
+    .nav-fab-slot { width: 64px; }
+    .fab-poster {
+      position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 60px; border-radius: 20px;
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 24px rgba(255,210,63,0.5), 0 0 0 4px #fff;
+      z-index: 12;
+    }
+    .fab-poster svg { width: 28px; height: 28px; }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px; background: #000; z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="scroll">
+      <div class="topbar">
+        <h1>Mes courses</h1>
+        <div class="ic-ads" title="Mes annonces postées">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.3" stroke-linecap="round" viewBox="0 0 24 24" width="20" height="20">
+            <path d="M3 11l18-7v16L3 13v-2z"/>
+            <path d="M11 19l2-2"/>
+          </svg>
+          <span class="badge">2</span>
+        </div>
+      </div>
+      <div class="sub-date">Lundi 18 mai &middot; 6 courses &middot; 184 &euro; gagn&eacute;</div>
+
+      <!-- HERO EN COURS - style screenshot -->
+      <div class="hero-section">
+        <div class="section-label">
+          <span>EN COURS</span>
+          <span class="live">Patient &agrave; bord</span>
+        </div>
+
+        <div class="hero-card">
+          <span class="hero-status">
+            <span class="dot"></span>
+            CPAM &middot; TRAJET EN COURS
+          </span>
+
+          <div class="hero-trip">
+            <div class="trip-dots">
+              <div class="a"></div>
+              <div class="line"></div>
+              <div class="b"></div>
+            </div>
+            <div class="trip-text">
+              <div class="row1">
+                <div class="l1">H&ocirc;pital Nord</div>
+                <div class="l2">Pris en charge &agrave; 14h12</div>
+              </div>
+              <div>
+                <div class="l1">Aubagne centre</div>
+                <div class="l2">Arriv&eacute;e pr&eacute;vue 14h41 &middot; 14 km</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-meta-row">
+            <div class="hero-meta">
+              <div>
+                <div class="v">61 &euro;</div>
+                <div class="k">COURSE</div>
+              </div>
+              <div>
+                <div class="v">Mme M.</div>
+                <div class="k">PATIENT</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="hero-cta">Naviguer &middot; 22 min</button>
+        </div>
+      </div>
+
+      <!-- BANNER ACCES ANNONCES POSTEES -->
+      <div class="ads-banner">
+        <div class="ads-icon">
+          <svg fill="none" stroke="#0a0a0a" stroke-width="2.3" stroke-linecap="round" viewBox="0 0 24 24" width="20" height="20">
+            <path d="M3 11l18-7v16L3 13v-2z"/>
+            <path d="M11 19l2-2"/>
+          </svg>
+        </div>
+        <div class="ads-body">
+          <div class="t">Mes annonces post&eacute;es</div>
+          <div class="s">3 actives &middot; 2 nouvelles offres re&ccedil;ues</div>
+        </div>
+        <div class="ads-chev">
+          <svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" width="18" height="18"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- Date strip -->
+      <div class="day-strip-wrap">
+        <div class="day-strip-label">CHANGER DE JOUR</div>
+        <div class="day-strip">
+          <div class="day-chip">
+            <div class="dow">SAM</div>
+            <div class="d">16</div>
+            <div class="dot"></div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">DIM</div>
+            <div class="d">17</div>
+          </div>
+          <div class="day-chip active">
+            <div class="dow">LUN</div>
+            <div class="d">18</div>
+            <div class="dot"></div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">MAR</div>
+            <div class="d">19</div>
+            <div class="dot"></div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">MER</div>
+            <div class="d">20</div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">JEU</div>
+            <div class="d">21</div>
+            <div class="dot"></div>
+          </div>
+          <div class="day-chip">
+            <div class="dow">VEN</div>
+            <div class="d">22</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liste Uber style -->
+      <div class="list-wrap">
+        <div class="day-header">
+          <div class="dt">&Agrave; VENIR &middot; 2</div>
+          <div class="sum">70 &euro;</div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">15:30</div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">Castellane <span class="arr">&rarr;</span> Timone</div>
+            <div class="row-sub">M. Bertrand &middot; 6,1 km</div>
+          </div>
+          <div class="row-fare">
+            28 &euro;
+            <div class="sm cpam">CPAM</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-time">
+            <div class="h">17:15</div>
+          </div>
+          <div class="row-body">
+            <div class="row-route">La Joliette <span class="arr">&rarr;</span> A&eacute;roport</div>
+            <div class="row-sub">M. & Mme Dubois &middot; 8,3 km</div>
+          </div>
+          <div class="row-fare">
+            42 &euro;
+            <div class="sm">PRIV&Eacute;</div>
+          </div>
+        </div>
+
+        <div class="day-header" style="margin-top: 8px;">
+          <div class="dt">R&Eacute;ALIS&Eacute;ES &middot; 3</div>
+          <div class="sum">114 &euro;</div>
+        </div>
+        <div class="row">
+          <div class="row-time"><div class="h">10:15</div></div>
+          <div class="row-body">
+            <div class="row-route">Saint-Charles <span class="arr">&rarr;</span> Aubagne</div>
+            <div class="row-sub">M. L&eacute;on &middot; 12 km &middot; 28 min</div>
+          </div>
+          <div class="row-fare">38 &euro;<div class="sm cpam">CPAM</div></div>
+        </div>
+        <div class="row">
+          <div class="row-time"><div class="h">09:00</div></div>
+          <div class="row-body">
+            <div class="row-route">Timone <span class="arr">&rarr;</span> Saint-Charles</div>
+            <div class="row-sub">M. L&eacute;on &middot; 6 km</div>
+          </div>
+          <div class="row-fare">22 &euro;<div class="sm cpam">CPAM</div></div>
+        </div>
+        <div class="row">
+          <div class="row-time"><div class="h">08:30</div></div>
+          <div class="row-body">
+            <div class="row-route">Castellane <span class="arr">&rarr;</span> Timone</div>
+            <div class="row-sub">Mme Roux &middot; 3,8 km</div>
+          </div>
+          <div class="row-fare">54 &euro;<div class="sm">PRIV&Eacute;</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+        Carte
+      </div>
+      <div class="nav-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Courses
+      </div>
+      <div class="nav-fab-slot"></div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><circle cx="17" cy="9" r="3"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6M14 21c0-2.5 2-4.5 5-4.5s5 2 5 4.5"/></svg>
+        Groupes
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+        Profil
+      </div>
+    </div>
+
+    <div class="fab-poster">
+      <svg fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>

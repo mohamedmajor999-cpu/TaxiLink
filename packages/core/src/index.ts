@@ -17,3 +17,6 @@ export * from './gpsNavigation'
 // Utils carto / routing (cross-platform, pures).
 export * from './decodePolyline'
 export * from './cityProximity'
+
+// Tarifs CPAM (national) + Marseille (prefectoral BDR), holidays, ZUPC.
+export * from './fares'

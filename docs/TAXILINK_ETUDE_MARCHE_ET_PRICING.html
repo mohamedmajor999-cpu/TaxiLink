@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>TaxiLink — Étude de marché partenaires + Stratégie pricing</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a2e;
+    line-height: 1.5;
+    font-size: 10.5pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 24pt;
+    color: #1a1a2e;
+    background: linear-gradient(90deg, #FBBF24 0%, #FDE68A 100%);
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin: 0 0 6px 0;
+    line-height: 1.15;
+  }
+  h2 {
+    font-size: 16pt;
+    color: #fff;
+    background: #1a1a2e;
+    padding: 9px 14px;
+    border-radius: 9px;
+    margin: 22px 0 10px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 12.5pt;
+    color: #1a1a2e;
+    margin: 14px 0 6px 0;
+    border-left: 5px solid #FBBF24;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 11.5pt;
+    color: #1a1a2e;
+    margin: 10px 0 4px 0;
+    page-break-after: avoid;
+  }
+  .subtitle {
+    font-size: 12pt;
+    color: #555;
+    margin: 0 0 6px 4px;
+    font-style: italic;
+  }
+  .meta {
+    font-size: 9.5pt;
+    color: #6B7280;
+    margin: 0 0 18px 4px;
+  }
+  .toc {
+    background: #FEF3C7;
+    border: 2px dashed #FBBF24;
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin: 16px 0 20px 0;
+  }
+  .toc ol { margin: 4px 0 0 18px; padding: 0; }
+  .toc li { margin: 3px 0; }
+  .intro-box {
+    background: #FEF3C7;
+    border-left: 6px solid #FBBF24;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 14px 0;
+  }
+  .callout-good {
+    background: #DCFCE7;
+    border-left: 6px solid #16A34A;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .callout-warn {
+    background: #FEE2E2;
+    border-left: 6px solid #DC2626;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  .callout-info {
+    background: #DBEAFE;
+    border-left: 6px solid #2563EB;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #E5E7EB;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #FAFAFA; }
+  .pill {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 9pt;
+  }
+  .pill-dark {
+    display: inline-block;
+    background: #1a1a2e;
+    color: #FBBF24;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 9pt;
+  }
+  .check { color: #16A34A; font-weight: 700; }
+  .cross { color: #DC2626; font-weight: 700; }
+  .warn { color: #D97706; font-weight: 700; }
+  .footer {
+    margin-top: 24px;
+    padding-top: 10px;
+    border-top: 2px solid #FBBF24;
+    color: #6B7280;
+    font-size: 8.5pt;
+    text-align: center;
+  }
+  ul, ol { padding-left: 20px; margin: 6px 0; }
+  li { margin: 2px 0; }
+  .page-break { page-break-before: always; }
+
+  /* Pricing cards */
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .price-card {
+    border: 2px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 14px 16px;
+    page-break-inside: avoid;
+  }
+  .price-card.highlight {
+    border-color: #FBBF24;
+    background: #FFFBEB;
+    position: relative;
+  }
+  .price-card.highlight::before {
+    content: "RECOMMANDÉ";
+    position: absolute;
+    top: -10px; right: 12px;
+    background: #1a1a2e;
+    color: #FBBF24;
+    font-size: 8pt;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .price-name {
+    font-size: 11pt;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    margin: 0;
+  }
+  .price-tagline {
+    font-size: 9pt;
+    color: #6B7280;
+    margin: 2px 0 8px 0;
+  }
+  .price-amount {
+    font-size: 22pt;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1;
+  }
+  .price-unit {
+    font-size: 10pt;
+    color: #6B7280;
+    margin-left: 4px;
+  }
+  .price-sub {
+    font-size: 8.5pt;
+    color: #6B7280;
+    margin-top: 2px;
+  }
+  .price-features {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+    font-size: 9pt;
+  }
+  .price-features li {
+    padding: 3px 0 3px 18px;
+    position: relative;
+  }
+  .price-features li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #16A34A;
+    font-weight: 800;
+  }
+  .price-features li.no::before {
+    content: "✗";
+    color: #DC2626;
+  }
+
+  /* Summary cards */
+  .summary-card {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+  .summary-card h3 {
+    color: #FBBF24;
+    border: none;
+    padding: 0;
+    margin: 0 0 6px 0;
+    font-size: 12pt;
+  }
+
+  /* Big number */
+  .bignum {
+    font-size: 26pt;
+    font-weight: 800;
+    color: #FBBF24;
+    line-height: 1;
+  }
+
+  .col-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Tiers ranking */
+  .rank {
+    display: inline-block;
+    background: #FBBF24;
+    color: #1a1a2e;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 26px;
+    font-weight: 800;
+    margin-right: 8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Étude de marché &amp; Stratégie pricing TaxiLink</h1>
+<p class="subtitle">Partenaire télétransmission CPAM + grille tarifaire pour tous types de taxis</p>
+<p class="meta">Document interne — Mai 2026 — Pour Mohamed</p>
+
+<div class="toc">
+  <strong>Sommaire</strong>
+  <ol>
+    <li>Synthèse exécutive (1 page)</li>
+    <li>Partie I — Étude de marché des partenaires télétransmission</li>
+    <li>Partie II — Comparatif détaillé des 4 acteurs API</li>
+    <li>Partie III — Stratégie pricing TaxiLink (toutes cibles)</li>
+    <li>Partie IV — Modèle économique sur 3 ans</li>
+    <li>Partie V — Plan d'exécution &amp; calendrier</li>
+  </ol>
+</div>
+
+<h2>1. Synthèse exécutive</h2>
+
+<div class="intro-box">
+  <p style="margin:0;"><strong>En une page</strong> : TaxiLink doit éviter l'agrément CNDA propre (150-300 k€) et passer par un partenaire API. Le meilleur candidat est <strong>Orisha Intellio Éditeurs</strong> (ex-Sephira), qui propose un moteur SESAM-Vitale via API REST en marque blanche, avec hébergement HDS inclus. Côté pricing chauffeur, le marché est verrouillé à <strong>25-35 €/mois illimité</strong>. La stratégie recommandée : 3 plans (Essentiel 19 €, Pro 29,90 €, Premium 49 €) + tarif flotte dégressif + add-ons à fort margin (avance trésorerie 1,5 %, lecteur en location 9 €).</p>
+</div>
+
+<h3>Décisions à prendre cette semaine</h3>
+<table>
+  <tr><th>Sujet</th><th>Décision</th><th>Action</th></tr>
+  <tr><td>Partenaire télétransmission</td><td>Orisha Intellio Éditeurs (1er choix), Olaqin Stellair (2e)</td><td>Demander 2 devis en parallèle</td></tr>
+  <tr><td>Voie SEFi (GIE direct)</td><td>Veille active, pas Phase 1</td><td>S'inscrire Espace Industriels GIE</td></tr>
+  <tr><td>Plans tarifaires</td><td>3 plans + flotte + add-ons</td><td>Créer page pricing avant signature</td></tr>
+  <tr><td>Promo Marseille</td><td>3 mois gratuits Phase 1 (200 chauffeurs)</td><td>Lancer code MARSEILLE2026</td></tr>
+  <tr><td>Lecteur bi-fente</td><td>Revente Olaqin avec marge ou location</td><td>Négocier prix gros</td></tr>
+</table>
+
+<h3>Promesses chiffrées défendables auprès du chauffeur</h3>
+<ul>
+  <li><strong>−40 % de rejets CPAM</strong> grâce au préremplissage GPS + ADRi</li>
+  <li><strong>−15 min/jour</strong> sur les tâches admin (saisie FSE auto, signature mobile)</li>
+  <li><strong>Paiement en 24h</strong> (option Premium avance trésorerie) au lieu de 15-30 jours</li>
+  <li><strong>Une seule app</strong> : courses + GPS + facturation + télétransmission + suivi paiement</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2>2. Partie I — Étude de marché des partenaires télétransmission</h2>
+
+<h3>2.1 Carte du marché — qui fait quoi ?</h3>
+
+<p>J'ai investigué 14 acteurs. Ils se répartissent en 4 catégories :</p>
+
+<table>
+  <tr><th>Catégorie</th><th>Acteurs</th><th>Utilité pour TaxiLink</th></tr>
+  <tr>
+    <td><strong>A. Moteurs API B2B2C</strong></td>
+    <td>Orisha Intellio Éditeurs, Olaqin Stellair, GIE SESAM-Vitale SEFi, CNDA API Lecture Vitale</td>
+    <td><span class="check">PARTENAIRES POTENTIELS</span></td>
+  </tr>
+  <tr>
+    <td><strong>B. Concurrents directs</strong></td>
+    <td>Caree (30 €/mois), Soraya, GESTAV, Lomaco, MK WEB, AKOS TP, Calcul-Taxi-Conventionné, Orisha Intellio Taxi</td>
+    <td><span class="warn">À BENCHMARKER</span> — pas à intégrer</td>
+  </tr>
+  <tr>
+    <td><strong>C. Tiers-payant complémentaire</strong></td>
+    <td>Almerys, Viamedis, SP Santé, iSanté, Cegedim Insurance, B2i Healthcare</td>
+    <td><span class="warn">PHASE 2</span> — pour la part mutuelle</td>
+  </tr>
+  <tr>
+    <td><strong>D. Hors scope</strong></td>
+    <td>Lifen (MSSanté), Doctolib (RDV), Pharmagest (pharmacie), Cegedim Resocom (trop cher)</td>
+    <td><span class="cross">NON</span></td>
+  </tr>
+</table>
+
+<h3>2.2 Top 3 recommandations classées</h3>
+
+<div class="callout-good">
+  <p style="margin:0 0 4px 0;"><span class="rank">1</span><strong>Orisha Intellio Éditeurs</strong> — le meilleur fit fonctionnel</p>
+  <p style="margin:0; font-size:9.5pt;">Moteur SESAM-Vitale via API REST + HDS inclus + ils connaissent déjà le métier taxi (Intellio Taxi en parallèle). Tarif historique Sephira ~25,90 €/mois — modulé sur devis pour les éditeurs.</p>
+</div>
+
+<div class="callout-info">
+  <p style="margin:0 0 4px 0;"><span class="rank">2</span><strong>Olaqin Stellair API</strong> — plan B sécurisé</p>
+  <p style="margin:0; font-size:9.5pt;">Leader historique des lecteurs bi-fente, programme "Éditeur/Revendeur" annoncé. Limite : taxi conventionné pas dans la cible affichée — il faudra demander d'étendre.</p>
+</div>
+
+<div class="callout-warn">
+  <p style="margin:0 0 4px 0;"><span class="rank">3</span><strong>GIE SESAM-Vitale SEFi</strong> — voie noble en Phase 3+</p>
+  <p style="margin:0; font-size:9.5pt;">Service officiel de l'Assurance Maladie pour taxi conventionné, mais <strong>encore en expérimentation depuis avril 2020</strong>. Pas pour le MVP — à mettre en veille active.</p>
+</div>
+
+<h3>2.3 Pourquoi écarter Cegedim ?</h3>
+<p>Cegedim/Resocom ne publie aucun tarif et ses contrats partenaires sont opaques. Coût de mise en route estimé : 25 k€ setup + licences chauffeur élevées. Surtout, leur modèle est plutôt licence revente que API moderne. <strong>Pas adapté à un MVP serré.</strong></p>
+
+<h2>3. Partie II — Comparatif détaillé des 4 acteurs API</h2>
+
+<h3>3.1 Tableau comparatif</h3>
+
+<table>
+  <tr>
+    <th>Critère</th>
+    <th>Orisha Intellio Éditeurs</th>
+    <th>Olaqin Stellair</th>
+    <th>SEFi (GIE)</th>
+    <th>CNDA API Vitale</th>
+  </tr>
+  <tr><td>Fournit FSE</td><td><span class="check">Oui</span></td><td><span class="check">Oui</span></td><td><span class="check">Oui</span></td><td><span class="cross">Non</span></td></tr>
+  <tr><td>Fournit DRE (mutuelles)</td><td><span class="check">Oui</span></td><td><span class="check">Oui</span></td><td><span class="warn">Partiel</span></td><td><span class="cross">Non</span></td></tr>
+  <tr><td>Couverture taxi explicite</td><td><span class="check">Oui</span> (Intellio Taxi)</td><td><span class="cross">Non listé</span></td><td><span class="check">Oui</span> (expé)</td><td><span class="check">Oui</span></td></tr>
+  <tr><td>API REST publique</td><td><span class="check">Oui + doc</span></td><td><span class="warn">Programme Éditeur</span></td><td><span class="warn">Espace Industriels</span></td><td><span class="check">Oui v6.50</span></td></tr>
+  <tr><td>HDS inclus</td><td><span class="check">Oui</span></td><td><span class="check">Oui</span></td><td><span class="check">Oui</span></td><td>N/A</td></tr>
+  <tr><td>BAL SESAM-Vitale gérée</td><td><span class="check">Oui</span></td><td><span class="check">Oui</span></td><td><span class="check">Oui</span></td><td>N/A</td></tr>
+  <tr><td>Téléservices (ADRi, PEC+, CDRi)</td><td><span class="check">Tous</span></td><td><span class="warn">La plupart</span></td><td><span class="check">Tous</span></td><td><span class="warn">Lecture</span></td></tr>
+  <tr><td>Sandbox développeur</td><td><span class="check">Oui</span></td><td>À confirmer</td><td>Sur agrément</td><td><span class="check">Oui</span></td></tr>
+  <tr><td>Tarif setup</td><td>Sur devis</td><td>Sur devis</td><td>Gratuit</td><td>Probablement gratuit</td></tr>
+  <tr><td>Tarif récurrent</td><td>~6-10 €/chauffeur + €/FSE</td><td>~7-12 €/chauffeur + €/FSE</td><td>Pas de commission</td><td>N/A</td></tr>
+  <tr><td>Time-to-integrate</td><td>6-10 sem.</td><td>8-12 sem.</td><td>12-24 mois</td><td>2-4 sem.</td></tr>
+  <tr><td>Conditions revente SaaS</td><td>Cœur de cible</td><td>Programme dédié</td><td>Sur agrément</td><td>Lecture seule</td></tr>
+  <tr><td><strong>Risque cannibalisation</strong></td><td><span class="warn">Oui</span> (Intellio Taxi)</td><td><span class="warn">Modéré</span></td><td>Faible</td><td>Aucun</td></tr>
+</table>
+
+<h3>3.2 Forces et faiblesses détaillées</h3>
+
+<div class="col-2">
+  <div>
+    <h4>Orisha — Forces</h4>
+    <ul>
+      <li>Couvre 100 % du flux (FSE + DRE + tous téléservices)</li>
+      <li>HDS clé en main, BAL gérée → rien à provisionner côté TaxiLink</li>
+      <li>Vrai modèle B2B2C, doc avec exemples de code</li>
+      <li>Sephira : 26 000 pros équipés, 30 ans d'expérience</li>
+      <li>Pas besoin que TaxiLink soit agréé CNDA</li>
+    </ul>
+  </div>
+  <div>
+    <h4>Orisha — Faiblesses</h4>
+    <ul>
+      <li><strong>Concurrent direct via Intellio Taxi</strong> — clause de territoire ou non-cannibalisation à exiger</li>
+      <li>Tarif sur devis, négociation B2B</li>
+      <li>Possiblement contrat exclusif (à éviter)</li>
+      <li>Délai de signature commercial (2-3 semaines mini)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="col-2">
+  <div>
+    <h4>Olaqin — Forces</h4>
+    <ul>
+      <li>Marque rassurante (ex-Ingenico Healthcare)</li>
+      <li>Bundle possible : lecteur bi-fente + API</li>
+      <li>Programme Éditeur/Revendeur explicite</li>
+      <li>Plateforme web Stellair moderne</li>
+    </ul>
+  </div>
+  <div>
+    <h4>Olaqin — Faiblesses</h4>
+    <ul>
+      <li><strong>Taxi conventionné non listé</strong> — extension à négocier</li>
+      <li>Cible historique : médecins, sages-femmes, IDE</li>
+      <li>Doc API moins détaillée publiquement</li>
+      <li>Possiblement plus cher au volume</li>
+    </ul>
+  </div>
+</div>
+
+<h3>3.3 Pièges à éviter dans la négociation contrat</h3>
+
+<table>
+  <tr><th>Piège</th><th>Comment l'éviter</th></tr>
+  <tr><td>Cannibalisation par le partenaire</td><td>Clause de non-démarchage 24-36 mois sur tes utilisateurs + territoire Marseille exclusif</td></tr>
+  <tr><td>Interdiction de revente SaaS</td><td>Exiger explicitement "le partenaire peut commercialiser sous sa marque dans un service SaaS multi-utilisateurs"</td></tr>
+  <tr><td>Frais cachés par téléservice</td><td>Demander un coût total tout inclus pour 1 000 FSE/mois</td></tr>
+  <tr><td>Engagement long</td><td>Plafonner à 12 mois, clause de sortie à 6 mois si SLA non tenus</td></tr>
+  <tr><td>Référencement Ségur / PRO-PS</td><td>Préciser dès le devis ce qui est inclus pour éviter une surprise à 6 mois</td></tr>
+  <tr><td>Hausse tarifaire unilatérale</td><td>Plafonner à IPC + 2 %/an</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2>4. Partie III — Stratégie pricing TaxiLink</h2>
+
+<h3>4.1 Le marché actuel — prix de référence</h3>
+
+<table>
+  <tr><th>Concurrent</th><th>Tarif</th><th>Modèle</th><th>Cible</th></tr>
+  <tr><td>Caree</td><td>30 €/mois</td><td>Forfait illimité</td><td>Indépendant</td></tr>
+  <tr><td>Soraya</td><td>~30-40 €/mois</td><td>Illimité (3 mois gratuits)</td><td>Indépendant + flotte</td></tr>
+  <tr><td>GESTAV TXS</td><td>Annuel non public</td><td>Forfait + modules</td><td>Tous</td></tr>
+  <tr><td>Lomaco / MK WEB</td><td>Pay-per-FSE</td><td>À l'usage</td><td>Petit volume</td></tr>
+  <tr><td>AKOS TP</td><td>Annuel ~360 €</td><td>Forfait</td><td>Indépendant</td></tr>
+  <tr><td>Intellio Taxi (Orisha)</td><td>~25,90 €/mois (historique)</td><td>Forfait</td><td>Indépendant</td></tr>
+</table>
+
+<div class="callout-info">
+  <p style="margin:0;"><strong>Conclusion marché</strong> : la zone "acceptée" par le chauffeur conventionné est <strong>25-35 €/mois</strong> en illimité. Au-delà → résistance forte. En-dessous → perçu comme low-cost.</p>
+</div>
+
+<h3>4.2 Les segments cibles de TaxiLink</h3>
+
+<table>
+  <tr><th>Segment</th><th>Volume Marseille</th><th>Pricing pertinent</th></tr>
+  <tr><td><strong>A. Chauffeur indépendant conventionné</strong> (1 véhicule)</td><td>~700 (60 % du marché)</td><td>Plan ESSENTIEL ou PRO</td></tr>
+  <tr><td><strong>B. Patron petite flotte conventionnée</strong> (2-9 véhicules)</td><td>~400 (33 %)</td><td>Plan PRO + tarif FLOTTE dégressif</td></tr>
+  <tr><td><strong>C. Grosse flotte / centrale</strong> (10+)</td><td>~80 (7 %)</td><td>Contrat sur mesure ENTERPRISE</td></tr>
+  <tr><td><strong>D. Taxi non-conventionné classique</strong></td><td>~600 (Marseille intra)</td><td>Plan LITE (sans télétransmission)</td></tr>
+  <tr><td><strong>E. Étudiant CFA conducteur taxi</strong></td><td>~200/an France</td><td>Tarif jeune chauffeur</td></tr>
+</table>
+
+<h3>4.3 La grille tarifaire recommandée — 3 plans + LITE + flotte</h3>
+
+<div class="price-grid">
+  <div class="price-card">
+    <p class="price-name">Essentiel</p>
+    <p class="price-tagline">Pour démarrer en conventionné</p>
+    <div class="price-amount">19 €<span class="price-unit">/mois</span></div>
+    <p class="price-sub">14,90 €/mois en annuel (−21 %)</p>
+    <ul class="price-features">
+      <li>Courses illimitées</li>
+      <li>GPS + calcul tarif CPAM préfectoral auto</li>
+      <li>Préremplissage feuille de soins</li>
+      <li>Export vers ton SESAM-Vitale existant</li>
+      <li>Signature patient mobile</li>
+      <li>Suivi GPS automatique</li>
+      <li class="no">Télétransmission directe</li>
+      <li class="no">Tiers-payant complémentaire</li>
+      <li class="no">Avance de trésorerie</li>
+    </ul>
+  </div>
+  <div class="price-card highlight">
+    <p class="price-name">Pro</p>
+    <p class="price-tagline">L'offre tout-en-un</p>
+    <div class="price-amount">29,90 €<span class="price-unit">/mois</span></div>
+    <p class="price-sub">22,90 €/mois en annuel (−23 %)</p>
+    <ul class="price-features">
+      <li>Tout l'Essentiel +</li>
+      <li><strong>Télétransmission directe</strong> (250 FSE inclus)</li>
+      <li>Téléservices ADRi, PEC+, CDRi</li>
+      <li>Suivi temps réel paiement CPAM</li>
+      <li>Tableau de bord recettes</li>
+      <li>Scan ordonnance par photo</li>
+      <li>Notifications SMS patient (200/mois)</li>
+      <li class="no">Avance de trésorerie</li>
+      <li class="no">Analytics avancés</li>
+    </ul>
+    <p class="price-sub" style="margin-top:6px;">Au-delà de 250 FSE : 0,20 €/FSE</p>
+  </div>
+  <div class="price-card">
+    <p class="price-name">Premium</p>
+    <p class="price-tagline">Pour les pros qui rament plus</p>
+    <div class="price-amount">49 €<span class="price-unit">/mois</span></div>
+    <p class="price-sub">39 €/mois en annuel (−20 %)</p>
+    <ul class="price-features">
+      <li>Tout le Pro +</li>
+      <li><strong>Télétransmission ILLIMITÉE</strong></li>
+      <li><strong>Avance de trésorerie 24h</strong> (1,5 % par course)</li>
+      <li>Tiers-payant complémentaire (Almerys/Viamedis)</li>
+      <li>Analytics avancés (rentabilité par patient/ligne)</li>
+      <li>Concierge support prioritaire 7j/7</li>
+      <li>SMS illimités</li>
+      <li>Export comptable (Sage, EBP, Cegid)</li>
+      <li>Multi-véhicules jusqu'à 2 inclus</li>
+    </ul>
+  </div>
+</div>
+
+<h3>4.4 Plan LITE — pour les taxis non-conventionnés</h3>
+
+<table>
+  <tr><th>Plan</th><th>Tarif</th><th>Inclus</th><th>Cible</th></tr>
+  <tr>
+    <td><strong>LITE</strong></td>
+    <td><strong>9,90 €/mois</strong> (ou 79 €/an)</td>
+    <td>Courses illimitées + GPS + facturation simple PDF + signature client + paiement CB intégré (1,5 % par transaction)</td>
+    <td>Taxi de ville classique (parisien, marseillais hors CPAM, taxi de gare)</td>
+  </tr>
+</table>
+
+<div class="callout-info">
+  <p style="margin:0;"><strong>Pourquoi LITE existe</strong> : Marseille a 1 800 taxis dont 600 non-conventionnés. Et beaucoup de chauffeurs conventionnés font aussi des courses privées. LITE est l'<strong>entrée de gamme</strong> qui amène le chauffeur dans l'écosystème, puis on l'upgrade au PRO quand il devient conventionné.</p>
+</div>
+
+<h3>4.5 Tarif FLOTTE (patron, multi-chauffeurs)</h3>
+
+<p>Dégressif au volume. Le patron paie pour chaque chauffeur connecté + un dashboard patron offert.</p>
+
+<table>
+  <tr><th>Nombre de chauffeurs</th><th>Tarif PRO/chauffeur/mois</th><th>Tarif PREMIUM/chauffeur/mois</th><th>Économie vs unitaire</th></tr>
+  <tr><td>1</td><td>29,90 €</td><td>49 €</td><td>—</td></tr>
+  <tr><td>2-5</td><td>24,90 €</td><td>42 €</td><td>−17 %</td></tr>
+  <tr><td>6-15</td><td>21,90 €</td><td>37 €</td><td>−27 %</td></tr>
+  <tr><td>16-49</td><td>18,90 €</td><td>32 €</td><td>−37 %</td></tr>
+  <tr><td>50+</td><td>Sur devis ENTERPRISE</td><td>Sur devis</td><td>Négocié</td></tr>
+</table>
+
+<div class="callout-good">
+  <p style="margin:0;"><strong>Bonus dashboard patron</strong> : inclus gratuitement à partir de 2 chauffeurs. Sinon vendu 9,90 €/mois en option pour un indépendant qui sous-traite. Cela évite la double facturation et accélère la rétention.</p>
+</div>
+
+<h3>4.6 Add-ons à fort margin (revenus complémentaires)</h3>
+
+<table>
+  <tr><th>Add-on</th><th>Tarif TaxiLink</th><th>Coût TaxiLink</th><th>Marge</th><th>Cible</th></tr>
+  <tr><td>Avance trésorerie 24h</td><td>1,5 % par course</td><td>~0,5-0,7 % (factor)</td><td>~50 %</td><td>Premium uniquement</td></tr>
+  <tr><td>Lecteur bi-fente Olaqin (achat)</td><td>249 € HT</td><td>~150-180 €</td><td>~30 %</td><td>Tous nouveaux conventionnés</td></tr>
+  <tr><td>Lecteur bi-fente (location)</td><td>9 €/mois</td><td>~3 €/mois (amorti 36 mois)</td><td>~67 %</td><td>Chauffeurs sans capex</td></tr>
+  <tr><td>Tiers-payant complémentaire (sous Pro)</td><td>5 €/mois</td><td>~1,5 € (Almerys API)</td><td>~70 %</td><td>Pro qui veut AMC</td></tr>
+  <tr><td>Pack SMS au-delà du forfait</td><td>0,05 €/SMS</td><td>~0,015 €</td><td>~70 %</td><td>Tous</td></tr>
+  <tr><td>Onboarding premium (1h visio)</td><td>49 € one-shot</td><td>~10 € (CSM)</td><td>~80 %</td><td>Nouveaux</td></tr>
+  <tr><td>Formation comptable 2h</td><td>149 € one-shot</td><td>~30 €</td><td>~80 %</td><td>Annuel</td></tr>
+  <tr><td>Multi-véhicules (Pro)</td><td>9 €/véhicule supplémentaire</td><td>~2 € infra</td><td>~78 %</td><td>Indépendants à 2 voitures</td></tr>
+</table>
+
+<h3>4.7 Promotions de lancement</h3>
+
+<ul>
+  <li><span class="pill">MARSEILLE2026</span> — 3 mois gratuits puis -50 % les 3 mois suivants → cible Phase 1, conversion forte</li>
+  <li><span class="pill">PARRAINAGE</span> — 1 mois offert pour parrain ET filleul → croissance virale dans les stations</li>
+  <li><span class="pill">CFA</span> — 9,90 €/mois pendant 12 mois pour les nouveaux titulaires CCPCT → on capture le chauffeur dès la sortie d'école</li>
+  <li><span class="pill">MIGRATION</span> — 6 mois gratuits si tu nous montres ta facture Caree/Soraya/GESTAV → poach direct des concurrents</li>
+  <li><span class="pill">FLOTTE5</span> — 1 chauffeur gratuit pour 5 payants (rolling) → effet d'aubaine patron</li>
+</ul>
+
+<h3>4.8 Comparaison TaxiLink vs concurrents (à valeur égale)</h3>
+
+<table>
+  <tr><th>Fonction</th><th>Caree (30 €)</th><th>Soraya (~32 €)</th><th>Intellio Taxi (~26 €)</th><th>TaxiLink Pro (29,90 €)</th></tr>
+  <tr><td>Télétransmission CPAM</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>App mobile native</td><td><span class="warn">Web</span></td><td><span class="warn">Web</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>GPS auto-progression course</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>Préremplissage par voix (Web Speech)</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>Marketplace cross-organisations</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>Dashboard patron multi-chauffeurs</td><td><span class="warn">Limité</span></td><td><span class="check">✓</span></td><td><span class="warn">Limité</span></td><td><span class="check">✓</span></td></tr>
+  <tr><td>Avance trésorerie 24h</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span> (Premium)</td></tr>
+  <tr><td>UX moderne (jaune/rounded, mobile-first)</td><td><span class="cross">2010</span></td><td><span class="warn">2018</span></td><td><span class="warn">2020</span></td><td><span class="check">2026</span></td></tr>
+</table>
+
+<div class="callout-good">
+  <p style="margin:0;"><strong>Le pitch en 1 phrase</strong> : "Au prix d'un Caree, tu as Caree + Waze + Stellair + un dashboard de patron et un compte Pôle Emploi accélérateur de paiement — dans une seule app moderne."</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2>5. Partie IV — Modèle économique sur 3 ans</h2>
+
+<h3>5.1 Hypothèses de coûts (par chauffeur Pro)</h3>
+
+<table>
+  <tr><th>Poste</th><th>Coût mensuel par chauffeur Pro</th><th>Source</th></tr>
+  <tr><td>Moteur Orisha (forfait)</td><td>~6 €</td><td>Estimation devis</td></tr>
+  <tr><td>FSE télétransmises (~150/mois moyenne)</td><td>~3 € (150 × 0,02 € marge brute)</td><td>Estimation 0,15-0,20 €/FSE coût</td></tr>
+  <tr><td>Hébergement Vercel + Supabase</td><td>~1,2 €</td><td>Pro tier au volume</td></tr>
+  <tr><td>SMS (200 inclus)</td><td>~3 €</td><td>Brevo 0,015 €/SMS</td></tr>
+  <tr><td>Support / CSM (mutualisé)</td><td>~2 €</td><td>1 CSM pour 200 chauffeurs</td></tr>
+  <tr><td>Stripe / encaissement (1,4 % + 0,25 €)</td><td>~0,7 €</td><td>Stripe France</td></tr>
+  <tr><td>Marketing / acquisition amorti</td><td>~3 €</td><td>CAC 80 € sur 24 mois LTV</td></tr>
+  <tr><td><strong>Total coût Pro</strong></td><td><strong>~19 €/chauffeur/mois</strong></td><td>—</td></tr>
+  <tr><td><strong>Prix de vente Pro</strong></td><td><strong>29,90 €</strong></td><td>—</td></tr>
+  <tr><td><strong>Marge brute Pro</strong></td><td><strong>~10,90 € (37 %)</strong></td><td>Hors add-ons</td></tr>
+</table>
+
+<h3>5.2 Mix de revenus prévisionnel — Année 3 (1 000 chauffeurs Marseille)</h3>
+
+<table>
+  <tr><th>Segment</th><th>Volume</th><th>ARPU mensuel moyen</th><th>MRR</th></tr>
+  <tr><td>Plan Essentiel</td><td>200 (20 %)</td><td>17 € (mix mensuel/annuel)</td><td>3 400 €</td></tr>
+  <tr><td>Plan Pro</td><td>500 (50 %)</td><td>26 € + 4 € add-ons = 30 €</td><td>15 000 €</td></tr>
+  <tr><td>Plan Premium</td><td>180 (18 %)</td><td>44 € + avance tréso ~25 € = 69 €</td><td>12 420 €</td></tr>
+  <tr><td>Plan LITE (non-conventionné)</td><td>80 (8 %)</td><td>9 €</td><td>720 €</td></tr>
+  <tr><td>Flottes (réduction appliquée)</td><td>40 (4 %)</td><td>22 € moyen</td><td>880 €</td></tr>
+  <tr><td><strong>Total MRR</strong></td><td><strong>1 000</strong></td><td><strong>32,40 € moyen</strong></td><td><strong>~32 420 €/mois</strong></td></tr>
+  <tr><td><strong>Total ARR</strong></td><td>—</td><td>—</td><td><strong>~389 k€/an</strong></td></tr>
+</table>
+
+<h3>5.3 Projection 3 ans</h3>
+
+<table>
+  <tr><th>Indicateur</th><th>Année 1 (200 chauffeurs)</th><th>Année 2 (500 chauffeurs)</th><th>Année 3 (1 000 chauffeurs)</th></tr>
+  <tr><td>MRR fin de période</td><td>~6 500 €</td><td>~16 000 €</td><td>~32 400 €</td></tr>
+  <tr><td>ARR</td><td>~78 k€</td><td>~192 k€</td><td>~389 k€</td></tr>
+  <tr><td>Coûts variables (37 %)</td><td>~29 k€</td><td>~71 k€</td><td>~144 k€</td></tr>
+  <tr><td>Marge brute</td><td>~49 k€</td><td>~121 k€</td><td>~245 k€</td></tr>
+  <tr><td>Setup partenaire (one-shot)</td><td>~15 k€</td><td>—</td><td>—</td></tr>
+  <tr><td>Salaires (1 → 3 personnes)</td><td>~45 k€</td><td>~110 k€</td><td>~210 k€</td></tr>
+  <tr><td>Marketing / acquisition</td><td>~12 k€</td><td>~25 k€</td><td>~40 k€</td></tr>
+  <tr><td><strong>Résultat avant impôt</strong></td><td><strong>~−23 k€</strong></td><td><strong>~−14 k€</strong></td><td><strong>~−5 k€ → +5 k€</strong></td></tr>
+</table>
+
+<div class="callout-info">
+  <p style="margin:0;"><strong>Lecture</strong> : break-even atteignable en fin d'année 3 avec 1 000 chauffeurs. Le levier de profit n'est pas le prix mensuel mais les <strong>add-ons (avance trésorerie, lecteur, formation)</strong> qui ont 50-80 % de marge. Plus vite tu pousses Premium, plus vite tu gagnes.</p>
+</div>
+
+<h3>5.4 Sensibilité au prix Pro</h3>
+
+<table>
+  <tr><th>Prix Pro</th><th>Conversion estimée</th><th>MRR Année 3</th><th>Risque concurrence</th></tr>
+  <tr><td>19,90 €</td><td>+30 %</td><td>~28 k€</td><td>Faible (mais marge négative)</td></tr>
+  <tr><td>24,90 €</td><td>+12 %</td><td>~31 k€</td><td>Faible</td></tr>
+  <tr><td><strong>29,90 €</strong> (recommandé)</td><td>Référence</td><td>~32 k€</td><td>Aligné Caree</td></tr>
+  <tr><td>34,90 €</td><td>−15 %</td><td>~30 k€</td><td>Risque perception "cher"</td></tr>
+  <tr><td>39,90 €</td><td>−30 %</td><td>~26 k€</td><td>Élevé sauf si valeur prouvée</td></tr>
+</table>
+
+<h2>6. Partie V — Plan d'exécution &amp; calendrier</h2>
+
+<h3>6.1 Timeline 6 mois</h3>
+
+<table>
+  <tr><th>Phase</th><th>Mois</th><th>Action</th><th>Livrable</th></tr>
+  <tr><td>1. Sourcing</td><td>M1</td><td>Demande devis Orisha + Olaqin en parallèle</td><td>2 propositions chiffrées</td></tr>
+  <tr><td>2. Sélection</td><td>M2</td><td>Comparaison sur 4 axes + négociation termes</td><td>Partenaire choisi + LOI</td></tr>
+  <tr><td>3. Signature</td><td>M2-M3</td><td>Contrat + setup compte développeur + sandbox</td><td>Contrat signé, accès sandbox</td></tr>
+  <tr><td>4. Intégration</td><td>M3-M5</td><td>Dev API REST + tests + agrément complémentaire si besoin</td><td>Module FSE en sandbox</td></tr>
+  <tr><td>5. POC</td><td>M5</td><td>5-10 chauffeurs Marseille en bêta privée</td><td>Métriques rejets, satisfaction</td></tr>
+  <tr><td>6. Lancement</td><td>M6</td><td>Ouverture publique avec promo MARSEILLE2026</td><td>50 premiers payants</td></tr>
+</table>
+
+<h3>6.2 Mails de demande de devis (à envoyer dès demain)</h3>
+
+<h4>Email Orisha Healthcare</h4>
+<div style="background:#F3F4F6; border-radius:8px; padding:12px 16px; font-family:'Courier New',monospace; font-size:9pt; white-space:pre-wrap; margin:8px 0;">À : contact via formulaire healthcare.orisha.com/contact
+Objet : Demande de devis Intellio Éditeurs — TaxiLink (taxi conventionné Marseille)
+
+Bonjour,
+
+Je suis [Mohamed Major], fondateur de TaxiLink, une application SaaS dédiée aux taxis conventionnés CPAM, en lancement à Marseille (cible 200 chauffeurs an 1, 1 000 an 3).
+
+Je souhaite intégrer votre moteur Intellio Éditeurs via API REST pour proposer la télétransmission FSE + DRE en marque blanche dans TaxiLink.
+
+Volume estimé :
+- Année 1 : 200 chauffeurs, ~30 000 FSE/mois
+- Année 3 : 1 000 chauffeurs, ~150 000 FSE/mois
+
+Merci de me communiquer :
+1. Tarif setup et tarif récurrent (forfait + €/FSE)
+2. Conditions de revente SaaS multi-utilisateurs sous notre marque
+3. Clause éventuelle de non-cannibalisation vs Intellio Taxi
+4. Délai d'accès sandbox + accompagnement intégration
+5. Liste des téléservices inclus (ADRi, PEC+, CDRi, SCOR)
+
+Cordialement,
+Mohamed Major — TaxiLink
+mohamed.major999@gmail.com</div>
+
+<h4>Email Olaqin</h4>
+<div style="background:#F3F4F6; border-radius:8px; padding:12px 16px; font-family:'Courier New',monospace; font-size:9pt; white-space:pre-wrap; margin:8px 0;">À : 01 87 15 99 99 — demander commercial Programme Éditeur/Revendeur Stellair
+Objet : Demande de devis Stellair API — TaxiLink (taxi conventionné Marseille)
+
+Bonjour,
+
+Je dirige TaxiLink, app SaaS pour taxis conventionnés CPAM (lancement Marseille). Je m'intéresse à votre programme Éditeur/Revendeur Stellair pour intégrer la télétransmission via API.
+
+Question préalable : votre API supporte-t-elle bien le métier "taxi conventionné" (FSE transport sanitaire), au-delà des libéraux médecins/IDE/sages-femmes ?
+
+Si oui, merci de me communiquer :
+1. Spec API + accès doc développeur
+2. Tarif setup + récurrent
+3. Conditions de revente SaaS
+4. Bundle possible avec lecteur bi-fente (volume 200 unités an 1)
+
+Cordialement,
+Mohamed Major — TaxiLink</div>
+
+<h3>6.3 Critères Go / No-Go pour signer un partenaire</h3>
+
+<table>
+  <tr><th>Critère</th><th>Go si</th><th>No-Go si</th></tr>
+  <tr><td>Coût total / chauffeur / mois</td><td>≤ 12 €</td><td>&gt; 18 €</td></tr>
+  <tr><td>Coût par FSE</td><td>≤ 0,20 €</td><td>&gt; 0,40 €</td></tr>
+  <tr><td>Setup</td><td>≤ 15 k€</td><td>&gt; 30 k€</td></tr>
+  <tr><td>Engagement</td><td>≤ 12 mois renouvelable</td><td>≥ 24 mois ferme</td></tr>
+  <tr><td>Clause non-démarchage</td><td>Oui, 24 mois mini</td><td>Refus</td></tr>
+  <tr><td>Sandbox accessible</td><td>Sous 2 semaines</td><td>≥ 2 mois</td></tr>
+  <tr><td>Doc API</td><td>OpenAPI/Swagger + exemples code</td><td>PDF uniquement</td></tr>
+</table>
+
+<div class="summary-card">
+  <h3>Action immédiate</h3>
+  <p style="margin:0;">Cette semaine : envoyer les 2 mails de devis ci-dessus. Sous 4 semaines : avoir les 2 propositions sur la table. Sous 6 semaines : signer le partenaire choisi. Sous 6 mois : 50 premiers chauffeurs payants à Marseille.</p>
+</div>
+
+<div class="footer">
+  <p><strong>TaxiLink</strong> — Étude marché &amp; pricing — Mai 2026 — Document interne pour Mohamed Major<br>
+  Sources : healthcare.orisha.com · stellair.olaqin.fr · sesam-vitale.fr · cnda.ameli.fr · caree.fr · soraya.fr · gestav.com</p>
+</div>
+
+</body>
+</html>

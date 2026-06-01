@@ -1,6 +1,7 @@
 // Google Place Details (New) — resout placeId → coords, avec cache LRU 30j.
 
 import { createPersistedLru } from './lib/persistedLru'
+import { getGoogleProxyClient } from './lib/googleProxy'
 
 const ENDPOINT = 'https://places.googleapis.com/v1/places'
 const TTL_MS = 30 * 24 * 60 * 60 * 1000
@@ -42,35 +43,44 @@ export async function resolveGooglePlace(
   const cached = cache.get(placeId)
   if (cached) return cached
   const key = getKey()
-  if (!key) return null
+  const proxy = getGoogleProxyClient()
+  if (!key && !proxy) return null
 
-  const url = sessionToken
-    ? `${ENDPOINT}/${encodeURIComponent(placeId)}?sessionToken=${encodeURIComponent(sessionToken)}`
-    : `${ENDPOINT}/${encodeURIComponent(placeId)}`
+  let json: { location?: { latitude?: number; longitude?: number }; formattedAddress?: string }
+  if (proxy) {
+    try {
+      json = (await proxy('place_details', { placeId }, signal)) as typeof json
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') throw err
+      return null
+    }
+  } else {
+    if (!key) return null
+    const url = sessionToken
+      ? `${ENDPOINT}/${encodeURIComponent(placeId)}?sessionToken=${encodeURIComponent(sessionToken)}`
+      : `${ENDPOINT}/${encodeURIComponent(placeId)}`
 
-  let res: Response
-  try {
-    res = await fetch(url, {
-      signal,
-      headers: {
-        'X-Goog-Api-Key': key,
-        'X-Goog-FieldMask': 'location,formattedAddress',
-      },
-    })
-  } catch (err) {
-    if ((err as Error).name === 'AbortError') throw err
-    return null
-  }
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => '')
-    console.warn(`[resolveGooglePlace] ${res.status} ${res.statusText}`, errBody.slice(0, 500))
-    return null
+    let res: Response
+    try {
+      res = await fetch(url, {
+        signal,
+        headers: {
+          'X-Goog-Api-Key': key,
+          'X-Goog-FieldMask': 'location,formattedAddress',
+        },
+      })
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') throw err
+      return null
+    }
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '')
+      console.warn(`[resolveGooglePlace] ${res.status} ${res.statusText}`, errBody.slice(0, 500))
+      return null
+    }
+    json = (await res.json()) as typeof json
   }
 
-  const json = (await res.json()) as {
-    location?: { latitude?: number; longitude?: number }
-    formattedAddress?: string
-  }
   const lat = json.location?.latitude
   const lng = json.location?.longitude
   if (typeof lat !== 'number' || typeof lng !== 'number') return null

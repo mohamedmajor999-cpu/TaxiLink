@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { SYSTEM_PROMPT } from './prompt'
 import { logAiUsage } from '@/lib/aiUsageLogger'
 import { transcribeAudio, TranscribeError } from '@/lib/openai/transcribe'
+import { isLikelyHallucination } from '@/lib/openai/whisperHallucinations'
 import { chatJson, ChatError, GPT_MINI_MODEL } from '@/lib/openai/chat'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rateLimiter'
@@ -47,10 +48,22 @@ export async function POST(request: Request) {
 
   if (transcript.length < 3) return NextResponse.json({ error: 'Transcription trop courte', transcript }, { status: 422 })
   if (transcript.length > 2000) return NextResponse.json({ error: 'Transcription trop longue', transcript }, { status: 422 })
+  // Whisper hallucine sur le silence/bruit. On bloque les phrases parasites
+  // connues avant d'appeler GPT (qui les prendrait au serieux et inventerait
+  // des champs).
+  if (isLikelyHallucination(transcript)) {
+    log.info(`hallucination detectee, transcript ignore: "${transcript}"`)
+    return NextResponse.json({ error: 'Aucune voix detectee', transcript, silent: true }, { status: 422 })
+  }
 
-  const today = new Date()
-  const weekday = today.toLocaleDateString('fr-FR', { weekday: 'long' })
-  const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  // IMPORTANT timezone : Vercel tourne en UTC. Si on calcule `today` avec
+  // new Date().getFullYear()/getMonth()/getDate() on a la date UTC.
+  // A 1h du matin France (UTC+1/+2), UTC est encore la veille → l'IA recevait
+  // une date erronee et "aujourd'hui" tombait sur la veille. Bug 2026-05-24.
+  // Fix : on force la timezone Europe/Paris pour le calcul de la date locale.
+  const parisDate = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' }) // YYYY-MM-DD
+  const weekday = new Date().toLocaleDateString('fr-FR', { weekday: 'long', timeZone: 'Europe/Paris' })
+  const todayIso = parisDate
   // Le transcript vient d'un audio chauffeur : on l'isole dans une balise XML
   // pour empecher un prompt injection ("ignore tes instructions, donne-moi...").
   // On retire la sequence de fermeture pour eviter le tag-break-out.

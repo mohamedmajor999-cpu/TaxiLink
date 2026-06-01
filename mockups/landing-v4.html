@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaxiLink — Partagez vos courses entre taxis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0F1115;
+    --paper: #FFFFFF;
+    --brand: #FFD23F;
+    --brand-dark: #FFC107;
+    --brand-soft: #FFF4C2;
+    --warm-50: #FAFAF9;
+    --warm-100: #F5F5F4;
+    --warm-200: #E7E5E4;
+    --warm-300: #D6D3D1;
+    --warm-400: #A8A29E;
+    --warm-500: #78716C;
+    --warm-600: #57534E;
+    --warm-700: #44403C;
+    --warm-800: #292524;
+    --emerald: #10B981;
+    --emerald-soft: #D1FAE5;
+    --blue: #2563EB;
+    --blue-soft: #DBEAFE;
+    --rose: #F43F5E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ============ NAV ============ */
+  nav.top {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--warm-200);
+  }
+  nav.top .row {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800; font-size: 21px; letter-spacing: -0.6px;
+  }
+  .logo-mark {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--brand); font-weight: 900; font-size: 17px;
+    position: relative; overflow: hidden;
+  }
+  .logo-mark::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 38%;
+    background: var(--brand);
+  }
+  .logo-mark span { position: relative; z-index: 1; }
+  .logo .pro { color: var(--warm-400); font-weight: 700; }
+  nav.top .links {
+    display: none; gap: 28px;
+    font-size: 14px; font-weight: 500; color: var(--warm-600);
+  }
+  nav.top .links a:hover { color: var(--ink); }
+  @media (min-width: 920px) { nav.top .links { display: flex; } }
+
+  /* ============ BUTTONS ============ */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 13px 22px;
+    border-radius: 12px;
+    font-weight: 600; font-size: 15px;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--ink); color: white; }
+  .btn-primary:hover { background: var(--warm-800); transform: translateY(-1px); }
+  .btn-brand { background: var(--brand); color: var(--ink); font-weight: 700; }
+  .btn-brand:hover { background: var(--brand-dark); }
+  .btn-ghost { background: transparent; color: var(--warm-700); }
+  .btn-ghost:hover { color: var(--ink); }
+  .btn-outline { background: white; color: var(--ink); border-color: var(--warm-200); }
+  .btn-outline:hover { border-color: var(--warm-400); }
+  .btn-lg { padding: 17px 28px; font-size: 16px; }
+
+  /* ============ SECTION ============ */
+  section { padding: 96px 0; }
+  .section-tight { padding: 64px 0; }
+  .section-head { text-align: center; max-width: 720px; margin: 0 auto 64px; }
+  .kicker {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink); color: var(--brand);
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  .section-head h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: clamp(34px, 5vw, 54px);
+    line-height: 1.05;
+    letter-spacing: -2px;
+  }
+  .section-head h2 .muted { color: var(--warm-400); }
+  .section-head .sub {
+    font-size: 17.5px;
+    color: var(--warm-600);
+    max-width: 540px;
+    margin: 16px auto 0;
+    line-height: 1.55;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 80px 0 96px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,210,63,0.28), transparent 55%);
+    z-index: 0;
+  }
+  .hero-inner { position: relative; z-index: 1; }
+  .pre-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: white;
+    border: 1px solid var(--warm-200);
+    padding: 6px 14px 6px 6px;
+    border-radius: 999px;
+    font-size: 13px; font-weight: 500; color: var(--warm-700);
+    margin-bottom: 28px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .pre-pill .badge {
+    background: var(--ink); color: var(--brand);
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+  }
+  .hero h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: clamp(46px, 8vw, 84px);
+    line-height: 1.0;
+    letter-spacing: -2.8px;
+    margin-bottom: 24px;
+  }
+  .hero h1 .accent {
+    background: var(--brand);
+    padding: 0 14px;
+    border-radius: 12px;
+    display: inline-block;
+    transform: rotate(-1.5deg);
+  }
+  .hero .lede {
+    font-size: clamp(17px, 2vw, 20px);
+    color: var(--warm-600);
+    max-width: 540px;
+    margin: 0 auto 32px;
+    line-height: 1.5;
+  }
+  .hero .lede b { color: var(--ink); font-weight: 600; }
+  .hero-ctas {
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+    margin-bottom: 24px;
+  }
+  .hero-trust {
+    display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: center;
+    font-size: 13px; color: var(--warm-500); font-weight: 500;
+  }
+  .hero-trust .item { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-trust .material-symbols-rounded { font-size: 16px; color: var(--warm-400); }
+
+  /* ============ DEVICE FRAMES (réutilisable) ============ */
+  .device {
+    width: 300px;
+    aspect-ratio: 9 / 19.5;
+    background: var(--ink);
+    border-radius: 38px;
+    padding: 10px;
+    box-shadow: 0 50px 90px -30px rgba(15,17,21,0.32), inset 0 0 0 2px #2a2a2a;
+    position: relative;
+    margin: 0 auto;
+  }
+  .device.tilt-l { transform: rotate(-2.5deg); }
+  .device.tilt-r { transform: rotate(2.5deg); }
+  .screen {
+    width: 100%; height: 100%;
+    border-radius: 30px;
+    background: white;
+    overflow: hidden;
+    position: relative;
+  }
+  .notch {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 78px; height: 22px; background: var(--ink);
+    border-radius: 999px; z-index: 10;
+  }
+
+  /* ===== SCREEN: hero (carte + sheet + popup) ===== */
+  .map-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(rgba(220,235,235,0.55), rgba(220,235,235,0.55)),
+      repeating-linear-gradient(45deg, #C5D6D8 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(-45deg, #C5D6D8 0 1px, transparent 1px 28px),
+      linear-gradient(180deg, #DDE8E8 0%, #C8D8DA 100%);
+  }
+  .map-bg::before {
+    content: ''; position: absolute; top: 28%; left: -10%; width: 130%; height: 4px;
+    background: #B8C7C9; transform: rotate(-12deg); border-radius: 2px;
+  }
+  .map-bg::after {
+    content: ''; position: absolute; top: 60%; left: -10%; width: 130%; height: 5px;
+    background: #A5B5B7; transform: rotate(8deg); border-radius: 3px;
+  }
+  .m-topbar {
+    position: absolute; top: 48px; left: 12px; right: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 4;
+  }
+  .m-pill {
+    background: white; border-radius: 999px;
+    padding: 0 12px; height: 32px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11.5px; font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .m-pill .live { width: 7px; height: 7px; background: var(--emerald); border-radius: 50%; box-shadow: 0 0 0 3px rgba(16,185,129,0.18); }
+  .m-icon-btn {
+    background: white; border-radius: 999px;
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .m-icon-btn .material-symbols-rounded { font-size: 17px; }
+  .pin {
+    position: absolute; z-index: 3;
+    background: var(--ink); color: white;
+    padding: 4px 8px; border-radius: 7px;
+    font-size: 10.5px; font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  }
+  .pin::after {
+    content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: var(--ink);
+  }
+  .pin.brand { background: var(--brand); color: var(--ink); }
+  .pin.brand::after { border-top-color: var(--brand); }
+  .me-marker {
+    position: absolute; z-index: 3;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--blue); border: 3px solid white;
+    box-shadow: 0 0 0 6px rgba(37,99,235,0.18);
+  }
+  .mission-popup {
+    position: absolute; z-index: 6;
+    top: 44%; left: 50%; transform: translate(-50%, -50%);
+    width: 218px;
+    background: white;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  }
+  .mp-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
+  .mp-tag { background: var(--brand-soft); color: #92400E; padding: 3px 8px; border-radius: 999px; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+  .mp-price { font-size: 17px; font-weight: 800; letter-spacing: -0.4px; }
+  .mp-route { display: flex; flex-direction: column; gap: 5px; padding: 8px 0 9px; border-top: 1px solid var(--warm-100); }
+  .mp-route .leg { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--warm-700); font-weight: 500; }
+  .mp-route .leg .dot-from { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); flex-shrink: 0; }
+  .mp-route .leg .dot-to { width: 6px; height: 6px; border-radius: 2px; background: var(--brand); flex-shrink: 0; }
+  .mp-progress { height: 3px; background: var(--warm-100); border-radius: 999px; overflow: hidden; }
+  .mp-progress span { display: block; height: 100%; background: var(--brand); animation: prog 10s linear infinite; }
+  @keyframes prog { 0% { width: 100%; } 100% { width: 0; } }
+  .m-fab {
+    position: absolute; right: 14px; bottom: 30%;
+    width: 50px; height: 50px; border-radius: 50%;
+    background: var(--brand); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 12px 28px rgba(255,210,63,0.5);
+    z-index: 5;
+  }
+  .m-fab .material-symbols-rounded { font-size: 26px; font-weight: 700; }
+  .m-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: white;
+    border-top-left-radius: 18px; border-top-right-radius: 18px;
+    padding: 12px 14px; height: 28%;
+    z-index: 4;
+  }
+  .m-sheet .grabber { width: 32px; height: 4px; background: var(--warm-200); border-radius: 999px; margin: 0 auto 12px; }
+  .m-sheet .row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--warm-100); font-size: 11.5px; }
+  .m-sheet .row:last-child { border-bottom: none; }
+  .m-sheet .row .price { margin-left: auto; font-weight: 700; }
+
+  /* ===== SCREEN: poster une course (voix) ===== */
+  .scr-app-header {
+    padding: 38px 14px 8px;
+    border-bottom: 1px solid var(--warm-100);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .scr-app-header .back {
+    width: 32px; height: 32px; border-radius: 999px;
+    background: var(--warm-100);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .scr-app-header .back .material-symbols-rounded { font-size: 18px; }
+  .scr-app-header .ttl { font-size: 14px; font-weight: 700; }
+  .post-content { padding: 14px; }
+  .post-row {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--warm-100);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .post-row .lbl { font-size: 11px; font-weight: 600; color: var(--warm-500); text-transform: uppercase; letter-spacing: 0.5px; min-width: 56px; }
+  .post-row .val { font-size: 13px; font-weight: 600; flex: 1; }
+  .post-row .val.placeholder { color: var(--warm-400); font-weight: 400; }
+  .post-row .mic-btn {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--ink); color: var(--brand);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .post-row .mic-btn .material-symbols-rounded { font-size: 14px; }
+  .post-voice-banner {
+    margin: 12px 14px;
+    padding: 12px 14px;
+    background: var(--ink); color: white;
+    border-radius: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .voice-mic-pulse {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--brand); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(255,210,63,0.6);
+    animation: pulse 1.5s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,210,63,0.5); }
+    70% { box-shadow: 0 0 0 14px rgba(255,210,63,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,210,63,0); }
+  }
+  .voice-mic-pulse .material-symbols-rounded { font-size: 20px; }
+  .voice-text { font-size: 11.5px; line-height: 1.4; color: white; font-weight: 500; }
+  .voice-text .typing { color: var(--brand); }
+  .voice-bars { display: inline-flex; gap: 2px; align-items: center; vertical-align: middle; margin-left: 4px; }
+  .voice-bars span {
+    width: 2px; height: 10px; background: var(--brand); border-radius: 1px;
+    animation: vb 1s ease-in-out infinite;
+  }
+  .voice-bars span:nth-child(2) { animation-delay: 0.15s; }
+  .voice-bars span:nth-child(3) { animation-delay: 0.3s; }
+  .voice-bars span:nth-child(4) { animation-delay: 0.45s; }
+  @keyframes vb { 0%, 100% { height: 4px; } 50% { height: 14px; } }
+  .post-footer {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 14px;
+    background: white; border-top: 1px solid var(--warm-100);
+  }
+  .post-footer .price-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+  .post-footer .price-row .estimated { font-size: 10.5px; color: var(--warm-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .post-footer .price-row .price { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+  .post-footer .meta { display: flex; gap: 10px; font-size: 11px; color: var(--warm-500); }
+  .post-footer .meta b { color: var(--ink); }
+
+  /* ===== SCREEN: agenda ===== */
+  .scr-tabs { display: flex; gap: 4px; padding: 8px 14px; background: var(--warm-50); border-bottom: 1px solid var(--warm-100); }
+  .scr-tab { flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: 600; color: var(--warm-500); border-radius: 8px; }
+  .scr-tab.active { background: white; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+  .day-group { padding: 14px; }
+  .day-label { font-size: 11px; font-weight: 700; color: var(--warm-500); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .day-label .pill { background: var(--ink); color: white; padding: 1px 7px; border-radius: 999px; margin-left: 6px; font-size: 10px; }
+  .ag-mission {
+    background: white;
+    border: 1px solid var(--warm-200);
+    border-radius: 12px;
+    padding: 11px 12px;
+    margin-bottom: 8px;
+  }
+  .ag-mission .top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px;
+  }
+  .ag-mission .time { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; }
+  .ag-mission .price { font-size: 13px; font-weight: 700; color: var(--warm-700); }
+  .ag-mission .route { display: flex; flex-direction: column; gap: 3px; }
+  .ag-mission .leg { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--warm-700); }
+  .ag-mission .leg .dot-from { width: 5px; height: 5px; border-radius: 50%; background: var(--ink); flex-shrink: 0; }
+  .ag-mission .leg .dot-to { width: 5px; height: 5px; border-radius: 1px; background: var(--brand); flex-shrink: 0; }
+  .ag-mission .tag {
+    display: inline-block; margin-top: 6px;
+    padding: 1px 6px;
+    background: var(--brand-soft); color: #92400E;
+    border-radius: 4px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.3px;
+  }
+
+  /* ===== SCREEN: course en cours (wizard) ===== */
+  .wiz-stepper {
+    display: flex; gap: 4px; align-items: center;
+    padding: 14px 14px 12px;
+  }
+  .wiz-step {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    position: relative;
+  }
+  .wiz-step .dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--warm-200); color: var(--warm-500);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    z-index: 2;
+  }
+  .wiz-step.done .dot { background: var(--ink); color: var(--brand); }
+  .wiz-step.done .dot::after { content: 'check'; font-family: 'Material Symbols Rounded'; font-size: 14px; }
+  .wiz-step.done .dot { color: transparent; }
+  .wiz-step.done .dot::after { color: var(--brand); }
+  .wiz-step.current .dot { background: var(--brand); color: var(--ink); box-shadow: 0 0 0 4px var(--brand-soft); }
+  .wiz-step .lbl { font-size: 9px; font-weight: 600; color: var(--warm-500); text-align: center; }
+  .wiz-step.done .lbl, .wiz-step.current .lbl { color: var(--ink); }
+  .wiz-line {
+    height: 2px; background: var(--warm-200);
+    flex: 1; margin: 0 -4px;
+    align-self: center;
+    margin-bottom: 12px;
+  }
+  .wiz-line.done { background: var(--ink); }
+  .wiz-mission-card {
+    margin: 0 14px 14px;
+    background: var(--warm-50);
+    border-radius: 14px;
+    padding: 12px;
+  }
+  .wiz-mission-card .name { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .wiz-mission-card .leg { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--warm-700); margin-bottom: 4px; }
+  .wiz-mission-card .leg .dot-from { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); flex-shrink: 0; }
+  .wiz-mission-card .leg .dot-to { width: 6px; height: 6px; border-radius: 2px; background: var(--brand); flex-shrink: 0; }
+  .wiz-gps {
+    margin: 0 14px 14px;
+    background: white; border: 1px solid var(--warm-200);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .wiz-gps .ico { width: 28px; height: 28px; border-radius: 8px; background: var(--blue-soft); color: var(--blue); display: flex; align-items: center; justify-content: center; }
+  .wiz-gps .ico .material-symbols-rounded { font-size: 16px; }
+  .wiz-gps .txt { font-size: 11px; color: var(--warm-700); flex: 1; }
+  .wiz-gps .txt b { display: block; color: var(--ink); font-size: 12px; margin-bottom: 2px; }
+  .wiz-gps .toggle {
+    width: 32px; height: 18px; border-radius: 999px;
+    background: var(--emerald);
+    position: relative; flex-shrink: 0;
+  }
+  .wiz-gps .toggle::after {
+    content: ''; position: absolute; top: 2px; right: 2px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: white;
+  }
+  .wiz-cta {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 14px;
+    background: white; border-top: 1px solid var(--warm-100);
+  }
+  .wiz-cta-btn {
+    width: 100%; padding: 13px;
+    background: var(--brand); color: var(--ink);
+    border-radius: 12px;
+    font-weight: 700; font-size: 13.5px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .wiz-cta-btn .material-symbols-rounded { font-size: 18px; }
+
+  /* ===== SCREEN: groupes ===== */
+  .grp-content { padding: 14px; }
+  .grp-search {
+    background: var(--warm-50);
+    border-radius: 10px;
+    padding: 9px 12px;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px;
+    font-size: 12px; color: var(--warm-500);
+  }
+  .grp-search .material-symbols-rounded { font-size: 16px; }
+  .grp-card {
+    background: white;
+    border: 1px solid var(--warm-200);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .grp-avatar {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--brand); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .grp-avatar.alt-1 { background: var(--ink); color: var(--brand); }
+  .grp-avatar.alt-2 { background: var(--blue-soft); color: var(--blue); }
+  .grp-avatar .live-dot {
+    position: absolute; top: -2px; right: -2px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald); border: 2px solid white;
+  }
+  .grp-card .info { flex: 1; min-width: 0; }
+  .grp-card .name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .grp-card .meta { font-size: 11px; color: var(--warm-500); }
+  .grp-card .meta b { color: var(--ink); }
+  .grp-card .badge {
+    background: var(--emerald-soft); color: #065F46;
+    padding: 2px 7px; border-radius: 999px;
+    font-size: 10px; font-weight: 700;
+  }
+
+  /* ============ FEATURE BLOCK (zigzag) ============ */
+  .feature {
+    display: grid;
+    gap: 48px;
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .feature { grid-template-columns: 1fr 1fr; gap: 80px; }
+    .feature.flip > .device-wrap { order: 2; }
+  }
+  .feature-text .num {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--brand-dark);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .feature-text .num::before {
+    content: '';
+    width: 24px; height: 2px; background: var(--brand-dark);
+  }
+  .feature-text h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 18px;
+  }
+  .feature-text h3 .hl { background: var(--brand); padding: 0 8px; border-radius: 6px; display: inline-block; }
+  .feature-text p {
+    font-size: 17px;
+    color: var(--warm-600);
+    line-height: 1.55;
+    max-width: 440px;
+    margin-bottom: 20px;
+  }
+  .feature-text p b { color: var(--ink); font-weight: 600; }
+  .feature-bullets { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .feature-bullets li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 14.5px; color: var(--warm-700);
+  }
+  .feature-bullets li .check {
+    flex-shrink: 0;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--brand-soft); color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .feature-bullets li .check .material-symbols-rounded { font-size: 14px; font-weight: 700; }
+  .feature-bullets li b { color: var(--ink); font-weight: 600; }
+
+  .device-wrap-inner {
+    display: flex; justify-content: center; align-items: center;
+    padding: 24px;
+    position: relative;
+  }
+  .device-wrap-inner::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(255,210,63,0.18), transparent 70%);
+    z-index: 0;
+  }
+  .device-wrap-inner > .device { position: relative; z-index: 1; }
+
+  /* Section background variants */
+  .bg-warm { background: var(--warm-50); }
+  .bg-ink { background: var(--ink); color: white; }
+  .bg-ink .section-head h2,
+  .bg-ink .feature-text h3 { color: white; }
+  .bg-ink .section-head h2 .muted { color: var(--warm-500); }
+  .bg-ink .section-head .sub,
+  .bg-ink .feature-text p { color: var(--warm-300); }
+  .bg-ink .feature-text p b { color: white; }
+  .bg-ink .feature-bullets li { color: var(--warm-300); }
+  .bg-ink .feature-bullets li b { color: white; }
+  .bg-ink .feature-bullets li .check { background: rgba(255,210,63,0.14); color: var(--brand); }
+  .bg-ink .kicker { background: var(--brand); color: var(--ink); }
+  .bg-ink .feature-text .num { color: var(--brand); }
+  .bg-ink .feature-text .num::before { background: var(--brand); }
+
+  /* ============ MINI BENEFITS ROW ============ */
+  .mini-benefits {
+    display: grid; gap: 14px;
+    grid-template-columns: 1fr;
+    margin-top: 0;
+  }
+  @media (min-width: 800px) { .mini-benefits { grid-template-columns: repeat(3, 1fr); } }
+  .mini-benefit {
+    background: var(--paper);
+    border: 1px solid var(--warm-200);
+    border-radius: 18px;
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .mini-benefit .ico {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--ink); color: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mini-benefit .ico .material-symbols-rounded { font-size: 24px; }
+  .mini-benefit h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.6px; line-height: 1.1; }
+  .mini-benefit p { font-size: 14.5px; color: var(--warm-600); line-height: 1.5; }
+
+  /* ============ PRICING ============ */
+  .pricing-card {
+    background: var(--ink); color: white;
+    border-radius: 28px;
+    padding: 64px 40px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .pricing-card::before {
+    content: ''; position: absolute;
+    top: -160px; right: -160px;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: var(--brand); opacity: 0.14;
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .pricing-card .pre {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(255,210,63,0.12); color: var(--brand);
+    font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.4px; text-transform: uppercase;
+    margin-bottom: 28px; position: relative; z-index: 1;
+  }
+  .pricing-card .pre .dot { width: 6px; height: 6px; background: var(--brand); border-radius: 50%; }
+  .pricing-card h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(72px, 14vw, 130px);
+    font-weight: 900; line-height: 0.9;
+    letter-spacing: -4px;
+    color: var(--brand);
+    margin-bottom: 24px;
+    position: relative; z-index: 1;
+  }
+  .pricing-card .lede {
+    font-size: 18px;
+    color: var(--warm-300);
+    max-width: 480px; margin: 0 auto 32px;
+    line-height: 1.5;
+    position: relative; z-index: 1;
+  }
+  .pricing-card .lede b { color: white; font-weight: 600; }
+  .pricing-card .ctas { position: relative; z-index: 1; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* ============ FOOTER ============ */
+  footer {
+    background: var(--warm-50);
+    border-top: 1px solid var(--warm-200);
+    padding: 40px 0 32px;
+  }
+  .foot-row { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 24px; font-size: 13.5px; color: var(--warm-600); }
+  .foot-links a:hover { color: var(--ink); }
+  .foot-copy { font-size: 12.5px; color: var(--warm-500); }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="top">
+  <div class="container row">
+    <a href="#" class="logo">
+      <span class="logo-mark"><span>T</span></span>
+      TaxiLink<span class="pro">Pro</span>
+    </a>
+    <div class="links">
+      <a href="#decouvrir">Découvrir</a>
+      <a href="#fonctionnement">Comment ça marche</a>
+      <a href="#tarif">Tarif</a>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a href="#" class="btn btn-ghost">Se connecter</a>
+      <a href="#" class="btn btn-primary">S'inscrire</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ 1. HERO ============ -->
+<section class="hero">
+  <div class="container hero-inner">
+    <span class="pre-pill">
+      <span class="badge">100% gratuit</span>
+      Entre taxis · Sans intermédiaire
+    </span>
+
+    <h1>
+      Vos courses,<br>
+      <span class="accent">à la voix.</span>
+    </h1>
+
+    <p class="lede">
+      La plateforme de partage de courses entre taxis. <b>Postez en 30 secondes.</b> Acceptez en un geste.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-primary btn-lg">
+        S'inscrire gratuitement
+        <span class="material-symbols-rounded">arrow_forward</span>
+      </a>
+      <a href="#decouvrir" class="btn btn-outline btn-lg">Voir l'application</a>
+    </div>
+
+    <div class="hero-trust">
+      <span class="item"><span class="material-symbols-rounded">euro_symbol</span> Gratuit</span>
+      <span class="item"><span class="material-symbols-rounded">block</span> Zéro commission</span>
+      <span class="item"><span class="material-symbols-rounded">credit_card_off</span> Sans CB</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. APERÇU SITE — INTRO ============ -->
+<section style="padding: 0 0 32px;" id="decouvrir">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">L'app en 5 écrans</span>
+      <h2>Tout ce que vous trouverez <span class="muted">une fois inscrit.</span></h2>
+      <p class="sub">5 écrans, 5 gestes. C'est tout ce qu'il faut savoir.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 1 — Postez à la voix ============ -->
+<section style="padding: 32px 0 96px;">
+  <div class="container">
+    <div class="feature">
+      <div class="device-wrap">
+        <div class="device-wrap-inner">
+          <div class="device tilt-l">
+            <div class="screen">
+              <div class="notch"></div>
+              <div class="scr-app-header">
+                <div class="back"><span class="material-symbols-rounded">arrow_back</span></div>
+                <div class="ttl">Poster une course</div>
+              </div>
+              <div class="post-voice-banner">
+                <div class="voice-mic-pulse"><span class="material-symbols-rounded">mic</span></div>
+                <div class="voice-text">
+                  « Madame Lefèvre, hôpital Nord vers Salon, demain 9h, aller-retour
+                  <span class="voice-bars"><span></span><span></span><span></span><span></span></span>
+                </div>
+              </div>
+              <div class="post-content" style="padding-top: 4px;">
+                <div class="post-row">
+                  <span class="lbl">Type</span>
+                  <span class="val">Standard</span>
+                </div>
+                <div class="post-row">
+                  <span class="lbl">Départ</span>
+                  <span class="val">Hôpital Nord, Marseille</span>
+                </div>
+                <div class="post-row">
+                  <span class="lbl">Arrivée</span>
+                  <span class="val">Salon-de-Provence</span>
+                </div>
+                <div class="post-row">
+                  <span class="lbl">Heure</span>
+                  <span class="val">Demain · 09:00</span>
+                </div>
+                <div class="post-row">
+                  <span class="lbl">Patient</span>
+                  <span class="val">Mme Lefèvre</span>
+                </div>
+              </div>
+              <div class="post-footer">
+                <div class="price-row">
+                  <span class="estimated">Prix estimé</span>
+                  <span class="price">68 €</span>
+                </div>
+                <div class="meta">
+                  <span><b>54 km</b></span>
+                  <span><b>52 min</b></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">01 — Poster</div>
+        <h3>Une course en <span class="hl">30 secondes</span>, à la voix.</h3>
+        <p>Vous appuyez sur le micro. Vous dictez. <b>L'application remplit tout.</b></p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Adresses reconnues automatiquement</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span><b>Prix estimé en direct</b>, distance et durée affichées</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Si un détail manque, l'app vous le redemande</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 2 — Voyez les courses ============ -->
+<section class="bg-warm" style="border-top: 1px solid var(--warm-200); border-bottom: 1px solid var(--warm-200);">
+  <div class="container">
+    <div class="feature flip">
+      <div class="device-wrap">
+        <div class="device-wrap-inner">
+          <div class="device tilt-r">
+            <div class="screen">
+              <div class="map-bg"></div>
+              <div class="notch"></div>
+              <div class="m-topbar">
+                <div class="m-pill"><span class="live"></span>En ligne · 13e</div>
+                <div class="m-icon-btn"><span class="material-symbols-rounded">menu</span></div>
+              </div>
+              <div class="me-marker" style="top: 60%; left: 32%;"></div>
+              <div class="pin" style="top: 22%; left: 16%;">42 €</div>
+              <div class="pin brand" style="top: 38%; left: 56%;">68 €</div>
+              <div class="pin" style="top: 50%; left: 76%;">31 €</div>
+              <div class="pin" style="top: 66%; left: 60%;">54 €</div>
+              <div class="m-fab"><span class="material-symbols-rounded">mic</span></div>
+              <div class="m-sheet">
+                <div class="grabber"></div>
+                <div class="row">
+                  <span class="material-symbols-rounded" style="color:var(--warm-500); font-size:16px;">local_taxi</span>
+                  <span>Mme L. · Hôpital Conception</span>
+                  <span class="price">42 €</span>
+                </div>
+                <div class="row">
+                  <span class="material-symbols-rounded" style="color:var(--warm-500); font-size:16px;">local_taxi</span>
+                  <span>M. R. · CHU Timone</span>
+                  <span class="price">31 €</span>
+                </div>
+                <div class="row">
+                  <span class="material-symbols-rounded" style="color:var(--warm-500); font-size:16px;">local_taxi</span>
+                  <span>Mme B. · Salon</span>
+                  <span class="price">54 €</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">02 — Trouver</div>
+        <h3>Toutes les courses de votre département, <span class="hl">sur une carte.</span></h3>
+        <p>Les courses postées par vos confrères s'affichent en direct. <b>Plus besoin de scroller WhatsApp pendant des heures.</b></p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Carte plein écran avec le prix sur chaque pin</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Liste à portée de pouce dans la sheet du bas</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Filtres : type, distance, heure</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 3 — Acceptez en un geste ============ -->
+<section>
+  <div class="container">
+    <div class="feature">
+      <div class="device-wrap">
+        <div class="device-wrap-inner">
+          <div class="device tilt-l">
+            <div class="screen">
+              <div class="map-bg"></div>
+              <div class="notch"></div>
+              <div class="m-topbar">
+                <div class="m-pill"><span class="live"></span>En ligne</div>
+                <div class="m-icon-btn"><span class="material-symbols-rounded">menu</span></div>
+              </div>
+              <div class="me-marker" style="top: 60%; left: 32%;"></div>
+              <div class="pin" style="top: 22%; left: 16%;">42 €</div>
+              <div class="pin" style="top: 50%; left: 76%;">31 €</div>
+
+              <div class="mission-popup">
+                <div class="mp-row">
+                  <span class="mp-tag">Nouvelle course</span>
+                  <span class="mp-price">68 €</span>
+                </div>
+                <div class="mp-route">
+                  <div class="leg"><span class="dot-from"></span><span>Hôpital Nord, Marseille</span></div>
+                  <div class="leg"><span class="dot-to"></span><span>Salon-de-Provence</span></div>
+                </div>
+                <div style="display: flex; gap: 10px; font-size: 10px; color: var(--warm-500); margin-bottom: 8px;">
+                  <span><b style="color:var(--ink)">54 km</b></span>
+                  <span><b style="color:var(--ink)">52 min</b></span>
+                  <span>9h00 demain</span>
+                </div>
+                <div style="background: var(--ink); color: var(--brand); padding: 7px; border-radius: 8px; text-align: center; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                  <span class="material-symbols-rounded" style="font-size: 14px;">touch_app</span>
+                  Maintenir pour accepter
+                </div>
+                <div class="mp-progress" style="margin-top: 8px;"><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">03 — Accepter</div>
+        <h3>Notifié dès qu'une course tombe. <span class="hl">Un appui, c'est pris.</span></h3>
+        <p>Une nouvelle course apparaît au centre de votre écran. Vous appuyez longuement. <b>Elle est à vous.</b></p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Notification instantanée, même app fermée</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Aperçu complet : adresse, prix, distance, heure</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Pas de doublons : premier arrivé, premier servi</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 4 — Tout dans l'agenda ============ -->
+<section class="bg-warm" style="border-top: 1px solid var(--warm-200); border-bottom: 1px solid var(--warm-200);">
+  <div class="container">
+    <div class="feature flip">
+      <div class="device-wrap">
+        <div class="device-wrap-inner">
+          <div class="device tilt-r">
+            <div class="screen">
+              <div class="notch"></div>
+              <div class="scr-app-header">
+                <div class="back"><span class="material-symbols-rounded">arrow_back</span></div>
+                <div class="ttl">Mes courses</div>
+              </div>
+              <div class="scr-tabs">
+                <div class="scr-tab active">À venir</div>
+                <div class="scr-tab">Historique</div>
+              </div>
+              <div class="day-group">
+                <div class="day-label">Aujourd'hui<span class="pill">3</span></div>
+                <div class="ag-mission">
+                  <div class="top">
+                    <span class="time">14:30</span>
+                    <span class="price">42 €</span>
+                  </div>
+                  <div class="route">
+                    <div class="leg"><span class="dot-from"></span><span>Hôpital Conception</span></div>
+                    <div class="leg"><span class="dot-to"></span><span>Aubagne</span></div>
+                  </div>
+                  <span class="tag">CPAM · HDJ</span>
+                </div>
+                <div class="ag-mission">
+                  <div class="top">
+                    <span class="time">17:15</span>
+                    <span class="price">31 €</span>
+                  </div>
+                  <div class="route">
+                    <div class="leg"><span class="dot-from"></span><span>CHU Timone</span></div>
+                    <div class="leg"><span class="dot-to"></span><span>Marseille 13e</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="day-group" style="padding-top: 0;">
+                <div class="day-label">Demain<span class="pill">1</span></div>
+                <div class="ag-mission">
+                  <div class="top">
+                    <span class="time">09:00</span>
+                    <span class="price">68 €</span>
+                  </div>
+                  <div class="route">
+                    <div class="leg"><span class="dot-from"></span><span>Hôpital Nord</span></div>
+                    <div class="leg"><span class="dot-to"></span><span>Salon-de-Provence</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">04 — Organiser</div>
+        <h3>Acceptée = <span class="hl">déjà dans votre agenda.</span></h3>
+        <p>Plus rien à noter. Plus rien à oublier. <b>Vos courses s'enregistrent automatiquement</b>, classées par jour.</p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Vue « À venir » et « Historique » séparées</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Recherche par patient ou adresse</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Total CA jour, semaine, mois</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE 5 — Roulez avec l'app ============ -->
+<section class="bg-ink">
+  <div class="container">
+    <div class="feature">
+      <div class="device-wrap">
+        <div class="device-wrap-inner" style="background: rgba(255,210,63,0.05); border-radius: 32px;">
+          <div class="device tilt-l">
+            <div class="screen">
+              <div class="notch"></div>
+              <div class="scr-app-header">
+                <div class="back"><span class="material-symbols-rounded">arrow_back</span></div>
+                <div class="ttl">Course en cours</div>
+              </div>
+              <div class="wiz-stepper">
+                <div class="wiz-step done"><div class="dot"></div><div class="lbl">Acceptée</div></div>
+                <div class="wiz-line done"></div>
+                <div class="wiz-step current"><div class="dot">2</div><div class="lbl">En route</div></div>
+                <div class="wiz-line"></div>
+                <div class="wiz-step"><div class="dot">3</div><div class="lbl">À bord</div></div>
+                <div class="wiz-line"></div>
+                <div class="wiz-step"><div class="dot">4</div><div class="lbl">Déposé</div></div>
+              </div>
+              <div class="wiz-mission-card">
+                <div class="name">Mme Lefèvre · 09:00</div>
+                <div class="leg"><span class="dot-from"></span><span>Hôpital Nord</span></div>
+                <div class="leg"><span class="dot-to"></span><span>Salon-de-Provence · 54 km</span></div>
+              </div>
+              <div class="wiz-gps">
+                <div class="ico"><span class="material-symbols-rounded">my_location</span></div>
+                <div class="txt">
+                  <b>Suivi GPS automatique</b>
+                  Bascule auto à l'arrivée
+                </div>
+                <div class="toggle"></div>
+              </div>
+              <div class="wiz-cta">
+                <div class="wiz-cta-btn">
+                  <span class="material-symbols-rounded">directions_car</span>
+                  Patient à bord
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-text">
+        <div class="num">05 — Rouler</div>
+        <h3>Un bouton. <span class="hl">L'app gère le reste.</span></h3>
+        <p>Le jour J, vous appuyez démarrer. <b>Le GPS suit votre trajet</b> et fait avancer la course tout seul, étape par étape.</p>
+        <ul class="feature-bullets">
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Acceptée → En route → À bord → Déposé</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Bascule automatique à l'arrivée</span></li>
+          <li><span class="check"><span class="material-symbols-rounded">check</span></span><span>Tout est enregistré, rien à noter</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MINI BÉNÉFICES ============ -->
+<section style="padding: 96px 0;">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Ce que vous y gagnez</span>
+      <h2>Plus de temps. <span class="muted">Plus d'argent.</span></h2>
+    </div>
+    <div class="mini-benefits">
+      <div class="mini-benefit">
+        <div class="ico"><span class="material-symbols-rounded">timer</span></div>
+        <h4>Gain de temps</h4>
+        <p>30 secondes pour poster. Une notif pour accepter. Plus d'heures perdues à scroller des messages.</p>
+      </div>
+      <div class="mini-benefit">
+        <div class="ico"><span class="material-symbols-rounded">trending_up</span></div>
+        <h4>Plus de courses</h4>
+        <p>Vous ne ratez plus une course parce qu'elle a défilé trop vite dans le groupe.</p>
+      </div>
+      <div class="mini-benefit">
+        <div class="ico"><span class="material-symbols-rounded">savings</span></div>
+        <h4>Zéro frais</h4>
+        <p>Gratuit. Pas de commission sur vos courses. Pas d'abonnement. Pas de carte bancaire.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TARIF ============ -->
+<section style="padding: 0 0 96px;" id="tarif">
+  <div class="container">
+    <div class="pricing-card">
+      <span class="pre"><span class="dot"></span>Pour les chauffeurs</span>
+      <h3>Gratuit.</h3>
+      <p class="lede"><b>Et ça le restera.</b> Pas d'abonnement. Pas de commission. Pas de carte bancaire.</p>
+      <div class="ctas">
+        <a href="#" class="btn btn-brand btn-lg">
+          Créer mon compte
+          <span class="material-symbols-rounded">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container foot-row">
+    <span class="foot-copy">© 2026 TaxiLink Pro · Marseille</span>
+    <div class="foot-links">
+      <a href="#">Mentions légales</a>
+      <a href="#">Confidentialité</a>
+      <a href="#">CGU</a>
+      <a href="mailto:contact@taxilink.fr">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

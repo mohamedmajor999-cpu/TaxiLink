@@ -1,0 +1,45 @@
+# Fichiers/dossiers a NE PAS inclure dans le tarball EAS Build.
+# Override .gitignore (EAS prend gitignore par defaut mais on ajoute des exclusions).
+
+# Outils internes Claude Code (contiennent des symlinks Windows qui cassent l'upload).
+.agents/
+.claude/
+
+# Cache build et turbo
+.turbo/
+.next/
+.expo/
+.cache/
+
+# Deploy Vercel (web only, inutile pour mobile)
+.vercel/
+
+# Docs / mockups / scripts (n'ont pas leur place dans le build mobile)
+docs/
+mockups/
+scripts/
+
+# Apps web (le build EAS est pour mobile uniquement)
+apps/web/
+
+# Tests / fixtures
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Memoire Claude Code locale (si fichiers attaches au repo par erreur)
+memory/
+
+# Archives PDF generees
+**/*.pdf
+**/*.docx

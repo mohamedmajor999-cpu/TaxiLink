@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>TaxiLink — Table Ronde d'Experts</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1a1a1a;
+    line-height: 1.55;
+    font-size: 11pt;
+    margin: 0;
+  }
+  h1, h2, h3, h4 { color: #0b3d91; line-height: 1.25; }
+  h1 { font-size: 26pt; margin: 0 0 8pt 0; }
+  h2 { font-size: 18pt; border-bottom: 2px solid #0b3d91; padding-bottom: 4pt; margin-top: 28pt; }
+  h3 { font-size: 14pt; margin-top: 18pt; color: #144b9e; }
+  h4 { font-size: 12pt; color: #144b9e; }
+  .cover {
+    text-align: center;
+    padding: 80pt 0;
+    page-break-after: always;
+  }
+  .cover .subtitle { font-size: 14pt; color: #555; font-weight: 300; margin-top: 8pt; }
+  .cover .meta { margin-top: 60pt; color: #777; font-size: 10pt; }
+  .toc { page-break-after: always; }
+  .toc ol { line-height: 2.0; }
+  .participant {
+    border-left: 3px solid #0b3d91;
+    padding: 4pt 10pt;
+    margin: 8pt 0;
+    background: #f4f7fc;
+  }
+  .participant .name { font-weight: 600; color: #0b3d91; }
+  .participant .role { color: #555; font-style: italic; }
+  .exchange {
+    margin: 8pt 0;
+    padding-left: 10pt;
+    border-left: 2px solid #e0e6ef;
+  }
+  .speaker {
+    font-weight: 600;
+    color: #0b3d91;
+  }
+  .speaker.driver { color: #b54708; }
+  .speaker.legal { color: #054f31; }
+  .speaker.invest { color: #6c1d8a; }
+  .speaker.pm { color: #0b3d91; }
+  .speaker.ops { color: #b54708; }
+  .speaker.growth { color: #045b8a; }
+  .speaker.ux { color: #8a4504; }
+  .speaker.tech { color: #054f6e; }
+  .speaker.psycho { color: #6e3b04; }
+  .key-insight {
+    background: #fffbea;
+    border-left: 4px solid #f0b400;
+    padding: 8pt 12pt;
+    margin: 12pt 0;
+  }
+  .key-insight::before {
+    content: "⭐ INSIGHT CLÉ — ";
+    font-weight: 700;
+    color: #8a6200;
+    font-size: 9pt;
+  }
+  .section-intro {
+    background: #f4f7fc;
+    border-radius: 6pt;
+    padding: 12pt 16pt;
+    margin: 12pt 0 16pt 0;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12pt 0;
+    font-size: 10pt;
+  }
+  th, td {
+    border: 1px solid #ccd5e1;
+    padding: 6pt 8pt;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #0b3d91;
+    color: white;
+    font-weight: 600;
+  }
+  tr:nth-child(even) td { background: #f8fafd; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #057a55; font-weight: 600; }
+  .neg { color: #b91c1c; font-weight: 600; }
+  .round {
+    page-break-inside: avoid;
+    margin: 12pt 0;
+  }
+  .verdict {
+    background: #f0f7e6;
+    border: 1px solid #6da127;
+    border-radius: 4pt;
+    padding: 10pt 14pt;
+    margin: 14pt 0;
+  }
+  .verdict h4 { margin-top: 0; color: #4d7c0f; }
+  .warning {
+    background: #fef2f2;
+    border-left: 4px solid #b91c1c;
+    padding: 8pt 12pt;
+    margin: 10pt 0;
+  }
+  .recommendation {
+    background: #ecfeff;
+    border-left: 4px solid #0e7490;
+    padding: 8pt 12pt;
+    margin: 10pt 0;
+  }
+  ul, ol { padding-left: 22pt; }
+  li { margin: 3pt 0; }
+  .page-break { page-break-before: always; }
+  .footer-note { font-size: 9pt; color: #777; font-style: italic; margin-top: 6pt; }
+  hr { border: 0; border-top: 1px solid #ccd5e1; margin: 18pt 0; }
+  blockquote {
+    margin: 10pt 0 10pt 14pt;
+    padding-left: 12pt;
+    border-left: 3px solid #0b3d91;
+    color: #444;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <h1>TaxiLink</h1>
+  <div class="subtitle">Table ronde d'experts — Critique, amélioration et stratégie</div>
+  <div class="subtitle">Analyse stratégique d'une plateforme native d'échange de courses entre taxis,<br>avec ouverture marché hospitalier et modèle d'abonnement chauffeur</div>
+  <div class="meta">
+    Document interne · 18 mai 2026<br>
+    Synthèse d'une session multi-experts<br>
+    Confidentiel
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>Sommaire</h2>
+  <ol>
+    <li>Les participants à la table ronde</li>
+    <li>Contexte du produit TaxiLink</li>
+    <li>Phase 1 — Diagnostic initial (positionnement, voice, notifs, juridique, technique, croissance)</li>
+    <li>Phase 2 — Pivot révélé : plateforme P2P d'échange de courses entre taxis (focus médical)</li>
+    <li>Phase 3 — Stratégie d'acquisition demande grand public (SEM/SEO/GEO) sur "taxi CPAM"</li>
+    <li>Phase 4 — Bascule vers les hôpitaux comme canal de captation</li>
+    <li>Phase 5 — Modèle d'abonnement chauffeur (19.99 / 39.99 / 99.99 €)</li>
+    <li>Conclusion générale</li>
+    <li>Recommandations stratégiques</li>
+    <li>Business Model final retenu</li>
+    <li>Simulation financière 3 ans — CA brut, CA net, valorisation</li>
+  </ol>
+</div>
+
+<!-- PARTICIPANTS -->
+<h2>1. Les participants à la table ronde</h2>
+<p>Neuf experts ont été convoqués pour critiquer, challenger et améliorer le produit TaxiLink. Profils complémentaires couvrant produit, terrain, technique, juridique, opérations, croissance, design, psychologie et investissement.</p>
+
+<div class="participant">
+  <div><span class="name">Camille Roux</span> · <span class="role">Product Manager — ex-Uber Driver App</span></div>
+  <div>6 ans sur l'engagement chauffeurs. Spécialiste pricing tiers, mécanique freemium, rétention.</div>
+</div>
+<div class="participant">
+  <div><span class="name">Yann Bertrand</span> · <span class="role">Chauffeur taxi Marseille — 18 ans d'ancienneté</span></div>
+  <div>Ex-G7, syndicat FNAT. Voix du terrain : ce que les chauffeurs accepteront ou refuseront vraiment.</div>
+</div>
+<div class="participant">
+  <div><span class="name">Sofia Petrov</span> · <span class="role">Staff Mobile Engineer — ex-Bolt</span></div>
+  <div>Spécialiste React Native, Expo SDK, intégrations natives, architecture mobile.</div>
+</div>
+<div class="participant">
+  <div><span class="name">Maxime Dorel</span> · <span class="role">Head of Ops — ex-Heetch</span></div>
+  <div>Dispatcher à l'origine. Connaît la coordination courses, le matching, les SLA opérationnels.</div>
+</div>
+<div class="participant">
+  <div><span class="name">Léa Nguyen</span> · <span class="role">UX Designer mobile — ex-Lyft Driver</span></div>
+  <div>Design d'apps conducteur, contraintes mains-libres, ergonomie en conduite.</div>
+</div>
+<div class="participant">
+  <div><span class="name">Karim Benali</span> · <span class="role">Growth Lead — Free Now (ex-Kapten)</span></div>
+  <div>Acquisition chauffeurs, programmes ambassadeurs, SEM/SEO, calculs LTV/CAC.</div>
+</div>
+<div class="participant">
+  <div><span class="name">Dr. Hélène Vasseur</span> · <span class="role">Psycho-ergonome — distraction au volant</span></div>
+  <div>Sécurité routière, charge cognitive, design comportemental.</div>
+</div>
+<div class="participant">
+  <div><span class="name">Tarek Hadj</span> · <span class="role">Avocat droit du transport — spec ARTT</span></div>
+  <div>Article L.3121, transport conventionné CPAM, RGPD, HDS, marchés publics.</div>
+</div>
+<div class="participant">
+  <div><span class="name">Bruno Saint-Clair</span> · <span class="role">Investisseur seed — 80 dossiers/an</span></div>
+  <div>Ticket moyen 500k€. Unit economics, valorisation, défensibilité, due-diligence.</div>
+</div>
+
+<!-- CONTEXTE -->
+<h2>2. Contexte du produit TaxiLink</h2>
+<div class="section-intro">
+  <p>TaxiLink est une application mobile native (React Native / Expo SDK 54) destinée aux chauffeurs de taxi. Le produit final est une <strong>plateforme d'échange de courses entre chauffeurs</strong>, avec un focus marqué sur le transport médical conventionné CPAM. Aujourd'hui, ces échanges se font sur WhatsApp dans des groupes de 100-200 chauffeurs, ce qui crée un chaos opérationnel (messages non lus pendant la conduite, conflits d'attribution, risque de no-show patient).</p>
+  <p>L'app s'appuie sur : tracking GPS adaptatif background, notifications push 3 canaux, dictée vocale Whisper (parse-voice anti-hallucination), banque de lieux dept 13 (~100 entrées Marseille), mode sombre style Tesla, WebView Leaflet pour la cartographie.</p>
+</div>
+
+<!-- PHASE 1 -->
+<h2>3. Phase 1 — Diagnostic initial</h2>
+
+<h3>Round 1 — Pourquoi un chauffeur marseillais quitterait G7 pour TaxiLink ?</h3>
+
+<div class="exchange">
+  <span class="speaker invest">Bruno Saint-Clair :</span> Vous existez sur quel angle ? G7 a la marque, Uber a le volume, Heetch a le prix. TaxiLink c'est quoi en une phrase ?
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Leur app est driver-only. Pas de passager. La vraie question est : pourquoi un chauffeur installerait TaxiLink en plus de ses 3 autres apps ? Pas à la place.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Je réponds cash. Ce qui me ferait installer une 4ᵉ app c'est UNE chose : qu'elle me trouve des courses que les autres ne me donnent pas. Le reste — interface jolie, mode sombre — m'en bats l'œil.
+</div>
+<div class="exchange">
+  <span class="speaker ops">Maxime Dorel :</span> Et là on a le vrai sujet : liquidité. Sans passagers, qu'est-ce que vous fournissez aux chauffeurs ? Du vide. Chicken-and-egg classique, en pire à Marseille où les stations physiques fonctionnent encore.
+</div>
+<div class="exchange">
+  <span class="speaker growth">Karim Benali :</span> Vous lisez mal. Le mémo parle de parse-voice, banque dept 13, offre exclusive. C'est pas une marketplace, c'est un outil de productivité.
+</div>
+
+<h3>Round 2 — La feature voice : génie ou gadget ?</h3>
+
+<div class="exchange">
+  <span class="speaker ux">Léa Nguyen :</span> Whisper sur mobile pour un chauffeur. Concrètement, quel cas d'usage ?
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Client monte, dit "14 rue Paradis". Aujourd'hui je dois prendre le téléphone, taper, valider. À 60 km/h avec un client qui parle, c'est l'accident. Mais si l'app m'envoie à la mauvaise adresse parce qu'elle a halluciné, je perds le client à vie.
+</div>
+<div class="exchange">
+  <span class="speaker psycho">Dr. Hélène Vasseur :</span> Quatre garde-fous anti-hallucination, c'est bien sur le papier. Sur le terrain, ce qui compte c'est le taux d'erreur résiduelle perçu. Si une fois sur 50 l'adresse est fausse, le chauffeur perd confiance et rebascule en saisie manuelle pour les 49 autres.
+</div>
+<div class="exchange">
+  <span class="speaker tech">Sofia Petrov :</span> Whisper-1 c'est 0.006$/min. 250 courses/jour × 1000 chauffeurs × 30 = 7.5M appels/mois → ~3750$/mois. Soutenable. Mais latence problématique en tunnel Prado-Carénage.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> À Marseille on dit pas "rue Paradis", on dit "Paradis". On dit pas "avenue du Prado", on dit "le Prado". Votre banque de 100 lieux du 13 c'est bien, mais il vous faut la prononciation locale.
+</div>
+<div class="key-insight">
+  L'aliasing local marseillais est un moat potentiel. Aucun concurrent ne fait ça. C'est un différenciateur défendable.
+</div>
+
+<h3>Round 3 — Notifications push : 3 canaux, c'est déjà trop ?</h3>
+
+<div class="exchange">
+  <span class="speaker ops">Maxime Dorel :</span> Chez Heetch on a fait pareil. Au bout de 3 mois, le chauffeur silence tout, et tu perds le canal vital de l'offre exclusive parce qu'il était noyé.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Règle Uber : un canal critique non-désactivable, deux désactivables. La nouvelle course = critique. Le reste = opt-in. Sinon iOS te collera en "Programmed Delivery" et tes pushs arriveront 30 min plus tard.
+</div>
+<div class="exchange">
+  <span class="speaker tech">Sofia Petrov :</span> Sur iOS 17+ il faut Live Activities pour la course en cours. Si pas dans la roadmap, c'est un trou. Un chauffeur iOS qui doit rouvrir l'app à la 3ᵉ fois désinstalle.
+</div>
+
+<h3>Round 4 — Le piège juridique RGPD</h3>
+
+<div class="exchange">
+  <span class="speaker legal">Tarek Hadj :</span> Vous trackez en background, 15s idle / 3s assigned. Intelligent pour la batterie. Mais combien de temps stockez-vous ces données ?
+</div>
+<div class="warning">
+  CNIL, art. 5 RGPD, minimisation. Position d'un travailleur indépendant = donnée sensible. Plus de 30 jours sans finalité documentée = amende au premier contrôle, et risque d'inspection du travail au premier signalement syndical.
+</div>
+<div class="exchange">
+  <span class="speaker legal">Tarek Hadj :</span> Solution : rétention courte (7 jours pour traces, agrégat anonymisé après), opt-out clair, et documentation noire sur blanc de la finalité du tracking idle.
+</div>
+
+<h3>Round 5 — La dette technique WebView Leaflet</h3>
+
+<div class="exchange">
+  <span class="speaker tech">Sofia Petrov :</span> WebView dans une app de conduite c'est un crash-magnet. Garbage collector Android, fuite mémoire en background, le pin saute après une heure de tournée.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Ça arrive ça. Sur une autre app, la nuit ça décrochait. Je croyais que c'était le réseau.
+</div>
+<div class="exchange">
+  <span class="speaker tech">Sofia Petrov :</span> C'est jamais le réseau, c'est la WebView Android qui se fait suspendre. Migration vers react-native-maps ou Mapbox SDK natif obligatoire pour l'écran principal. 5-10 jours de dev, mais c'est de la dette à 30% d'uninstalls.
+</div>
+
+<h3>Round 6 — Croissance : par où attaquer Marseille ?</h3>
+
+<div class="exchange">
+  <span class="speaker growth">Karim Benali :</span> À Marseille, oubliez la pub digitale pour acquérir des taxis. Coûte cher, convertit à 0.5%. Les chauffeurs se parlent. Stations Saint-Charles, aéroport Marignane, Vieux-Port. Growth hacker physique 3 mois sur ces 3 zones = 200 chauffeurs à 50€ de prime parrainage. CAC : 60€ vs 400€ en digital.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Et la prime de parrainage au chauffeur déjà actif, pas au filleul. C'est le parrain qui ramène.
+</div>
+
+<h3>Verdict Phase 1</h3>
+<div class="verdict">
+  <h4>Synthèse initiale</h4>
+  <ul>
+    <li>Pas de business model clair → bloquant pour une seed</li>
+    <li>Risque juridique tracking → corriger sous 30 jours</li>
+    <li>WebView Leaflet → dette qui va éclater</li>
+    <li>Stratégie d'acquisition inexistante → brûlera du cash</li>
+    <li>Décidez ce que vous êtes : outil de productivité (abonnement) ou marketplace (commission)</li>
+  </ul>
+</div>
+
+<!-- PHASE 2 -->
+<div class="page-break"></div>
+<h2>4. Phase 2 — Le pivot révélé : plateforme P2P entre taxis (focus médical)</h2>
+
+<div class="section-intro">
+  <p><strong>Révélation cruciale</strong> : le produit est en réalité une plateforme d'échange de courses <em>entre chauffeurs</em>, notamment pour le médical conventionné CPAM. Aujourd'hui ces échanges se font sur WhatsApp — totalement ingérable en conduite.</p>
+</div>
+
+<h3>Round 8 — "Ah merde, on a tout mal lu"</h3>
+
+<div class="exchange">
+  <span class="speaker invest">Bruno Saint-Clair :</span> Là ça change complètement l'analyse. C'est une place de marché B2B entre taxis avec focus médical conventionné. C'est un autre produit. Et c'est beaucoup plus intéressant.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Je retire la moitié de ce que j'ai dit. Le sujet "pourquoi quitter G7" n'existe plus — vous ne concurrencez pas G7, vous vous installez à côté comme outil métier.
+</div>
+<div class="exchange">
+  <span class="speaker ops">Maxime Dorel :</span> Le problème WhatsApp je le connais. Chez Heetch on l'avait en interne pour la cellule médicale Île-de-France. 150 chauffeurs par groupe, défilement permanent, "qui peut prendre Mme Bernard à 14h Hôpital Nord vers Aubagne ?", 40 messages en 2 minutes, mec qui dit "j'prends" à 14h02 alors qu'un autre a déjà répondu à 14h01. Patient attend. Ingérable.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Je suis dans 4 groupes WhatsApp : conventionnés Marseille Nord, Sud, dialyses Timone, et un général. À 8h y'a 200 messages non lus. Je me gare pour lire, je perds 10 minutes. Et personne ne sait qui a pris quoi.
+</div>
+
+<h3>Round 9 — Le vrai problème, enfin posé</h3>
+
+<div class="exchange">
+  <span class="speaker psycho">Dr. Hélène Vasseur :</span> Distraction au volant pour coordonner une course de remplacement. L'INRS estime qu'un chauffeur qui consulte son téléphone double son risque d'accident sur les 10 secondes suivantes. Vous résolvez ça, vous avez de la valeur sociale documentable.
+</div>
+<div class="exchange">
+  <span class="speaker legal">Tarek Hadj :</span> Transport conventionné CPAM = art. L.322-5 du CSS. Numéro de conventionnement personnel. Quand le chauffeur transmet à un confrère, le confrère doit aussi être conventionné, et la facturation doit être au nom du chauffeur qui a réellement transporté. Aujourd'hui sur WhatsApp c'est à l'arrache, avec fraudes ou refus de prise en charge a posteriori.
+</div>
+<div class="key-insight">
+  Vous tracez l'échange légalement. Horodatage, identité conventionnée du remplaçant, accusé de réception. Vous devenez la preuve juridique.
+</div>
+<div class="exchange">
+  <span class="speaker legal">Tarek Hadj :</span> ~28 000 taxis conventionnés en France sur 60 000 totaux. Concentrés sur zones rurales et péri-urbaines où la CPAM finance dialyse / chimio / rééducation.
+</div>
+<div class="exchange">
+  <span class="speaker growth">Karim Benali :</span> 28 000 × 19€/mois = 530k€/mois si 100% du marché. Pénétration réaliste 3 ans = 25% → 130k€/mois. Beau SaaS B2B niche.
+</div>
+
+<h3>Round 10 — Ce qui doit changer dans le produit immédiatement</h3>
+
+<div class="exchange">
+  <span class="speaker ux">Léa Nguyen :</span> L'écran central change. Ce n'est plus "ma carte avec mes courses". C'est le flux des courses dispo + ma file de courses en cours. Style timeline. Geste de positionnement : un seul tap pour "je prends", un seul tap pour "plus tard", aucun tap si je suis déjà en course.
+</div>
+<div class="exchange">
+  <span class="speaker tech">Sofia Petrov :</span> Votre useGpsStore devient critique pour autre chose. Si vous savez que le chauffeur roule avec un patient, vous coupez les notifs sauf ultra-urgentes.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Et la voice prend un autre sens. Le chauffeur entend "Mme Bernard, Timone à Aubagne, 14h, qui prend ?". Il dit "je prends" à voix haute. C'est ÇA le vrai cas d'usage Whisper.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Ou même mieux : bouton physique sur le volant Bluetooth, ou touche médiane des écouteurs Bluetooth. Comme décrocher un appel.
+</div>
+<div class="key-insight">
+  Conformité conduite mains-libres. Vous pouvez carrément aller chercher la certification du label Sécurité Routière.
+</div>
+
+<h3>Round 11 — Le moat, enfin</h3>
+
+<div class="exchange">
+  <span class="speaker growth">Karim Benali :</span> Les groupes WhatsApp eux-mêmes sont vos canaux d'acquisition ET votre moat. Identifier les 5-10 plus gros groupes PACA, trouver l'admin (souvent un ancien chauffeur respecté), lui offrir statut "ambassadeur" + commission de parrainage. Il rapatrie son groupe.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Y'a un type à Marseille qui gère 4 groupes à 200 chauffeurs chacun. Si tu le retournes, t'as 800 chauffeurs en une semaine.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Et le pricing devient plus malin : freemium. Voir les courses dispo = gratuit. Publier soi-même = premium.
+</div>
+
+<h3>Round 12 — Les risques juridiques de ce pivot</h3>
+
+<div class="warning">
+  <ol>
+    <li><strong>Responsabilité no-show</strong> : si patient rate sa dialyse, qui est responsable ? CGU doit clairement dire "outil de coordination", pas "opérateur de transport".</li>
+    <li><strong>Anti-entente</strong> : interdire toute négociation de tarif sur la plateforme (tarif fixé par arrêté préfectoral).</li>
+    <li><strong>Données de santé</strong> : motif médical = donnée art. 9 RGPD. Hébergement HDS obligatoire si stocké. Supabase classique n'est pas HDS.</li>
+  </ol>
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Solution simple : ne jamais stocker le motif. Vous stockez "course conventionnée", point. Le patient et la pathologie restent chez le chauffeur, hors de votre périmètre.
+</div>
+
+<h3>Verdict Phase 2</h3>
+<div class="verdict">
+  <h4>Synthèse pivot médical</h4>
+  <ul>
+    <li>Produit a un <strong>vrai moat possible</strong>, <strong>marché chiffrable</strong>, <strong>douleur documentée</strong></li>
+    <li>Désormais investissable : seed 300-500k€ pour 18 mois, post-money 2.5-3M€</li>
+    <li>Focus produit : timeline courses + acceptation 1 geste + traçabilité légale + statut "en course" filtrant</li>
+    <li>Aliasing marseillais local = moat différenciant</li>
+    <li>Programme ambassadeur via admins WhatsApp = canal d'acquisition</li>
+  </ul>
+</div>
+
+<!-- PHASE 3 -->
+<div class="page-break"></div>
+<h2>5. Phase 3 — Stratégie SEM/SEO/GEO sur "taxi CPAM"</h2>
+
+<div class="section-intro">
+  <p><strong>Question posée</strong> : après l'agrégation chauffeurs, investir massivement pour être premier sur Google et cité par les IA quand quelqu'un cherche "taxi CPAM" ou "taxi médical", et proposer les courses aux taxis en prenant 5% de commission. Bonne idée ?</p>
+</div>
+
+<h3>Round 14 — Première réaction : changement de produit majeur</h3>
+
+<div class="exchange">
+  <span class="speaker invest">Bruno Saint-Clair :</span> Stop. Là vous changez de produit. C'est une marketplace bi-face qui capte la demande patient/famille et prend une commission. Moat, pricing, cash burn, équipe — tout change.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Sujet de fond : si vous distribuez des courses et prenez 5%, vous n'êtes plus l'outil des chauffeurs, vous êtes leur boss. Ça transforme la relation.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Tant que vous étiez "l'outil pour qu'on s'organise entre nous", j'étais avec vous. Si vous me ramenez des courses et me prenez 5%, vous devenez G7 ou Uber.
+</div>
+<div class="exchange">
+  <span class="speaker legal">Tarek Hadj :</span> Sur le conventionné CPAM, le tarif est fixé par arrêté préfectoral. Vous ne pouvez pas prélever 5% sur tarif réglementé. Ce serait à charge du patient ou du chauffeur, ni l'un ni l'autre n'est légalement prévu. Il faut une redevance de service de mise en relation facturée séparément, type 2€/course forfaitaire au chauffeur.
+</div>
+
+<h3>Round 15 — Les vrais chiffres du marché CPAM</h3>
+
+<table>
+  <tr><th>Indicateur</th><th>Valeur</th></tr>
+  <tr><td>Dépense Assurance Maladie transport sanitaire 2024</td><td>~5,4 Md€</td></tr>
+  <tr><td>Part taxi conventionné</td><td>~2,8 Md€</td></tr>
+  <tr><td>Volume annuel estimé</td><td>75-85 M courses</td></tr>
+  <tr><td>Ticket moyen</td><td>~35€</td></tr>
+  <tr><td>TAM théorique à 2€/course</td><td>~150 M€</td></tr>
+</table>
+
+<h3>Round 16 — SEO / SEM / GEO sur "taxi CPAM" : combien ça coûte ?</h3>
+
+<table>
+  <tr><th>Requête</th><th>Volume mensuel France</th><th>CPC Google Ads</th></tr>
+  <tr><td>"taxi conventionné" + variantes locales</td><td>30-50k/mois</td><td>2,50-6€</td></tr>
+  <tr><td>"taxi CPAM" + variantes</td><td>20-40k/mois</td><td>3-7€</td></tr>
+  <tr><td>"taxi médical" + variantes</td><td>40-70k/mois</td><td>2-5€</td></tr>
+  <tr><td>"transport CPAM [ville]"</td><td>15-25k/mois</td><td>2-5€</td></tr>
+  <tr><td><strong>Total addressable search</strong></td><td><strong>~110-180k/mois</strong></td><td><strong>~4€ moyen pondéré</strong></td></tr>
+</table>
+
+<div class="exchange">
+  <span class="speaker growth">Karim Benali :</span> Budget mini pour dominer Google Ads = 40-60k€/mois. Pour écraser (tout impression share) = 100-150k€/mois. SEO organique #1 sur requêtes locales = 80-150k€ sur l'année avec contenu sérieux + 100 pages locales.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Sur le GEO (citation par LLM) : les modèles grand public évitent aujourd'hui de recommander un commerçant local précis pour raisons de responsabilité. Le jeu GEO est encore prématuré sur ce segment.
+</div>
+
+<h3>Round 17 — Le calcul économique brutal</h3>
+
+<div class="exchange">
+  <span class="speaker invest">Bruno Saint-Clair :</span> Hypothèses : commission 2€/course (après ajustement légal), CPC 4€, conversion clic→réservation 8% optimiste.
+</div>
+<div class="warning">
+  <strong>CAC = 4€ / 0,08 = 50€ par course acquise.</strong><br>
+  <strong>Marge par course = 2€.</strong><br>
+  <strong>Perte de 48€ par course acquise.</strong>
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> SAUF si la course est récurrente. Patient dialyse = 3 courses aller-retour/semaine = ~300 courses/an. LTV = 600€ sur 12 mois. CAC 50€ vs LTV 600€ = ratio 1:12. Très bon. Mais à condition de capturer la récurrence et retenir le patient.
+</div>
+<div class="exchange">
+  <span class="speaker ops">Maxime Dorel :</span> Mur opérationnel : 1 dialyse manquée = drame + SAV. Standard secteur : 1 agent support pour 5000 courses/mois. 500k courses/mois = 100 agents = 3M€/an de support.
+</div>
+
+<h3>Round 18 — Le piège PEC de la CNAM</h3>
+
+<div class="warning">
+  Projet PEC (Prescription Électronique de Transport) déployé progressivement depuis 2024. Horizon 2027-2028 : toutes les demandes de transport médical passent par cet outil prescripteur → transporteur. La captation patient/famille deviendra secondaire. Votre SEO/SEM pour capter le patient peut être obsolète dans 24-36 mois.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Pas forcément. PEC est lent à se déployer, et la brique transporteur n'est pas verrouillée. TaxiLink peut s'insérer comme agrégateur de réponses transporteur connecté à PEC. Architecturalement, prévoir une API d'entrée de course propre et pluggable dès maintenant.
+</div>
+
+<h3>Round 19 — Décision : phasage prudent obligatoire</h3>
+
+<table>
+  <tr><th>Scénario</th><th>Budget pub/mois</th><th>Courses/mois An 1</th><th>Revenu An 1</th><th>EBITDA An 1</th></tr>
+  <tr><td>Prudent</td><td class="num">25k€</td><td class="num">8k → 25k</td><td class="num">600k€</td><td class="num neg">-200k€</td></tr>
+  <tr><td>Agressif</td><td class="num">100k€</td><td class="num">15k → 60k</td><td class="num">1,2 M€</td><td class="num neg">-1,8 M€</td></tr>
+  <tr><td>Suicidaire</td><td class="num">250k€</td><td class="num">25k → 90k</td><td class="num">2 M€</td><td class="num neg">-4,5 M€</td></tr>
+</table>
+
+<div class="verdict">
+  <h4>Verdict Phase 3</h4>
+  <p>Le scénario <strong>prudent</strong> est le seul rationnel à ce stade. Pas de "mettre le paquet" avant d'avoir mesuré LTV patient récurrent, vérifié taux d'acceptation chauffeur, et validé la structure légale du prélèvement.</p>
+  <p><em>"Construis l'offre avant la demande." — Yann Bertrand</em></p>
+</div>
+
+<!-- PHASE 4 -->
+<div class="page-break"></div>
+<h2>6. Phase 4 — Bascule vers les hôpitaux comme canal de captation</h2>
+
+<div class="section-intro">
+  <p><strong>Nouvelle idée stratégique</strong> : après avoir réuni les chauffeurs, se rapprocher des hôpitaux et les brancher à l'application pour qu'ils réservent des taxis pour leurs patients.</p>
+</div>
+
+<h3>Round 21 — Réaction enthousiaste du panel</h3>
+
+<div class="exchange">
+  <span class="speaker invest">Bruno Saint-Clair :</span> Honnêtement, première fois que je vous dis : oui, attaquez par là. Vous court-circuitez le SEM coûteux, vous attaquez où la demande naît, et vous tombez sur un canal B2B avec récurrence forte. Mais c'est un autre métier — la vente hospitalière.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Cohérent avec PEC. Si demain les hôpitaux deviennent prescripteurs électroniques, vous serez déjà branchés. Vous avez 2 ans d'avance possible.
+</div>
+<div class="exchange">
+  <span class="speaker ops">Maxime Dorel :</span> À l'AP-HP, AP-HM, la coordination transport patient est un enfer. Les secrétaires médicales perdent 30-45 min/jour à appeler des taxis pour les sorties. UI où elles entrent en 30 secondes, c'est de l'argent gagné.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Truc que personne ne dit : à la Timone, Conception, AP-HM Nord, y'a déjà des stations de taxis adossées aux hôpitaux. Les chauffeurs ont leurs habitudes avec les secrétaires médicales. Pour rentrer là-dedans, faut pas dire "on remplace votre système", faut dire "on vous simplifie la vie sans changer vos chauffeurs habituels".
+</div>
+
+<h3>Round 22 — Le terrain hospitalier brutalement</h3>
+
+<div class="exchange">
+  <span class="speaker legal">Tarek Hadj :</span> Public vs privé :
+  <ul>
+    <li><strong>Hôpital public (CHU, CH, AP-HM)</strong> : Code de la commande publique. Au-delà de 40 000€ HT/an = marché public formalisé. Cycle vente 9-18 mois.</li>
+    <li><strong>Clinique privée</strong> : décision direction + DSI. Cycle 3-6 mois.</li>
+    <li><strong>EHPAD, HAD, SSR</strong> : décision directe. Cycle 2-4 mois.</li>
+  </ul>
+  Conseil : ne touchez pas au public au démarrage. Commencez par le privé et les structures intermédiaires.
+</div>
+
+<table>
+  <tr><th>Cible</th><th>Nombre en France</th><th>Volume potentiel/structure</th><th>Priorité de vente</th></tr>
+  <tr><td>Centres de dialyse privés</td><td class="num">~300</td><td>20-50k courses/an</td><td><strong>1 (prioritaire)</strong></td></tr>
+  <tr><td>EHPAD</td><td class="num">~7 500</td><td>5-15k courses/an</td><td>2</td></tr>
+  <tr><td>HAD</td><td class="num">~280</td><td>10-30k courses/an</td><td>2</td></tr>
+  <tr><td>Cliniques privées</td><td class="num">~1 000</td><td>50-100k courses/an</td><td>3</td></tr>
+  <tr><td>Hôpitaux publics (CHU)</td><td class="num">~30</td><td>100-500k courses/an</td><td>4 (après références)</td></tr>
+</table>
+
+<div class="key-insight">
+  Pot d'or = dialyse privée. 10 centres PACA × 30k courses/an × 2€ = 600k€/an de revenu sécurisé récurrent. Un deal commercial unique par centre, pas 600k patients à acquérir.
+</div>
+
+<h3>Round 23 — Ce qui rend les hôpitaux durs à vendre</h3>
+
+<div class="exchange">
+  <span class="speaker ops">Maxime Dorel :</span> Trois douleurs :
+  <ol>
+    <li><strong>Le bon de transport CPAM</strong> : si TaxiLink ne le gère pas, vous êtes inutiles.</li>
+    <li><strong>L'intégration SI hôpital</strong> : Maincare, Easily, DxCare, Softway Medical... commencer en standalone PWA pour secrétaires médicales, n'intégrer que là où ça vaut le coup.</li>
+    <li><strong>Le tracé patient</strong> : données patient transitent sur la plateforme. HDS obligatoire.</li>
+  </ol>
+</div>
+<div class="exchange">
+  <span class="speaker tech">Sofia Petrov :</span> Architecture séparée recommandée : microservice HDS chez OVH Healthcare hébergeant uniquement données patient (nom, n° sécu, motif), le reste reste sur Supabase. Plus rapide, mieux découpé.
+</div>
+<div class="exchange">
+  <span class="speaker legal">Tarek Hadj :</span> Certification HDS coûte ~30-50k€/an d'audit. Coût d'entrée incompressible sur ce marché.
+</div>
+
+<h3>Round 24 — Le sales hospitalier, profil clé</h3>
+
+<div class="exchange">
+  <span class="speaker growth">Karim Benali :</span> Vous ne pouvez pas vendre à un hôpital avec un sales tech. Profil : ex-directeur achats hospitaliers, ex-responsable transport sanitaire (Carius, Jussieu, Keolis Santé), ex-cadre ARS. Salaire 70-90k€ fixe + variable.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Pour Marseille, va pas chercher quelqu'un à Paris. Trouve quelqu'un de l'AP-HM ou ARS PACA avec 20 ans de réseau ici. Le nom dans la signature compte plus que la qualité de l'app au début.
+</div>
+
+<h3>Round 25 — Séquence terrain optimale</h3>
+
+<table>
+  <tr><th>Vague</th><th>Mois</th><th>Cible</th><th>Volume potentiel</th></tr>
+  <tr><td>1</td><td>1-6</td><td>Centres dialyse privés PACA (8-10)</td><td>200-300k courses/an</td></tr>
+  <tr><td>2</td><td>4-10</td><td>EHPAD et HAD PACA (30-50)</td><td>150-400k courses/an</td></tr>
+  <tr><td>3</td><td>8-14</td><td>Cliniques privées Ramsay/Almaviva</td><td>500k+ courses/an</td></tr>
+  <tr><td>4</td><td>12+</td><td>Hôpitaux publics, AP-HM</td><td>1M+ courses/an</td></tr>
+</table>
+
+<h3>Round 26 — Le piège opérationnel : courses difficiles</h3>
+
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Sortie d'hôpital 16h30 vendredi pour amener un papy à 80 bornes à la campagne, personne ne le prend. Trajet à perte (retour à vide). Aujourd'hui sur WhatsApp ces courses traînent une heure. Si votre app distribue ces courses "difficiles" en plus des bonnes, les chauffeurs refusent, l'hôpital se bloque, vous perdez le contrat en 3 mois.
+</div>
+<div class="key-insight">
+  Algorithme de priorité mêlant courses faciles et difficiles. Un chauffeur acceptant beaucoup de courses difficiles obtient une priorité sur les bonnes. Mécanique de "karma de course". Sans ça, contrats hospitaliers explosent à 2 mois.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Dispatcher manuel humain en backup : 1 dispatcher/200 courses/jour. 1000 courses/jour = 5 dispatchers = ~200k€/an de coût ops.
+</div>
+
+<h3>Round 27 — Le coup brillant : SaaS B2B au lieu de commission</h3>
+
+<div class="recommendation">
+  <strong>Modèle révisé pour les hôpitaux :</strong><br>
+  Hôpital paie 800-2000€/mois selon taille pour TaxiLink illimité.<br>
+  TaxiLink garantit acceptation < 5 min sur 95% des courses.<br>
+  TaxiLink prend zéro commission sur tarif CPAM.<br>
+  Chauffeurs n'ont rien à payer pour les courses hôpital.
+</div>
+
+<div class="exchange">
+  <span class="speaker invest">Bruno Saint-Clair :</span> 500 établissements × 1500€/mois = 9 M€/an ARR. Multiple SaaS 8-12x = valorisation 70-100 M€. Bien plus défendable qu'une commission sur course.
+</div>
+<div class="exchange">
+  <span class="speaker legal">Tarek Hadj :</span> Juridiquement infiniment plus propre. Pas de prélèvement sur tarif réglementé. Pas de problème CPAM.
+</div>
+
+<h3>Verdict Phase 4</h3>
+<div class="verdict">
+  <h4>Stratégie hôpitaux SaaS</h4>
+  <ul>
+    <li>Pricing : SaaS B2B 800-2000€/mois par établissement, pas commission</li>
+    <li>Investissement An 1 : ~550k€ (150k€ HDS + 250k€ sales senior + 50k€ salons + 100k€ ops dispatcher)</li>
+    <li>Cible An 2 : 1-2 M€ ARR, valorisation potentielle 25-50M€ An 3</li>
+    <li>Préparation API PEC = avantage stratégique 2027-2028</li>
+  </ul>
+</div>
+
+<!-- PHASE 5 -->
+<div class="page-break"></div>
+<h2>7. Phase 5 — Modèle d'abonnement chauffeur (19.99 / 39.99 / 99.99 €)</h2>
+
+<div class="section-intro">
+  <p><strong>Modèle de pricing proposé</strong> : ce ne sont pas les hôpitaux ni la CPAM qui paient, mais les chauffeurs eux-mêmes, par abonnement mensuel donnant accès à un quota d'annonces :</p>
+  <ul>
+    <li>19.99€/mois → 10 annonces max acceptables</li>
+    <li>39.99€/mois → 20 annonces max</li>
+    <li>99.99€/mois → illimité</li>
+  </ul>
+</div>
+
+<h3>Round 29 — Retour au modèle P2P pur</h3>
+
+<div class="exchange">
+  <span class="speaker invest">Bruno Saint-Clair :</span> Vous enterrez la stratégie hôpital ou elle reste en parallèle ? Ce que vous décrivez maintenant, c'est le retour au modèle P2P pur entre chauffeurs.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> La vraie question : les annonces, elles viennent d'où ? Chauffeurs qui cèdent ? Hôpitaux qui publient ? Captation directe ? La réponse change tout.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> C'est les deux. Annonces de mes confrères + courses qu'apportent les hôpitaux + courses captées. Les chauffeurs paient pour avoir accès à ce pool enrichi.
+</div>
+
+<h3>Round 30 — Le tarif décortiqué froidement</h3>
+
+<table>
+  <tr><th>Tier</th><th>Prix</th><th>Limite</th><th>Coût/annonce</th><th>Logique</th></tr>
+  <tr><td>Tier 1</td><td class="num">19.99€</td><td class="num">10 annonces</td><td class="num">2€</td><td>Occasionnel</td></tr>
+  <tr><td>Tier 2</td><td class="num">39.99€</td><td class="num">20 annonces</td><td class="num">2€</td><td>Régulier</td></tr>
+  <tr><td>Tier 3</td><td class="num">99.99€</td><td>Illimité</td><td class="num">~1€</td><td>Pro</td></tr>
+</table>
+
+<div class="warning">
+  Tier 1 et Tier 2 sont au même coût/annonce (2€). Aucune incitation économique à monter en gamme. Vous transformez un manque d'annonces en frustration au lieu de pousser à l'upgrade. Saut Tier 2 → Tier 3 trop brutal (×2,5 le prix).
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> À 99.99€ je ne paie pas. Psychologiquement trop. À 79€ peut-être. À 69€ oui. C'est pas rationnel mais c'est comme ça. Le franchissement de 100€ symbolique fait peur.
+</div>
+<div class="exchange">
+  <span class="speaker psycho">Dr. Hélène Vasseur :</span> Effet de seuil. Sous 100€ = abonnement pro raisonnable. Au-dessus = engagement nécessitant justification mentale renouvelée chaque mois. Déclencheur de churn.
+</div>
+
+<h4>Grille révisée recommandée</h4>
+<table>
+  <tr><th>Tier</th><th>Prix</th><th>Limite</th><th>Coût/annonce</th></tr>
+  <tr><td>Découverte</td><td class="num">0€</td><td class="num">3 annonces/mois</td><td class="num">0€</td></tr>
+  <tr><td>Occasionnel</td><td class="num">19.99€</td><td class="num">10 annonces</td><td class="num">2€</td></tr>
+  <tr><td>Régulier</td><td class="num">39.99€</td><td class="num">30 annonces</td><td class="num">1,33€</td></tr>
+  <tr><td>Pro</td><td class="num">79.99€</td><td>Illimité</td><td class="num">&lt;1€</td></tr>
+</table>
+
+<h3>Round 31 — Le piège du "Use it or lose it"</h3>
+
+<div class="exchange">
+  <span class="speaker ops">Maxime Dorel :</span> Si chauffeur paie 19.99€ pour 10 annonces et en consomme 0 le mois suivant, qu'est-ce qu'il se passe ? Il reporte ? Perd ? Churn ?
+</div>
+<div class="exchange">
+  <span class="speaker growth">Karim Benali :</span> Sans rollover, churn massif sur les mois creux. Taxi marseillais a saison creuse nov-fév. S'il paie 19.99€ pour 3 annonces consommées, il désinstalle.
+</div>
+<div class="recommendation">
+  Rollover limité : 5-10 annonces non utilisées reportables 1 mois maximum. Implémentation : 3-4 jours backend + 2 jours UI.
+</div>
+
+<h3>Round 32 — Combien de chauffeurs vont vraiment payer ?</h3>
+
+<table>
+  <tr><th>Distribution</th><th>%</th><th>1000 chauffeurs PACA</th><th>MRR mensuel</th></tr>
+  <tr><td>Gratuit (Découverte)</td><td>60%</td><td>600</td><td>0€</td></tr>
+  <tr><td>Tier 1 (19.99€)</td><td>25%</td><td>250</td><td>4 997€</td></tr>
+  <tr><td>Tier 2 (39.99€)</td><td>11%</td><td>110</td><td>4 399€</td></tr>
+  <tr><td>Tier 3 (79.99€)</td><td>4%</td><td>40</td><td>3 200€</td></tr>
+  <tr><td><strong>Total</strong></td><td><strong>100%</strong></td><td><strong>1000</strong></td><td><strong>~12 600€/mois</strong></td></tr>
+</table>
+
+<div class="exchange">
+  <span class="speaker invest">Bruno Saint-Clair :</span> Avec 1000 chauffeurs PACA = 150k€ ARR. 5000 chauffeurs nationaux à 24 mois = 500-750k€ ARR. 15 000 chauffeurs à 36 mois = 1,5-2,2 M€ ARR. SaaS solide mais pas une fusée. Moins lucratif que la stratégie hôpital seule.
+</div>
+
+<h3>Round 33 — Pourquoi le pure driver-pay a un plafond</h3>
+
+<div class="warning">
+  Le modèle monétise du côté qui a le moins de pouvoir d'achat. Un chauffeur taxi conventionné gagne 2 200-2 800€ net/mois. Ponctionner 80€/mois = 3% de sa rémunération. Lourd à justifier.
+</div>
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span> Pour qu'on accepte 80€/mois, l'app doit me rapporter au moins 400€/mois nets supplémentaires. Soit 5-8 courses additionnelles/mois que je n'aurais pas eues sans elle.
+</div>
+<div class="exchange">
+  <span class="speaker pm">Camille Roux :</span> Règle psychologique SaaS B2B individu : valeur perçue doit être ≥ 5× le prix. Bien plus exigeant que SaaS B2B entreprise (ratio 2-3× suffit).
+</div>
+
+<h3>Round 34 — Le modèle hybride qui tient debout</h3>
+
+<div class="recommendation">
+  <strong>Synthèse stratégique : monétisation duale.</strong>
+  <ul>
+    <li><strong>Côté chauffeur (B2C)</strong> : freemium 0€ / 19.99€ / 39.99€ / 79.99€</li>
+    <li><strong>Côté offre (B2B hôpitaux)</strong> : SaaS 800-2000€/mois par établissement</li>
+    <li><strong>Patient/famille direct</strong> : SEM modeste pour notoriété, pas pour acquisition</li>
+  </ul>
+  <p>Avantages : les hôpitaux enrichissent le pool → valeur perçue chauffeur ↑ → conversion premium ↑. Network effect bilatéral. Chaque face renforce l'autre.</p>
+</div>
+
+<div class="exchange">
+  <span class="speaker invest">Bruno Saint-Clair :</span> À 3 ans en monétisation duale : chauffeurs 15 000 actifs (22% payants) = ~1,5 M€ ARR + Hôpitaux 200 contrats à 1200€ moyen = ~2,9 M€ ARR. Total ~4,4 M€ ARR → valorisation 35-50 M€ sur multiples SaaS.
+</div>
+
+<h3>Round 35 — Le verdict de Yann</h3>
+
+<div class="exchange">
+  <span class="speaker driver">Yann Bertrand :</span>
+  <ul>
+    <li>✅ 19.99€ pour 10 annonces : passe si offre visible</li>
+    <li>✅ 39.99€ pour 20-30 annonces : passe avec saut net</li>
+    <li>❌ 99.99€ illimité : trop. 79.99€ oui. 69.99€ encore mieux.</li>
+    <li>❌ Pas de freemium : tue l'acquisition</li>
+    <li>❌ Pas de report d'annonces : argument de désinstall au 1er mois creux</li>
+  </ul>
+</div>
+
+<!-- CONCLUSION -->
+<div class="page-break"></div>
+<h2>8. Conclusion générale</h2>
+
+<p>Au terme de ces 36 échanges, le panel d'experts converge sur un constat clair : <strong>TaxiLink dispose d'un produit techniquement solide et d'une opportunité de marché réelle, à condition de tenir une stratégie disciplinée sur 36 mois et de ne pas confondre les phases de construction.</strong></p>
+
+<p>La douleur résolue (la coordination chaotique des courses médicales sur WhatsApp pendant la conduite) est <em>réelle, documentée et mesurable</em>. Le marché du transport conventionné CPAM (2,8 Md€/an en France, 28 000 chauffeurs conventionnés) est suffisamment large pour permettre un acteur tech défensif, et suffisamment niche pour décourager les géants généralistes (Uber, G7) d'y entrer frontalement.</p>
+
+<p>Trois risques majeurs subsistent et devront être adressés sans délai :</p>
+
+<div class="warning">
+  <ol>
+    <li><strong>Risque juridique RGPD/HDS</strong> : rétention des traces GPS et données patient. À régler sous 30 jours.</li>
+    <li><strong>Dette technique WebView</strong> : migration vers carte native obligatoire avant montée en charge.</li>
+    <li><strong>Densité d'annonces</strong> : sans masse critique sur PACA (~500-800 chauffeurs actifs avec offre dense), le modèle d'abonnement chauffeur ne décolle pas.</li>
+  </ol>
+</div>
+
+<p>Les trois principaux atouts différenciants identifiés sont :</p>
+
+<div class="key-insight">
+  <ol>
+    <li><strong>Aliasing local marseillais</strong> dans la dictée vocale (banque dept 13 + prononciation locale)</li>
+    <li><strong>Acceptation mains-libres</strong> (voice + bouton Bluetooth) avec potentiel de label Sécurité Routière</li>
+    <li><strong>Traçabilité légale</strong> des échanges entre chauffeurs conventionnés (preuve d'horodatage + identité CPAM)</li>
+  </ol>
+</div>
+
+<!-- RECOMMANDATIONS -->
+<h2>9. Recommandations stratégiques</h2>
+
+<h4>Recommandations produit</h4>
+<ul>
+  <li>Reformuler l'écran principal autour de la <strong>timeline d'annonces</strong>, pas la carte</li>
+  <li>Implémenter <strong>l'acceptation en 1 geste</strong> : tap, voice, et bouton Bluetooth</li>
+  <li>Filtrer intelligemment les notifs selon le <strong>statut "en course"</strong></li>
+  <li>Migrer la carte principale de <strong>WebView Leaflet vers react-native-maps</strong> ou Mapbox SDK natif</li>
+  <li>Ajouter <strong>iOS Live Activities</strong> pour la course en cours</li>
+</ul>
+
+<h4>Recommandations pricing</h4>
+<ul>
+  <li>Abandonner le tier 99.99€, le remplacer par <strong>79.99€</strong></li>
+  <li>Introduire un <strong>tier gratuit (3 annonces/mois)</strong> pour l'onboarding</li>
+  <li>Augmenter le tier 39.99€ à <strong>30 annonces</strong> (au lieu de 20) pour créer une vraie incitation à monter</li>
+  <li>Permettre le <strong>report de 5-10 annonces non utilisées</strong> sur 1 mois</li>
+  <li>Afficher <strong>visiblement le nombre de chauffeurs actifs</strong> pour preuve sociale</li>
+</ul>
+
+<h4>Recommandations juridiques</h4>
+<ul>
+  <li>Politique de <strong>rétention GPS = 7 jours max</strong>, puis agrégation anonymisée</li>
+  <li><strong>HDS obligatoire</strong> si stockage de toute donnée patient — alternative : ne pas stocker les motifs médicaux</li>
+  <li>CGU mentionnant explicitement : <strong>outil de coordination, pas opérateur de transport</strong></li>
+  <li><strong>Interdire toute négociation de tarif</strong> sur la plateforme (anti-entente, tarifs CPAM réglementés)</li>
+  <li>Forfait <strong>service de mise en relation</strong> (pas commission %) si prélèvement sur courses hôpitaux</li>
+</ul>
+
+<h4>Recommandations go-to-market</h4>
+<ul>
+  <li><strong>Programme ambassadeur WhatsApp</strong> : identifier les 10 admins de groupes PACA, leur offrir 6 mois gratuits + 5€/parrainage actif</li>
+  <li><strong>Growth hacker physique</strong> 3 mois sur stations Saint-Charles, Marignane, Vieux-Port — CAC visé 60€</li>
+  <li><strong>Sales hospitalier senior</strong> profil ex-AP-HM ou ex-ARS PACA — 70-90k€ fixe + variable</li>
+  <li>Cibler d'abord les <strong>centres de dialyse privés PACA</strong> (Diaverum, Fresenius, AURA, B. Braun)</li>
+  <li>SEM ciblé <strong>uniquement après densité offre validée</strong> sur PACA, max 25k€/mois en test</li>
+</ul>
+
+<!-- BUSINESS MODEL FINAL -->
+<h2>10. Business Model final retenu</h2>
+
+<div class="section-intro">
+  <p><strong>Modèle hybride dual-face</strong> combinant abonnement chauffeur (B2C) et SaaS hôpital (B2B), avec phasage strict sur 36 mois.</p>
+</div>
+
+<h4>Face 1 — Abonnement chauffeur (B2C)</h4>
+<table>
+  <tr><th>Tier</th><th>Prix mensuel</th><th>Annonces incluses</th><th>Report</th><th>Cible</th></tr>
+  <tr><td>Découverte</td><td class="num">0€</td><td class="num">3</td><td>Non</td><td>Onboarding</td></tr>
+  <tr><td>Occasionnel</td><td class="num">19.99€</td><td class="num">10</td><td>5 max</td><td>Complément</td></tr>
+  <tr><td>Régulier</td><td class="num">39.99€</td><td class="num">30</td><td>10 max</td><td>Activité régulière</td></tr>
+  <tr><td>Pro</td><td class="num">79.99€</td><td>Illimité</td><td>N/A</td><td>Forte dépendance</td></tr>
+</table>
+
+<h4>Face 2 — SaaS hôpital (B2B)</h4>
+<table>
+  <tr><th>Segment</th><th>Mensualité</th><th>Garantie SLA</th><th>Volume cible/an</th></tr>
+  <tr><td>EHPAD / HAD</td><td class="num">600-900€</td><td>Acceptation &lt; 5 min sur 90%</td><td>5-15k courses</td></tr>
+  <tr><td>Centre dialyse privé</td><td class="num">1 200-1 800€</td><td>Acceptation &lt; 5 min sur 95%</td><td>20-50k courses</td></tr>
+  <tr><td>Clinique privée</td><td class="num">1 500-2 500€</td><td>Acceptation &lt; 5 min sur 95%</td><td>50-100k courses</td></tr>
+  <tr><td>CHU / Hôpital public</td><td class="num">3 000-6 000€</td><td>Acceptation &lt; 5 min sur 95% + dispatcher dédié</td><td>100k+ courses</td></tr>
+</table>
+
+<h4>Sources de revenu complémentaires (An 3+)</h4>
+<ul>
+  <li><strong>Branchement PEC CNAM</strong> en tant qu'agrégateur transporteur dès l'ouverture API (2027)</li>
+  <li><strong>API B2B blanche</strong> pour transport scolaire, entreprise, événementiel</li>
+  <li><strong>Données agrégées anonymisées</strong> (analytics flux transport) pour ARS et collectivités</li>
+</ul>
+
+<!-- SIMULATION -->
+<div class="page-break"></div>
+<h2>11. Simulation financière 3 ans — Stratégies bien exécutées</h2>
+
+<h4>Hypothèses générales</h4>
+<ul>
+  <li>Démarrage commercial : Marseille + couronne PACA (mois 1-9)</li>
+  <li>Expansion régionale : Lyon, Lille, Bordeaux, Toulouse (mois 10-24)</li>
+  <li>Déploiement national : à partir du mois 25</li>
+  <li>Discipline d'exécution maximale : pas de SEM grand public en An 1, focus offre puis canaux B2B</li>
+  <li>Conformité HDS opérationnelle dès mois 9 (avant premier contrat hôpital)</li>
+</ul>
+
+<h4>Volumétrie chauffeurs et hôpitaux (fin de période)</h4>
+<table>
+  <tr><th>Indicateur</th><th>Fin An 1</th><th>Fin An 2</th><th>Fin An 3</th></tr>
+  <tr><td>Chauffeurs actifs (free + payants)</td><td class="num">1 000</td><td class="num">5 000</td><td class="num">15 000</td></tr>
+  <tr><td>Chauffeurs payants (toutes formules)</td><td class="num">400</td><td class="num">2 000</td><td class="num">6 000</td></tr>
+  <tr><td>Taux conversion freemium → payant</td><td class="num">40%</td><td class="num">40%</td><td class="num">40%</td></tr>
+  <tr><td>ARPU mensuel chauffeur payant</td><td class="num">31,50€</td><td class="num">31,50€</td><td class="num">31,50€</td></tr>
+  <tr><td>Contrats hôpitaux/EHPAD/dialyses actifs</td><td class="num">5</td><td class="num">35</td><td class="num">150</td></tr>
+  <tr><td>Mensualité moyenne hôpital</td><td class="num">1 200€</td><td class="num">1 400€</td><td class="num">1 600€</td></tr>
+</table>
+
+<h4>Chiffre d'affaires (CA brut)</h4>
+<table>
+  <tr><th>Source</th><th>An 1</th><th>An 2</th><th>An 3</th></tr>
+  <tr><td>Abonnements chauffeurs (B2C)</td><td class="num">76 000€</td><td class="num">567 000€</td><td class="num">1 890 000€</td></tr>
+  <tr><td>SaaS hôpitaux (B2B)</td><td class="num">36 000€</td><td class="num">393 000€</td><td class="num">2 280 000€</td></tr>
+  <tr><td>Frais publication / services associés</td><td class="num">5 000€</td><td class="num">40 000€</td><td class="num">180 000€</td></tr>
+  <tr><td><strong>CA brut total</strong></td><td class="num pos">117 000€</td><td class="num pos">1 000 000€</td><td class="num pos">4 350 000€</td></tr>
+</table>
+
+<p class="footer-note">Note : An 1 montre une montée progressive (acquisition non linéaire). An 2 voit le décollage dual avec premiers contrats dialyse + croissance chauffeurs PACA. An 3 capture l'effet de réseau bilatéral.</p>
+
+<h4>Charges d'exploitation</h4>
+<table>
+  <tr><th>Poste</th><th>An 1</th><th>An 2</th><th>An 3</th></tr>
+  <tr><td>Équipe tech (dev mobile, backend, DevOps)</td><td class="num">250 000€</td><td class="num">450 000€</td><td class="num">820 000€</td></tr>
+  <tr><td>Sales hospitalier (1 → 2 → 5 commerciaux)</td><td class="num">100 000€</td><td class="num">220 000€</td><td class="num">540 000€</td></tr>
+  <tr><td>Marketing & growth chauffeurs (terrain + digital)</td><td class="num">60 000€</td><td class="num">170 000€</td><td class="num">380 000€</td></tr>
+  <tr><td>Support / dispatch ops</td><td class="num">30 000€</td><td class="num">130 000€</td><td class="num">420 000€</td></tr>
+  <tr><td>Infrastructure (cloud, HDS, Supabase, Stripe)</td><td class="num">25 000€</td><td class="num">60 000€</td><td class="num">140 000€</td></tr>
+  <tr><td>Légal & conformité (HDS audit, CGU, RGPD)</td><td class="num">35 000€</td><td class="num">45 000€</td><td class="num">70 000€</td></tr>
+  <tr><td>G&A (locaux, comptable, assurances, frais)</td><td class="num">40 000€</td><td class="num">80 000€</td><td class="num">200 000€</td></tr>
+  <tr><td><strong>Total charges</strong></td><td class="num neg">540 000€</td><td class="num neg">1 155 000€</td><td class="num neg">2 570 000€</td></tr>
+</table>
+
+<h4>EBITDA et CA net</h4>
+<table>
+  <tr><th>Ligne</th><th>An 1</th><th>An 2</th><th>An 3</th></tr>
+  <tr><td>CA brut</td><td class="num">117 000€</td><td class="num">1 000 000€</td><td class="num">4 350 000€</td></tr>
+  <tr><td>Charges d'exploitation</td><td class="num neg">- 540 000€</td><td class="num neg">- 1 155 000€</td><td class="num neg">- 2 570 000€</td></tr>
+  <tr><td><strong>EBITDA</strong></td><td class="num neg">- 423 000€</td><td class="num neg">- 155 000€</td><td class="num pos">+ 1 780 000€</td></tr>
+  <tr><td>Provisions, amortissements, IS estimé</td><td class="num">0€</td><td class="num">0€</td><td class="num neg">- 530 000€</td></tr>
+  <tr><td><strong>CA net (Résultat net estimé)</strong></td><td class="num neg">- 423 000€</td><td class="num neg">- 155 000€</td><td class="num pos">+ 1 250 000€</td></tr>
+</table>
+
+<h4>Besoins de financement cumulés</h4>
+<table>
+  <tr><th>Période</th><th>Besoin cash cumulé</th><th>Levée recommandée</th></tr>
+  <tr><td>An 1 (démarrage)</td><td class="num">- 423 000€</td><td>Seed 500-700k€</td></tr>
+  <tr><td>An 2 (expansion)</td><td class="num">- 578 000€</td><td>Pré-Série A 800k-1,5 M€</td></tr>
+  <tr><td>An 3 (rentabilité)</td><td class="num pos">Auto-financé (cash flow positif)</td><td>Optionnel : Série A 3-5 M€ pour accélérer</td></tr>
+</table>
+
+<h2>12. Valorisation potentielle à 3 ans</h2>
+
+<h4>Méthode 1 — Multiple sur ARR (référence SaaS B2B niche)</h4>
+<table>
+  <tr><th>Hypothèse</th><th>ARR fin An 3</th><th>Multiple appliqué</th><th>Valorisation</th></tr>
+  <tr><td>Conservatrice (croissance ralentie)</td><td class="num">4,2 M€</td><td class="num">6 ×</td><td class="num">25 M€</td></tr>
+  <tr><td>Médiane (croissance saine)</td><td class="num">4,4 M€</td><td class="num">8 ×</td><td class="num">35 M€</td></tr>
+  <tr><td>Optimiste (croissance &gt; 100% an)</td><td class="num">4,8 M€</td><td class="num">10 ×</td><td class="num">48 M€</td></tr>
+</table>
+
+<h4>Méthode 2 — DCF actualisé sur projections 5 ans</h4>
+<p>En projetant An 4 (CA 8 M€, EBITDA 3,2 M€) et An 5 (CA 13 M€, EBITDA 5,5 M€), avec un taux d'actualisation de 12% et terminal value à multiple 8× EBITDA :</p>
+<table>
+  <tr><th>Scénario</th><th>Valorisation DCF</th></tr>
+  <tr><td>Conservateur</td><td class="num">22 M€</td></tr>
+  <tr><td>Médian</td><td class="num">38 M€</td></tr>
+  <tr><td>Optimiste (PEC ouvert + national)</td><td class="num">55 M€</td></tr>
+</table>
+
+<h4>Méthode 3 — Comparables transaction</h4>
+<p>Transactions récentes santé / mobilité B2B France (2023-2025) :</p>
+<ul>
+  <li><strong>Doctolib</strong> (acquisition Comm 2022) : ~6× ARR sur segment B2B santé</li>
+  <li><strong>Allotaxi</strong> (rachat 2023) : ~5× ARR sur transport médical</li>
+  <li><strong>Médaviz</strong> (Serie B 2024) : ~9× ARR sur SaaS santé niche</li>
+</ul>
+
+<h4>Fourchette de valorisation retenue</h4>
+<div class="verdict">
+  <h4>Valorisation TaxiLink à fin An 3 (stratégies bien exécutées)</h4>
+  <p style="font-size: 14pt; text-align: center;">
+    <strong>Fourchette basse : 25 M€</strong><br>
+    <strong>Fourchette médiane : 35-40 M€</strong><br>
+    <strong>Fourchette haute : 50 M€</strong>
+  </p>
+  <p style="text-align: center; margin-top: 12pt;">Cette valorisation suppose : conformité HDS opérationnelle, &gt;= 5 000 chauffeurs actifs, &gt;= 150 contrats hôpitaux/dialyses, API PEC en cours d'intégration, NRR &gt; 110%, churn chauffeur &lt; 6%/mois.</p>
+</div>
+
+<h4>Trajectoire de cash et levées suggérées</h4>
+<table>
+  <tr><th>Étape</th><th>Période</th><th>Montant</th><th>Pré-money cible</th><th>Dilution</th></tr>
+  <tr><td>Seed</td><td>Mois 0-3</td><td class="num">600 k€</td><td class="num">2,5 M€</td><td class="num">~20%</td></tr>
+  <tr><td>Pré-Série A</td><td>Mois 15-18</td><td class="num">1,2 M€</td><td class="num">7 M€</td><td class="num">~15%</td></tr>
+  <tr><td>Série A (optionnelle, accélération)</td><td>Mois 30-36</td><td class="num">4 M€</td><td class="num">25 M€</td><td class="num">~14%</td></tr>
+</table>
+
+<h4>Conditions impératives pour atteindre la valorisation</h4>
+<div class="recommendation">
+  <ol>
+    <li><strong>Discipline produit</strong> : ne pas se disperser. Pas d'app passager, pas de SEM grand public en An 1.</li>
+    <li><strong>Densité d'abord</strong> : atteindre 500 chauffeurs PACA payants avant d'élargir géographiquement.</li>
+    <li><strong>Premier contrat hôpital avant mois 9</strong> : prouve la traction B2B aux investisseurs.</li>
+    <li><strong>Conformité juridique préventive</strong> : HDS, RGPD, CGU robustes dès le seed.</li>
+    <li><strong>Préparation API PEC CNAM</strong> : architecture pluggable et veille active dès An 1.</li>
+    <li><strong>Métriques clés à tenir</strong> : MRR croissance &gt; 15%/mois An 1-2, NRR &gt; 110%, NPS chauffeur &gt; 45.</li>
+  </ol>
+</div>
+
+<hr>
+
+<p style="text-align: center; color: #777; font-size: 9pt; margin-top: 30pt;">
+  Document synthétisant la table ronde stratégique TaxiLink — 18 mai 2026.<br>
+  Toutes les estimations et projections sont indicatives et conditionnées à une exécution disciplinée.<br>
+  Confidentiel · Usage interne uniquement.
+</p>
+
+</body>
+</html>

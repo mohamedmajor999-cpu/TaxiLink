@@ -49,7 +49,7 @@ export function useResetPasswordForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (!isValidPassword(password)) { setError('Le mot de passe doit contenir au moins 8 caractères'); return }
+    if (!isValidPassword(password)) { setError('Le mot de passe doit faire 14 caractères minimum, avec au moins une majuscule, une minuscule et un chiffre'); return }
     if (password !== confirmPassword) { setError('Les mots de passe ne correspondent pas'); return }
     setStatus('updating')
     try {

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { sharedStorage } from './_storage'
 
 export interface AcceptedMissionInfo {
   missionId: string
@@ -66,8 +67,9 @@ export const usePostedAcceptStore = create<PostedAcceptState>()(
     }),
     {
       name: 'taxilink-posted-accept',
-      storage: createJSONStorage(() => localStorage),
-      // localStorage : `dismissed` survit aussi a la fermeture du navigateur.
+      storage: createJSONStorage(() => sharedStorage),
+      // `sharedStorage` = localStorage (web) ou AsyncStorage (mobile inject au boot).
+      // `dismissed` survit a la fermeture de l'app sur les deux plateformes.
       // UUID de missions => pas de collision, croissance lineaire en O(N).
       partialize: (s) => ({ dismissed: s.dismissed }),
     },

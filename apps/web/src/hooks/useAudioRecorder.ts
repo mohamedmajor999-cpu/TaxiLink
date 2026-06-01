@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createAudioMonitor, isAudioSilent, type AudioMonitor } from '@/lib/audio/audioMonitor'
 
 interface Options {
   onStop: (blob: Blob) => void
@@ -20,6 +21,8 @@ export function useAudioRecorder({ onStop, onError }: Options): UseAudioRecorder
   const recorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const streamRef = useRef<MediaStream | null>(null)
+  const monitorRef = useRef<AudioMonitor | null>(null)
+  const startedAtRef = useRef<number>(0)
   const onStopRef = useRef(onStop)
   onStopRef.current = onStop
   const onErrorRef = useRef(onError)
@@ -37,6 +40,8 @@ export function useAudioRecorder({ onStop, onError }: Options): UseAudioRecorder
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop())
     streamRef.current = null
+    monitorRef.current?.stop()
+    monitorRef.current = null
   }, [])
 
   const start = useCallback(async () => {
@@ -70,6 +75,8 @@ export function useAudioRecorder({ onStop, onError }: Options): UseAudioRecorder
         stream = await navigator.mediaDevices.getUserMedia(fallback)
       }
       streamRef.current = stream
+      monitorRef.current = createAudioMonitor(stream)
+      startedAtRef.current = Date.now()
       const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
         : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
         : ''
@@ -77,10 +84,16 @@ export function useAudioRecorder({ onStop, onError }: Options): UseAudioRecorder
       chunksRef.current = []
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
       recorder.onstop = () => {
+        const durationMs = Date.now() - startedAtRef.current
+        const peak = monitorRef.current?.peakLevel() ?? 1
         stopStream()
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' })
         recorderRef.current = null
         setIsRecording(false)
+        if (isAudioSilent(durationMs, peak)) {
+          onErrorRef.current?.('silence')
+          return
+        }
         onStopRef.current(blob)
       }
       recorder.onerror = () => {

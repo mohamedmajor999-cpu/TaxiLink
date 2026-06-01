@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tarifs taxi Bouches-du-Rhône — Affichette préfectorale vs Code TaxiLink</title>
+<style>
+  @page { size: A4 landscape; margin: 12mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #0a0a0a; background: #f5f5f4; }
+  body { padding: 24px 32px; }
+  .page { background: #fff; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.04); padding: 28px 32px; }
+
+  header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #e7e5e4; margin-bottom: 20px; }
+  .title-block h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  .title-block p { font-size: 12px; color: #57534e; margin-top: 4px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #fef3c7; color: #78350f; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
+  thead th {
+    background: #0a0a0a; color: #fafaf9; text-align: left; padding: 10px 12px; font-weight: 600; font-size: 11px;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  thead th:first-child { border-top-left-radius: 10px; }
+  thead th:last-child { border-top-right-radius: 10px; }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid #f1f1ef; vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafaf9; }
+
+  .group-row td {
+    background: #fafaf9; font-size: 10.5px; font-weight: 700; color: #57534e;
+    text-transform: uppercase; letter-spacing: .08em; padding: 8px 12px;
+  }
+
+  .col-poste { width: 28%; font-weight: 600; }
+  .col-num { width: 16%; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .col-num.code { color: #0a0a0a; }
+  .col-num.off  { color: #44403c; }
+  .col-delta { width: 14%; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 12px; }
+  .col-status { width: 26%; font-size: 11.5px; color: #44403c; }
+
+  .delta.up { color: #15803d; }
+  .delta.zero { color: #a8a29e; }
+  .delta.miss { color: #b45309; }
+
+  .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
+  .pill.ok { background: #dcfce7; color: #14532d; }
+  .pill.warn { background: #fef3c7; color: #78350f; }
+  .pill.miss { background: #fee2e2; color: #991b1b; }
+
+  .lumi { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: middle; border: 1px solid rgba(0,0,0,.12); }
+  .lumi.A { background: #fff; }
+  .lumi.B { background: #f97316; }
+  .lumi.C { background: #2563eb; }
+  .lumi.D { background: #16a34a; }
+
+  footer {
+    margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
+    font-size: 11px; color: #57534e;
+  }
+  .note { background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 10px; padding: 12px 14px; }
+  .note h3 { font-size: 11px; font-weight: 700; color: #0a0a0a; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .note p { line-height: 1.5; }
+  .note code { background: #fef3c7; color: #78350f; padding: 1px 5px; border-radius: 4px; font-size: 10.5px; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="title-block">
+      <h1>Tarifs taxi Bouches-du-Rhône — Affichette préfectorale vs Code TaxiLink</h1>
+      <p>Comparaison ligne à ligne entre l'arrêté préfectoral affiché en véhicule et la constante <code>marseilleFareEstimate.ts</code></p>
+    </div>
+    <span class="badge">● Bouches-du-Rhône (13)</span>
+  </header>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="col-poste">Poste tarifaire</th>
+        <th class="col-num">Officiel (affichette)</th>
+        <th class="col-num">Code TaxiLink</th>
+        <th class="col-delta">Écart</th>
+        <th class="col-status">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr class="group-row"><td colspan="5">Base de course</td></tr>
+      <tr>
+        <td>Prise en charge</td>
+        <td class="col-num off">2,35 €</td>
+        <td class="col-num code">2,40 €</td>
+        <td class="col-delta delta up">+0,05 €</td>
+        <td class="col-status"><span class="pill ok">Code aligné v2026</span></td>
+      </tr>
+      <tr>
+        <td>Course minimale</td>
+        <td class="col-num off">— (non affiché)</td>
+        <td class="col-num code">8,00 €</td>
+        <td class="col-delta delta zero">—</td>
+        <td class="col-status"><span class="pill ok">Plancher légal appliqué</span></td>
+      </tr>
+
+      <tr class="group-row"><td colspan="5">Tarifs kilométriques</td></tr>
+      <tr>
+        <td><span class="lumi A"></span>Tarif A — Jour 7h–19h, retour <b>en charge</b></td>
+        <td class="col-num off">1,11 €/km</td>
+        <td class="col-num code">1,12 €/km</td>
+        <td class="col-delta delta up">+0,01 €</td>
+        <td class="col-status"><span class="pill ok">Code aligné v2026</span></td>
+      </tr>
+      <tr>
+        <td><span class="lumi B"></span>Tarif B — Nuit 19h–7h / dim / fériés, retour <b>en charge</b></td>
+        <td class="col-num off">1,44 €/km</td>
+        <td class="col-num code">1,45 €/km</td>
+        <td class="col-delta delta up">+0,01 €</td>
+        <td class="col-status"><span class="pill ok">Code aligné v2026</span></td>
+      </tr>
+      <tr>
+        <td><span class="lumi C"></span>Tarif C — Jour 7h–19h, retour <b>à vide</b></td>
+        <td class="col-num off">2,22 €/km</td>
+        <td class="col-num code">2,24 €/km</td>
+        <td class="col-delta delta up">+0,02 €</td>
+        <td class="col-status"><span class="pill ok">Code aligné v2026</span></td>
+      </tr>
+      <tr>
+        <td><span class="lumi D"></span>Tarif D — Nuit / dim / fériés, retour <b>à vide</b></td>
+        <td class="col-num off">2,88 €/km</td>
+        <td class="col-num code">2,90 €/km</td>
+        <td class="col-delta delta up">+0,02 €</td>
+        <td class="col-status"><span class="pill ok">Code aligné v2026</span></td>
+      </tr>
+
+      <tr class="group-row"><td colspan="5">Tarif horaire</td></tr>
+      <tr>
+        <td>Heure d'attente / marche lente</td>
+        <td class="col-num off">34,60 €/h</td>
+        <td class="col-num code">35,60 €/h</td>
+        <td class="col-delta delta up">+1,00 €</td>
+        <td class="col-status"><span class="pill ok">Code aligné v2026</span></td>
+      </tr>
+
+      <tr class="group-row"><td colspan="5">Suppléments — non couverts par le code</td></tr>
+      <tr>
+        <td>Bagage (à partir du 4ᵉ par passager)</td>
+        <td class="col-num off">2,00 €</td>
+        <td class="col-num code">— non géré</td>
+        <td class="col-delta delta miss">manquant</td>
+        <td class="col-status"><span class="pill miss">À ajouter au calcul</span></td>
+      </tr>
+      <tr>
+        <td>Bagage encombrant</td>
+        <td class="col-num off">2,00 €</td>
+        <td class="col-num code">— non géré</td>
+        <td class="col-delta delta miss">manquant</td>
+        <td class="col-status"><span class="pill miss">À ajouter au calcul</span></td>
+      </tr>
+      <tr>
+        <td>5ᵉ personne et au-delà</td>
+        <td class="col-num off">4,00 €</td>
+        <td class="col-num code">— non géré</td>
+        <td class="col-delta delta miss">manquant</td>
+        <td class="col-status"><span class="pill miss">À ajouter au calcul</span></td>
+      </tr>
+      <tr>
+        <td>Réservation (immédiate ou à l'avance)</td>
+        <td class="col-num off">— non chiffré sur affichette</td>
+        <td class="col-num code">— non géré</td>
+        <td class="col-delta delta zero">—</td>
+        <td class="col-status"><span class="pill warn">À chiffrer puis intégrer</span></td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <footer>
+    <div class="note">
+      <h3>Lecture du tableau</h3>
+      <p>L'affichette photographiée correspond aux tarifs <b>2025</b> (avant revalorisation). Le code applique les <b>tarifs 2026</b> issus de l'arrêté national du 24/12/2025, en vigueur depuis le 1ᵉʳ février 2026 — d'où l'écart systématique de +1 à +5 centimes.</p>
+    </div>
+    <div class="note">
+      <h3>Couleurs lumineux</h3>
+      <p><span class="lumi A"></span><b>A</b> blanc · <span class="lumi B"></span><b>B</b> orange · <span class="lumi C"></span><b>C</b> bleu · <span class="lumi D"></span><b>D</b> vert. C'est la lettre que doit afficher le compteur du chauffeur selon l'horaire et la zone ZUPC.</p>
+    </div>
+    <div class="note">
+      <h3>À faire côté code</h3>
+      <p>Ajouter les suppléments <b>bagage</b>, <b>encombrant</b>, <b>5ᵉ personne+</b> dans <code>marseilleFareEstimate.ts</code>, exposer les champs sur le formulaire de course, et chiffrer le supplément réservation auprès de la préfecture.</p>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

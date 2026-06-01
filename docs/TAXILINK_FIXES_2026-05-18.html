@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>TaxiLink — Correctifs du 18 mai 2026</title>
+<style>
+  @page { size: A4; margin: 14mm 12mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    color: #1f2937;
+    line-height: 1.55;
+    font-size: 11pt;
+    margin: 0;
+  }
+  h1 {
+    font-size: 24pt;
+    color: #FFD23F;
+    text-shadow: 2px 2px 0 #1f2937;
+    text-align: center;
+    margin: 0 0 4pt;
+    letter-spacing: 0.5px;
+  }
+  .sub {
+    text-align: center;
+    color: #6b7280;
+    margin: 0 0 18pt;
+    font-size: 11pt;
+    font-style: italic;
+  }
+  h2 {
+    font-size: 14pt;
+    color: white;
+    background: #1f2937;
+    padding: 6pt 12pt;
+    border-radius: 8pt;
+    margin-top: 18pt;
+    margin-bottom: 10pt;
+    page-break-after: avoid;
+  }
+  h2.green { background: #16a34a; }
+  h2.red { background: #dc2626; }
+  h2.orange { background: #ea580c; }
+  h2.blue { background: #2563eb; }
+  h2.purple { background: #c026d3; }
+  h2.brand { background: #FFD23F; color: #1f2937; }
+
+  h3 {
+    font-size: 12pt;
+    color: #1f2937;
+    margin: 14pt 0 4pt;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 11pt;
+    color: #4b5563;
+    margin: 10pt 0 4pt;
+  }
+  p { margin: 4pt 0 8pt; }
+  ul { margin: 4pt 0 10pt; padding-left: 18pt; }
+  li { margin-bottom: 4pt; }
+  strong { color: #1f2937; }
+  em { color: #6b7280; }
+  hr {
+    border: none;
+    border-top: 1px dashed #d1d5db;
+    margin: 14pt 0;
+  }
+  blockquote {
+    border-left: 4pt solid #FFD23F;
+    background: #FFFBEB;
+    margin: 8pt 0;
+    padding: 8pt 12pt;
+    color: #78350f;
+    font-style: italic;
+  }
+  .note {
+    background: #EFF6FF;
+    border-left: 4pt solid #2563eb;
+    padding: 8pt 12pt;
+    margin: 8pt 0;
+    border-radius: 4pt;
+  }
+  .warn {
+    background: #FEF2F2;
+    border-left: 4pt solid #dc2626;
+    padding: 8pt 12pt;
+    margin: 8pt 0;
+    border-radius: 4pt;
+  }
+  .ok {
+    background: #ECFDF5;
+    border-left: 4pt solid #16a34a;
+    padding: 8pt 12pt;
+    margin: 8pt 0;
+    border-radius: 4pt;
+  }
+  code {
+    background: #F3F4F6;
+    padding: 1pt 4pt;
+    border-radius: 3pt;
+    font-family: "Consolas", "Monaco", monospace;
+    font-size: 10pt;
+    color: #c026d3;
+  }
+  .footer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 9pt;
+    margin-top: 24pt;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 8pt;
+  }
+</style>
+</head>
+<body>
+
+<h1>TaxiLink — Correctifs du 18 mai 2026</h1>
+<p class="sub">Résumé pédagogique pour quelqu'un qui n'est pas développeur</p>
+
+<blockquote>
+Tu as signalé 7 problèmes ce jour-là. On les a tous traités. Voici ce qui a changé, en termes simples.
+</blockquote>
+
+<h2 class="red">1. L'admin voit les chauffeurs "connectés oui puis non"</h2>
+
+<h3>Le problème</h3>
+<p>Imagine que tes chauffeurs sont des voitures avec un phare qui clignote toutes les 15 secondes pour dire <em>« je suis là »</em>. Ton tableau de bord (l'admin) écoute ces phares. Si le phare met plus de 120 secondes à clignoter, le système considère la voiture éteinte.</p>
+<p>Sur les Pixel/Samsung récents, Android met l'app en <strong>veille profonde</strong> pour économiser la batterie — et le phare clignote plus lentement que prévu. Résultat : le chauffeur disparaît du dashboard alors qu'il est bien là, puis réapparaît au prochain clignotement.</p>
+
+<h3>Ce qu'on a fait</h3>
+<ul>
+  <li><strong>Côté serveur</strong> : on est passé de 120s à 180s de tolérance, et le serveur vérifie maintenant toutes les 30s (au lieu de 60s). Plus de marge, moins de clignotement.</li>
+  <li><strong>Côté mobile</strong> : on a ajouté un <strong>deuxième phare</strong> qui clignote toutes les 30s — uniquement pour dire « présent », sans rien d'autre. Comme ça si le GPS est paresseux, on signale quand même la présence.</li>
+  <li><strong>Côté admin</strong> : avant, le dashboard se rafraîchissait toutes les 10s en posant la question « qui est là ? ». Maintenant il est connecté en temps réel — dès qu'un chauffeur arrive ou part, le dashboard le voit dans la seconde.</li>
+</ul>
+
+<h2 class="orange">2. "Je ne vois pas tous les chauffeurs sur la carte admin"</h2>
+
+<h3>Le problème</h3>
+<p>L'ancienne version disait : <em>« n'affiche un chauffeur QUE s'il a une position GPS récente »</em>. Mais si un chauffeur vient d'allumer son téléphone et que le GPS n'a pas encore « verrouillé » sa position (ça peut prendre 30s, surtout en intérieur), il était <strong>invisible</strong>.</p>
+
+<h3>Ce qu'on a fait</h3>
+<p>L'admin reçoit maintenant <strong>tous</strong> les chauffeurs en ligne :</p>
+<ul>
+  <li>Ceux avec position GPS récente apparaissent sur la carte.</li>
+  <li>Ceux sans GPS récent apparaissent dans un compteur séparé "X chauffeurs sans GPS" — tu sais qu'ils sont là, juste que tu ne sais pas où.</li>
+</ul>
+
+<h2 class="green">3. "L'app consomme trop de batterie"</h2>
+
+<h3>Le problème</h3>
+<p>L'app allumait <strong>deux fois</strong> la radio GPS en parallèle : une fois pour la carte foreground (l'écran que voit le chauffeur), une fois pour le suivi en arrière-plan. Comme une voiture qui ferait tourner deux moteurs en même temps.</p>
+<p>De plus, la précision était toujours réglée au max ("balanced"), même quand le chauffeur attend tranquillement sans course.</p>
+
+<h3>Ce qu'on a fait (4 changements)</h3>
+<ul>
+  <li><strong>Une seule radio GPS à la fois.</strong> Quand le suivi arrière-plan tourne, la carte lit la dernière position connue au lieu de réactiver la radio. <em>Gain estimé : 40-50% de batterie.</em></li>
+  <li><strong>Précision adaptative.</strong> En attente, on passe de « précis à 100m » à « précis à 500m » (suffisant pour le tri par département). En course active, on garde la précision. <em>Gain estimé : 70% sur les périodes d'attente.</em></li>
+  <li><strong>Intervalle plus raisonnable en course.</strong> On envoyait la position toutes les 3 secondes — niveau Uber haut de gamme, overkill. Passé à 8 secondes.</li>
+  <li><strong>iOS</strong> : on autorise maintenant l'iPhone à mettre l'app en pause quand le téléphone ne bouge pas. Ça reprend automatiquement au mouvement.</li>
+</ul>
+
+<h2 class="blue">4. "Les notifications arrivent en retard"</h2>
+
+<h3>Le problème</h3>
+<p>Quand un chauffeur acceptait une course, l'app envoyait <strong>UNE seule fois</strong> la notification. Si le réseau du chauffeur était mauvais à cet instant précis, la notif était perdue — le poster ne recevait rien. Et certains téléphones avaient des « tokens » (l'adresse de livraison de la notif) périmés sans qu'on le sache.</p>
+
+<h3>Ce qu'on a fait</h3>
+<ul>
+  <li><strong>Retry automatique</strong> : l'app essaie 3 fois avec des délais croissants (1s, 3s, 8s). Si le réseau marche dans les 12 secondes, la notif passe.</li>
+  <li><strong>Nettoyage automatique des tokens morts</strong> : quand le serveur Expo dit « ce téléphone n'existe plus », on supprime le token de la base. Plus de gaspillage.</li>
+</ul>
+
+<h2 class="brand">5. Popup d'annonce — design refait</h2>
+
+<h3>Le problème</h3>
+<p>Quand une nouvelle course arrivait et que le chauffeur regardait la carte, on lui affichait l'alerte système moche d'Android/iOS (le truc gris avec OK / Annuler). Pas joli, pas branded.</p>
+
+<h3>Ce qu'on a fait</h3>
+<p>Nouveau modal avec :</p>
+<ul>
+  <li>En-tête bleu pour CPAM, jaune TaxiLink pour course privée</li>
+  <li>Icône cloche animée + vibration courte</li>
+  <li>Bloc « Départ » bien lisible</li>
+  <li><strong>3 boutons</strong> : "Refuser", "Voir détails", et <strong>"JE PRENDS"</strong> (le plus visible — appelle directement l'API d'acceptation, sans détour par la fiche)</li>
+  <li>Gestion d'erreur : si la course a déjà été prise par quelqu'un d'autre dans la seconde, message clair</li>
+</ul>
+
+<h2 class="purple">6. "L'APK est trop gros"</h2>
+
+<div class="note">
+115 MB c'est en fait <strong>dans la norme</strong> (Uber 180 MB, Bolt 110 MB). Mais on peut réduire.
+</div>
+
+<h3>Ce qu'on a fait</h3>
+<p>Activé <strong>R8</strong> (le compresseur de code Android, version moderne de ProGuard). Il enlève le code non utilisé au moment du build. <em>Gain estimé : 15-25 MB.</em></p>
+
+<div class="warn">
+<strong>Attention</strong> : si le build crashe au lancement, c'est que R8 a coupé un truc qu'il fallait garder. Dans ce cas il suffira d'enlever une ligne dans <code>app.json</code>.
+</div>
+
+<h2 class="red">7. Bugs spécifiques (Pixel 10 Pro)</h2>
+
+<h3>a) Pas de géolocalisation sur Pixel</h3>
+<ul>
+  <li>Avant : si les services Localisation étaient coupés au niveau Android, l'app ne disait rien. Maintenant : popup explicite avec un bouton "Ouvrir les réglages".</li>
+  <li>Idem si la permission est refusée : popup explicite au lieu d'un échec silencieux.</li>
+  <li><strong>Filet de sécurité</strong> : sur certains Pixel, le mécanisme « surveille la position » d'Android ne déclenche jamais le callback (bug connu de la lib). On poll une position toutes les 15 secondes en parallèle pour ne pas rester bloqué.</li>
+</ul>
+
+<h3>b) Pins des offres invisibles sur la carte</h3>
+<ul>
+  <li>La carte (Leaflet dans un WebView) recevait les pins <strong>avant</strong> d'être complètement prête sur Pixel 10 Pro.</li>
+  <li>Fix : ajout d'une <strong>file d'attente</strong> côté carte. Si les pins arrivent trop tôt, ils sont stockés et envoyés dès que la carte signale qu'elle est prête. Plus de race condition.</li>
+  <li>Ajout d'un try/catch pour ne pas crasher si un pin est mal formé.</li>
+</ul>
+
+<h3>c) Panneau des courses sous la nav bar Android</h3>
+<ul>
+  <li>Le panneau du bas remontait juste au niveau de la nav bar gestuelle. Sur certains téléphones c'était trop bas.</li>
+  <li>Fix : on a remonté le panneau de <strong>+10 pixels</strong> partout (mode clair ET sombre, tous les téléphones).</li>
+</ul>
+
+<h3>d) Filtres qui chevauchent "En ligne"</h3>
+<ul>
+  <li>Avant : la position des chips de filtres était hardcodée à 91 pixels du haut. Sur Pixel 10 Pro la barre de statut est plus grande → les chips remontaient sur le bouton "En ligne".</li>
+  <li>Fix : on calcule maintenant la position <strong>dynamiquement</strong> en fonction de la taille réelle de la barre de statut du téléphone.</li>
+</ul>
+
+<h2 class="green">Récapitulatif final</h2>
+
+<div class="ok">
+<strong>Tout est en place.</strong> Voici l'état :
+<ul>
+  <li><strong>Côté serveur (admin)</strong> : déjà actif en production. Tu peux le voir maintenant.</li>
+  <li><strong>Côté mobile</strong> : nécessite un rebuild de l'APK (environ 20-30 min en cloud EAS).</li>
+</ul>
+</div>
+
+<h3>Test recommandé après rebuild</h3>
+<p>Tester sur plusieurs téléphones :</p>
+<ul>
+  <li>Un Pixel récent (pour valider les 4 bugs spécifiques)</li>
+  <li>Un Samsung (le téléphone que tu as déjà)</li>
+  <li>Un appareil plus ancien (RAM limitée, pour vérifier les performances)</li>
+</ul>
+
+<p>Tu peux aussi utiliser <strong>Android Studio Emulator</strong> (gratuit) pour tester sur un Pixel virtuel sans avoir l'appareil physique.</p>
+
+<p class="footer">Document généré le 2026-05-18 — Session de débogage TaxiLink Mobile</p>
+
+</body>
+</html>
