@@ -3,8 +3,11 @@ import { render, act } from '@testing-library/react'
 import { useEffect } from 'react'
 import { MissionRealtimeProvider, useMissionRealtimeContext } from '@/components/realtime/MissionRealtimeProvider'
 
-const mockSubscribe = vi.fn()
-const mockRemoveChannel = vi.fn()
+const { mockSubscribe, mockRemoveChannel, mockGetByIdMasked } = vi.hoisted(() => ({
+  mockSubscribe: vi.fn(),
+  mockRemoveChannel: vi.fn(),
+  mockGetByIdMasked: vi.fn(),
+}))
 
 type OnCall = [string, Record<string, unknown>, (payload: unknown) => void]
 let onCalls: OnCall[]
@@ -26,9 +29,24 @@ vi.mock('@/lib/supabase/client', () => ({
   })),
 }))
 
+// M-01 : le provider RE-FETCH la mission masquee (RPC) au lieu de lire le payload public.
+vi.mock('@/services/missionService', () => ({
+  missionService: { getByIdMasked: mockGetByIdMasked },
+}))
+
+// Flush des microtasks (chaine getByIdMasked().then()) a l'interieur d'un act async.
+const fireAndFlush = async (cb: () => void) => {
+  await act(async () => {
+    cb()
+    await Promise.resolve()
+    await Promise.resolve()
+  })
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   onCalls = []
+  mockGetByIdMasked.mockResolvedValue(null)
 })
 
 describe('MissionRealtimeProvider', () => {
@@ -52,8 +70,10 @@ describe('MissionRealtimeProvider', () => {
     expect(mockRemoveChannel).toHaveBeenCalledTimes(2)
   })
 
-  it('diffuse INSERT (status AVAILABLE) avec PII null aux abonnes via le context', () => {
+  it('INSERT (AVAILABLE) : IGNORE le payload riche, re-fetch masque puis diffuse', async () => {
     const onInsert = vi.fn()
+    // Le RPC masque renvoie une mission deja masquee (PII null).
+    mockGetByIdMasked.mockResolvedValue({ id: 'm1', status: 'AVAILABLE', patient_name: null, phone: null, notes: null })
     function Sub() {
       const subscribe = useMissionRealtimeContext()!
       useEffect(() => subscribe({ onInsert }), [subscribe])
@@ -61,13 +81,15 @@ describe('MissionRealtimeProvider', () => {
     }
     render(<MissionRealtimeProvider><Sub /></MissionRealtimeProvider>)
     const insertCb = onCalls.find(([, f]) => f.event === 'INSERT')![2]
-    act(() => insertCb({ payload: { id: 'm1', status: 'AVAILABLE', patient_name: 'leak?' } }))
+    // payload public contient un faux patient_name : il NE doit PAS etre utilise.
+    await fireAndFlush(() => insertCb({ payload: { id: 'm1', status: 'AVAILABLE', patient_name: 'leak?' } }))
+    expect(mockGetByIdMasked).toHaveBeenCalledWith('m1')
     expect(onInsert).toHaveBeenCalledWith(expect.objectContaining({
       id: 'm1', status: 'AVAILABLE', patient_name: null, phone: null, notes: null,
     }))
   })
 
-  it('ignore INSERT non-AVAILABLE (filtre cote provider)', () => {
+  it('ignore INSERT non-AVAILABLE sans meme re-fetch (filtre cote provider)', async () => {
     const onInsert = vi.fn()
     function Sub() {
       const subscribe = useMissionRealtimeContext()!
@@ -76,12 +98,14 @@ describe('MissionRealtimeProvider', () => {
     }
     render(<MissionRealtimeProvider><Sub /></MissionRealtimeProvider>)
     const insertCb = onCalls.find(([, f]) => f.event === 'INSERT')![2]
-    act(() => insertCb({ payload: { id: 'm1', status: 'IN_PROGRESS' } }))
+    await fireAndFlush(() => insertCb({ payload: { id: 'm1', status: 'IN_PROGRESS' } }))
+    expect(mockGetByIdMasked).not.toHaveBeenCalled()
     expect(onInsert).not.toHaveBeenCalled()
   })
 
-  it('diffuse UPDATE et DELETE a tous les abonnes', () => {
+  it('diffuse UPDATE (apres re-fetch) et DELETE a tous les abonnes', async () => {
     const onUpdate1 = vi.fn(), onUpdate2 = vi.fn(), onDelete = vi.fn()
+    mockGetByIdMasked.mockResolvedValue({ id: 'm9', status: 'IN_PROGRESS' })
     function Sub1() {
       const s = useMissionRealtimeContext()!
       useEffect(() => s({ onUpdate: onUpdate1, onDelete }), [s])
@@ -95,7 +119,7 @@ describe('MissionRealtimeProvider', () => {
     render(<MissionRealtimeProvider><Sub1 /><Sub2 /></MissionRealtimeProvider>)
     const updateCb = onCalls.find(([, f]) => f.event === 'UPDATE')![2]
     const deleteCb = onCalls.find(([, f]) => f.event === 'DELETE')![2]
-    act(() => updateCb({ payload: { id: 'm9', status: 'IN_PROGRESS' } }))
+    await fireAndFlush(() => updateCb({ payload: { id: 'm9', status: 'IN_PROGRESS' } }))
     act(() => deleteCb({ payload: { id: 'm9' } }))
     expect(onUpdate1).toHaveBeenCalled()
     expect(onUpdate2).toHaveBeenCalled()
@@ -115,8 +139,9 @@ describe('MissionRealtimeProvider', () => {
     expect(onDelete).toHaveBeenCalledWith({ id: 'm-accepted' })
   })
 
-  it('subscribe retourne un unsubscribe qui retire l abonnement', () => {
+  it('subscribe retourne un unsubscribe qui retire l abonnement', async () => {
     const onInsert = vi.fn()
+    mockGetByIdMasked.mockResolvedValue({ id: 'm', status: 'AVAILABLE' })
     function Sub() {
       const s = useMissionRealtimeContext()!
       useEffect(() => {
@@ -127,7 +152,7 @@ describe('MissionRealtimeProvider', () => {
     }
     render(<MissionRealtimeProvider><Sub /></MissionRealtimeProvider>)
     const insertCb = onCalls.find(([, f]) => f.event === 'INSERT')![2]
-    act(() => insertCb({ payload: { id: 'm', status: 'AVAILABLE' } }))
+    await fireAndFlush(() => insertCb({ payload: { id: 'm', status: 'AVAILABLE' } }))
     expect(onInsert).not.toHaveBeenCalled()
   })
 })
