@@ -1,14 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { patronAgendaService } from '@/services/patronAgendaService'
 
-const { mockFrom } = vi.hoisted(() => ({ mockFrom: vi.fn() }))
+const { mockFrom, mockRpc } = vi.hoisted(() => ({ mockFrom: vi.fn(), mockRpc: vi.fn() }))
 
 vi.mock('@/lib/supabase/client', () => ({
-  createClient: () => ({ from: mockFrom }),
+  createClient: () => ({ from: mockFrom, rpc: mockRpc }),
 }))
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // Les courses dispo non assignees passent desormais par le RPC masque
+  // get_org_unassigned_missions (SECURITY DEFINER) au lieu d'un SELECT direct.
+  mockRpc.mockResolvedValue({ data: [], error: null })
 })
 
 function chain(finalResult: { data: unknown; error: unknown }) {
@@ -60,19 +63,21 @@ describe('patronAgendaService.getDaySchedules', () => {
         ],
         error: null,
       })
-      if (call === 3 && table === 'missions') return chain({
-        data: [
-          { id: 'u1', scheduled_at: '2026-05-08T16:00:00Z', duration_min: 45,
-            departure: 'Cabinet Dr X', destination: 'Hopital Y', type: 'CPAM',
-            price_eur: 25, patient_name: 'Marie D.', departure_lat: 43.3, departure_lng: 5.4 },
-        ],
-        error: null,
-      })
       throw new Error(`Unexpected: ${table} call ${call}`)
+    })
+    // Courses dispo non assignees via le RPC masque (lignes plates, PII org legitime)
+    mockRpc.mockResolvedValue({
+      data: [
+        { id: 'u1', scheduled_at: '2026-05-08T16:00:00Z', duration_min: 45,
+          departure: 'Cabinet Dr X', destination: 'Hopital Y', type: 'CPAM',
+          price_eur: 25, patient_name: 'Marie D.', departure_lat: 43.3, departure_lng: 5.4 },
+      ],
+      error: null,
     })
 
     const result = await patronAgendaService.getDaySchedules('org-1', '2026-05-08')
 
+    expect(mockRpc).toHaveBeenCalledWith('get_org_unassigned_missions', expect.objectContaining({ p_org_id: 'org-1' }))
     expect(result.drivers).toHaveLength(2)
     expect(result.drivers[0]).toEqual(expect.objectContaining({ driverId: 'd1', name: 'Alice Martin' }))
     expect(result.drivers[0].blocks).toHaveLength(1)
@@ -93,7 +98,7 @@ describe('patronAgendaService.getDaySchedules', () => {
 
   it('fallback "Chauffeur" si first_name/last_name null', async () => {
     let call = 0
-    mockFrom.mockImplementation((table: string) => {
+    mockFrom.mockImplementation(() => {
       call++
       if (call === 1) return chain({
         data: [{ id: 'd1', profiles: { first_name: null, last_name: null } }],
@@ -107,7 +112,7 @@ describe('patronAgendaService.getDaySchedules', () => {
 
   it('tronque endH a 24 si la mission deborde minuit', async () => {
     let call = 0
-    mockFrom.mockImplementation((table: string) => {
+    mockFrom.mockImplementation(() => {
       call++
       if (call === 1) return chain({
         data: [{ id: 'd1', profiles: { first_name: 'A', last_name: 'B' } }],
@@ -126,14 +131,14 @@ describe('patronAgendaService.getDaySchedules', () => {
     expect(result.drivers[0].blocks[0].endH).toBeLessThanOrEqual(24)
   })
 
-  it('jette si la requete unassigned echoue', async () => {
+  it('jette si la requete unassigned (RPC) echoue', async () => {
     let call = 0
     mockFrom.mockImplementation(() => {
       call++
       if (call === 1) return chain({ data: [{ id: 'd1', profiles: { first_name: 'A', last_name: 'B' } }], error: null })
-      if (call === 2) return chain({ data: [], error: null })
-      return chain({ data: null, error: { message: 'unassigned fail' } })
+      return chain({ data: [], error: null })
     })
+    mockRpc.mockResolvedValue({ data: null, error: { message: 'unassigned fail' } })
     await expect(patronAgendaService.getDaySchedules('org-1', '2026-05-08')).rejects.toThrow('unassigned fail')
   })
 })

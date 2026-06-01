@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { getSupabaseClient } from './lib/client'
 import type { GroupMember, GroupMemberStats, GroupRole } from '@taxilink/core'
 import {
   isFreshlyOnline,
@@ -8,11 +8,12 @@ import {
 
 export type { GroupActivitySummary, GroupDailyActivity }
 
-const supabase = createClient()
-
+// Réplique apps/web/src/services/groupStatsService.ts (init paresseux du client supabase
+// pour rester compatible mobile : on récupère via getSupabaseClient() à chaque appel).
 export const groupStatsService = {
   /** Membres d'un groupe */
   async getMembers(groupId: string): Promise<GroupMember[]> {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('group_members')
       .select('id, group_id, driver_id, role, joined_at, drivers(profiles(full_name))')
@@ -31,6 +32,7 @@ export const groupStatsService = {
 
   /** Stats d'activité par membre pour une période donnée */
   async getMemberStats(groupId: string, since: string): Promise<GroupMemberStats[]> {
+    const supabase = getSupabaseClient()
     const [membersRes, activityRes] = await Promise.all([
       supabase.from('group_members')
         .select('driver_id, role, drivers(profiles(full_name, first_name, last_name, department, phone), is_online, last_seen_at)')
@@ -75,12 +77,13 @@ export const groupStatsService = {
       .sort((a, b) => (b.sharedCount + b.acceptedCount) - (a.sharedCount + a.acceptedCount))
   },
 
-  /** Résumé d'activité d'un groupe sur 7 jours glissants (4 compteurs agrégés) */
+  /** Résumé d'activité d'un groupe sur 7 jours glissants */
   async getActivitySummary(groupId: string): Promise<GroupActivitySummary> {
+    const supabase = getSupabaseClient()
     const since = new Date(Date.now() - 7 * 86_400_000).toISOString()
     const [onlineRes, activityRes, availableRes] = await Promise.all([
       supabase.from('group_members')
-        .select('drivers(is_online, last_seen_at)')
+        .select('driver_id, drivers(is_online, last_seen_at)')
         .eq('group_id', groupId),
       // Activite (echangees/acceptees) + compteur dispos via RPC masques
       // (SECURITY DEFINER, appartenance verifiee). Aucune PII. Prerequis verrou
@@ -90,9 +93,12 @@ export const groupStatsService = {
       // @ts-expect-error RPC absent des types Supabase generes (cf. getByIdMasked)
       supabase.rpc('get_group_available_count', { p_group_id: groupId }),
     ])
-    type OnlineRow = { drivers: { is_online: boolean | null; last_seen_at: string | null } | null }
-    const onlineCount = ((onlineRes.data ?? []) as OnlineRow[])
-      .filter((r) => isFreshlyOnline(r.drivers?.is_online ?? false, r.drivers?.last_seen_at)).length
+    type OnlineRow = { driver_id: string | null; drivers: { is_online: boolean | null; last_seen_at: string | null } | null }
+    const onlineDriverIds = ((onlineRes.data ?? []) as OnlineRow[])
+      .filter((r) => isFreshlyOnline(r.drivers?.is_online ?? false, r.drivers?.last_seen_at))
+      .map((r) => r.driver_id)
+      .filter((id): id is string => typeof id === 'string')
+    const onlineCount = onlineDriverIds.length
     const rows          = ((activityRes.data ?? []) as Array<{ driver_id: string | null; created_at: string; accepted_at: string | null }>)
     const exchanged7d   = rows.length
     const accepted7d    = rows.filter((r) => !!r.driver_id).length
@@ -103,11 +109,12 @@ export const groupStatsService = {
       const ts = r.accepted_at ?? r.created_at ?? null
       if (ts && (!lastEventAt || ts > lastEventAt)) lastEventAt = ts
     }
-    return { available, exchanged7d, reprisePercent, onlineCount, lastEventAt }
+    return { available, exchanged7d, reprisePercent, onlineCount, onlineDriverIds, lastEventAt }
   },
 
-  /** Nombre de courses partagées par jour sur les N derniers jours (pour la mini-barre) */
+  /** Nombre de courses partagées par jour sur les N derniers jours */
   async getDailyActivity(groupId: string, days = 7): Promise<GroupDailyActivity[]> {
+    const supabase = getSupabaseClient()
     const since = new Date(Date.now() - days * 86_400_000).toISOString()
     // @ts-expect-error RPC absent des types Supabase generes (cf. getByIdMasked)
     const { data } = await supabase.rpc('get_group_activity_rows', { p_group_id: groupId, p_since: since })
@@ -118,7 +125,7 @@ export const groupStatsService = {
     }
     for (const row of (data ?? []) as Array<{ created_at: string }>) {
       const d = row.created_at?.slice(0, 10)
-      if (d && d in buckets) buckets[d] += 1
+      if (d && d in buckets) buckets[d] = (buckets[d] ?? 0) + 1
     }
     return Object.entries(buckets).map(([date, count]) => ({ date, count }))
   },

@@ -2,23 +2,25 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { groupStatsService } from '@/services/groupStatsService'
 
 // ─── Mock Supabase ─────────────────────────────────────────────────────────────
-const { mockFrom, mockSelect, mockEq, mockGte } = vi.hoisted(() => ({
+// getMembers : .from().select().eq()  → mockEq resout les membres
+// getMemberStats : membres via .from().select().eq() + activite via .rpc()
+const { mockFrom, mockSelect, mockEq, mockRpc } = vi.hoisted(() => ({
   mockFrom:   vi.fn(),
   mockSelect: vi.fn(),
   mockEq:     vi.fn(),
-  mockGte:    vi.fn(),
+  mockRpc:    vi.fn(),
 }))
 
 vi.mock('@/lib/supabase/client', () => ({
-  createClient: () => ({ from: mockFrom }),
+  createClient: () => ({ from: mockFrom, rpc: mockRpc }),
 }))
 
 beforeEach(() => {
   vi.clearAllMocks()
-  mockGte.mockResolvedValue({ data: [], error: null })
-  mockEq.mockReturnValue({ gte: mockGte })
+  mockEq.mockResolvedValue({ data: [], error: null })
   mockSelect.mockReturnValue({ eq: mockEq })
   mockFrom.mockReturnValue({ select: mockSelect })
+  mockRpc.mockResolvedValue({ data: [], error: null })
 })
 
 // ─── getMembers ───────────────────────────────────────────────────────────────
@@ -57,26 +59,25 @@ describe('groupStatsService.getMemberStats', () => {
   it('retourne les stats triees par activite decroissante', async () => {
     const since = new Date(Date.now() - 7 * 86_400_000).toISOString()
 
-    mockEq.mockImplementation((col: string) => {
-      if (col === 'group_id') {
-        return {
-          // For missions query, adds .gte()
-          gte: mockGte,
-          // For members query, resolves directly
-          then: (resolve: any) => Promise.resolve({
-            data: [
-              { driver_id: 'drv-1', role: 'admin', drivers: { profiles: { full_name: 'A', first_name: 'Alice', last_name: 'Martin', department: '75', phone: '0612345678' }, is_online: true } },
-              { driver_id: 'drv-2', role: 'member', drivers: { profiles: { full_name: 'B', first_name: 'Bob', last_name: 'Smith', department: '13', phone: null }, is_online: false } },
-            ],
-            error: null,
-          }).then(resolve),
-        }
-      }
-      return { gte: mockGte }
+    // Requete membres (.from().select().eq()) → resout les membres
+    mockEq.mockResolvedValue({
+      data: [
+        { driver_id: 'drv-1', role: 'admin', drivers: { profiles: { full_name: 'A', first_name: 'Alice', last_name: 'Martin', department: '75', phone: '0612345678' }, is_online: true } },
+        { driver_id: 'drv-2', role: 'member', drivers: { profiles: { full_name: 'B', first_name: 'Bob', last_name: 'Smith', department: '13', phone: null }, is_online: false } },
+      ],
+      error: null,
     })
-    mockGte.mockResolvedValue({ data: [{ missions: { shared_by: 'drv-1', driver_id: null } }, { missions: { shared_by: 'drv-1', driver_id: 'drv-2' } }], error: null })
+    // Activite via RPC masque get_group_activity_rows → lignes plates (sans PII)
+    mockRpc.mockResolvedValue({
+      data: [
+        { shared_by: 'drv-1', driver_id: null,    created_at: since, accepted_at: null },
+        { shared_by: 'drv-1', driver_id: 'drv-2', created_at: since, accepted_at: since },
+      ],
+      error: null,
+    })
 
     const result = await groupStatsService.getMemberStats('g1', since)
+    expect(mockRpc).toHaveBeenCalledWith('get_group_activity_rows', { p_group_id: 'g1', p_since: since })
     expect(result[0].driverId).toBe('drv-1')
     expect(result[0].sharedCount).toBe(2)
     expect(result[0].phone).toBe('0612345678')
@@ -85,11 +86,8 @@ describe('groupStatsService.getMemberStats', () => {
   })
 
   it('leve une erreur si la requete membres echoue', async () => {
-    mockEq.mockReturnValue({
-      gte: mockGte,
-      then: (resolve: any) => Promise.resolve({ data: null, error: { message: 'Erreur membres' } }).then(resolve),
-    })
-    mockGte.mockResolvedValue({ data: [], error: null })
+    mockEq.mockResolvedValue({ data: null, error: { message: 'Erreur membres' } })
+    mockRpc.mockResolvedValue({ data: [], error: null })
     await expect(groupStatsService.getMemberStats('g1', '2026-01-01')).rejects.toThrow('Erreur membres')
   })
 })

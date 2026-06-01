@@ -43,27 +43,24 @@ export const groupActivityService = {
    */
   async getRecentEvents(groupId: string, limit = 6): Promise<GroupActivityEvent[]> {
     const since = new Date(Date.now() - 7 * 86_400_000).toISOString()
-    const { data, error } = await supabase
-      .from('mission_groups')
-      .select('missions!inner(id, departure, destination, shared_by, driver_id, created_at, accepted_at)')
-      .eq('group_id', groupId)
-      .gte('missions.created_at', since)
-      .limit(limit * 2)
+    // Activite du groupe via RPC masque get_group_activity_rows (SECURITY DEFINER,
+    // verifie l'appartenance au groupe). Renvoie id/departure/destination + dates,
+    // AUCUNE PII patient. Prerequis au resserrement de la policy RLS missions (H-01).
+    // @ts-expect-error RPC absent des types Supabase generes (cf. getByIdMasked)
+    const { data, error } = await supabase.rpc('get_group_activity_rows', { p_group_id: groupId, p_since: since })
     if (error) throw new Error(error.message)
 
     type Row = {
-      missions: {
-        id: string; departure: string; destination: string;
-        shared_by: string | null; driver_id: string | null;
-        created_at: string; accepted_at: string | null;
-      } | null
+      id: string; departure: string; destination: string;
+      shared_by: string | null; driver_id: string | null;
+      created_at: string; accepted_at: string | null;
     }
     const rows = (data ?? []) as Row[]
 
     const driverIds = new Set<string>()
     for (const r of rows) {
-      if (r.missions?.shared_by) driverIds.add(r.missions.shared_by)
-      if (r.missions?.driver_id) driverIds.add(r.missions.driver_id)
+      if (r.shared_by) driverIds.add(r.shared_by)
+      if (r.driver_id) driverIds.add(r.driver_id)
     }
 
     const labels: Record<string, string> = {}
@@ -78,9 +75,7 @@ export const groupActivityService = {
     }
 
     const events: GroupActivityEvent[] = []
-    for (const r of rows) {
-      const m = r.missions
-      if (!m) continue
+    for (const m of rows) {
       const dep = shortAddress(m.departure)
       const dst = shortAddress(m.destination)
       if (m.shared_by) {
@@ -112,23 +107,21 @@ export const groupActivityService = {
    */
   async getGlobalPulse(groupIds: string[]): Promise<{ availableTotal: number; onlineTotal: number }> {
     if (groupIds.length === 0) return { availableTotal: 0, onlineTotal: 0 }
-    const [onlineRes, availableRes] = await Promise.all([
+    const [onlineRes, availableCount] = await Promise.all([
       supabase.from('group_members')
         .select('driver_id, drivers(is_online, last_seen_at)')
         .in('group_id', groupIds),
-      supabase.from('mission_groups')
-        .select('mission_id, missions!inner(status)')
-        .in('group_id', groupIds)
-        .eq('missions.status', 'AVAILABLE'),
+      // Compteur de courses dispo dedupliquees sur les groupes via RPC masque
+      // get_groups_available_count (SECURITY DEFINER, appartenance verifiee).
+      // Prerequis au resserrement de la policy RLS missions (audit H-01).
+      // @ts-expect-error RPC absent des types Supabase generes (cf. getByIdMasked)
+      supabase.rpc('get_groups_available_count', { p_group_ids: groupIds }),
     ])
     const onlineDrivers = new Set<string>()
     for (const r of (onlineRes.data ?? []) as Array<{ driver_id: string; drivers: { is_online: boolean | null; last_seen_at: string | null } | null }>) {
       if (isFreshlyOnline(r.drivers?.is_online, r.drivers?.last_seen_at)) onlineDrivers.add(r.driver_id)
     }
-    const missions = new Set<string>()
-    for (const r of (availableRes.data ?? []) as Array<{ mission_id: string }>) {
-      if (r.mission_id) missions.add(r.mission_id)
-    }
-    return { availableTotal: missions.size, onlineTotal: onlineDrivers.size }
+    const availableTotal = (availableCount.data ?? 0) as number
+    return { availableTotal, onlineTotal: onlineDrivers.size }
   },
 }

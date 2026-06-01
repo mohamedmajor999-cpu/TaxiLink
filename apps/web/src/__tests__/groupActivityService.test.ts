@@ -1,16 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { groupActivityService } from '@/services/groupActivityService'
 
-const { mockFrom } = vi.hoisted(() => ({ mockFrom: vi.fn() }))
+const { mockFrom, mockRpc } = vi.hoisted(() => ({ mockFrom: vi.fn(), mockRpc: vi.fn() }))
 
 vi.mock('@/lib/supabase/client', () => ({
-  createClient: () => ({ from: mockFrom }),
+  createClient: () => ({ from: mockFrom, rpc: mockRpc }),
 }))
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date('2026-05-09T10:00:00.000Z'))
   vi.clearAllMocks()
+  mockRpc.mockResolvedValue({ data: [], error: null })
 })
 
 afterEach(() => {
@@ -34,54 +35,37 @@ function chain(finalResult: { data: unknown; error: unknown }) {
 }
 
 describe('groupActivityService.getRecentEvents', () => {
-  it('jette si la requete mission_groups echoue', async () => {
-    mockFrom.mockReturnValue(chain({ data: null, error: { message: 'denied' } }))
+  it('jette si la requete activite echoue', async () => {
+    mockRpc.mockResolvedValue({ data: null, error: { message: 'denied' } })
     await expect(groupActivityService.getRecentEvents('g-1')).rejects.toThrow('denied')
   })
 
   it('retourne tableau vide si aucune mission dans le groupe', async () => {
-    mockFrom.mockReturnValue(chain({ data: [], error: null }))
+    mockRpc.mockResolvedValue({ data: [], error: null })
     const result = await groupActivityService.getRecentEvents('g-1')
     expect(result).toEqual([])
   })
 
   it('compose des events shared+accepted, tronque les adresses, label "Un confrère" si profil absent', async () => {
-    let call = 0
-    mockFrom.mockImplementation((table: string) => {
-      call++
-      if (call === 1 && table === 'mission_groups') return chain({
-        data: [
-          { missions: {
-              id: 'm-1',
-              departure: 'Hopital de la Timone, Marseille',
-              destination: 'Cabinet Dr Smith, Aix-en-Provence',
-              shared_by: 'driver-A',
-              driver_id: 'driver-B',
-              created_at: '2026-05-08T08:00:00Z',
-              accepted_at: '2026-05-08T08:30:00Z',
-          } },
-          { missions: {
-              id: 'm-2',
-              departure: 'Gare Saint-Charles',
-              destination: 'Aeroport',
-              shared_by: 'driver-A',
-              driver_id: null,
-              created_at: '2026-05-09T07:00:00Z',
-              accepted_at: null,
-          } },
-          { missions: null }, // ligne aberrante : doit etre ignoree
-        ],
-        error: null,
-      })
-      if (call === 2 && table === 'profiles') return chain({
-        data: [{ id: 'driver-A', first_name: 'Alice', last_name: 'Martin' }],
-        error: null,
-      })
-      throw new Error(`Unexpected: ${table}`)
+    // Lignes plates renvoyees par le RPC masque get_group_activity_rows (sans PII)
+    mockRpc.mockResolvedValue({
+      data: [
+        { id: 'm-1', departure: 'Hopital de la Timone, Marseille', destination: 'Cabinet Dr Smith, Aix-en-Provence',
+          shared_by: 'driver-A', driver_id: 'driver-B', created_at: '2026-05-08T08:00:00Z', accepted_at: '2026-05-08T08:30:00Z' },
+        { id: 'm-2', departure: 'Gare Saint-Charles', destination: 'Aeroport',
+          shared_by: 'driver-A', driver_id: null, created_at: '2026-05-09T07:00:00Z', accepted_at: null },
+      ],
+      error: null,
     })
+    // Labels via .from('profiles')
+    mockFrom.mockReturnValue(chain({
+      data: [{ id: 'driver-A', first_name: 'Alice', last_name: 'Martin' }],
+      error: null,
+    }))
 
     const result = await groupActivityService.getRecentEvents('g-1', 10)
 
+    expect(mockRpc).toHaveBeenCalledWith('get_group_activity_rows', expect.objectContaining({ p_group_id: 'g-1' }))
     expect(result).toHaveLength(3) // m-1 (shared+accepted) + m-2 (shared)
     // Tri DESC sur date : m-2 created (2026-05-09) > m-1 accepted (2026-05-08T08:30) > m-1 shared (2026-05-08T08:00)
     expect(result[0]).toEqual(expect.objectContaining({ id: 'm-2-share', kind: 'shared', driverLabel: 'Alice M.' }))
@@ -92,19 +76,15 @@ describe('groupActivityService.getRecentEvents', () => {
   })
 
   it('respecte le parametre limit (slice apres tri)', async () => {
-    let call = 0
-    mockFrom.mockImplementation(() => {
-      call++
-      if (call === 1) return chain({
-        data: [
-          { missions: { id: 'm-1', departure: 'A', destination: 'B', shared_by: 'd-1', driver_id: null, created_at: '2026-05-09T01:00:00Z', accepted_at: null } },
-          { missions: { id: 'm-2', departure: 'C', destination: 'D', shared_by: 'd-1', driver_id: null, created_at: '2026-05-09T02:00:00Z', accepted_at: null } },
-          { missions: { id: 'm-3', departure: 'E', destination: 'F', shared_by: 'd-1', driver_id: null, created_at: '2026-05-09T03:00:00Z', accepted_at: null } },
-        ],
-        error: null,
-      })
-      return chain({ data: [], error: null })
+    mockRpc.mockResolvedValue({
+      data: [
+        { id: 'm-1', departure: 'A', destination: 'B', shared_by: 'd-1', driver_id: null, created_at: '2026-05-09T01:00:00Z', accepted_at: null },
+        { id: 'm-2', departure: 'C', destination: 'D', shared_by: 'd-1', driver_id: null, created_at: '2026-05-09T02:00:00Z', accepted_at: null },
+        { id: 'm-3', departure: 'E', destination: 'F', shared_by: 'd-1', driver_id: null, created_at: '2026-05-09T03:00:00Z', accepted_at: null },
+      ],
+      error: null,
     })
+    mockFrom.mockReturnValue(chain({ data: [], error: null }))
     const result = await groupActivityService.getRecentEvents('g-1', 2)
     expect(result).toHaveLength(2)
     expect(result.map((e) => e.id)).toEqual(['m-3-share', 'm-2-share'])
@@ -116,40 +96,30 @@ describe('groupActivityService.getGlobalPulse', () => {
     const result = await groupActivityService.getGlobalPulse([])
     expect(result).toEqual({ availableTotal: 0, onlineTotal: 0 })
     expect(mockFrom).not.toHaveBeenCalled()
+    expect(mockRpc).not.toHaveBeenCalled()
   })
 
-  it('deduplique les chauffeurs et missions presents dans plusieurs groupes', async () => {
-    let call = 0
-    mockFrom.mockImplementation(() => {
-      call++
-      if (call === 1) return chain({
-        data: [
-          // d1 dans 2 groupes - online
-          { driver_id: 'd1', drivers: { is_online: true, last_seen_at: '2026-05-09T09:59:00Z' } },
-          { driver_id: 'd1', drivers: { is_online: true, last_seen_at: '2026-05-09T09:59:30Z' } },
-          // d2 - online (last_seen_at il y a 60s, sous le TTL de 120s)
-          { driver_id: 'd2', drivers: { is_online: true, last_seen_at: '2026-05-09T09:59:30Z' } },
-          // d3 - offline (last_seen_at trop vieux)
-          { driver_id: 'd3', drivers: { is_online: true, last_seen_at: '2026-05-09T08:00:00Z' } },
-          // d4 - offline (is_online false)
-          { driver_id: 'd4', drivers: { is_online: false, last_seen_at: '2026-05-09T09:59:00Z' } },
-        ],
-        error: null,
-      })
-      if (call === 2) return chain({
-        data: [
-          // m-A partagee dans 2 groupes
-          { mission_id: 'm-A', missions: { status: 'AVAILABLE' } },
-          { mission_id: 'm-A', missions: { status: 'AVAILABLE' } },
-          // m-B
-          { mission_id: 'm-B', missions: { status: 'AVAILABLE' } },
-        ],
-        error: null,
-      })
-      throw new Error(`Unexpected call ${call}`)
-    })
+  it('deduplique les chauffeurs (online) et missions (via RPC) presents dans plusieurs groupes', async () => {
+    // Online via .from('group_members')
+    mockFrom.mockReturnValue(chain({
+      data: [
+        // d1 dans 2 groupes - online
+        { driver_id: 'd1', drivers: { is_online: true, last_seen_at: '2026-05-09T09:59:00Z' } },
+        { driver_id: 'd1', drivers: { is_online: true, last_seen_at: '2026-05-09T09:59:30Z' } },
+        // d2 - online (last_seen_at il y a 60s, sous le TTL de 120s)
+        { driver_id: 'd2', drivers: { is_online: true, last_seen_at: '2026-05-09T09:59:30Z' } },
+        // d3 - offline (last_seen_at trop vieux)
+        { driver_id: 'd3', drivers: { is_online: true, last_seen_at: '2026-05-09T08:00:00Z' } },
+        // d4 - offline (is_online false)
+        { driver_id: 'd4', drivers: { is_online: false, last_seen_at: '2026-05-09T09:59:00Z' } },
+      ],
+      error: null,
+    }))
+    // Dispos dedupliquees cote serveur (m-A partagee 2x + m-B → 2)
+    mockRpc.mockResolvedValue({ data: 2, error: null })
 
     const result = await groupActivityService.getGlobalPulse(['g-1', 'g-2'])
+    expect(mockRpc).toHaveBeenCalledWith('get_groups_available_count', { p_group_ids: ['g-1', 'g-2'] })
     expect(result).toEqual({ availableTotal: 2, onlineTotal: 2 })
   })
 })
