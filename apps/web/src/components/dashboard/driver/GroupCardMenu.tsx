@@ -17,7 +17,7 @@ interface Props {
 
 export function GroupCardMenu(p: Props) {
   return (
-    <div className="relative" ref={p.menuRef}>
+    <div className="relative" ref={p.menuRef as RefObject<HTMLDivElement>}>
       {p.copied && (
         <span className="absolute -top-8 right-0 bg-ink text-brand text-[10px] font-bold px-2 py-1 rounded-lg whitespace-nowrap">
           ID copié !
