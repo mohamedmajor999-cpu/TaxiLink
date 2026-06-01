@@ -29,11 +29,7 @@ export function useMissionDetail(missionId: string) {
 
   useEffect(() => {
     let cancelled = false
-    // Lecture via le RPC masqué get_mission_detail (SECURITY DEFINER) : la PII
-    // patient ne quitte la base que si l'appelant est auteur / driver assigné /
-    // client. Permet de resserrer la policy RLS SELECT (audit H-01) sans casser
-    // l'aperçu marketplace. Le masquage client ci-dessous reste en filet.
-    missionService.getByIdMasked(missionId)
+    missionService.getById(missionId)
       .then((m) => {
         if (cancelled) return
         // Masque les donnees patient avant rendu pour les viewers qui ne sont
