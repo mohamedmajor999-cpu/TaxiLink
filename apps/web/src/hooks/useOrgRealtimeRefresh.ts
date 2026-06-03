@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 const DEBOUNCE_MS = 500
@@ -20,6 +20,15 @@ export function useOrgRealtimeRefresh(
   onChange: () => void
 ): void {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Identifiant unique par instance du hook. Plusieurs composants patron
+  // s'abonnent au MEME orgId + tables → meme topic de canal (ex. l'apercu monte
+  // AUSSI <MarketplacePreview/>, donc usePatronOverview ET usePatronMarketplace
+  // demandent `org_realtime_<org>_missions` en parallele). Depuis realtime-js
+  // 2.105, supabase.channel(topic) REUTILISE un canal deja `subscribe()`, et y
+  // rebrancher `.on('postgres_changes')` jette "cannot add postgres_changes
+  // callbacks after subscribe()" → tout le dashboard patron plante. Un suffixe
+  // unique par instance garantit un canal neuf a chaque montage. (Fix 2026-06-03.)
+  const instanceId = useId().replace(/:/g, '')
 
   useEffect(() => {
     if (!orgId) return
@@ -30,7 +39,7 @@ export function useOrgRealtimeRefresh(
       timerRef.current = setTimeout(onChange, DEBOUNCE_MS)
     }
 
-    let channel = supabase.channel(`org_realtime_${orgId}_${tables.join('_')}`)
+    let channel = supabase.channel(`org_realtime_${orgId}_${tables.join('_')}_${instanceId}`)
     for (const table of tables) {
       channel = channel.on(
         'postgres_changes',
@@ -44,5 +53,5 @@ export function useOrgRealtimeRefresh(
       if (timerRef.current) clearTimeout(timerRef.current)
       supabase.removeChannel(channel)
     }
-  }, [orgId, tables, onChange])
+  }, [orgId, tables, onChange, instanceId])
 }
